@@ -16,8 +16,33 @@ class TransactionsViewModel : ViewModel() {
     private val _transactions = MutableStateFlow<List<Transaction>>(emptyList())
     val transactions: StateFlow<List<Transaction>> = _transactions.asStateFlow()
 
+    private val _amount = MutableStateFlow("")
+    val amount: StateFlow<String> = _amount.asStateFlow()
+
+    private val _description = MutableStateFlow("")
+    val description: StateFlow<String> = _description.asStateFlow()
+
+    private val _showBottomSheet = MutableStateFlow(false)
+    val showBottomSheet: StateFlow<Boolean> = _showBottomSheet.asStateFlow()
+
     init {
         fetchTransactions()
+    }
+
+    fun onAmountChange(newAmount: String) {
+        _amount.value = newAmount
+    }
+
+    fun onDescriptionChange(newDesc: String) {
+        _description.value = newDesc
+    }
+
+    fun toggleBottomSheet(show: Boolean) {
+        _showBottomSheet.value = show
+        if (!show) {
+            _amount.value = ""
+            _description.value = ""
+        }
     }
 
     private fun fetchTransactions() {
@@ -29,15 +54,21 @@ class TransactionsViewModel : ViewModel() {
         }
     }
 
-    fun addTestTransaction() {
+    fun addTransaction() {
+        val amountDouble = _amount.value.toDoubleOrNull() ?: return
+        val desc = _description.value
+
         viewModelScope.launch {
-            val testTx = Transaction(
-                amount = (10..1000).random().toDouble(),
-                description = "Тестова витрата",
-                bankName = "Готівка"
+            val newTx = Transaction(
+                amount = amountDouble,
+                description = desc,
+                bankName = "Готівка",
+                isExpense = true
             )
-            repository.addTransaction(testTx)
-            _transactions.value = listOf(testTx) + _transactions.value
+            repository.addTransaction(newTx)
+            _transactions.value = listOf(newTx) + _transactions.value
+
+            toggleBottomSheet(false)
         }
     }
 }
