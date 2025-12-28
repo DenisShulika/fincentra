@@ -1,7 +1,8 @@
 package com.denisshulika.fincentra.navigation
 
-sealed class Screen(val route: String) {
-    object Transactions : Screen("transactions")
-    object Integrations : Screen("integrations")
-    object Profile : Screen("profile")
+sealed class Screen(val route: String, val title: String) {
+    data object Transactions : Screen("transactions", "Транзакції")
+    data object Stats : Screen("stats", "Статистика")
+    data object Integrations : Screen("integrations", "Банки")
+    data object Profile : Screen("profile", "Профіль")
 }

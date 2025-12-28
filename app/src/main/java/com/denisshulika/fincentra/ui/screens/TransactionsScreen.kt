@@ -1,9 +1,9 @@
-package com.denisshulika.fincentra.ui.screens
+    package com.denisshulika.fincentra.ui.screens
 
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+    import androidx.compose.material3.Text
+    import androidx.compose.runtime.Composable
 
-@Composable
-fun TransactionsScreen() {
-    Text(text = "Екран транзакцій")
-}
+    @Composable
+    fun TransactionsScreen() {
+        Text(text = "Екран транзакцій")
+    }
