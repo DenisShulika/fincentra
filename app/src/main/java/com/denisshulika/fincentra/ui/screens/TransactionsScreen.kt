@@ -106,7 +106,7 @@
                         value = amount,
                         onValueChange = { viewModel.onAmountChange(it) },
                         label = { Text("Сума") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         modifier = Modifier.fillMaxWidth()
                     )
 

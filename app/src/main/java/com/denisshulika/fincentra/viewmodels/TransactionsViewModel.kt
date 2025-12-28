@@ -40,7 +40,12 @@ class TransactionsViewModel : ViewModel() {
     }
 
     fun onAmountChange(newAmount: String) {
-        _amount.value = newAmount
+        val standardized = newAmount.replace(',', '.')
+        val filtered = standardized.filterIndexed { index, char ->
+            char.isDigit() || (char == '.' && standardized.indexOf('.') == index)
+        }
+
+        _amount.value = filtered
     }
 
     fun onDescriptionChange(newDesc: String) {
@@ -75,7 +80,11 @@ class TransactionsViewModel : ViewModel() {
     }
 
     fun addTransaction() {
-        val amountDouble = _amount.value.toDoubleOrNull() ?: return
+        val amountClean = _amount.value.replace(',', '.')
+        val amountDouble = amountClean.toDoubleOrNull() ?: 0.0
+
+        if (amountDouble <= 0.0) return
+
         viewModelScope.launch {
             val newTx = Transaction(
                 amount = amountDouble,
