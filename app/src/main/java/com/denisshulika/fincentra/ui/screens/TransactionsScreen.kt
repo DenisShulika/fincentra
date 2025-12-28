@@ -8,6 +8,8 @@
     import androidx.compose.foundation.layout.fillMaxWidth
     import androidx.compose.foundation.layout.height
     import androidx.compose.foundation.layout.padding
+    import androidx.compose.foundation.lazy.LazyColumn
+    import androidx.compose.foundation.lazy.items
     import androidx.compose.foundation.text.KeyboardOptions
     import androidx.compose.material.icons.Icons
     import androidx.compose.material.icons.filled.Add
@@ -31,6 +33,7 @@
     import androidx.compose.ui.text.input.KeyboardType
     import androidx.compose.ui.unit.dp
     import androidx.lifecycle.compose.collectAsStateWithLifecycle
+    import com.denisshulika.fincentra.ui.components.TransactionItem
     import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -96,15 +99,15 @@
                 }
             }
         ) { innerPadding ->
-            Box(
+            LazyColumn(
                 modifier = Modifier
-                    .padding(innerPadding)
                     .fillMaxSize()
+                    .padding(innerPadding)
             ) {
-                if (list.isEmpty()) {
-                    Text(text = "Транзакцій ще немає", modifier = Modifier.align(Alignment.Center))
-                } else {
-                    Text(text = "Знайдено транзакцій: ${list.size}")
+                val sortedList = list.sortedByDescending { it.timestamp }
+
+                items(sortedList) { transaction ->
+                    TransactionItem(transaction = transaction)
                 }
             }
         }
