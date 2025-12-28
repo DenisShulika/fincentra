@@ -1,5 +1,7 @@
 package com.denisshulika.fincentra.ui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,12 +18,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.denisshulika.fincentra.data.models.Transaction
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TransactionItem(transaction: Transaction) {
+fun TransactionItem(
+    transaction: Transaction,
+    onLongClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp, horizontal = 8.dp),
+            .padding(vertical = 4.dp, horizontal = 8.dp)
+            .combinedClickable(
+                onClick = { TODO() },
+                onLongClick = onLongClick
+            ),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         )

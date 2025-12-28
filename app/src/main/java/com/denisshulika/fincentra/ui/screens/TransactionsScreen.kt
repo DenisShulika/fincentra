@@ -17,6 +17,7 @@
     import androidx.compose.foundation.text.KeyboardOptions
     import androidx.compose.material.icons.Icons
     import androidx.compose.material.icons.filled.Add
+    import androidx.compose.material3.AlertDialog
     import androidx.compose.material3.Button
     import androidx.compose.material3.ExperimentalMaterial3Api
     import androidx.compose.material3.FilterChip
@@ -30,6 +31,7 @@
     import androidx.compose.material3.SegmentedButtonDefaults
     import androidx.compose.material3.SingleChoiceSegmentedButtonRow
     import androidx.compose.material3.Text
+    import androidx.compose.material3.TextButton
     import androidx.compose.material3.rememberModalBottomSheetState
     import androidx.compose.runtime.Composable
     import androidx.compose.runtime.getValue
@@ -39,9 +41,11 @@
     import androidx.compose.runtime.setValue
     import androidx.compose.ui.Alignment
     import androidx.compose.ui.Modifier
+    import androidx.compose.ui.graphics.Color
     import androidx.compose.ui.text.input.KeyboardType
     import androidx.compose.ui.unit.dp
     import androidx.lifecycle.compose.collectAsStateWithLifecycle
+    import com.denisshulika.fincentra.data.models.Transaction
     import com.denisshulika.fincentra.ui.components.TransactionItem
     import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 
@@ -61,6 +65,27 @@
         val category by viewModel.category.collectAsStateWithLifecycle()
 
         val expenseOptions = viewModel.expenseOptions
+
+        var transactionToDelete by remember { mutableStateOf<Transaction?>(null) }
+
+        transactionToDelete?.let { transaction ->
+            AlertDialog(
+                onDismissRequest = { transactionToDelete = null },
+                title = { Text("Видалити транзакцію?") },
+                text = { Text("Ви впевнені, що хочете видалити '${transaction.description}'?") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.deleteTransaction(transaction)
+                            transactionToDelete = null
+                        }
+                    ) { Text("Видалити", color = Color.Red) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { transactionToDelete = null }) { Text("Скасувати") }
+                }
+            )
+        }
 
         if (showBottomSheet) {
             ModalBottomSheet(
@@ -157,7 +182,10 @@
                 val sortedList = list.sortedByDescending { it.timestamp }
 
                 items(sortedList) { transaction ->
-                    TransactionItem(transaction = transaction)
+                    TransactionItem(
+                        transaction = transaction,
+                        onLongClick = { transactionToDelete = transaction }
+                    )
                 }
             }
         }

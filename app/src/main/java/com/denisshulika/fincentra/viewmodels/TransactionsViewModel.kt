@@ -90,4 +90,11 @@ class TransactionsViewModel : ViewModel() {
             toggleBottomSheet(false)
         }
     }
+
+    fun deleteTransaction(transaction: Transaction) {
+        viewModelScope.launch {
+            repository.deleteTransaction(transaction.id)
+            _transactions.value = _transactions.value.filter { it.id != transaction.id }
+        }
+    }
 }

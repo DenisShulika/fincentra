@@ -19,4 +19,12 @@ class FinanceRepository {
     suspend fun addTransaction(transaction: Transaction) {
         transactionsCollection.document(transaction.id).set(transaction).await()
     }
+
+    suspend fun deleteTransaction(transactionId: String) {
+        try {
+            transactionsCollection.document(transactionId).delete().await()
+        } catch (e: Exception) {
+            //TODO()
+        }
+    }
 }
