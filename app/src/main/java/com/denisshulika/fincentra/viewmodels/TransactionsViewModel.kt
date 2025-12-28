@@ -25,6 +25,16 @@ class TransactionsViewModel : ViewModel() {
     private val _showBottomSheet = MutableStateFlow(false)
     val showBottomSheet: StateFlow<Boolean> = _showBottomSheet.asStateFlow()
 
+    private val _isExpense = MutableStateFlow(true)
+    val isExpense: StateFlow<Boolean> = _isExpense.asStateFlow()
+
+    private val _category = MutableStateFlow("Різне")
+    val category: StateFlow<String> = _category.asStateFlow()
+
+    val categories = listOf("Їжа", "Транспорт", "Житло", "Здоров'я", "Розваги", "Зарплата", "Різне")
+
+    val expenseOptions = listOf("Витрата", "Дохід")
+
     init {
         fetchTransactions()
     }
@@ -42,7 +52,17 @@ class TransactionsViewModel : ViewModel() {
         if (!show) {
             _amount.value = ""
             _description.value = ""
+            _isExpense.value = true
+            _category.value = "Різне"
         }
+    }
+
+    fun onTypeChange(isExpense: Boolean) {
+        _isExpense.value = isExpense
+    }
+
+    fun onCategoryChange(category: String) {
+        _category.value = category
     }
 
     private fun fetchTransactions() {
@@ -56,18 +76,17 @@ class TransactionsViewModel : ViewModel() {
 
     fun addTransaction() {
         val amountDouble = _amount.value.toDoubleOrNull() ?: return
-        val desc = _description.value
-
         viewModelScope.launch {
             val newTx = Transaction(
                 amount = amountDouble,
-                description = desc,
+                description = _description.value,
                 bankName = "Готівка",
-                isExpense = true
+                category = _category.value,
+                isExpense = _isExpense.value,
+                timestamp = System.currentTimeMillis()
             )
             repository.addTransaction(newTx)
             _transactions.value = listOf(newTx) + _transactions.value
-
             toggleBottomSheet(false)
         }
     }
