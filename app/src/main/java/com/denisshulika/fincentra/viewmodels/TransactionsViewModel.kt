@@ -28,4 +28,16 @@ class TransactionsViewModel : ViewModel() {
             }
         }
     }
+
+    fun addTestTransaction() {
+        viewModelScope.launch {
+            val testTx = Transaction(
+                amount = (10..1000).random().toDouble(),
+                description = "Тестова витрата",
+                bankName = "Готівка"
+            )
+            repository.addTransaction(testTx)
+            _transactions.value = listOf(testTx) + _transactions.value
+        }
+    }
 }
