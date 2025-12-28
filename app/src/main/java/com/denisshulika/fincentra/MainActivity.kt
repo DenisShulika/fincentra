@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -21,6 +22,7 @@ import com.denisshulika.fincentra.ui.screens.ProfileScreen
 import com.denisshulika.fincentra.ui.screens.StatsScreen
 import com.denisshulika.fincentra.ui.screens.TransactionsScreen
 import com.denisshulika.fincentra.ui.theme.FinCentraTheme
+import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +41,8 @@ fun MainScreen() {
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
+    val transactionsViewModel: TransactionsViewModel = viewModel()
 
     Scaffold(
         bottomBar = {
@@ -62,7 +66,7 @@ fun MainScreen() {
                             launchSingleTop = true
                         }
                     },
-                    label = { Text(Screen.Transactions.title) },
+                    label = { Text(Screen.Stats.title) },
                     icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) }
                 )
                 NavigationBarItem(
@@ -73,7 +77,7 @@ fun MainScreen() {
                             launchSingleTop = true
                         }
                     },
-                    label = { Text(Screen.Transactions.title) },
+                    label = { Text(Screen.Integrations.title) },
                     icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) }
                 )
                 NavigationBarItem(
@@ -84,7 +88,7 @@ fun MainScreen() {
                             launchSingleTop = true
                         }
                     },
-                    label = { Text(Screen.Transactions.title) },
+                    label = { Text(Screen.Profile.title) },
                     icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) }
                 )
             }
@@ -95,7 +99,7 @@ fun MainScreen() {
             startDestination = Screen.Transactions.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Transactions.route) { TransactionsScreen() }
+            composable(Screen.Transactions.route) { TransactionsScreen(transactionsViewModel) }
             composable(Screen.Stats.route) { StatsScreen() }
             composable(Screen.Integrations.route) { IntegrationsScreen() }
             composable(Screen.Profile.route) { ProfileScreen() }
