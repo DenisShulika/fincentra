@@ -63,6 +63,7 @@
         val showBottomSheet by viewModel.showBottomSheet.collectAsStateWithLifecycle()
         val isExpense by viewModel.isExpense.collectAsStateWithLifecycle()
         val category by viewModel.category.collectAsStateWithLifecycle()
+        val editingId by viewModel.editingTransactionId.collectAsStateWithLifecycle()
 
         val expenseOptions = viewModel.expenseOptions
 
@@ -98,7 +99,10 @@
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Нова транзакція", style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        text = if (editingId == null) "Нова транзакція" else "Редагування",
+                        style = MaterialTheme.typography.titleLarge
+                    )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -157,11 +161,11 @@
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
-                        onClick = { viewModel.addTransaction() },
+                        onClick = { viewModel.saveTransaction() },
                         modifier = Modifier.padding(top = 16.dp).fillMaxWidth(),
                         enabled = amount.isNotBlank()
                     ) {
-                        Text("Зберегти")
+                        Text(if (editingId == null) "Зберегти" else "Оновити")
                     }
                 }
             }
@@ -184,6 +188,7 @@
                 items(sortedList) { transaction ->
                     TransactionItem(
                         transaction = transaction,
+                        onClick = { viewModel.prepareForEdit(transaction) },
                         onLongClick = { transactionToDelete = transaction }
                     )
                 }

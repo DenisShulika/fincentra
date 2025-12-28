@@ -35,6 +35,11 @@ class TransactionsViewModel : ViewModel() {
 
     val expenseOptions = listOf("Витрата", "Дохід")
 
+    private val _editingTransactionId = MutableStateFlow<String?>(null)
+    val editingTransactionId: StateFlow<String?> = _editingTransactionId.asStateFlow()
+
+    private var editingTimestamp: Long? = null
+
     init {
         fetchTransactions()
     }
@@ -52,6 +57,24 @@ class TransactionsViewModel : ViewModel() {
         _description.value = newDesc
     }
 
+    fun onTypeChange(isExpense: Boolean) {
+        _isExpense.value = isExpense
+    }
+
+    fun onCategoryChange(category: String) {
+        _category.value = category
+    }
+
+    fun prepareForEdit(transaction: Transaction) {
+        _amount.value = transaction.amount.toString()
+        _description.value = transaction.description
+        _isExpense.value = transaction.isExpense
+        _category.value = transaction.category
+        _editingTransactionId.value = transaction.id
+        editingTimestamp = transaction.timestamp
+        _showBottomSheet.value = true
+    }
+
     fun toggleBottomSheet(show: Boolean) {
         _showBottomSheet.value = show
         if (!show) {
@@ -59,15 +82,9 @@ class TransactionsViewModel : ViewModel() {
             _description.value = ""
             _isExpense.value = true
             _category.value = "Різне"
+            _editingTransactionId.value = null
+            editingTimestamp = null
         }
-    }
-
-    fun onTypeChange(isExpense: Boolean) {
-        _isExpense.value = isExpense
-    }
-
-    fun onCategoryChange(category: String) {
-        _category.value = category
     }
 
     private fun fetchTransactions() {
@@ -104,6 +121,37 @@ class TransactionsViewModel : ViewModel() {
         viewModelScope.launch {
             repository.deleteTransaction(transaction.id)
             _transactions.value = _transactions.value.filter { it.id != transaction.id }
+        }
+    }
+
+    fun saveTransaction() {
+        val amountDouble = _amount.value.toDoubleOrNull() ?: return
+
+        val id = _editingTransactionId.value ?: java.util.UUID.randomUUID().toString()
+        val timestamp = editingTimestamp ?: System.currentTimeMillis()
+
+        viewModelScope.launch {
+            val transaction = Transaction(
+                id = id,
+                amount = amountDouble,
+                description = _description.value,
+                bankName = "Готівка",
+                category = _category.value,
+                isExpense = _isExpense.value,
+                timestamp = timestamp
+            )
+
+            repository.addTransaction(transaction)
+
+            if (_editingTransactionId.value == null) {
+                _transactions.value = listOf(transaction) + _transactions.value
+            } else {
+                _transactions.value = _transactions.value.map {
+                    if (it.id == transaction.id) transaction else it
+                }
+            }
+
+            toggleBottomSheet(false)
         }
     }
 }

@@ -22,6 +22,7 @@ import com.denisshulika.fincentra.data.models.Transaction
 @Composable
 fun TransactionItem(
     transaction: Transaction,
+    onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
     Card(
@@ -29,7 +30,7 @@ fun TransactionItem(
             .fillMaxWidth()
             .padding(vertical = 4.dp, horizontal = 8.dp)
             .combinedClickable(
-                onClick = { TODO() },
+                onClick = onClick,
                 onLongClick = onLongClick
             ),
         colors = CardDefaults.cardColors(
