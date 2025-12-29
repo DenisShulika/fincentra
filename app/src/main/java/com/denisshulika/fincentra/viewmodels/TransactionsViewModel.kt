@@ -96,27 +96,6 @@ class TransactionsViewModel : ViewModel() {
         }
     }
 
-    fun addTransaction() {
-        val amountClean = _amount.value.replace(',', '.')
-        val amountDouble = amountClean.toDoubleOrNull() ?: 0.0
-
-        if (amountDouble <= 0.0) return
-
-        viewModelScope.launch {
-            val newTx = Transaction(
-                amount = amountDouble,
-                description = _description.value,
-                bankName = "Готівка",
-                category = _category.value,
-                isExpense = _isExpense.value,
-                timestamp = System.currentTimeMillis()
-            )
-            repository.addTransaction(newTx)
-            _transactions.value = listOf(newTx) + _transactions.value
-            toggleBottomSheet(false)
-        }
-    }
-
     fun deleteTransaction(transaction: Transaction) {
         viewModelScope.launch {
             repository.deleteTransaction(transaction.id)

@@ -22,6 +22,7 @@ import com.denisshulika.fincentra.ui.screens.ProfileScreen
 import com.denisshulika.fincentra.ui.screens.StatsScreen
 import com.denisshulika.fincentra.ui.screens.TransactionsScreen
 import com.denisshulika.fincentra.ui.theme.FinCentraTheme
+import com.denisshulika.fincentra.viewmodels.ProfileViewModel
 import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 
 class MainActivity : ComponentActivity() {
@@ -43,6 +44,7 @@ fun MainScreen() {
     val currentRoute = navBackStackEntry?.destination?.route
 
     val transactionsViewModel: TransactionsViewModel = viewModel()
+    val profileViewModel: ProfileViewModel = viewModel()
 
     Scaffold(
         bottomBar = {
@@ -102,7 +104,7 @@ fun MainScreen() {
             composable(Screen.Transactions.route) { TransactionsScreen(transactionsViewModel) }
             composable(Screen.Stats.route) { StatsScreen() }
             composable(Screen.Integrations.route) { IntegrationsScreen() }
-            composable(Screen.Profile.route) { ProfileScreen() }
+            composable(Screen.Profile.route) { ProfileScreen(profileViewModel) }
         }
     }
 }
