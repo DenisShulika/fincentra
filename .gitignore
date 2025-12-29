@@ -12,10 +12,13 @@ secrets.properties
 # Android Studio generated files and folders
 captures/
 .externalNativeBuild/
+/app/release/
 .cxx/
-*.apk
 output.json
-
+*.apk
+*.jks
+*.aab
+*.apk
 # IntelliJ
 *.iml
 .idea/
