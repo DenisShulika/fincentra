@@ -54,7 +54,7 @@
     fun TransactionsScreen(
         viewModel: TransactionsViewModel
     ) {
-        val list = viewModel.transactions.collectAsStateWithLifecycle().value
+        val list by viewModel.transactions.collectAsStateWithLifecycle()
 
         val sheetState = rememberModalBottomSheetState()
 
@@ -178,14 +178,14 @@
                 }
             }
         ) { innerPadding ->
+            val sortedList = list.sortedByDescending { it.timestamp }
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                val sortedList = list.sortedByDescending { it.timestamp }
-
-                items(sortedList) { transaction ->
+                items(sortedList, key = { it.id }) { transaction ->
                     TransactionItem(
                         transaction = transaction,
                         onClick = { viewModel.prepareForEdit(transaction) },

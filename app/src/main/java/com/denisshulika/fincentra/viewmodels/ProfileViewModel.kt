@@ -2,14 +2,16 @@ package com.denisshulika.fincentra.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.denisshulika.fincentra.data.models.Transaction
 import com.denisshulika.fincentra.data.repository.FinanceRepository
+import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ProfileViewModel : ViewModel() {
-    private val repository = FinanceRepository()
+    private val repository = DependencyProvider.repository
 
     private val _totalBalance = MutableStateFlow(0.0)
     val totalBalance: StateFlow<Double> = _totalBalance.asStateFlow()
@@ -21,27 +23,19 @@ class ProfileViewModel : ViewModel() {
     val totalExpenses: StateFlow<Double> = _totalExpenses.asStateFlow()
 
     init {
-        fetchAndCalculate()
+        viewModelScope.launch {
+            repository.transactions.collect { list ->
+                calculateFinances(list)
+            }
+        }
     }
 
-    fun fetchAndCalculate() {
-        viewModelScope.launch {
-            val transactions = repository.getAllTransactions()
+    private fun calculateFinances(list: List<Transaction>) {
+        val income = list.filter { !it.isExpense }.sumOf { it.amount }
+        val expense = list.filter { it.isExpense }.sumOf { it.amount }
 
-            var incomeSum = 0.0
-            var expenseSum = 0.0
-
-            transactions.forEach { tx ->
-                if (tx.isExpense) {
-                    expenseSum += tx.amount
-                } else {
-                    incomeSum += tx.amount
-                }
-            }
-
-            _totalIncome.value = incomeSum
-            _totalExpenses.value = expenseSum
-            _totalBalance.value = incomeSum - expenseSum
-        }
+        _totalIncome.value = income
+        _totalExpenses.value = expense
+        _totalBalance.value = income - expense
     }
 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.denisshulika.fincentra.data.models.Transaction
 import com.denisshulika.fincentra.data.repository.FinanceRepository
+import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,10 +12,9 @@ import kotlinx.coroutines.launch
 
 class TransactionsViewModel : ViewModel() {
 
-    private val repository = FinanceRepository()
+    private val repository = DependencyProvider.repository
 
-    private val _transactions = MutableStateFlow<List<Transaction>>(emptyList())
-    val transactions: StateFlow<List<Transaction>> = _transactions.asStateFlow()
+    val transactions: StateFlow<List<Transaction>> = repository.transactions
 
     private val _amount = MutableStateFlow("")
     val amount: StateFlow<String> = _amount.asStateFlow()
@@ -41,7 +41,9 @@ class TransactionsViewModel : ViewModel() {
     private var editingTimestamp: Long? = null
 
     init {
-        fetchTransactions()
+        viewModelScope.launch {
+            repository.fetchTransactions()
+        }
     }
 
     fun onAmountChange(newAmount: String) {
@@ -87,25 +89,14 @@ class TransactionsViewModel : ViewModel() {
         }
     }
 
-    private fun fetchTransactions() {
-        viewModelScope.launch {
-            val result = repository.getAllTransactions()
-            if(result.isNotEmpty()) {
-                _transactions.value = result
-            }
-        }
-    }
-
     fun deleteTransaction(transaction: Transaction) {
         viewModelScope.launch {
             repository.deleteTransaction(transaction.id)
-            _transactions.value = _transactions.value.filter { it.id != transaction.id }
         }
     }
 
     fun saveTransaction() {
         val amountDouble = _amount.value.toDoubleOrNull() ?: return
-
         val id = _editingTransactionId.value ?: java.util.UUID.randomUUID().toString()
         val timestamp = editingTimestamp ?: System.currentTimeMillis()
 
@@ -119,17 +110,7 @@ class TransactionsViewModel : ViewModel() {
                 isExpense = _isExpense.value,
                 timestamp = timestamp
             )
-
             repository.addTransaction(transaction)
-
-            if (_editingTransactionId.value == null) {
-                _transactions.value = listOf(transaction) + _transactions.value
-            } else {
-                _transactions.value = _transactions.value.map {
-                    if (it.id == transaction.id) transaction else it
-                }
-            }
-
             toggleBottomSheet(false)
         }
     }

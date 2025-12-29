@@ -98,16 +98,5 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Button(
-            onClick = { viewModel.fetchAndCalculate() },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Icon(Icons.Default.Refresh, contentDescription = null)
-            Spacer(Modifier.width(8.dp))
-            Text("Оновити дані")
-        }
     }
 }
