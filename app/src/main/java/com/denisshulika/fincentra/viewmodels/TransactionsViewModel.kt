@@ -9,10 +9,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+// ... твої імпорти ...
+// Додай імпорт категорії, якщо він не додався автоматично:
+import com.denisshulika.fincentra.data.models.TransactionCategory
+
 class TransactionsViewModel : ViewModel() {
 
     private val repository = DependencyProvider.repository
-
     val transactions: StateFlow<List<Transaction>> = repository.transactions
 
     private val _amount = MutableStateFlow("")
@@ -27,10 +30,10 @@ class TransactionsViewModel : ViewModel() {
     private val _isExpense = MutableStateFlow(true)
     val isExpense: StateFlow<Boolean> = _isExpense.asStateFlow()
 
-    private val _category = MutableStateFlow("Різне")
-    val category: StateFlow<String> = _category.asStateFlow()
+    private val _category = MutableStateFlow(TransactionCategory.OTHERS)
+    val category: StateFlow<TransactionCategory> = _category.asStateFlow()
 
-    val categories = listOf("Їжа", "Транспорт", "Житло", "Здоров'я", "Розваги", "Зарплата", "Різне")
+    val categories = TransactionCategory.entries
 
     val expenseOptions = listOf("Витрата", "Дохід")
 
@@ -62,8 +65,8 @@ class TransactionsViewModel : ViewModel() {
         _isExpense.value = isExpense
     }
 
-    fun onCategoryChange(category: String) {
-        _category.value = category
+    fun onCategoryChange(newCategory: TransactionCategory) {
+        _category.value = newCategory
     }
 
     fun prepareForEdit(transaction: Transaction) {
@@ -82,7 +85,7 @@ class TransactionsViewModel : ViewModel() {
             _amount.value = ""
             _description.value = ""
             _isExpense.value = true
-            _category.value = "Різне"
+            _category.value = TransactionCategory.OTHERS
             _editingTransactionId.value = null
             editingTimestamp = null
         }

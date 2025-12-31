@@ -1,16 +1,21 @@
 package com.denisshulika.fincentra.data.network
 
-import com.denisshulika.fincentra.data.network.models.MonoTransactionResponse
+import com.denisshulika.fincentra.data.network.models.*
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Path
 
 interface MonobankApi {
+    @GET("personal/client-info")
+    suspend fun getClientInfo(
+        @Header("X-Token") token: String
+    ): MonoClientInfoResponse
+
     @GET("personal/statement/{account}/{from}/{to}")
     suspend fun getStatement(
         @Header("X-Token") token: String,
-        @Path("account") account: String = "0",
+        @Path("account") account: String,
         @Path("from") from: Long,
-        @Path("to") to: Long? = null
+        @Path("to") to: Long
     ): List<MonoTransactionResponse>
 }

@@ -127,7 +127,9 @@
                             FilterChip(
                                 selected = (category == cat),
                                 onClick = { viewModel.onCategoryChange(cat) },
-                                label = { Text(cat) }
+                                label = {
+                                    Text(cat.displayName)
+                                }
                             )
                         }
                     }
