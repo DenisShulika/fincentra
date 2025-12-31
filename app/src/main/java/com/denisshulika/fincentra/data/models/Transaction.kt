@@ -3,16 +3,6 @@ package com.denisshulika.fincentra.data.models
 import com.google.firebase.firestore.PropertyName
 import java.util.UUID
 
-enum class TransactionCategory(val displayName: String) {
-    FOOD("Їжа"),
-    TRANSPORT("Транспорт"),
-    HOUSING("Житло"),
-    HEALTH("Здоров'я"),
-    ENTERTAINMENT("Розваги"),
-    SALARY("Зарплата"),
-    OTHERS("Різне")
-}
-
 data class Transaction(
     val id: String = UUID.randomUUID().toString(),
     val accountId: String = "manual",

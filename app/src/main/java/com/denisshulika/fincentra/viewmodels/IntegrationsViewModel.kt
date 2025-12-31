@@ -1,11 +1,10 @@
 package com.denisshulika.fincentra.viewmodels
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.denisshulika.fincentra.data.network.MonobankService
+import com.denisshulika.fincentra.data.models.BankAccount
+import com.denisshulika.fincentra.data.models.Transaction
+import com.denisshulika.fincentra.data.network.monobank.MonobankService
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,8 +32,11 @@ class IntegrationsViewModel : ViewModel() {
     private val _isMonoInputVisible = MutableStateFlow(false)
     val isMonoInputVisible: StateFlow<Boolean> = _isMonoInputVisible.asStateFlow()
 
-    private val _openUrlEvent = MutableSharedFlow<String>()
-    val openUrlEvent = _openUrlEvent.asSharedFlow()
+    private val _availableAccounts = MutableStateFlow<List<BankAccount>>(emptyList())
+    val availableAccounts: StateFlow<List<BankAccount>> = _availableAccounts.asStateFlow()
+
+    private val _showAccountSelection = MutableStateFlow(false)
+    val showAccountSelection: StateFlow<Boolean> = _showAccountSelection.asStateFlow()
 
     init {
         checkConnectionStatus()
@@ -45,6 +47,51 @@ class IntegrationsViewModel : ViewModel() {
             val token = repository.getMonoToken()
             _isBankConnected.value = !token.isNullOrBlank()
         }
+    }
+
+    fun fetchAccountsAndShowSelection() {
+        viewModelScope.launch {
+            val token = _monoToken.value.ifBlank { repository.getMonoToken() }
+            if (token.isNullOrBlank()) return@launch
+
+            _isLoading.value = true
+            val accounts = monoService.fetchAccounts(token)
+            val alreadySelectedIds = repository.getSelectedAccountIds()
+
+            _availableAccounts.value = accounts.map { acc ->
+                acc.copy(isSelected = alreadySelectedIds.contains(acc.id))
+            }
+
+            _isLoading.value = false
+            _showAccountSelection.value = true
+        }
+    }
+
+    fun toggleAccountSelection(accountId: String) {
+        _availableAccounts.value = _availableAccounts.value.map {
+            if (it.id == accountId) it.copy(isSelected = !it.isSelected) else it
+        }
+    }
+
+    fun confirmAccountSelection() {
+        viewModelScope.launch {
+            val selectedIds = _availableAccounts.value.filter { it.isSelected }.map { it.id }
+
+            repository.saveSelectedAccountIds(selectedIds)
+
+            if (_monoToken.value.isNotBlank()) {
+                repository.saveMonoToken(_monoToken.value)
+                _monoToken.value = ""
+            }
+
+            _showAccountSelection.value = false
+            _isMonoInputVisible.value = false
+            checkConnectionStatus()
+        }
+    }
+
+    fun toggleAccountBottomSheet(show: Boolean) {
+        _showAccountSelection.value = show
     }
 
     fun saveMonoToken() {
@@ -62,10 +109,21 @@ class IntegrationsViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             val token = repository.getMonoToken()
-            if (!token.isNullOrBlank()) {
-                val newTransactions = monoService.fetchAllTransactions(token)
-                newTransactions.forEach { repository.addTransaction(it) }
+            val selectedIds = repository.getSelectedAccountIds()
+
+            if (!token.isNullOrBlank() && selectedIds.isNotEmpty()) {
+                val allNewTransactions = mutableListOf<Transaction>()
+
+                for (id in selectedIds) {
+                    val txs = monoService.fetchTransactionsForAccount(token, id)
+                    allNewTransactions.addAll(txs)
+
+                    kotlinx.coroutines.delay(1000)
+                }
+
+                repository.addTransactionsBatch(allNewTransactions)
             }
+
             _isLoading.value = false
         }
     }

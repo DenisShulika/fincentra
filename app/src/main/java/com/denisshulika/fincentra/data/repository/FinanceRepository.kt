@@ -2,7 +2,6 @@ package com.denisshulika.fincentra.data.repository
 
 import com.denisshulika.fincentra.data.models.Transaction
 import com.denisshulika.fincentra.di.DependencyProvider
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -58,6 +57,40 @@ class FinanceRepository {
             document.getString("monoToken")
         } catch (e: Exception) {
             null
+        }
+    }
+
+    suspend fun saveSelectedAccountIds(ids: List<String>) {
+        val data = mapOf("selectedIds" to ids)
+        settingsCollection.document("user_settings")
+            .set(data, com.google.firebase.firestore.SetOptions.merge())
+            .await()
+    }
+
+    suspend fun getSelectedAccountIds(): List<String> {
+        return try {
+            val document = settingsCollection.document("user_settings").get().await()
+            @Suppress("UNCHECKED_CAST")
+            document.get("selectedIds") as? List<String> ?: emptyList()
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun addTransactionsBatch(transactions: List<Transaction>) {
+        if (transactions.isEmpty()) return
+
+        val batch = db.batch()
+        transactions.forEach { transaction ->
+            val docRef = transactionsCollection.document(transaction.id)
+            batch.set(docRef, transaction)
+        }
+
+        try {
+            batch.commit().await()
+            android.util.Log.d("REPO", "Успішно збережено ${transactions.size} транзакцій")
+        } catch (e: Exception) {
+            android.util.Log.e("REPO", "Помилка Batch Write: ${e.message}")
         }
     }
 }

@@ -1,4 +1,6 @@
-package com.denisshulika.fincentra.data.models
+package com.denisshulika.fincentra.data.network.common
+
+import com.denisshulika.fincentra.data.models.TransactionCategory
 
 object MccDirectory {
     private val mccMap = mapOf(

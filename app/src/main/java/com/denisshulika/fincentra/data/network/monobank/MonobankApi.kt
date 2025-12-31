@@ -1,6 +1,7 @@
-package com.denisshulika.fincentra.data.network
+package com.denisshulika.fincentra.data.network.monobank
 
-import com.denisshulika.fincentra.data.network.models.*
+import com.denisshulika.fincentra.data.network.monobank.models.MonoClientInfoResponse
+import com.denisshulika.fincentra.data.network.monobank.models.MonoTransactionResponse
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Path

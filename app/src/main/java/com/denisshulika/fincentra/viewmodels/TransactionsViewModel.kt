@@ -1,17 +1,16 @@
 package com.denisshulika.fincentra.viewmodels
 
+// ... твої імпорти ...
+// Додай імпорт категорії, якщо він не додався автоматично:
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.denisshulika.fincentra.data.models.Transaction
+import com.denisshulika.fincentra.data.models.TransactionCategory
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-
-// ... твої імпорти ...
-// Додай імпорт категорії, якщо він не додався автоматично:
-import com.denisshulika.fincentra.data.models.TransactionCategory
 
 class TransactionsViewModel : ViewModel() {
 

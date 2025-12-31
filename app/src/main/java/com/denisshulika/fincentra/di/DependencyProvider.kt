@@ -1,10 +1,10 @@
 package com.denisshulika.fincentra.di
 
-import com.denisshulika.fincentra.data.network.MonobankApi
+import com.denisshulika.fincentra.data.network.monobank.MonobankApi
 import com.denisshulika.fincentra.data.repository.FinanceRepository
+import com.google.firebase.firestore.FirebaseFirestore
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import com.google.firebase.firestore.FirebaseFirestore
 
 object DependencyProvider {
     val repository = FinanceRepository()
