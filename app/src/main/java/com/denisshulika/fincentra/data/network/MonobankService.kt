@@ -1,6 +1,7 @@
 package com.denisshulika.fincentra.data.network
 
 import android.util.Log
+import com.denisshulika.fincentra.data.models.MccDirectory
 import com.denisshulika.fincentra.data.models.Transaction
 import com.denisshulika.fincentra.data.models.TransactionCategory
 import com.denisshulika.fincentra.di.DependencyProvider
@@ -30,12 +31,15 @@ class MonobankService {
                     allTransactions.add(
                         Transaction(
                             id = monoTx.id,
+                            accountId = accountToSync.id,
                             amount = Math.abs(monoTx.amount / 100.0),
+                            currencyCode = accountToSync.currencyCode,
                             description = monoTx.description,
                             timestamp = monoTx.time * 1000,
                             bankName = "Monobank",
                             isExpense = monoTx.amount < 0,
-                            category = TransactionCategory.OTHERS
+                            category = MccDirectory.getCategory(monoTx.mcc),
+                            mcc = monoTx.mcc
                         )
                     )
                 }

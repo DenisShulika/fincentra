@@ -110,7 +110,9 @@ class TransactionsViewModel : ViewModel() {
                 bankName = "Готівка",
                 category = _category.value,
                 isExpense = _isExpense.value,
-                timestamp = timestamp
+                timestamp = timestamp,
+                accountId = "manual",
+                currencyCode = 980
             )
             repository.addTransaction(transaction)
             toggleBottomSheet(false)
