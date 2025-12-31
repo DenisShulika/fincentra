@@ -1,5 +1,6 @@
 package com.denisshulika.fincentra.data.models
 
+import com.google.firebase.firestore.PropertyName
 import java.util.UUID
 
 enum class TransactionCategory(val displayName: String) {
@@ -21,7 +22,11 @@ data class Transaction(
     val timestamp: Long = System.currentTimeMillis(),
     val category: TransactionCategory = TransactionCategory.OTHERS,
     val bankName: String = "Готівка",
-    val isExpense: Boolean = true,
+
+    @get:PropertyName("isExpense")
+    @set:PropertyName("isExpense")
+    var isExpense: Boolean = true,
+
     val mcc: Int? = null,
     val note: String? = null
 )
