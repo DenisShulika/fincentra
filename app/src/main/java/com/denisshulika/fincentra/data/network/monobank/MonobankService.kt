@@ -12,54 +12,41 @@ class MonobankService {
     private val api = DependencyProvider.monobankApi
 
     suspend fun fetchAccounts(token: String): List<BankAccount> {
-        Log.d("MONO_SYNC", "Запит списку рахунків...")
-        return try {
-            val response = api.getClientInfo(token)
-            val accounts = mutableListOf<BankAccount>()
-
-            response.accounts.forEach { acc ->
-                val symbol = CurrencyMapper.getSymbol(acc.currencyCode)
-                val pan = acc.maskedPan.firstOrNull()?.let { if (it.length >= 4) "*${it.takeLast(4)}" else "" } ?: ""
-
-                accounts.add(BankAccount(
-                    id = acc.id,
-                    provider = "Monobank",
-                    name = "Картка $symbol $pan".trim(),
-                    type = acc.type,
-                    balance = acc.balance / 100.0, // Баланс як він є в банку
-                    currencyCode = acc.currencyCode
-                ))
-            }
-            response.jars?.forEach { jar ->
-                accounts.add(BankAccount(
-                    id = jar.id,
-                    provider = "Monobank",
-                    name = "Банка: ${jar.title}",
-                    type = "jar",
-                    balance = jar.balance / 100.0,
-                    currencyCode = jar.currencyCode
-                ))
-            }
-            Log.d("MONO_SYNC", "Отримано рахунків: ${accounts.size}")
-            accounts
-        } catch (e: Exception) {
-            Log.e("MONO_SYNC", "Помилка fetchAccounts: ${e.message}")
-            throw e
+        val response = api.getClientInfo(token)
+        val accounts = mutableListOf<BankAccount>()
+        response.accounts.forEach { acc ->
+            val symbol = CurrencyMapper.getSymbol(acc.currencyCode)
+            val pan = acc.maskedPan.firstOrNull()?.let { if (it.length >= 4) "*${it.takeLast(4)}" else "" } ?: ""
+            accounts.add(BankAccount(
+                id = acc.id,
+                provider = "Monobank",
+                name = "Картка $symbol $pan".trim(),
+                type = acc.type,
+                balance = acc.balance / 100.0,
+                currencyCode = acc.currencyCode
+            ))
         }
+        response.jars?.forEach { jar ->
+            accounts.add(BankAccount(
+                id = jar.id, provider = "Monobank", name = "Банка: ${jar.title}",
+                type = "jar", balance = jar.balance / 100.0, currencyCode = jar.currencyCode
+            ))
+        }
+        return accounts
     }
 
     suspend fun fetchTransactionsForAccount(
         token: String,
         accountId: String,
         accountCurrency: Int,
-        days: Int = 31
+        days: Int = 30
     ): List<Transaction> {
-        val toTime = System.currentTimeMillis() / 1000
-        val fromTime = toTime - (days * 24 * 60 * 60 + 60 * 60)
+        val toTime = (System.currentTimeMillis() / 1000) - 60
+        val fromTime = toTime - (days * 24 * 60 * 60)
 
-        Log.d("MONO_SYNC", "Запит транзакцій для $accountId...")
+        Log.d("MONO_SYNC", "Запит для карти $accountId. Примусова валюта: $accountCurrency")
+
         val monoList = api.getStatement(token, accountId, fromTime, toTime)
-        Log.d("MONO_SYNC", "Отримано від банку: ${monoList.size} транзакцій")
 
         return monoList.map { monoTx ->
             Transaction(

@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.denisshulika.fincentra.data.models.Transaction
+import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -59,9 +60,10 @@ fun TransactionItem(
             Column(horizontalAlignment = Alignment.End) {
                 val prefix = if (transaction.isExpense) "-" else "+"
                 val color = if (transaction.isExpense) Color(0xFFE57373) else Color(0xFF81C784)
+                val symbol = CurrencyMapper.getSymbol(transaction.currencyCode)
 
                 Text(
-                    text = "$prefix${transaction.amount} грн",
+                    text = "$prefix${transaction.amount} $symbol",
                     style = MaterialTheme.typography.titleMedium,
                     color = color
                 )

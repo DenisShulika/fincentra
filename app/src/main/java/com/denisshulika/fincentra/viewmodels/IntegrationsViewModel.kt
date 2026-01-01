@@ -102,36 +102,35 @@ class IntegrationsViewModel : ViewModel() {
             val selectedIds = repository.getSelectedAccountIds()
 
             try {
-                Log.d("MONO_SYNC", "1. Отримання актуальних даних про рахунки...")
-
                 val actualAccounts = monoService.fetchAccounts(token)
-
                 repository.saveAccounts(actualAccounts)
 
-                if (selectedIds.isNotEmpty()) {
-                    val allNewTransactions = mutableListOf<Transaction>()
+                val allNewTransactions = mutableListOf<Transaction>()
 
-                    for (id in selectedIds) {
-                        val account = actualAccounts.find { it.id == id }
-                        val currency = account?.currencyCode ?: 980
+                for (id in selectedIds) {
+                    val account = actualAccounts.find { it.id == id }
+                    val currency = account?.currencyCode ?: 980
 
-                        Log.d("MONO_SYNC", "2. Запит транзакцій для карти $id (валюта $currency)")
+                    Log.d("MONO_SYNC", "Синхронізація карти $id (Валюта: $currency)")
 
+                    try {
                         val txs = monoService.fetchTransactionsForAccount(token, id, currency)
-
-                        if (txs.isNotEmpty()) {
-                            allNewTransactions.addAll(txs)
-                        }
-
-                        if (selectedIds.size > 1 && id != selectedIds.last()) {
-                            Log.d("MONO_SYNC", "Очікуємо 60 секунд за лімітом банку...")
-                        }
+                        allNewTransactions.addAll(txs)
+                    } catch (e: Exception) {
+                        Log.e("MONO_SYNC", "Карта $id не завантажилась (ліміт або помилка)")
                     }
 
+                    if (id != selectedIds.last()) {
+                        kotlinx.coroutines.delay(5000)
+                    }
+                }
+
+                if (allNewTransactions.isNotEmpty()) {
                     repository.addTransactionsBatch(allNewTransactions)
                 }
+
             } catch (e: Exception) {
-                Log.e("MONO_SYNC", "Помилка: ${e.message}")
+                Log.e("MONO_SYNC", "Глобальна помилка: ${e.message}")
             } finally {
                 _isLoading.value = false
             }
