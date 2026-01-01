@@ -49,6 +49,8 @@ fun IntegrationsScreen(viewModel: IntegrationsViewModel) {
     val monoToken by viewModel.monoToken.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
+    val syncStatus by viewModel.syncStatus.collectAsStateWithLifecycle()
+
     LaunchedEffect(Unit) {
         viewModel.events.collect { url ->
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
@@ -94,6 +96,15 @@ fun IntegrationsScreen(viewModel: IntegrationsViewModel) {
                         }
                     }
 
+                    if (syncStatus.isNotBlank()) {
+                        Text(
+                            text = syncStatus,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(top = 8.dp).align(Alignment.CenterHorizontally)
+                        )
+                    }
+
                     OutlinedButton(
                         onClick = { viewModel.fetchAccountsAndShowSelection() },
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
@@ -107,7 +118,7 @@ fun IntegrationsScreen(viewModel: IntegrationsViewModel) {
                     ) {
                         Text("Відключити банк", color = Color.Red)
                     }
-                }else {
+                } else {
                     if (!isInputVisible) {
                         Button(
                             onClick = { viewModel.toggleMonoInput(true) },

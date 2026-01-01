@@ -95,6 +95,9 @@ class IntegrationsViewModel : ViewModel() {
         _showAccountSelection.value = show
     }
 
+    private val _syncStatus = MutableStateFlow("")
+    val syncStatus: StateFlow<String> = _syncStatus.asStateFlow()
+
     fun syncMonobank() {
         viewModelScope.launch {
             _isLoading.value = true
@@ -102,47 +105,48 @@ class IntegrationsViewModel : ViewModel() {
             val selectedIds = repository.getSelectedAccountIds()
 
             try {
-                Log.d("MONO_SYNC", "1. Оновлення балансів")
+                _syncStatus.value = "Оновлення балансів..."
                 val actualAccounts = try {
                     monoService.fetchAccounts(token)
-                } catch (e: Exception) {
-                    if (e.toString().contains("429")) {
-                        _events.emit("Ліміт запитів до акаунтів. Почекайте хвилину.")
-                    }
-                    null
-                }
+                } catch (e: Exception) { null }
 
                 if (actualAccounts != null) {
                     repository.saveAccounts(actualAccounts)
                     val allNewTransactions = mutableListOf<Transaction>()
 
-                    for (id in selectedIds) {
+                    selectedIds.forEachIndexed { index, id ->
                         val account = actualAccounts.find { it.id == id }
-                        val currency = account?.currencyCode ?: 980
+                        val name = account?.name ?: "карти"
+
+                        _syncStatus.value = "Завантаження $name (${index + 1}/${selectedIds.size})..."
 
                         try {
-                            Log.d("MONO_SYNC", "Запит виписки для $id")
-                            val txs = monoService.fetchTransactionsForAccount(token, id, currency)
+                            val txs = monoService.fetchTransactionsForAccount(token, id, account?.currencyCode ?: 980)
                             allNewTransactions.addAll(txs)
                         } catch (e: Exception) {
-                            Log.e("MONO_SYNC", "Карта $id заблокована банком: ${e.message}")
-                            if (e.toString().contains("429")) {
-                                _events.emit("Банк просить паузу для однієї з карт...")
-                            }
+                            Log.e("MONO_SYNC", "Помилка карти $id")
                         }
 
-                        kotlinx.coroutines.delay(5000)
+                        if (id != selectedIds.last()) {
+                            _syncStatus.value = "Чекаємо ліміт банку..."
+                            kotlinx.coroutines.delay(5000)
+                        }
                     }
 
                     if (allNewTransactions.isNotEmpty()) {
+                        _syncStatus.value = "Зберігання ${allNewTransactions.size} транзакцій..."
                         repository.addTransactionsBatch(allNewTransactions)
-                        Log.d("MONO_SYNC", "Успішно збережено ${allNewTransactions.size}")
+                        _syncStatus.value = "Готово! Оновлено ${allNewTransactions.size} записів."
+                    } else {
+                        _syncStatus.value = "Нових транзакцій не знайдено."
                     }
                 }
             } catch (e: Exception) {
-                Log.e("MONO_SYNC", "Критична помилка: ${e.message}")
+                _syncStatus.value = "Помилка синхронізації."
             } finally {
                 _isLoading.value = false
+                kotlinx.coroutines.delay(5000)
+                _syncStatus.value = ""
             }
         }
     }
