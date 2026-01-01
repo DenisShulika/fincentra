@@ -23,6 +23,8 @@ class GlobalSyncWorker(
             syncMonobank()
 
             Log.d("SYNC_WORKER", "Глобальна синхронізація успішно завершена")
+            repository.saveLastGlobalSyncTime(System.currentTimeMillis())
+            Log.d("SYNC_WORKER", "Час останньої синхронізації оновлено в базі")
             Result.success()
         } catch (e: Exception) {
             Log.e("SYNC_WORKER", "Помилка під час синхронізації: ${e.message}")

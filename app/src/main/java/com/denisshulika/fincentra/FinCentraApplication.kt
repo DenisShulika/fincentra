@@ -22,7 +22,7 @@ class FinCentraApplication : Application() {
             .build()
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "GlobalSyncWork",git
+            "GlobalSyncWork",
             ExistingPeriodicWorkPolicy.KEEP,
             syncRequest
         )

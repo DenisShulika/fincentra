@@ -9,16 +9,18 @@ import com.denisshulika.fincentra.data.network.monobank.MonobankService
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class IntegrationsViewModel : ViewModel() {
     private val repository = DependencyProvider.repository
     private val monoService = MonobankService()
 
-    private val _events = MutableSharedFlow<String>()
+    private val _events = MutableSharedFlow<IntegrationsUiEvent>()
     val events = _events.asSharedFlow()
 
     private val _isLoading = MutableStateFlow(false)
@@ -38,6 +40,67 @@ class IntegrationsViewModel : ViewModel() {
 
     private val _showAccountSelection = MutableStateFlow(false)
     val showAccountSelection: StateFlow<Boolean> = _showAccountSelection.asStateFlow()
+
+    val lastSyncTime: StateFlow<Long?> = repository.getLastGlobalSyncTimeFlow()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = null
+        )
+
+    fun openMonobankAuth() {
+        viewModelScope.launch {
+            _events.emit(IntegrationsUiEvent.OpenUrl("https://api.monobank.ua/"))
+        }
+    }
+
+    fun syncMonobank() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val token = repository.getMonoToken() ?: return@launch
+            val selectedIds = repository.getSelectedAccountIds()
+
+            try {
+                _syncStatus.value = "Оновлення балансів..."
+                val actualAccounts = monoService.fetchAccounts(token)
+                repository.saveAccounts(actualAccounts)
+
+                if (selectedIds.isNotEmpty()) {
+                    val allNewTransactions = mutableListOf<Transaction>()
+
+                    selectedIds.forEachIndexed { index, id ->
+                        val account = actualAccounts.find { it.id == id }
+                        val name = account?.name ?: "карти"
+                        _syncStatus.value = "Завантаження $name..."
+
+                        try {
+                            val txs = monoService.fetchTransactionsForAccount(token, id, account?.currencyCode ?: 980)
+                            allNewTransactions.addAll(txs)
+                        } catch (e: Exception) {
+                            Log.e("MONO_SYNC", "Помилка карти $id")
+                            _events.emit(IntegrationsUiEvent.ShowToast("Помилка завантаження $name"))
+                        }
+
+                        if (id != selectedIds.last()) {
+                            kotlinx.coroutines.delay(5000)
+                        }
+                    }
+
+                    if (allNewTransactions.isNotEmpty()) {
+                        repository.addTransactionsBatch(allNewTransactions)
+                        _syncStatus.value = "Готово! +${allNewTransactions.size}"
+                    }
+                }
+            } catch (e: Exception) {
+                _syncStatus.value = "Помилка"
+                _events.emit(IntegrationsUiEvent.ShowToast("Помилка мережі"))
+            } finally {
+                _isLoading.value = false
+                kotlinx.coroutines.delay(3000)
+                _syncStatus.value = ""
+            }
+        }
+    }
 
     init {
         checkConnectionStatus()
@@ -98,69 +161,10 @@ class IntegrationsViewModel : ViewModel() {
     private val _syncStatus = MutableStateFlow("")
     val syncStatus: StateFlow<String> = _syncStatus.asStateFlow()
 
-    fun syncMonobank() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            val token = repository.getMonoToken() ?: return@launch
-            val selectedIds = repository.getSelectedAccountIds()
-
-            try {
-                _syncStatus.value = "Оновлення балансів..."
-                val actualAccounts = try {
-                    monoService.fetchAccounts(token)
-                } catch (e: Exception) { null }
-
-                if (actualAccounts != null) {
-                    repository.saveAccounts(actualAccounts)
-                    val allNewTransactions = mutableListOf<Transaction>()
-
-                    selectedIds.forEachIndexed { index, id ->
-                        val account = actualAccounts.find { it.id == id }
-                        val name = account?.name ?: "карти"
-
-                        _syncStatus.value = "Завантаження $name (${index + 1}/${selectedIds.size})..."
-
-                        try {
-                            val txs = monoService.fetchTransactionsForAccount(token, id, account?.currencyCode ?: 980)
-                            allNewTransactions.addAll(txs)
-                        } catch (e: Exception) {
-                            Log.e("MONO_SYNC", "Помилка карти $id")
-                        }
-
-                        if (id != selectedIds.last()) {
-                            _syncStatus.value = "Чекаємо ліміт банку..."
-                            kotlinx.coroutines.delay(5000)
-                        }
-                    }
-
-                    if (allNewTransactions.isNotEmpty()) {
-                        _syncStatus.value = "Зберігання ${allNewTransactions.size} транзакцій..."
-                        repository.addTransactionsBatch(allNewTransactions)
-                        _syncStatus.value = "Готово! Оновлено ${allNewTransactions.size} записів."
-                    } else {
-                        _syncStatus.value = "Нових транзакцій не знайдено."
-                    }
-                }
-            } catch (e: Exception) {
-                _syncStatus.value = "Помилка синхронізації."
-            } finally {
-                _isLoading.value = false
-                kotlinx.coroutines.delay(5000)
-                _syncStatus.value = ""
-            }
-        }
-    }
-
     fun disconnectBank() {
         viewModelScope.launch {
             repository.saveMonoToken("")
             _isBankConnected.value = false
-        }
-    }
-
-    fun openMonobankAuth() {
-        viewModelScope.launch {
-            _events.emit("https://api.monobank.ua/")
         }
     }
 

@@ -36,9 +36,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
+import com.denisshulika.fincentra.viewmodels.IntegrationsUiEvent
 import com.denisshulika.fincentra.viewmodels.IntegrationsViewModel
 
 @Composable
@@ -51,10 +53,36 @@ fun IntegrationsScreen(viewModel: IntegrationsViewModel) {
 
     val syncStatus by viewModel.syncStatus.collectAsStateWithLifecycle()
 
+    val lastSync by viewModel.lastSyncTime.collectAsStateWithLifecycle()
+
+    lastSync?.let { timestamp ->
+        val date = java.text.SimpleDateFormat("dd.MM HH:mm", java.util.Locale.getDefault())
+            .format(java.util.Date(timestamp))
+
+        Text(
+            text = "Останнє фонове оновлення: $date",
+            style = MaterialTheme.typography.labelSmall,
+            color = Color.Gray,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp)
+        )
+    }
+
     LaunchedEffect(Unit) {
-        viewModel.events.collect { url ->
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            context.startActivity(intent)
+        viewModel.events.collect { event ->
+            when (event) {
+                is IntegrationsUiEvent.OpenUrl -> {
+                    if (event.url.isNotBlank()) {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(event.url))
+                        context.startActivity(intent)
+                    }
+                }
+                is IntegrationsUiEvent.ShowToast -> {
+                    android.widget.Toast.makeText(context, event.message, android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 

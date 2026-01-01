@@ -63,7 +63,7 @@ class FinanceRepository {
         Log.d("REPO", "Записано в базу: ${list.size} транзакцій")
     }
 
-    suspend fun deleteTransaction(id: String) = transactionsCollection.document(id).delete().await()
+    suspend fun     deleteTransaction(id: String) = transactionsCollection.document(id).delete().await()
 
     private val settingsCollection = db.collection("settings")
 
@@ -96,5 +96,22 @@ class FinanceRepository {
         } catch (e: Exception) {
             emptyList()
         }
+    }
+
+    suspend fun saveLastGlobalSyncTime(timestamp: Long) {
+        val data = mapOf("lastGlobalSync" to timestamp)
+        settingsCollection.document("sync_metadata")
+            .set(data, com.google.firebase.firestore.SetOptions.merge())
+            .await()
+    }
+
+    fun getLastGlobalSyncTimeFlow(): kotlinx.coroutines.flow.Flow<Long?> = callbackFlow {
+        val subscription = settingsCollection.document("sync_metadata")
+            .addSnapshotListener { snapshot, _ ->
+                if (snapshot != null) {
+                    trySend(snapshot.getLong("lastGlobalSync"))
+                }
+            }
+        awaitClose { subscription.remove() }
     }
 }
