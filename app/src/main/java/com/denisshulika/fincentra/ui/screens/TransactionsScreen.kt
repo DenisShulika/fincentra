@@ -182,7 +182,7 @@
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                items(sortedList, key = { it.id }) { transaction ->
+                items(sortedList, key = { it.id + it.timestamp }) { transaction ->
                     TransactionItem(
                         transaction = transaction,
                         onClick = { viewModel.prepareForEdit(transaction) },

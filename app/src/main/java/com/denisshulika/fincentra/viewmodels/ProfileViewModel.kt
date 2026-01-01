@@ -2,6 +2,7 @@ package com.denisshulika.fincentra.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.denisshulika.fincentra.data.models.CurrencySummary
 import com.denisshulika.fincentra.data.models.Transaction
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,30 +12,21 @@ import kotlinx.coroutines.launch
 
 class ProfileViewModel : ViewModel() {
     private val repository = DependencyProvider.repository
-
-    private val _totalBalance = MutableStateFlow(0.0)
-    val totalBalance: StateFlow<Double> = _totalBalance.asStateFlow()
-
-    private val _totalIncome = MutableStateFlow(0.0)
-    val totalIncome: StateFlow<Double> = _totalIncome.asStateFlow()
-
-    private val _totalExpenses = MutableStateFlow(0.0)
-    val totalExpenses: StateFlow<Double> = _totalExpenses.asStateFlow()
+    private val _currencySummaries = MutableStateFlow<List<CurrencySummary>>(emptyList())
+    val currencySummaries = _currencySummaries.asStateFlow()
 
     init {
         viewModelScope.launch {
-            repository.transactions.collect { list ->
-                calculateFinances(list)
+            repository.getAccountsFlow().collect { accounts ->
+                val summaries = accounts
+                    .filter { it.isSelected }
+                    .groupBy { it.currencyCode }
+                    .map { (code, list) ->
+                        CurrencySummary(code, list.sumOf { it.balance })
+                    }
+                    .sortedByDescending { it.currencyCode == 980 }
+                _currencySummaries.value = summaries
             }
         }
-    }
-
-    private fun calculateFinances(list: List<Transaction>) {
-        val income = list.filter { !it.isExpense }.sumOf { it.amount }
-        val expense = list.filter { it.isExpense }.sumOf { it.amount }
-
-        _totalIncome.value = income
-        _totalExpenses.value = expense
-        _totalBalance.value = income - expense
     }
 }

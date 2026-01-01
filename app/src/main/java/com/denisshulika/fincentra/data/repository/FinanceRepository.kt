@@ -1,16 +1,21 @@
 package com.denisshulika.fincentra.data.repository
 
+import android.util.Log
+import com.denisshulika.fincentra.data.models.BankAccount
 import com.denisshulika.fincentra.data.models.Transaction
 import com.denisshulika.fincentra.di.DependencyProvider
 import com.google.firebase.firestore.Query
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 class FinanceRepository {
     private val db = DependencyProvider.getInstance()
     private val transactionsCollection = db.collection("transactions")
+    private val accountsCollection = db.collection("accounts")
 
     private val _transactions = MutableStateFlow<List<Transaction>>(emptyList())
     val transactions: StateFlow<List<Transaction>> = _transactions.asStateFlow()
@@ -19,30 +24,46 @@ class FinanceRepository {
         transactionsCollection
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
-
-                if (error != null) {
-                    android.util.Log.e("REPO", "Listen failed.", error)
-                    return@addSnapshotListener
-                }
-
                 if (snapshot != null) {
-                    val list = snapshot.toObjects(Transaction::class.java)
-                    _transactions.value = list
+                    _transactions.value = snapshot.toObjects(Transaction::class.java).distinctBy { it.id }
                 }
             }
     }
 
-    fun fetchTransactions() {
-
-    }
-
     suspend fun addTransaction(transaction: Transaction) {
-        transactionsCollection.document(transaction.id).set(transaction).await()
+        try {
+            transactionsCollection.document(transaction.id).set(transaction).await()
+        } catch (e: Exception) {
+            Log.e("REPO", "Помилка додавання: ${e.message}")
+        }
     }
 
-    suspend fun deleteTransaction(transactionId: String) {
-        transactionsCollection.document(transactionId).delete().await()
+    suspend fun saveAccounts(actualAccounts: List<BankAccount>) {
+        val selectedIds = getSelectedAccountIds()
+        val batch = db.batch()
+        actualAccounts.forEach { account ->
+            val updated = account.copy(isSelected = selectedIds.contains(account.id))
+            batch.set(accountsCollection.document(account.id), updated)
+        }
+        batch.commit().await()
     }
+
+    fun getAccountsFlow(): kotlinx.coroutines.flow.Flow<List<BankAccount>> = callbackFlow {
+        val sub = accountsCollection.addSnapshotListener { s, _ ->
+            if (s != null) trySend(s.toObjects(BankAccount::class.java))
+        }
+        awaitClose { sub.remove() }
+    }
+
+    suspend fun addTransactionsBatch(list: List<Transaction>) {
+        if (list.isEmpty()) return
+        val batch = db.batch()
+        list.forEach { batch.set(transactionsCollection.document(it.id), it) }
+        batch.commit().await()
+        Log.d("REPO", "Записано в базу: ${list.size} транзакцій")
+    }
+
+    suspend fun deleteTransaction(id: String) = transactionsCollection.document(id).delete().await()
 
     private val settingsCollection = db.collection("settings")
 
@@ -74,23 +95,6 @@ class FinanceRepository {
             document.get("selectedIds") as? List<String> ?: emptyList()
         } catch (e: Exception) {
             emptyList()
-        }
-    }
-
-    suspend fun addTransactionsBatch(transactions: List<Transaction>) {
-        if (transactions.isEmpty()) return
-
-        val batch = db.batch()
-        transactions.forEach { transaction ->
-            val docRef = transactionsCollection.document(transaction.id)
-            batch.set(docRef, transaction)
-        }
-
-        try {
-            batch.commit().await()
-            android.util.Log.d("REPO", "Успішно збережено ${transactions.size} транзакцій")
-        } catch (e: Exception) {
-            android.util.Log.e("REPO", "Помилка Batch Write: ${e.message}")
         }
     }
 }

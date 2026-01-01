@@ -1,7 +1,5 @@
 package com.denisshulika.fincentra.viewmodels
 
-// ... твої імпорти ...
-// Додай імпорт категорії, якщо він не додався автоматично:
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.denisshulika.fincentra.data.models.Transaction
@@ -40,12 +38,6 @@ class TransactionsViewModel : ViewModel() {
     val editingTransactionId: StateFlow<String?> = _editingTransactionId.asStateFlow()
 
     private var editingTimestamp: Long? = null
-
-    init {
-        viewModelScope.launch {
-            repository.fetchTransactions()
-        }
-    }
 
     fun onAmountChange(newAmount: String) {
         val standardized = newAmount.replace(',', '.')

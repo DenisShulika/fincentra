@@ -1,5 +1,6 @@
 package com.denisshulika.fincentra.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.denisshulika.fincentra.data.models.BankAccount
@@ -94,37 +95,46 @@ class IntegrationsViewModel : ViewModel() {
         _showAccountSelection.value = show
     }
 
-    fun saveMonoToken() {
-        viewModelScope.launch {
-            if (_monoToken.value.isNotBlank()) {
-                repository.saveMonoToken(_monoToken.value)
-                _isBankConnected.value = true
-                _isMonoInputVisible.value = false
-                _monoToken.value = ""
-            }
-        }
-    }
-
     fun syncMonobank() {
         viewModelScope.launch {
             _isLoading.value = true
-            val token = repository.getMonoToken()
+            val token = repository.getMonoToken() ?: return@launch
             val selectedIds = repository.getSelectedAccountIds()
 
-            if (!token.isNullOrBlank() && selectedIds.isNotEmpty()) {
-                val allNewTransactions = mutableListOf<Transaction>()
+            try {
+                Log.d("MONO_SYNC", "1. Отримання актуальних даних про рахунки...")
 
-                for (id in selectedIds) {
-                    val txs = monoService.fetchTransactionsForAccount(token, id)
-                    allNewTransactions.addAll(txs)
+                val actualAccounts = monoService.fetchAccounts(token)
 
-                    kotlinx.coroutines.delay(1000)
+                repository.saveAccounts(actualAccounts)
+
+                if (selectedIds.isNotEmpty()) {
+                    val allNewTransactions = mutableListOf<Transaction>()
+
+                    for (id in selectedIds) {
+                        val account = actualAccounts.find { it.id == id }
+                        val currency = account?.currencyCode ?: 980
+
+                        Log.d("MONO_SYNC", "2. Запит транзакцій для карти $id (валюта $currency)")
+
+                        val txs = monoService.fetchTransactionsForAccount(token, id, currency)
+
+                        if (txs.isNotEmpty()) {
+                            allNewTransactions.addAll(txs)
+                        }
+
+                        if (selectedIds.size > 1 && id != selectedIds.last()) {
+                            Log.d("MONO_SYNC", "Очікуємо 60 секунд за лімітом банку...")
+                        }
+                    }
+
+                    repository.addTransactionsBatch(allNewTransactions)
                 }
-
-                repository.addTransactionsBatch(allNewTransactions)
+            } catch (e: Exception) {
+                Log.e("MONO_SYNC", "Помилка: ${e.message}")
+            } finally {
+                _isLoading.value = false
             }
-
-            _isLoading.value = false
         }
     }
 
