@@ -50,8 +50,19 @@ class GlobalSyncWorker(
             val currency = acc?.currencyCode ?: 980
 
             try {
-                val txs = monoService.fetchTransactionsForAccount(token, id, currency)
-                allTxs.addAll(txs)
+                val lastSyncMillis = repository.getLastSyncTimestamp(id)
+                val fromTimeSeconds = if (lastSyncMillis == 0L) {
+                    (System.currentTimeMillis() / 1000) - (30 * 24 * 60 * 60)
+                } else {
+                    (lastSyncMillis / 1000) + 1
+                }
+
+                val txs = monoService.fetchTransactionsForAccount(token, id, currency, fromTimeSeconds)
+
+                if (txs.isNotEmpty()) {
+                    allTxs.addAll(txs)
+                    repository.saveLastSyncTimestamp(id, txs.maxOf { it.timestamp })
+                }
             } catch (e: Exception) {
                 Log.e("SYNC_WORKER", "Помилка карти $id: ${e.message}")
             }

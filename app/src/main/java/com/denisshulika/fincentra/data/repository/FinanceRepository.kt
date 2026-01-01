@@ -107,11 +107,28 @@ class FinanceRepository {
 
     fun getLastGlobalSyncTimeFlow(): kotlinx.coroutines.flow.Flow<Long?> = callbackFlow {
         val subscription = settingsCollection.document("sync_metadata")
-            .addSnapshotListener { snapshot, _ ->
-                if (snapshot != null) {
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) return@addSnapshotListener
+                if (snapshot != null && snapshot.exists()) {
                     trySend(snapshot.getLong("lastGlobalSync"))
                 }
             }
         awaitClose { subscription.remove() }
+    }
+
+    suspend fun saveLastSyncTimestamp(accountId: String, timestamp: Long) {
+        val data = mapOf("lastSync_$accountId" to timestamp)
+        settingsCollection.document("sync_metadata")
+            .set(data, com.google.firebase.firestore.SetOptions.merge())
+            .await()
+    }
+
+    suspend fun getLastSyncTimestamp(accountId: String): Long {
+        return try {
+            val document = settingsCollection.document("sync_metadata").get().await()
+            document.getLong("lastSync_$accountId") ?: 0L
+        } catch (e: Exception) {
+            0L
+        }
     }
 }

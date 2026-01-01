@@ -56,7 +56,9 @@ class IntegrationsViewModel : ViewModel() {
 
     fun syncMonobank() {
         viewModelScope.launch {
+            if (_isLoading.value) return@launch
             _isLoading.value = true
+
             val token = repository.getMonoToken() ?: return@launch
             val selectedIds = repository.getSelectedAccountIds()
 
@@ -68,32 +70,58 @@ class IntegrationsViewModel : ViewModel() {
                 if (selectedIds.isNotEmpty()) {
                     val allNewTransactions = mutableListOf<Transaction>()
 
-                    selectedIds.forEachIndexed { index, id ->
+                    selectedIds.forEachIndexed { _, id ->
                         val account = actualAccounts.find { it.id == id }
                         val name = account?.name ?: "карти"
+                        val currency = account?.currencyCode ?: 980
+
                         _syncStatus.value = "Завантаження $name..."
 
                         try {
-                            val txs = monoService.fetchTransactionsForAccount(token, id, account?.currencyCode ?: 980)
-                            allNewTransactions.addAll(txs)
+                            val lastSyncMillis = repository.getLastSyncTimestamp(id)
+
+                            val fromTimeSeconds = if (lastSyncMillis == 0L) {
+                                (System.currentTimeMillis() / 1000) - (30 * 24 * 60 * 60)
+                            } else {
+                                (lastSyncMillis / 1000) + 1
+                            }
+
+                            // 3. Запитуємо тільки нові дані
+                            val txs = monoService.fetchTransactionsForAccount(token, id, currency, fromTimeSeconds)
+
+                            if (txs.isNotEmpty()) {
+                                allNewTransactions.addAll(txs)
+                                repository.saveLastSyncTimestamp(id, txs.maxOf { it.timestamp })
+                            }
+
                         } catch (e: Exception) {
-                            Log.e("MONO_SYNC", "Помилка карти $id")
-                            _events.emit(IntegrationsUiEvent.ShowToast("Помилка завантаження $name"))
+                            Log.e("MONO_SYNC", "Помилка карти $id: ${e.message}")
+                            if (e.toString().contains("429")) {
+                                _events.emit(IntegrationsUiEvent.ShowToast("Ліміт банку для $name"))
+                            }
                         }
 
                         if (id != selectedIds.last()) {
-                            kotlinx.coroutines.delay(5000)
+                            for (i in 20 downTo 1) {
+                                _syncStatus.value = "Пауза для лімітів: ${i}с..."
+                                kotlinx.coroutines.delay(1000)
+                            }
                         }
                     }
 
                     if (allNewTransactions.isNotEmpty()) {
+                        _syncStatus.value = "Зберігання ${allNewTransactions.size} транзакцій..."
                         repository.addTransactionsBatch(allNewTransactions)
                         _syncStatus.value = "Готово! +${allNewTransactions.size}"
+                    } else {
+                        _syncStatus.value = "Все актуально"
                     }
+
+                    repository.saveLastGlobalSyncTime(System.currentTimeMillis())
                 }
             } catch (e: Exception) {
-                _syncStatus.value = "Помилка"
-                _events.emit(IntegrationsUiEvent.ShowToast("Помилка мережі"))
+                Log.e("MONO_SYNC", "Критична помилка: ${e.message}")
+                _syncStatus.value = "Помилка мережі"
             } finally {
                 _isLoading.value = false
                 kotlinx.coroutines.delay(3000)

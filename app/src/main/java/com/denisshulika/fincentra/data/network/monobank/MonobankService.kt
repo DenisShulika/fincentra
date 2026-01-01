@@ -39,14 +39,11 @@ class MonobankService {
         token: String,
         accountId: String,
         accountCurrency: Int,
-        days: Int = 30
+        fromTimeSeconds: Long
     ): List<Transaction> {
         val toTime = (System.currentTimeMillis() / 1000) - 60
-        val fromTime = toTime - (days * 24 * 60 * 60)
 
-        Log.d("MONO_SYNC", "Запит для карти $accountId. Примусова валюта: $accountCurrency")
-
-        val monoList = api.getStatement(token, accountId, fromTime, toTime)
+        val monoList = api.getStatement(token, accountId, fromTimeSeconds, toTime)
 
         return monoList.map { monoTx ->
             Transaction(
