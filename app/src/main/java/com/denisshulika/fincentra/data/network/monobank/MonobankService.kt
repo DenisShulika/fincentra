@@ -1,17 +1,16 @@
 package com.denisshulika.fincentra.data.network.monobank
 
-import android.util.Log
 import com.denisshulika.fincentra.data.models.BankAccount
 import com.denisshulika.fincentra.data.models.Transaction
+import com.denisshulika.fincentra.data.network.common.BankProvider
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.data.network.common.MccDirectory
 import com.denisshulika.fincentra.di.DependencyProvider
-import kotlin.math.abs
 
-class MonobankService {
+class MonobankService : BankProvider {
     private val api = DependencyProvider.monobankApi
 
-    suspend fun fetchAccounts(token: String): List<BankAccount> {
+    override suspend fun fetchAccounts(token: String): List<BankAccount> {
         val response = api.getClientInfo(token)
         val accounts = mutableListOf<BankAccount>()
         response.accounts.forEach { acc ->
@@ -35,7 +34,7 @@ class MonobankService {
         return accounts
     }
 
-    suspend fun fetchTransactionsForAccount(
+    override suspend fun fetchTransactionsForAccount(
         token: String,
         accountId: String,
         accountCurrency: Int,

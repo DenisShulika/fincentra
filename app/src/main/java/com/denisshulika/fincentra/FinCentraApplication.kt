@@ -1,7 +1,11 @@
 package com.denisshulika.fincentra
 
 import android.app.Application
-import androidx.work.*
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.denisshulika.fincentra.data.repository.GlobalSyncWorker
 import java.util.concurrent.TimeUnit
 

@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.denisshulika.fincentra.data.network.monobank.MonobankService
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.delay
 
@@ -14,7 +13,7 @@ class GlobalSyncWorker(
 ) : CoroutineWorker(context, workerParams) {
 
     private val repository = DependencyProvider.repository
-    private val monoService = MonobankService()
+    private val monoService = DependencyProvider.monobankProvider
 
     override suspend fun doWork(): Result {
         Log.d("SYNC_WORKER", "Розпочато глобальну фонову синхронізацію")

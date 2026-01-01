@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.denisshulika.fincentra.data.models.BankAccount
 import com.denisshulika.fincentra.data.models.Transaction
-import com.denisshulika.fincentra.data.network.monobank.MonobankService
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +17,7 @@ import kotlinx.coroutines.launch
 
 class IntegrationsViewModel : ViewModel() {
     private val repository = DependencyProvider.repository
-    private val monoService = MonobankService()
+    private val monoService = DependencyProvider.monobankProvider
 
     private val _events = MutableSharedFlow<IntegrationsUiEvent>()
     val events = _events.asSharedFlow()
