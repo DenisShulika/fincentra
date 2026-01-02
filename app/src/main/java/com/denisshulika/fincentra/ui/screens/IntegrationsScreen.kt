@@ -134,7 +134,8 @@ fun IntegrationsScreen(viewModel: IntegrationsViewModel) {
                     }
 
                     OutlinedButton(
-                        onClick = { viewModel.fetchAccountsAndShowSelection() },
+                        onClick = { viewModel.openAccountSettings() },
+                        enabled = !isLoading,
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
                     ) {
                         Text("Налаштувати рахунки")
@@ -142,9 +143,10 @@ fun IntegrationsScreen(viewModel: IntegrationsViewModel) {
 
                     TextButton(
                         onClick = { viewModel.disconnectBank() },
+                        enabled = !isLoading,
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     ) {
-                        Text("Відключити банк", color = Color.Red)
+                        Text("Відключити банк", color = if (isLoading) Color.Gray else Color.Red)
                     }
                 } else {
                     if (!isInputVisible) {
@@ -167,7 +169,7 @@ fun IntegrationsScreen(viewModel: IntegrationsViewModel) {
                             label = { Text("Введіть токен") },
                             modifier = Modifier.fillMaxWidth()
                         )
-                        Button(onClick = { viewModel.fetchAccountsAndShowSelection() }, modifier = Modifier.fillMaxWidth()) {
+                        Button(onClick = { viewModel.connectNewBank() }, modifier = Modifier.fillMaxWidth()) {
                             Text("Зберегти та підключити")
                         }
                     }
@@ -194,14 +196,13 @@ fun AccountSelectionSheet(viewModel: IntegrationsViewModel) {
             LazyColumn {
                 items(accounts) { account ->
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { viewModel.toggleAccountSelection(account.id) }
                             .padding(vertical = 8.dp)
                     ) {
                         Checkbox(
-                            checked = account.isSelected,
+                            checked = account.selected,
                             onCheckedChange = { viewModel.toggleAccountSelection(account.id) }
                         )
                         Spacer(Modifier.width(8.dp))

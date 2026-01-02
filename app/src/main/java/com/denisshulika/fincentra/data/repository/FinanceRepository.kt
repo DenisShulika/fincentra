@@ -4,8 +4,12 @@ import android.util.Log
 import com.denisshulika.fincentra.data.models.BankAccount
 import com.denisshulika.fincentra.data.models.Transaction
 import com.denisshulika.fincentra.di.DependencyProvider
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,9 +17,11 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 class FinanceRepository {
-    private val db = DependencyProvider.getInstance()
-    private val transactionsCollection = db.collection("transactions")
-    private val accountsCollection = db.collection("accounts")
+
+    private val db: FirebaseFirestore = DependencyProvider.getInstance()
+    private val transactionsCollection: CollectionReference = db.collection("transactions")
+    private val accountsCollection: CollectionReference = db.collection("accounts")
+    private val settingsCollection: CollectionReference = db.collection("settings")
 
     private val _transactions = MutableStateFlow<List<Transaction>>(emptyList())
     val transactions: StateFlow<List<Transaction>> = _transactions.asStateFlow()
@@ -24,8 +30,13 @@ class FinanceRepository {
         transactionsCollection
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("REPO", "Слухач впав", error)
+                    return@addSnapshotListener
+                }
                 if (snapshot != null) {
-                    _transactions.value = snapshot.toObjects(Transaction::class.java).distinctBy { it.id }
+                    val list = snapshot.toObjects(Transaction::class.java)
+                    _transactions.value = list.distinctBy { it.id }
                 }
             }
     }
@@ -33,26 +44,35 @@ class FinanceRepository {
     suspend fun addTransaction(transaction: Transaction) {
         try {
             transactionsCollection.document(transaction.id).set(transaction).await()
+            Log.d("REPO", "Транзакція збережена успішно: ${transaction.id}")
         } catch (e: Exception) {
-            Log.e("REPO", "Помилка додавання: ${e.message}")
+            Log.e("REPO", "Помилка збереження однієї транзакції: ${e.message}")
+            throw e
         }
     }
 
-    suspend fun saveAccounts(actualAccounts: List<BankAccount>) {
+    suspend fun getAccountsOnce(): List<BankAccount> {
+        return try {
+            val snapshot = accountsCollection.get().await()
+            snapshot.toObjects(BankAccount::class.java)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun saveAccounts(accounts: List<BankAccount>, updateSelection: Boolean = false) {
         val selectedIds = getSelectedAccountIds()
         val batch = db.batch()
-        actualAccounts.forEach { account ->
-            val updated = account.copy(isSelected = selectedIds.contains(account.id))
-            batch.set(accountsCollection.document(account.id), updated)
+        accounts.forEach { acc ->
+            val docRef = accountsCollection.document(acc.id)
+            val isSelected = if (updateSelection) acc.selected else selectedIds.contains(acc.id)
+            val updatedAcc = acc.copy(selected = isSelected)
+            batch.set(docRef, updatedAcc, SetOptions.merge())
         }
         batch.commit().await()
-    }
 
-    fun getAccountsFlow(): kotlinx.coroutines.flow.Flow<List<BankAccount>> = callbackFlow {
-        val sub = accountsCollection.addSnapshotListener { s, _ ->
-            if (s != null) trySend(s.toObjects(BankAccount::class.java))
-        }
-        awaitClose { sub.remove() }
+        val newSelectedIds = accounts.filter { if (updateSelection) it.selected else selectedIds.contains(it.id) }.map { it.id }
+        saveSelectedAccountIds(newSelectedIds)
     }
 
     suspend fun addTransactionsBatch(list: List<Transaction>) {
@@ -60,55 +80,51 @@ class FinanceRepository {
         val batch = db.batch()
         list.forEach { batch.set(transactionsCollection.document(it.id), it) }
         batch.commit().await()
-        Log.d("REPO", "Записано в базу: ${list.size} транзакцій")
     }
 
-    suspend fun     deleteTransaction(id: String) = transactionsCollection.document(id).delete().await()
-
-    private val settingsCollection = db.collection("settings")
-
     suspend fun saveMonoToken(token: String) {
-        val data = mapOf("monoToken" to token)
-        settingsCollection.document("user_settings").set(data).await()
+        settingsCollection.document("user_settings")
+            .set(mapOf("monoToken" to token), SetOptions.merge())
+            .await()
     }
 
     suspend fun getMonoToken(): String? {
-        return try {
-            val document = settingsCollection.document("user_settings").get().await()
-            document.getString("monoToken")
-        } catch (e: Exception) {
-            null
-        }
+        return settingsCollection.document("user_settings").get().await()
+            .getString("monoToken")
     }
 
-    suspend fun saveSelectedAccountIds(ids: List<String>) {
-        val data = mapOf("selectedIds" to ids)
+    private suspend fun saveSelectedAccountIds(ids: List<String>) {
         settingsCollection.document("user_settings")
-            .set(data, com.google.firebase.firestore.SetOptions.merge())
+            .set(mapOf("selectedIds" to ids), SetOptions.merge())
             .await()
     }
 
+    @Suppress("UNCHECKED_CAST")
     suspend fun getSelectedAccountIds(): List<String> {
-        return try {
-            val document = settingsCollection.document("user_settings").get().await()
-            @Suppress("UNCHECKED_CAST")
-            document.get("selectedIds") as? List<String> ?: emptyList()
-        } catch (e: Exception) {
-            emptyList()
-        }
+        val snapshot = settingsCollection.document("user_settings").get().await()
+        return snapshot.get("selectedIds") as? List<String> ?: emptyList()
+    }
+
+    suspend fun saveLastSyncTimestamp(accountId: String, timestamp: Long) {
+        settingsCollection.document("sync_metadata")
+            .set(mapOf("lastSync_$accountId" to timestamp), SetOptions.merge())
+            .await()
+    }
+
+    suspend fun getLastSyncTimestamp(accountId: String): Long {
+        val snapshot = settingsCollection.document("sync_metadata").get().await()
+        return snapshot.getLong("lastSync_$accountId") ?: 0L
     }
 
     suspend fun saveLastGlobalSyncTime(timestamp: Long) {
-        val data = mapOf("lastGlobalSync" to timestamp)
         settingsCollection.document("sync_metadata")
-            .set(data, com.google.firebase.firestore.SetOptions.merge())
+            .set(mapOf("lastGlobalSync" to timestamp), SetOptions.merge())
             .await()
     }
 
-    fun getLastGlobalSyncTimeFlow(): kotlinx.coroutines.flow.Flow<Long?> = callbackFlow {
+    fun getLastGlobalSyncTimeFlow(): Flow<Long?> = callbackFlow {
         val subscription = settingsCollection.document("sync_metadata")
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) return@addSnapshotListener
+            .addSnapshotListener { snapshot, _ ->
                 if (snapshot != null && snapshot.exists()) {
                     trySend(snapshot.getLong("lastGlobalSync"))
                 }
@@ -116,19 +132,36 @@ class FinanceRepository {
         awaitClose { subscription.remove() }
     }
 
-    suspend fun saveLastSyncTimestamp(accountId: String, timestamp: Long) {
-        val data = mapOf("lastSync_$accountId" to timestamp)
-        settingsCollection.document("sync_metadata")
-            .set(data, com.google.firebase.firestore.SetOptions.merge())
-            .await()
+    suspend fun deleteTransaction(id: String) {
+        transactionsCollection.document(id).delete().await()
     }
 
-    suspend fun getLastSyncTimestamp(accountId: String): Long {
-        return try {
-            val document = settingsCollection.document("sync_metadata").get().await()
-            document.getLong("lastSync_$accountId") ?: 0L
-        } catch (e: Exception) {
-            0L
+    fun getAccountsFlow(): Flow<List<BankAccount>> = callbackFlow {
+        val subscription = accountsCollection.addSnapshotListener { snapshot, _ ->
+            if (snapshot != null) {
+                trySend(snapshot.toObjects(BankAccount::class.java))
+            }
         }
+        awaitClose { subscription.remove() }
+    }
+
+    suspend fun clearMonobankData() {
+        settingsCollection.document("user_settings").update(
+            mapOf(
+                "monoToken" to null,
+                "selectedIds" to emptyList<String>()
+            )
+        ).await()
+
+        val accounts = accountsCollection.whereEqualTo("provider", "Monobank").get().await()
+        //val transactions = transactionsCollection.whereEqualTo("bankName", "Monobank").get().await()
+
+        val batch = db.batch()
+        accounts.documents.forEach { batch.delete(it.reference) }
+        //transactions.documents.forEach { batch.delete(it.reference) }
+
+        db.collection("settings").document("sync_metadata").delete().await()
+
+        batch.commit().await()
     }
 }

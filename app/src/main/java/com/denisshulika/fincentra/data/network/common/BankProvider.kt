@@ -10,6 +10,8 @@ interface BankProvider {
         token: String,
         accountId: String,
         accountCurrency: Int,
-        fromTimeSeconds: Long
+        fromTimeSeconds: Long,
+        onProgress: suspend (String) -> Unit,
+        onBatchLoaded: suspend (List<Transaction>) -> Unit
     ): List<Transaction>
 }

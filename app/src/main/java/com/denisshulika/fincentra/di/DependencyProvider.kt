@@ -9,18 +9,24 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object DependencyProvider {
-    val repository = FinanceRepository()
+    val repository by lazy { FinanceRepository() }
 
-    val monobankProvider: BankProvider = MonobankService()
+    private val retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl("https://api.monobank.ua/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    val monobankApi: MonobankApi by lazy {
+        retrofit.create(MonobankApi::class.java)
+    }
+
+    val monobankProvider: BankProvider by lazy {
+        MonobankService()
+    }
 
     fun getInstance(): FirebaseFirestore {
         return FirebaseFirestore.getInstance()
     }
-
-    private val retrofit = Retrofit.Builder()
-        .baseUrl("https://api.monobank.ua/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-
-    val monobankApi: MonobankApi = retrofit.create(MonobankApi::class.java)
 }

@@ -6,14 +6,14 @@ import com.denisshulika.fincentra.data.models.Transaction
 import com.denisshulika.fincentra.data.models.TransactionCategory
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class TransactionsViewModel : ViewModel() {
-
-    private val repository = DependencyProvider.repository
-    val transactions: StateFlow<List<Transaction>> = repository.transactions
 
     private val _amount = MutableStateFlow("")
     val amount: StateFlow<String> = _amount.asStateFlow()
@@ -47,6 +47,21 @@ class TransactionsViewModel : ViewModel() {
 
         _amount.value = filtered
     }
+
+    private val repository = DependencyProvider.repository
+
+    private val allTransactions = repository.transactions
+
+    private val accounts = repository.getAccountsFlow()
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    val transactions: StateFlow<List<Transaction>> = combine(allTransactions, accounts) { txList, accountList ->
+        val selectedIds = accountList.filter { it.selected }.map { it.id }
+
+        txList.filter { tx ->
+            tx.accountId == "manual" || selectedIds.contains(tx.accountId)
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun onDescriptionChange(newDesc: String) {
         _description.value = newDesc

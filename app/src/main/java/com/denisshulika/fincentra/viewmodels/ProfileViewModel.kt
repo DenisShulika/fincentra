@@ -17,7 +17,7 @@ class ProfileViewModel : ViewModel() {
         viewModelScope.launch {
             repository.getAccountsFlow().collect { accounts ->
                 val summaries = accounts
-                    .filter { it.isSelected }
+                    .filter { it.selected }
                     .groupBy { it.currencyCode }
                     .map { (code, list) ->
                         CurrencySummary(code, list.sumOf { it.balance })

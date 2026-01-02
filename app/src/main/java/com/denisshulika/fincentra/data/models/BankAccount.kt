@@ -1,5 +1,7 @@
 package com.denisshulika.fincentra.data.models
 
+import com.google.firebase.firestore.PropertyName
+
 data class BankAccount(
     val id: String = "",
     val provider: String = "",
@@ -7,5 +9,7 @@ data class BankAccount(
     val type: String = "",
     val balance: Double = 0.0,
     val currencyCode: Int = 980,
-    val isSelected: Boolean = true
+    @get:PropertyName("selected")
+    @set:PropertyName("selected")
+    var selected: Boolean = false
 )

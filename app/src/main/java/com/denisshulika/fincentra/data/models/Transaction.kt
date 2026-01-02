@@ -1,15 +1,14 @@
 package com.denisshulika.fincentra.data.models
 
 import com.google.firebase.firestore.PropertyName
-import java.util.UUID
 
 data class Transaction(
-    val id: String = UUID.randomUUID().toString(),
+    val id: String = "",
     val accountId: String = "manual",
     val amount: Double = 0.0,
     val currencyCode: Int = 980,
     val description: String = "",
-    val timestamp: Long = System.currentTimeMillis(),
+    val timestamp: Long = 0L,
     val category: TransactionCategory = TransactionCategory.OTHERS,
     val bankName: String = "Готівка",
 
@@ -18,5 +17,7 @@ data class Transaction(
     var isExpense: Boolean = true,
 
     val mcc: Int? = null,
-    val note: String? = null
+    val note: String? = null,
+    val balance: Double? = null,
+    val comment: String? = null
 )
