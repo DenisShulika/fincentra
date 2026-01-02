@@ -167,6 +167,7 @@ fun IntegrationsScreen(viewModel: IntegrationsViewModel) {
                             value = monoToken,
                             onValueChange = { viewModel.onTokenChange(it) },
                             label = { Text("Введіть токен") },
+                            enabled = !isLoading,
                             modifier = Modifier.fillMaxWidth()
                         )
                         Button(onClick = { viewModel.connectNewBank() }, modifier = Modifier.fillMaxWidth()) {
