@@ -55,12 +55,39 @@ class TransactionsViewModel : ViewModel() {
     private val accounts = repository.getAccountsFlow()
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
-    val transactions: StateFlow<List<Transaction>> = combine(allTransactions, accounts) { txList, accountList ->
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery = _searchQuery.asStateFlow()
+
+    private val _selectedBankFilter = MutableStateFlow("Всі")
+    val selectedBankFilter = _selectedBankFilter.asStateFlow()
+
+    fun onSearchQueryChange(query: String) {
+        _searchQuery.value = query
+    }
+
+    fun onBankFilterChange(bank: String) {
+        _selectedBankFilter.value = bank
+    }
+
+    val transactions: StateFlow<List<Transaction>> = combine(
+        allTransactions,
+        accounts,
+        _searchQuery,
+        _selectedBankFilter
+    ) { txList, accountList, query, bankFilter ->
+
         val selectedIds = accountList.filter { it.selected }.map { it.id }
 
-        txList.filter { tx ->
-            tx.accountId == "manual" || selectedIds.contains(tx.accountId)
-        }
+        txList
+            .filter { tx -> tx.accountId == "manual" || selectedIds.contains(tx.accountId) }
+            .filter { tx ->
+                tx.description.contains(query, ignoreCase = true) ||
+                        tx.category.displayName.contains(query, ignoreCase = true) ||
+                        tx.subCategoryName.contains(query, ignoreCase = true)
+            }
+            .filter { tx ->
+                if (bankFilter == "Всі") true else tx.bankName == bankFilter
+            }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun onDescriptionChange(newDesc: String) {
