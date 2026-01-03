@@ -5,12 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.denisshulika.fincentra.data.models.BankAccount
 import com.denisshulika.fincentra.data.models.Transaction
 import com.denisshulika.fincentra.data.models.TransactionCategory
+import com.denisshulika.fincentra.data.util.TransactionConstants
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -77,14 +79,8 @@ class TransactionsViewModel : ViewModel() {
     private var editingTimestamp: Long? = null
 
     val transactions: StateFlow<List<Transaction>> = combine(
-        allTransactions,
-        accounts,
-        _searchQuery,
-        _selectedBankFilter,
-        _selectedCategories,
-        _selectedDateRange,
-        _selectedTypeFilter,
-        _selectedSortOrder
+        allTransactions, accounts, _searchQuery, _selectedBankFilter,
+        _selectedCategories, _selectedDateRange, _selectedTypeFilter, _selectedSortOrder
     ) { args ->
         val txList = args[0] as List<Transaction>
         val accountList = args[1] as List<BankAccount>
@@ -97,49 +93,54 @@ class TransactionsViewModel : ViewModel() {
 
         val selectedAccountIds = accountList.filter { it.selected }.map { it.id }
 
-        // 1. Фільтрація
-        val filtered = txList.filter { tx ->
-            val isAccountVisible = tx.accountId == "manual" || selectedAccountIds.contains(tx.accountId)
+        txList
+            .filterByActiveAccounts(selectedAccountIds)
+            .filterBySearch(query)
+            .filterByBank(bankFilter)
+            .filterByType(typeFilter)
+            .filterByCategories(selectedCats)
+            .filterByDate(dateRange)
+            .applySort(sortOrder)
 
-            val matchesSearch = tx.description.contains(query, ignoreCase = true) ||
-                    tx.category.displayName.contains(query, ignoreCase = true) ||
-                    tx.subCategoryName.contains(query, ignoreCase = true)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-            val matchesBank = if (bankFilter == "Всі") true else tx.bankName == bankFilter
+    private fun List<Transaction>.filterByActiveAccounts(ids: List<String>) = filter {
+        it.accountId == TransactionConstants.ACCOUNT_ID_MANUAL || ids.contains(it.accountId)
+    }
 
-            val matchesType = when (typeFilter) {
-                "Витрати" -> tx.isExpense
-                "Доходи" -> !tx.isExpense
-                else -> true
-            }
+    private fun List<Transaction>.filterBySearch(query: String) = filter {
+        it.description.contains(query, ignoreCase = true) ||
+                it.category.displayName.contains(query, ignoreCase = true) ||
+                it.subCategoryName.contains(query, ignoreCase = true)
+    }
 
-            val matchesCategory = if (selectedCats.isEmpty()) {
-                true
-            } else {
-                selectedCats.contains(tx.category.displayName) || selectedCats.contains(tx.subCategoryName)
-            }
+    private fun List<Transaction>.filterByBank(bank: String) = filter {
+        if (bank == "Всі") true else it.bankName == bank
+    }
 
-            val matchesDate = if (dateRange == null) {
-                true
-            } else {
-                tx.timestamp in dateRange
-            }
-
-            isAccountVisible && matchesSearch && matchesBank && matchesType && matchesCategory && matchesDate
+    private fun List<Transaction>.filterByType(type: String) = filter {
+        when (type) {
+            "Витрати" -> it.isExpense
+            "Доходи" -> !it.isExpense
+            else -> true
         }
+    }
 
-        // 2. Сортування
-        when (sortOrder) {
-            SortOrder.DATE_DESC -> filtered.sortedByDescending { it.timestamp }
-            SortOrder.DATE_ASC -> filtered.sortedBy { it.timestamp }
-            SortOrder.AMOUNT_DESC -> filtered.sortedByDescending { it.amount }
-            SortOrder.AMOUNT_ASC -> filtered.sortedBy { it.amount }
-        }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyList()
-    )
+    private fun List<Transaction>.filterByCategories(selectedCats: Set<String>) = filter {
+        if (selectedCats.isEmpty()) true
+        else selectedCats.contains(it.category.displayName) || selectedCats.contains(it.subCategoryName)
+    }
+
+    private fun List<Transaction>.filterByDate(range: LongRange?) = filter {
+        if (range == null) true else it.timestamp in range
+    }
+
+    private fun List<Transaction>.applySort(order: SortOrder) = when (order) {
+        SortOrder.DATE_DESC -> sortedByDescending { it.timestamp }
+        SortOrder.DATE_ASC -> sortedBy { it.timestamp }
+        SortOrder.AMOUNT_DESC -> sortedByDescending { it.amount }
+        SortOrder.AMOUNT_ASC -> sortedBy { it.amount }
+    }
 
     fun onSortOrderChange(order: SortOrder) {
         _selectedSortOrder.value = order
@@ -254,7 +255,7 @@ class TransactionsViewModel : ViewModel() {
                 category = _category.value,
                 isExpense = _isExpense.value,
                 timestamp = editingTimestamp ?: System.currentTimeMillis(),
-                accountId = "manual",
+                accountId = TransactionConstants.ACCOUNT_ID_MANUAL,
                 currencyCode = 980,
                 subCategoryName = "Ручне введення"
             )
@@ -262,4 +263,11 @@ class TransactionsViewModel : ViewModel() {
             toggleBottomSheet(false)
         }
     }
+
+    val categoriesWithSubs: StateFlow<Map<TransactionCategory, List<String>>> = allTransactions
+        .map { txList ->
+            TransactionCategory.entries.associateWith { mainCat ->
+                com.denisshulika.fincentra.data.network.common.MccDirectory.getSubcategoriesFor(mainCat)
+            }
+        }.stateIn(viewModelScope, SharingStarted.Lazily, emptyMap())
 }

@@ -1,6 +1,7 @@
 package com.denisshulika.fincentra.data.models
 
 import com.denisshulika.fincentra.R
+import com.denisshulika.fincentra.data.util.BankProviders
 
 data class BankProviderInfo(
     val id: String,
@@ -11,8 +12,8 @@ data class BankProviderInfo(
 
 val SupportedBanks = listOf(
     BankProviderInfo(
-        id = "Monobank",
-        name = "Monobank",
+        id = BankProviders.MONOBANK,
+        name = BankProviders.MONOBANK,
         logo = R.drawable.monobank_logo ,
         brandColor = androidx.compose.ui.graphics.Color(0xFFE91E63)
     ),

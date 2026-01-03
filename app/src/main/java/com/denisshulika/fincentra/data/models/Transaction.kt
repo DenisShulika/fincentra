@@ -1,16 +1,17 @@
 package com.denisshulika.fincentra.data.models
 
+import com.denisshulika.fincentra.data.util.TransactionConstants
 import com.google.firebase.firestore.PropertyName
 
 data class Transaction(
     val id: String = "",
-    val accountId: String = "manual",
+    val accountId: String = TransactionConstants.ACCOUNT_ID_MANUAL,
     val amount: Double = 0.0,
     val currencyCode: Int = 980,
     val description: String = "",
     val timestamp: Long = 0L,
     val category: TransactionCategory = TransactionCategory.OTHERS,
-    val bankName: String = "Готівка",
+    val bankName: String = TransactionConstants.SOURCE_CASH,
 
     @get:PropertyName("isExpense")
     @set:PropertyName("isExpense")

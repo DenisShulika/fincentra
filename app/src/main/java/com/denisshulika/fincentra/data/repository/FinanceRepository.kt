@@ -3,8 +3,10 @@ package com.denisshulika.fincentra.data.repository
 import android.util.Log
 import com.denisshulika.fincentra.data.models.BankAccount
 import com.denisshulika.fincentra.data.models.Transaction
+import com.denisshulika.fincentra.data.util.BankProviders
+import com.denisshulika.fincentra.data.util.FirestoreCollections
+import com.denisshulika.fincentra.data.util.FirestoreDocuments
 import com.denisshulika.fincentra.di.DependencyProvider
-import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
@@ -19,9 +21,9 @@ import kotlinx.coroutines.tasks.await
 class FinanceRepository {
 
     private val db: FirebaseFirestore = DependencyProvider.getInstance()
-    private val transactionsCollection: CollectionReference = db.collection("transactions")
-    private val accountsCollection: CollectionReference = db.collection("accounts")
-    private val settingsCollection: CollectionReference = db.collection("settings")
+    private val transactionsCollection = db.collection(FirestoreCollections.TRANSACTIONS)
+    private val accountsCollection = db.collection(FirestoreCollections.ACCOUNTS)
+    private val settingsCollection = db.collection(FirestoreCollections.SETTINGS)
 
     private val _transactions = MutableStateFlow<List<Transaction>>(emptyList())
     val transactions: StateFlow<List<Transaction>> = _transactions.asStateFlow()
@@ -83,47 +85,47 @@ class FinanceRepository {
     }
 
     suspend fun saveMonoToken(token: String) {
-        settingsCollection.document("user_settings")
+        settingsCollection.document(FirestoreDocuments.USER_SETTINGS)
             .set(mapOf("monoToken" to token), SetOptions.merge())
             .await()
     }
 
     suspend fun getMonoToken(): String? {
-        return settingsCollection.document("user_settings").get().await()
+        return settingsCollection.document(FirestoreDocuments.USER_SETTINGS).get().await()
             .getString("monoToken")
     }
 
     private suspend fun saveSelectedAccountIds(ids: List<String>) {
-        settingsCollection.document("user_settings")
+        settingsCollection.document(FirestoreDocuments.USER_SETTINGS)
             .set(mapOf("selectedIds" to ids), SetOptions.merge())
             .await()
     }
 
     @Suppress("UNCHECKED_CAST")
     suspend fun getSelectedAccountIds(): List<String> {
-        val snapshot = settingsCollection.document("user_settings").get().await()
+        val snapshot = settingsCollection.document(FirestoreDocuments.USER_SETTINGS).get().await()
         return snapshot.get("selectedIds") as? List<String> ?: emptyList()
     }
 
     suspend fun saveLastSyncTimestamp(accountId: String, timestamp: Long) {
-        settingsCollection.document("sync_metadata")
+        settingsCollection.document(FirestoreDocuments.SYNC_METADATA)
             .set(mapOf("lastSync_$accountId" to timestamp), SetOptions.merge())
             .await()
     }
 
     suspend fun getLastSyncTimestamp(accountId: String): Long {
-        val snapshot = settingsCollection.document("sync_metadata").get().await()
+        val snapshot = settingsCollection.document(FirestoreDocuments.SYNC_METADATA).get().await()
         return snapshot.getLong("lastSync_$accountId") ?: 0L
     }
 
     suspend fun saveLastGlobalSyncTime(timestamp: Long) {
-        settingsCollection.document("sync_metadata")
+        settingsCollection.document(FirestoreDocuments.SYNC_METADATA)
             .set(mapOf("lastGlobalSync" to timestamp), SetOptions.merge())
             .await()
     }
 
     fun getLastGlobalSyncTimeFlow(): Flow<Long?> = callbackFlow {
-        val subscription = settingsCollection.document("sync_metadata")
+        val subscription = settingsCollection.document(FirestoreDocuments.SYNC_METADATA)
             .addSnapshotListener { snapshot, _ ->
                 if (snapshot != null && snapshot.exists()) {
                     trySend(snapshot.getLong("lastGlobalSync"))
@@ -146,21 +148,21 @@ class FinanceRepository {
     }
 
     suspend fun clearMonobankData() {
-        settingsCollection.document("user_settings").update(
+        settingsCollection.document(FirestoreDocuments.USER_SETTINGS).update(
             mapOf(
                 "monoToken" to null,
                 "selectedIds" to emptyList<String>()
             )
         ).await()
 
-        val accounts = accountsCollection.whereEqualTo("provider", "Monobank").get().await()
+        val accounts = accountsCollection.whereEqualTo("provider", BankProviders.MONOBANK).get().await()
         //val transactions = transactionsCollection.whereEqualTo("bankName", "Monobank").get().await()
 
         val batch = db.batch()
         accounts.documents.forEach { batch.delete(it.reference) }
         //transactions.documents.forEach { batch.delete(it.reference) }
 
-        db.collection("settings").document("sync_metadata").delete().await()
+        settingsCollection.document(FirestoreDocuments.SYNC_METADATA).delete().await()
 
         batch.commit().await()
     }

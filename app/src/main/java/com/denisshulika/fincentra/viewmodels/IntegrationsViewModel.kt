@@ -129,10 +129,7 @@ class IntegrationsViewModel : ViewModel() {
                     _syncProgress.value = (index + 1).toFloat() / accountsToSync.size.toFloat()
 
                     if (index < accountsToSync.size - 1) {
-                        for (i in 60 downTo 1) {
-                            _syncStatus.value = "Наступна карта через ${i}с..."
-                            delay(1000)
-                        }
+                        waitForApiCooldown(60, "Наступна карта через")
                     }
                 }
 
@@ -148,13 +145,17 @@ class IntegrationsViewModel : ViewModel() {
                 delay(3000)
             } finally {
                 _syncProgress.value = 0f
-                for (i in 57 downTo 1) {
-                    _syncStatus.value = "Відпочинок API: $i с..."
-                    delay(1000)
-                }
+                waitForApiCooldown(60, "Відпочинок API")
                 _isLoading.value = false
                 _syncStatus.value = ""
             }
+        }
+    }
+
+    private suspend fun waitForApiCooldown(seconds: Int, statusPrefix: String) {
+        for (i in seconds downTo 1) {
+            _syncStatus.value = "$statusPrefix: $i с..."
+            delay(1000)
         }
     }
 

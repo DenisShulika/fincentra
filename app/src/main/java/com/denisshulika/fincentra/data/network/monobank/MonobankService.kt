@@ -7,6 +7,8 @@ import com.denisshulika.fincentra.data.network.common.BankProvider
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.data.network.common.MccDirectory
 import com.denisshulika.fincentra.data.network.monobank.models.MonoTransactionResponse
+import com.denisshulika.fincentra.data.util.BankAccountTypes
+import com.denisshulika.fincentra.data.util.BankProviders
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.delay
 import retrofit2.HttpException
@@ -23,14 +25,14 @@ class MonobankService : BankProvider {
                 val symbol = CurrencyMapper.getSymbol(acc.currencyCode)
                 val pan = acc.maskedPan.firstOrNull()?.let { if (it.length >= 4) "*${it.takeLast(4)}" else "" } ?: ""
                 accounts.add(BankAccount(
-                    id = acc.id, provider = "Monobank", name = "Картка $symbol $pan".trim(),
+                    id = acc.id, provider = BankProviders.MONOBANK, name = "Картка $symbol $pan".trim(),
                     type = acc.type, balance = acc.balance / 100.0, currencyCode = acc.currencyCode
                 ))
             }
             response.jars?.forEach { jar ->
                 accounts.add(BankAccount(
-                    id = jar.id, provider = "Monobank", name = "Банка: ${jar.title}",
-                    type = "jar", balance = jar.balance / 100.0, currencyCode = jar.currencyCode
+                    id = jar.id, provider = BankProviders.MONOBANK, name = "Банка: ${jar.title}",
+                    type = BankAccountTypes.JAR, balance = jar.balance / 100.0, currencyCode = jar.currencyCode
                 ))
             }
             accounts
@@ -101,7 +103,7 @@ class MonobankService : BankProvider {
             currencyCode = accountCurrency,
             description = this.description,
             timestamp = this.time * 1000,
-            bankName = "Monobank",
+            bankName = BankProviders.MONOBANK,
             isExpense = this.amount < 0,
             category = mccInfo.category,
             subCategoryName = mccInfo.subCategoryName,
