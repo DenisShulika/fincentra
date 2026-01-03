@@ -1,6 +1,7 @@
 package com.denisshulika.fincentra.data.util
 
 object FirestoreCollections {
+    const val USERS = "users"
     const val TRANSACTIONS = "transactions"
     const val ACCOUNTS = "accounts"
     const val SETTINGS = "settings"

@@ -59,6 +59,8 @@ dependencies {
     implementation(libs.logging.interceptor)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.play.services.auth)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
