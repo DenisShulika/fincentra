@@ -87,8 +87,7 @@ fun IntegrationsScreen(viewModel: IntegrationsViewModel) {
         viewModel.events.collect { event ->
             when (event) {
                 is IntegrationsUiEvent.OpenUrl -> {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(event.url))
-                    context.startActivity(intent)
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(event.url)))
                 }
                 is IntegrationsUiEvent.ShowToast -> {
                     android.widget.Toast.makeText(context, event.message, android.widget.Toast.LENGTH_SHORT).show()
@@ -104,18 +103,15 @@ fun IntegrationsScreen(viewModel: IntegrationsViewModel) {
         ) {
             Card(
                 modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .fillMaxHeight(0.75f),
+                    .fillMaxWidth(0.92f)
+                    .fillMaxHeight(0.85f),
                 shape = MaterialTheme.shapes.extraLarge,
-                elevation = CardDefaults.cardElevation(12.dp)
+                elevation = CardDefaults.cardElevation(16.dp)
             ) {
-                selectedBank?.let { bank ->
-                    BankDetailsContent(bank, viewModel)
-                }
+                BankDetailsContent(selectedBank!!, viewModel)
             }
         }
     }
-
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -137,61 +133,15 @@ fun IntegrationsScreen(viewModel: IntegrationsViewModel) {
                 }
             }
         }
-
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text("Підключення банків", style = MaterialTheme.typography.headlineMedium)
-            Spacer(Modifier.height(24.dp))
-
-            LazyVerticalGrid(columns = GridCells.Fixed(2), /* ... налаштування ... */) {
-                items(SupportedBanks) { bank ->
-                    BankGridItem(
-                        bank = bank,
-                        isConnected = isConnected,
-                        isLoading = isLoading,
-                        onClick = { viewModel.selectBank(bank) }
-                    )
-                }
-            }
-        }
-
-        AnimatedVisibility(
-            visible = selectedBank != null,
-            enter = fadeIn() + slideInVertically { it / 2 },
-            exit = fadeOut() + slideOutVertically { it / 2 }
-        ) {
-            Surface(
-                color = Color.Black.copy(alpha = 0.5f),
-                modifier = Modifier.fillMaxSize().clickable { viewModel.closeBankDetails() }
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth(0.9f)
-                            .fillMaxHeight(0.8f)
-                            .clickable(enabled = false) { },
-                        shape = MaterialTheme.shapes.extraLarge,
-                        elevation = CardDefaults.cardElevation(8.dp)
-                    ) {
-                        selectedBank?.let { bank ->
-                            BankDetailsContent(bank, viewModel)
-                        }
-                    }
-                }
-            }
-        }
     }
 
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.dismissDeleteConfirmation() },
             title = { Text("Відключити банк?") },
-            text = { Text("Транзакції залишаться, але нові не будуть завантажуватись.") },
+            text = { Text("Ви впевнені? Дані рахунків будуть видалені з налаштувань.") },
             confirmButton = {
-                TextButton(onClick = {
-                    viewModel.disconnectBank()
-                    viewModel.dismissDeleteConfirmation()
-                    viewModel.closeBankDetails()
-                }) { Text("Відключити", color = Color.Red) }
+                TextButton(onClick = { viewModel.disconnectBank() }) { Text("Так", color = Color.Red) }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.dismissDeleteConfirmation() }) { Text("Скасувати") }
@@ -223,6 +173,16 @@ private fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsVi
             }
         }
 
+        if (syncStatus.isNotBlank()) {
+            Text(
+                text = syncStatus,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+            )
+        }
+
         if (isLoading && syncProgress > 0) {
             Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                 Text(
@@ -239,16 +199,6 @@ private fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsVi
                     trackColor = bank.brandColor.copy(alpha = 0.2f)
                 )
             }
-        }
-
-        if (syncStatus.isNotBlank()) {
-            Text(
-                text = syncStatus,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
-            )
         }
 
         Surface(
@@ -293,8 +243,9 @@ private fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsVi
 
             TextButton(
                 onClick = { viewModel.askDeleteConfirmation() },
-                modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 8.dp)
-            ) { Text("Відключити підключення", color = Color.Red) }
+                modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 8.dp),
+                enabled = !isLoading
+            ) { Text("Відключити підключення", color = if(isLoading) Color.Gray else Color.Red) }
 
         } else {
             Spacer(Modifier.height(16.dp))
