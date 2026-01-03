@@ -28,3 +28,7 @@ object BankAccountTypes {
     const val JAR = "jar"
     const val FOP = "fop"
 }
+
+object AuthConstants {
+    const val WEB_CLIENT_ID = "531383896940-lk0qd97ohp6jaue4u9nunl8jpo6dg4th.apps.googleusercontent.com"
+}
