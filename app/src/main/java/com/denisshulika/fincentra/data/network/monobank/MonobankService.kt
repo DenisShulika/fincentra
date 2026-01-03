@@ -95,6 +95,8 @@ class MonobankService : BankProvider {
     }
 
     private fun MonoTransactionResponse.toDomainModel(accountId: String, accountCurrency: Int): Transaction {
+        val mccInfo = MccDirectory.getDetails(this.mcc)
+
         return Transaction(
             id = this.id,
             accountId = accountId,
@@ -104,7 +106,10 @@ class MonobankService : BankProvider {
             timestamp = this.time * 1000,
             bankName = "Monobank",
             isExpense = this.amount < 0,
-            category = MccDirectory.getCategory(this.mcc),
+
+            category = mccInfo.category,
+            subCategoryName = mccInfo.subCategoryName,
+
             mcc = this.mcc,
             balance = this.balance / 100.0,
             comment = this.comment

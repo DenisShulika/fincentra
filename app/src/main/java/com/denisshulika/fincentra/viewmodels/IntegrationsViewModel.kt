@@ -128,7 +128,7 @@ class IntegrationsViewModel : ViewModel() {
                     _syncProgress.value = (index + 1).toFloat() / accountsToSync.size.toFloat()
 
                     if (index < selectedIds.size - 1) {
-                        for (i in 60 downTo 1) {
+                        for (i in 59 downTo 0) {
                             _syncStatus.value = "Наступна карта через ${i}с..."
                             delay(1000)
                         }
@@ -147,12 +147,12 @@ class IntegrationsViewModel : ViewModel() {
                 _syncStatus.value = "Помилка мережі"
                 delay(5000)
             } finally {
-                _syncStatus.value = ""
                 _syncProgress.value = 0f
                 for (i in 59 downTo 0) {
                     _syncStatus.value = "Пауза між запитами ${i}с..."
                     delay(1000)
                 }
+                _syncStatus.value = ""
                 _isLoading.value = false
             }
         }

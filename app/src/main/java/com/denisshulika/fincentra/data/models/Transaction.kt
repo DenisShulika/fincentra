@@ -19,5 +19,7 @@ data class Transaction(
     val mcc: Int? = null,
     val note: String? = null,
     val balance: Double? = null,
-    val comment: String? = null
+    val comment: String? = null,
+
+    val subCategoryName: String = "Різне"
 )

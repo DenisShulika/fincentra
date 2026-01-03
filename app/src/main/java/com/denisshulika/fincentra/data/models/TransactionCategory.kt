@@ -2,6 +2,7 @@ package com.denisshulika.fincentra.data.models
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.DirectionsBus
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PlayArrow
@@ -10,16 +11,14 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.denisshulika.fincentra.R
 
 enum class TransactionCategory(
     val displayName: String,
     val color: Color,
-    val iconRes: Int? = null,
-    val materialIcon: ImageVector? = null
+    val materialIcon: ImageVector
 ) {
     FOOD("Їжа", Color(0xFF4CAF50), materialIcon = Icons.Default.ShoppingCart),
-    TRANSPORT("Транспорт", Color(0xFF2196F3), iconRes = R.drawable.directions_bus),
+    TRANSPORT("Транспорт", Color(0xFF2196F3), materialIcon = Icons.Default.DirectionsBus),
     HOUSING("Житло", Color(0xFFFF9800), materialIcon = Icons.Default.Home),
     HEALTH("Здоров'я", Color(0xFFE91E63), materialIcon = Icons.Default.Favorite),
     ENTERTAINMENT("Розваги", Color(0xFF9C27B0), materialIcon = Icons.Default.PlayArrow),

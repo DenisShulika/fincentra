@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -22,11 +20,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.denisshulika.fincentra.data.models.Transaction
-import com.denisshulika.fincentra.data.models.TransactionCategory
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -61,7 +56,7 @@ fun TransactionItem(
                 modifier = Modifier.size(40.dp)
             ) {
                 Icon(
-                    imageVector = transaction.category.getIcon(),
+                    imageVector = transaction.category.materialIcon,
                     contentDescription = null,
                     tint = transaction.category.color,
                     modifier = Modifier.padding(8.dp)
@@ -103,14 +98,5 @@ fun TransactionItem(
                 )
             }
         }
-    }
-}
-
-@Composable
-fun TransactionCategory.getIcon(): ImageVector {
-    return when {
-        this.materialIcon != null -> this.materialIcon
-        this.iconRes != null -> ImageVector.vectorResource(id = this.iconRes)
-        else -> Icons.Default.Info
     }
 }
