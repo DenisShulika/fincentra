@@ -1,224 +1,451 @@
 package com.denisshulika.fincentra.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.data.models.Transaction
+import com.denisshulika.fincentra.data.models.TransactionCategory
 import com.denisshulika.fincentra.ui.components.TransactionItem
 import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransactionsScreen(
-    viewModel: TransactionsViewModel
-) {
+fun TransactionsScreen(viewModel: TransactionsViewModel) {
     val list by viewModel.transactions.collectAsStateWithLifecycle()
+    val showBottomSheet by viewModel.showBottomSheet.collectAsStateWithLifecycle()
+
+    var showFilterSheet by remember { mutableStateOf(false) }
+    var showTypeBankSheet by remember { mutableStateOf(false) }
+    var showDatePicker by remember { mutableStateOf(false) }
 
     val sheetState = rememberModalBottomSheetState()
-
-    val amount by viewModel.amount.collectAsStateWithLifecycle()
-    val description by viewModel.description.collectAsStateWithLifecycle()
-    val showBottomSheet by viewModel.showBottomSheet.collectAsStateWithLifecycle()
-    val isExpense by viewModel.isExpense.collectAsStateWithLifecycle()
-    val category by viewModel.category.collectAsStateWithLifecycle()
-    val editingId by viewModel.editingTransactionId.collectAsStateWithLifecycle()
-
-    val expenseOptions = viewModel.expenseOptions
-
     var transactionToDelete by remember { mutableStateOf<Transaction?>(null) }
 
-    transactionToDelete?.let { transaction ->
+    if (transactionToDelete != null) {
         AlertDialog(
             onDismissRequest = { transactionToDelete = null },
-            title = { Text("Видалити транзакцію?") },
-            text = { Text("Ви впевнені, що хочете видалити '${transaction.description}'?") },
+            title = { Text("Видалити?") },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.deleteTransaction(transaction)
-                        transactionToDelete = null
-                    }
-                ) { Text("Видалити", color = Color.Red) }
+                TextButton(onClick = {
+                    viewModel.deleteTransaction(transactionToDelete!!)
+                    transactionToDelete = null
+                }) { Text("Видалити", color = Color.Red) }
             },
-            dismissButton = {
-                TextButton(onClick = { transactionToDelete = null }) { Text("Скасувати") }
-            }
+            dismissButton = { TextButton(onClick = { transactionToDelete = null }) { Text("Скасувати") } }
         )
     }
 
     if (showBottomSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { viewModel.toggleBottomSheet(false) },
-            sheetState = sheetState
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = if (editingId == null) "Нова транзакція" else "Редагування",
-                    style = MaterialTheme.typography.titleLarge
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedTextField(
-                    value = amount,
-                    onValueChange = { viewModel.onAmountChange(it) },
-                    label = { Text("Сума") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { viewModel.onDescriptionChange(it) },
-                    label = { Text("Опис") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text("Категорія", style = MaterialTheme.typography.labelLarge)
-                LazyRow (
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.padding(vertical = 8.dp)
-                ) {
-                    items(viewModel.categories) { cat ->
-                        FilterChip(
-                            selected = (category == cat),
-                            onClick = { viewModel.onCategoryChange(cat) },
-                            label = {
-                                Text(cat.displayName)
-                            }
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                SingleChoiceSegmentedButtonRow(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    expenseOptions.forEachIndexed { index, label ->
-                        SegmentedButton(
-                            shape = SegmentedButtonDefaults.itemShape(
-                                index = index,
-                                count = expenseOptions.size
-                            ),
-                            onClick = {
-                                viewModel.onTypeChange(index == 0)
-                            },
-                            selected = if (index == 0) isExpense else !isExpense
-                        ) {
-                            Text(label)
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Button(
-                    onClick = { viewModel.saveTransaction() },
-                    modifier = Modifier.padding(top = 16.dp).fillMaxWidth(),
-                    enabled = amount.isNotBlank()
-                ) {
-                    Text(if (editingId == null) "Зберегти" else "Оновити")
-                }
-            }
+        ModalBottomSheet(onDismissRequest = { viewModel.toggleBottomSheet(false) }, sheetState = sheetState) {
+            TransactionFormContent(viewModel)
         }
     }
 
+    if (showFilterSheet) {
+        ModalBottomSheet(onDismissRequest = { showFilterSheet = false }) {
+            CategoryFilterContent(viewModel) { showFilterSheet = false }
+        }
+    }
+
+    if (showTypeBankSheet) {
+        ModalBottomSheet(onDismissRequest = { showTypeBankSheet = false }) {
+            TypeBankFilterContent(viewModel) { showTypeBankSheet = false }
+        }
+    }
+
+    if (showDatePicker) {
+        val dateRangePickerState = rememberDateRangePickerState()
+        DateRangePickerDialog(
+            state = dateRangePickerState,
+            onDismiss = { showDatePicker = false },
+            onConfirm = {
+                val start = dateRangePickerState.selectedStartDateMillis
+                val end = dateRangePickerState.selectedEndDateMillis
+                if (start != null && end != null) {
+                    viewModel.setDateRange(start..end)
+                }
+                showDatePicker = false
+            }
+        )
+    }
+
     Scaffold(
+        topBar = {
+            TransactionsTopBar(
+                viewModel = viewModel,
+                onFilterCategoryClick = { showFilterSheet = true },
+                onFilterTypeClick = { showTypeBankSheet = true },
+                onFilterDateClick = { showDatePicker = true }
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(onClick = { viewModel.toggleBottomSheet(true) }) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
         }
     ) { innerPadding ->
-        val sortedList = list.sortedByDescending { it.timestamp }
-
-        if (list.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = Color.LightGray
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    Text(
-                        "Тут з'являться ваші транзакції",
-                        color = Color.Gray,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Text(
-                        "Натисніть синхронізацію у вкладці 'Банки'",
-                        color = Color.LightGray,
-                        style = MaterialTheme.typography.bodySmall
-                    )
+        Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+            val sortedList = list.sortedByDescending { it.timestamp }
+            if (sortedList.isEmpty()) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("Нічого не знайдено", color = Color.Gray)
+                }
+            } else {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(sortedList, key = { it.id + it.timestamp }) { tx ->
+                        TransactionItem(tx, onClick = { viewModel.prepareForEdit(tx) }, onLongClick = { transactionToDelete = tx })
+                    }
                 }
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                items(sortedList, key = { it.id + it.timestamp }) { transaction ->
-                    TransactionItem(
-                        transaction = transaction,
-                        onClick = { viewModel.prepareForEdit(transaction) },
-                        onLongClick = { transactionToDelete = transaction }
+        }
+    }
+}
+
+@Composable
+fun CategoryFilterContent(viewModel: TransactionsViewModel, onDismiss: () -> Unit) {
+    val selectedCats by viewModel.selectedCategories.collectAsStateWithLifecycle()
+    val categories = viewModel.categories
+
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+            .padding(bottom = 32.dp)
+    ) {
+        Text(
+            text = "Фільтр за категоріями",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        LazyColumn(modifier = Modifier.weight(1f, fill = false)) {
+            items(categories) { mainCat ->
+                val subCategories = remember(mainCat) {
+                    com.denisshulika.fincentra.data.network.common.MccDirectory.getSubcategoriesFor(mainCat)
+                }
+
+                var isExpanded by remember { mutableStateOf(false) }
+
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = selectedCats.contains(mainCat.displayName),
+                            onCheckedChange = { viewModel.toggleCategoryFilter(mainCat.displayName) }
+                        )
+
+                        Text(
+                            text = mainCat.displayName,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.weight(1f).padding(start = 8.dp)
+                        )
+
+                        if (subCategories.isNotEmpty()) {
+                            IconButton(onClick = { isExpanded = !isExpanded }) {
+                                Icon(
+                                    imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                    contentDescription = "Розгорнути",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    }
+
+                    if (isExpanded) {
+                        subCategories.forEach { subName ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 40.dp)
+                                    .padding(vertical = 2.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = selectedCats.contains(subName),
+                                    onCheckedChange = { viewModel.toggleCategoryFilter(subName) }
+                                )
+                                Text(
+                                    text = subName,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(start = 8.dp)
+                                )
+                            }
+                        }
+                    }
+                    HorizontalDivider(
+                        modifier = Modifier.padding(top = 4.dp),
+                        thickness = 0.5.dp,
+                        color = Color.LightGray.copy(alpha = 0.3f)
                     )
                 }
             }
         }
+
+        Button(
+            onClick = onDismiss,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp)
+        ) {
+            Text("Застосувати")
+        }
+    }
+}
+
+@Composable
+fun TransactionsTopBar(
+    viewModel: TransactionsViewModel,
+    onFilterCategoryClick: () -> Unit,
+    onFilterTypeClick: () -> Unit,
+    onFilterDateClick: () -> Unit
+) {
+    val isSearchActive by viewModel.isSearchActive.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (!isSearchActive) {
+            Text(
+                text = "Транзакції",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 8.dp)
+            )
+            IconButton(onClick = { viewModel.toggleSearch(true) }) {
+                Icon(Icons.Default.Search, contentDescription = "Пошук")
+            }
+        } else {
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onFilterCategoryClick) {
+                    Icon(Icons.Default.FilterList, contentDescription = "Категорії")
+                }
+                IconButton(onClick = onFilterTypeClick) {
+                    Icon(Icons.Default.Tune, contentDescription = "Банк/Тип")
+                }
+                IconButton(onClick = onFilterDateClick) {
+                    Icon(Icons.Default.DateRange, contentDescription = "Дати")
+                }
+
+                TextField(
+                    value = searchQuery,
+                    onValueChange = { viewModel.onSearchQueryChange(it) },
+                    placeholder = { Text("Пошук...") },
+                    modifier = Modifier.weight(1f),
+                    singleLine = true,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    )
+                )
+            }
+            IconButton(onClick = { viewModel.toggleSearch(false) }) {
+                Icon(Icons.Default.Close, contentDescription = "Закрити")
+            }
+        }
+    }
+}
+
+@Composable
+fun TransactionFormContent(viewModel: TransactionsViewModel) {
+    val amount by viewModel.amount.collectAsStateWithLifecycle()
+    val description by viewModel.description.collectAsStateWithLifecycle()
+    val isExpense by viewModel.isExpense.collectAsStateWithLifecycle()
+    val category by viewModel.category.collectAsStateWithLifecycle()
+    val editingId by viewModel.editingTransactionId.collectAsStateWithLifecycle()
+
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+            .padding(bottom = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = if (editingId == null) "Нова транзакція" else "Редагування",
+            style = MaterialTheme.typography.titleLarge
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = amount,
+            onValueChange = { viewModel.onAmountChange(it) },
+            label = { Text("Сума") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = description,
+            onValueChange = { viewModel.onDescriptionChange(it) },
+            label = { Text("Опис") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text("Категорія", style = MaterialTheme.typography.labelLarge)
+        LazyRow(
+            modifier = Modifier.padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(viewModel.categories) { cat ->
+                FilterChip(
+                    selected = (category == cat),
+                    onClick = { viewModel.onCategoryChange(cat) },
+                    label = { Text(cat.displayName) }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            viewModel.expenseOptions.forEachIndexed { index, label ->
+                SegmentedButton(
+                    shape = SegmentedButtonDefaults.itemShape(
+                        index = index,
+                        count = viewModel.expenseOptions.size
+                    ),
+                    onClick = { viewModel.onTypeChange(index == 0) },
+                    selected = if (index == 0) isExpense else !isExpense
+                ) {
+                    Text(label)
+                }
+            }
+        }
+
+        Button(
+            onClick = { viewModel.saveTransaction() },
+            modifier = Modifier
+                .padding(top = 24.dp)
+                .fillMaxWidth(),
+            enabled = amount.isNotBlank()
+        ) {
+            Text(if (editingId == null) "Зберегти" else "Оновити")
+        }
+    }
+}
+
+@Composable
+fun TypeBankFilterContent(viewModel: TransactionsViewModel, onDismiss: () -> Unit) {
+    val selectedType by viewModel.selectedTypeFilter.collectAsStateWithLifecycle()
+    val selectedBank by viewModel.selectedBankFilter.collectAsStateWithLifecycle()
+
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .padding(bottom = 32.dp)
+    ) {
+        Text("Тип операції", style = MaterialTheme.typography.titleMedium)
+        Row(modifier = Modifier.padding(top = 8.dp)) {
+            listOf("Всі", "Витрати", "Доходи").forEach { type ->
+                FilterChip(
+                    selected = (selectedType == type),
+                    onClick = { viewModel.onTypeFilterChange(type) },
+                    label = { Text(type) },
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text("Джерело", style = MaterialTheme.typography.titleMedium)
+        Row(modifier = Modifier.padding(top = 8.dp)) {
+            listOf("Всі", "Monobank", "Готівка").forEach { bank ->
+                FilterChip(
+                    selected = (selectedBank == bank),
+                    onClick = { viewModel.onBankFilterChange(bank) },
+                    label = { Text(bank) },
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+            }
+        }
+
+        Button(
+            onClick = onDismiss,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 32.dp)
+        ) {
+            Text("Готово")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DateRangePickerDialog(
+    state: DateRangePickerState,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = onConfirm) { Text("OK") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Скасувати") }
+        }
+    ) {
+        DateRangePicker(
+            state = state,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            showModeToggle = true,
+            title = {
+                Text(
+                    text = "Виберіть період",
+                    modifier = Modifier.padding(start = 24.dp, top = 16.dp),
+                    style = MaterialTheme.typography.labelMedium
+                )
+            },
+            headline = {
+                val formatter = java.text.SimpleDateFormat("dd.MM.yyyy", java.util.Locale.getDefault())
+                val start = state.selectedStartDateMillis?.let { formatter.format(it) } ?: "Початок"
+                val end = state.selectedEndDateMillis?.let { formatter.format(it) } ?: "Завершення"
+
+                Text(
+                    text = "$start — $end",
+                    modifier = Modifier.padding(start = 24.dp, bottom = 12.dp),
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+        )
     }
 }

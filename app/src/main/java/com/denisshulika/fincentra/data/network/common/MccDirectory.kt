@@ -86,6 +86,14 @@ object MccDirectory {
         7298 to MccDetails(TransactionCategory.OTHERS, "SPA послуги")
     )
 
+    fun getSubcategoriesFor(category: TransactionCategory): List<String> {
+        return mccMap.values
+            .filter { it.category == category }
+            .map { it.subCategoryName }
+            .distinct()
+            .sorted()
+    }
+
     fun getCategory(mcc: Int?): TransactionCategory {
         return mccMap[mcc]?.category ?: TransactionCategory.OTHERS
     }
