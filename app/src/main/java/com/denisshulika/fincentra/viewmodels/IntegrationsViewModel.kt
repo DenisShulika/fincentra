@@ -77,19 +77,13 @@ class IntegrationsViewModel : ViewModel() {
 
     fun syncMonobank() {
         viewModelScope.launch {
-            Log.d("SYNC_DEBUG", "Спроба входу в syncMonobank. isLoading = ${_isLoading.value}")
             if (_isLoading.value) return@launch
-
             _isLoading.value = true
             _syncProgress.value = 0f
-            Log.d("SYNC_DEBUG", "--- ПОЧАТОК СИНХРОНІЗАЦІЇ ---")
+            Log.d("SYNC_DEBUG", "--- СТАРТ СИНХРОНІЗАЦІЇ ---")
 
             try {
-                val token = repository.getMonoToken()
-                if (token.isNullOrBlank()) {
-                    _syncStatus.value = "Токен не знайдено"
-                    return@launch
-                }
+                val token = repository.getMonoToken() ?: return@launch
 
                 _syncStatus.value = "Оновлення балансів..."
                 val actualAccounts = monoService.fetchAccounts(token)
@@ -98,12 +92,12 @@ class IntegrationsViewModel : ViewModel() {
                 }
 
                 val selectedIds = repository.getSelectedAccountIds()
-                Log.d("SYNC_DEBUG", "Обрані ID: $selectedIds")
-
                 val accountsToSync = actualAccounts.filter { selectedIds.contains(it.id) }
 
                 if (accountsToSync.isEmpty()) {
                     _syncStatus.value = "Рахунки не вибрані"
+                    delay(3000)
+                    _isLoading.value = false
                     return@launch
                 }
 
@@ -111,7 +105,13 @@ class IntegrationsViewModel : ViewModel() {
                     _syncStatus.value = "Синхронізація: ${account.name}..."
 
                     val lastSync = repository.getLastSyncTimestamp(account.id)
-                    val fromTime = if (lastSync == 0L) 0L else (lastSync / 1000 + 1)
+                    val fromTime = if (lastSync == 0L) {
+                        (System.currentTimeMillis() / 1000) - 2682000L
+                    } else {
+                        (lastSync / 1000 + 1)
+                    }
+
+                    Log.d("SYNC_DEBUG", "Запит для ${account.name} з From: $fromTime")
 
                     monoService.fetchTransactionsForAccount(
                         token = token,
@@ -120,6 +120,7 @@ class IntegrationsViewModel : ViewModel() {
                         fromTimeSeconds = fromTime,
                         onProgress = { status -> _syncStatus.value = status },
                         onBatchLoaded = { batch ->
+                            Log.d("SYNC_DEBUG", "!!! ПРИЙШЛО ДЛЯ БАЗИ: ${batch.size} шт.")
                             repository.addTransactionsBatch(batch)
                             repository.saveLastSyncTimestamp(account.id, batch.maxOf { it.timestamp })
                         }
@@ -127,8 +128,8 @@ class IntegrationsViewModel : ViewModel() {
 
                     _syncProgress.value = (index + 1).toFloat() / accountsToSync.size.toFloat()
 
-                    if (index < selectedIds.size - 1) {
-                        for (i in 59 downTo 0) {
+                    if (index < accountsToSync.size - 1) {
+                        for (i in 60 downTo 1) {
                             _syncStatus.value = "Наступна карта через ${i}с..."
                             delay(1000)
                         }
@@ -138,22 +139,21 @@ class IntegrationsViewModel : ViewModel() {
                 repository.saveLastGlobalSyncTime(System.currentTimeMillis())
                 _syncStatus.value = "Готово!"
                 _syncProgress.value = 1f
-
-                _events.emit(IntegrationsUiEvent.ShowToast("Синхронізацію завершено"))
-
+                _events.emit(IntegrationsUiEvent.ShowToast("Синхронізацію завершено!"))
                 delay(3000)
+
             } catch (e: Exception) {
-                Log.e("SYNC_DEBUG", "Error: ${e.message}")
-                _syncStatus.value = "Помилка мережі"
-                delay(5000)
+                Log.e("SYNC_DEBUG", "Помилка: ${e.message}")
+                _syncStatus.value = "Помилка API"
+                delay(3000)
             } finally {
                 _syncProgress.value = 0f
-                for (i in 59 downTo 0) {
-                    _syncStatus.value = "Пауза між запитами ${i}с..."
+                for (i in 57 downTo 1) {
+                    _syncStatus.value = "Відпочинок API: $i с..."
                     delay(1000)
                 }
-                _syncStatus.value = ""
                 _isLoading.value = false
+                _syncStatus.value = ""
             }
         }
     }
@@ -166,9 +166,17 @@ class IntegrationsViewModel : ViewModel() {
             try {
                 val token = repository.getMonoToken() ?: return@launch
                 val actualAccounts = monoService.fetchAccounts(token)
+
                 if (actualAccounts.isNotEmpty()) {
-                    repository.saveAccounts(actualAccounts, updateSelection = false)
-                    _availableAccounts.value = actualAccounts
+                    val selectedIds = repository.getSelectedAccountIds()
+
+                    val mergedAccounts = actualAccounts.map { acc ->
+                        acc.copy(selected = selectedIds.contains(acc.id))
+                    }.sortedBy { it.id }
+
+                    repository.saveAccounts(mergedAccounts, updateSelection = false)
+                    _availableAccounts.value = mergedAccounts
+
                     _events.emit(IntegrationsUiEvent.ShowToast("Рахунки оновлено"))
                 }
             } catch (e: Exception) {
@@ -218,14 +226,15 @@ class IntegrationsViewModel : ViewModel() {
                 val apiAccounts = monoService.fetchAccounts(token)
                 if (apiAccounts.isNotEmpty()) {
                     repository.saveMonoToken(token)
-                    repository.saveAccounts(apiAccounts, updateSelection = false)
+
+                    val sortedAccounts = apiAccounts.sortedBy { it.id }
+
+                    repository.saveAccounts(sortedAccounts, updateSelection = false)
                     _isBankConnected.value = true
                     _isMonoInputVisible.value = false
                     _monoToken.value = ""
-                    _availableAccounts.value = apiAccounts
+                    _availableAccounts.value = sortedAccounts
                     _showAccountSelection.value = true
-                } else {
-                    _events.emit(IntegrationsUiEvent.ShowToast("Токен недійсний або ліміт API"))
                 }
             } finally { _isLoading.value = false }
         }
@@ -246,7 +255,10 @@ class IntegrationsViewModel : ViewModel() {
                 _isBankConnected.value = false
                 closeBankDetails()
                 _events.emit(IntegrationsUiEvent.ShowToast("Банк відключено"))
-            } finally { _isLoading.value = false }
+            } finally {
+                _isLoading.value = false
+                _showDeleteConfirmation.value = false
+            }
         }
     }
 }

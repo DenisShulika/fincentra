@@ -9,18 +9,18 @@ import com.denisshulika.fincentra.data.network.common.MccDirectory
 import com.denisshulika.fincentra.data.network.monobank.models.MonoTransactionResponse
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.delay
+import retrofit2.HttpException
 import kotlin.math.abs
 
 class MonobankService : BankProvider {
     private val api get() = DependencyProvider.monobankApi
-
 
     override suspend fun fetchAccounts(token: String): List<BankAccount> {
         return try {
             val response = api.getClientInfo(token)
             val accounts = mutableListOf<BankAccount>()
             response.accounts.forEach { acc ->
-                val symbol = CurrencyMapper.getCodeName(acc.currencyCode)
+                val symbol = CurrencyMapper.getSymbol(acc.currencyCode)
                 val pan = acc.maskedPan.firstOrNull()?.let { if (it.length >= 4) "*${it.takeLast(4)}" else "" } ?: ""
                 accounts.add(BankAccount(
                     id = acc.id, provider = "Monobank", name = "Картка $symbol $pan".trim(),
@@ -35,8 +35,8 @@ class MonobankService : BankProvider {
             }
             accounts
         } catch (e: Exception) {
-            Log.e("MONO_API", "Помилка API (можливо 429): ${e.message}")
-            emptyList()
+            Log.e("MONO_API", "Помилка fetchAccounts: ${e.message}")
+            throw e
         }
     }
 
@@ -50,24 +50,24 @@ class MonobankService : BankProvider {
     ): List<Transaction> {
         val allTransactions = mutableListOf<Transaction>()
         val now = System.currentTimeMillis() / 1000
-
         val maxHistory = 2682000L
-        val finalFrom = if (now - fromTimeSeconds > maxHistory || fromTimeSeconds == 0L) {
-            now - maxHistory
-        } else {
-            fromTimeSeconds
-        }
+        val finalFrom = if (now - fromTimeSeconds > maxHistory || fromTimeSeconds == 0L) now - maxHistory else fromTimeSeconds
 
-        var currentTo = now - 60
+        var currentTo = now
         var shouldContinue = true
 
         while (shouldContinue) {
             Log.d("MONO_SYNC", "Запит пачки: From=$finalFrom To=$currentTo")
-
             val monoList = try {
                 api.getStatement(token, accountId, finalFrom, currentTo)
+            } catch (e: HttpException) {
+                Log.e("MONO_SYNC", "HTTP Error: ${e.code()} ${e.response()?.errorBody()?.string()}")
+                if (e.code() == 429) {
+                    onProgress("БАНК: Ліміт перевищено!")
+                }
+                emptyList()
             } catch (e: Exception) {
-                Log.e("MONO_SYNC", "Помилка API: ${e.message}")
+                Log.e("MONO_SYNC", "Unknown Error: ${e.message}")
                 emptyList()
             }
 
@@ -75,15 +75,13 @@ class MonobankService : BankProvider {
                 shouldContinue = false
             } else {
                 val mapped = monoList.map { it.toDomainModel(accountId, accountCurrency) }
-
                 onBatchLoaded(mapped)
                 allTransactions.addAll(mapped)
 
                 if (monoList.size == 500) {
                     currentTo = monoList.last().time
-
                     for (i in 60 downTo 1) {
-                        onProgress("Багато даних... Наступна пачка через ${i}с")
+                        onProgress("Велика історія... Пауза $i с")
                         delay(1000)
                     }
                 } else {
@@ -96,7 +94,6 @@ class MonobankService : BankProvider {
 
     private fun MonoTransactionResponse.toDomainModel(accountId: String, accountCurrency: Int): Transaction {
         val mccInfo = MccDirectory.getDetails(this.mcc)
-
         return Transaction(
             id = this.id,
             accountId = accountId,
@@ -106,10 +103,8 @@ class MonobankService : BankProvider {
             timestamp = this.time * 1000,
             bankName = "Monobank",
             isExpense = this.amount < 0,
-
             category = mccInfo.category,
             subCategoryName = mccInfo.subCategoryName,
-
             mcc = this.mcc,
             balance = this.balance / 100.0,
             comment = this.comment
