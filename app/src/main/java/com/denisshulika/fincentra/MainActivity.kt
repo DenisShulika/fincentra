@@ -6,6 +6,11 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -63,7 +68,7 @@ fun MainScreen() {
                         }
                     },
                     label = { Text(Screen.Transactions.title) },
-                    icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) }
+                    icon = { Icon(Icons.AutoMirrored.Filled.ReceiptLong, contentDescription = null) }
                 )
                 NavigationBarItem(
                     selected = currentRoute == Screen.Stats.route,
@@ -74,7 +79,7 @@ fun MainScreen() {
                         }
                     },
                     label = { Text(Screen.Stats.title) },
-                    icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) }
+                    icon = { Icon(Icons.Default.BarChart, contentDescription = null) }
                 )
                 NavigationBarItem(
                     selected = currentRoute == Screen.Integrations.route,
@@ -85,7 +90,7 @@ fun MainScreen() {
                         }
                     },
                     label = { Text(Screen.Integrations.title) },
-                    icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) }
+                    icon = { Icon(Icons.Default.AccountBalance, contentDescription = null) }
                 )
                 NavigationBarItem(
                     selected = currentRoute == Screen.Profile.route,
@@ -96,7 +101,7 @@ fun MainScreen() {
                         }
                     },
                     label = { Text(Screen.Profile.title) },
-                    icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) }
+                    icon = { Icon(Icons.Default.Person, contentDescription = null) }
                 )
             }
         }

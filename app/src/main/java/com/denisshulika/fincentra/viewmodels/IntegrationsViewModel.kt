@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.denisshulika.fincentra.data.models.BankAccount
+import com.denisshulika.fincentra.data.models.BankProviderInfo
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -45,12 +46,63 @@ class IntegrationsViewModel : ViewModel() {
     val lastSyncTime = repository.getLastGlobalSyncTimeFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
     private val savedAccounts = repository.getAccountsFlow().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
+    private val _selectedBank = MutableStateFlow<BankProviderInfo?>(null)
+    val selectedBank = _selectedBank.asStateFlow()
+
+    private val _showDeleteConfirmation = MutableStateFlow(false)
+    val showDeleteConfirmation = _showDeleteConfirmation.asStateFlow()
+
+    private val _syncProgress = MutableStateFlow(0f)
+    val syncProgress = _syncProgress.asStateFlow()
+
     init { checkConnectionStatus() }
 
     private fun checkConnectionStatus() {
         viewModelScope.launch {
             val token = repository.getMonoToken()
             _isBankConnected.value = !token.isNullOrBlank()
+        }
+    }
+
+    fun selectBank(bank: BankProviderInfo) {
+        _selectedBank.value = bank
+        if (_isBankConnected.value) {
+            openAccountSettings()
+        }
+    }
+
+    fun closeBankDetails() {
+        _selectedBank.value = null
+    }
+
+    fun askDeleteConfirmation() {
+        _showDeleteConfirmation.value = true
+    }
+
+    fun dismissDeleteConfirmation() {
+        _showDeleteConfirmation.value = false
+    }
+
+    fun refreshAccountsInDetails() {
+        viewModelScope.launch {
+            if (_isLoading.value) return@launch
+            _isLoading.value = true
+            _syncStatus.value = "Оновлюємо дані з банку..."
+
+            try {
+                val token = repository.getMonoToken() ?: return@launch
+                val actualAccounts = monoService.fetchAccounts(token)
+                if (actualAccounts.isNotEmpty()) {
+                    repository.saveAccounts(actualAccounts, updateSelection = false)
+                    _availableAccounts.value = actualAccounts
+                    _events.emit(IntegrationsUiEvent.ShowToast("Рахунки оновлено"))
+                }
+            } catch (e: Exception) {
+                _events.emit(IntegrationsUiEvent.ShowToast("Помилка оновлення"))
+            } finally {
+                _isLoading.value = false
+                _syncStatus.value = ""
+            }
         }
     }
 
@@ -85,55 +137,58 @@ class IntegrationsViewModel : ViewModel() {
         viewModelScope.launch {
             if (_isLoading.value) return@launch
             _isLoading.value = true
+            _syncProgress.value = 0f
+
             try {
                 val token = repository.getMonoToken() ?: return@launch
-
-                _syncStatus.value = "Оновлення балансів..."
                 val actualAccounts = monoService.fetchAccounts(token)
-                if (actualAccounts.isNotEmpty()) {
-                    repository.saveAccounts(actualAccounts, updateSelection = false)
-                }
 
                 val selectedIds = repository.getSelectedAccountIds()
+                val totalAccounts = selectedIds.size
 
-                for (id in selectedIds) {
+                if (totalAccounts == 0) {
+                    _isLoading.value = false
+                    return@launch
+                }
+
+                for ((index, id) in selectedIds.withIndex()) {
                     val account = actualAccounts.find { it.id == id } ?: continue
-                    val lastSync = repository.getLastSyncTimestamp(id)
 
+                    _syncStatus.value = "Синхронізація: ${account.name}..."
+
+                    val lastSync = repository.getLastSyncTimestamp(id)
                     val fromTime = if (lastSync == 0L) 0L else (lastSync / 1000 + 1)
 
-                    try {
-                        monoService.fetchTransactionsForAccount(
-                            token = token,
-                            accountId = id,
-                            accountCurrency = account.currencyCode,
-                            fromTimeSeconds = fromTime,
-                            onProgress = { status -> _syncStatus.value = status },
-                            onBatchLoaded = { batch ->
-                                repository.addTransactionsBatch(batch)
-                                repository.saveLastSyncTimestamp(id, batch.maxOf { it.timestamp })
-                                Log.d("MONO_SYNC", "Пачка збережена: ${batch.size} шт.")
-                            }
-                        )
-                    } catch (e: Exception) {
-                        Log.e("MONO_SYNC", "Помилка карти $id")
-                    }
+                    monoService.fetchTransactionsForAccount(
+                        token = token,
+                        accountId = id,
+                        accountCurrency = account.currencyCode,
+                        fromTimeSeconds = fromTime,
+                        onProgress = { status -> _syncStatus.value = status },
+                        onBatchLoaded = { batch ->
+                            repository.addTransactionsBatch(batch)
+                            repository.saveLastSyncTimestamp(id, batch.maxOf { it.timestamp })
+                        }
+                    )
+                    _syncProgress.value = (index + 1).toFloat() / totalAccounts.toFloat()
 
-                    for (i in 60 downTo 1) {
-                        _syncStatus.value = "Наступна карта через ${i}с..."
-                        delay(1000)
+                    if (index < selectedIds.size - 1) {
+                        for (i in 60 downTo 1) {
+                            _syncStatus.value = "Наступна карта через ${i}с..."
+                            delay(1000)
+                        }
                     }
                 }
 
                 repository.saveLastGlobalSyncTime(System.currentTimeMillis())
                 _syncStatus.value = "Готово!"
             } catch (e: Exception) {
-                Log.e("MONO_SYNC", "Error: ${e.message}")
                 _syncStatus.value = "Помилка мережі"
             } finally {
                 _isLoading.value = false
                 delay(3000)
                 _syncStatus.value = ""
+                _syncProgress.value = 0f
             }
         }
     }

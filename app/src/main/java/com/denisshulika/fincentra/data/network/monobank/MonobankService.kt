@@ -20,7 +20,7 @@ class MonobankService : BankProvider {
             val response = api.getClientInfo(token)
             val accounts = mutableListOf<BankAccount>()
             response.accounts.forEach { acc ->
-                val symbol = CurrencyMapper.getSymbol(acc.currencyCode)
+                val symbol = CurrencyMapper.getCodeName(acc.currencyCode)
                 val pan = acc.maskedPan.firstOrNull()?.let { if (it.length >= 4) "*${it.takeLast(4)}" else "" } ?: ""
                 accounts.add(BankAccount(
                     id = acc.id, provider = "Monobank", name = "Картка $symbol $pan".trim(),
