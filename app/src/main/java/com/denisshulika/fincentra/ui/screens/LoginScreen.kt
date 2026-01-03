@@ -1,5 +1,6 @@
 package com.denisshulika.fincentra.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -14,17 +15,19 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.viewmodels.AuthUiEvent
 import com.denisshulika.fincentra.viewmodels.AuthViewModel
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
 import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.util.AuthConstants
 import com.google.android.gms.common.api.ApiException
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
@@ -37,16 +40,8 @@ fun LoginScreen(
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    val googleSignInLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        try {
-            val account = task.getResult(ApiException::class.java)
-            account?.idToken?.let { viewModel.signInWithGoogle(it) }
-        } catch (e: Exception) {
-        }
-    }
+    val scope = rememberCoroutineScope()
+    val credentialManager = CredentialManager.create(context)
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
@@ -108,23 +103,40 @@ fun LoginScreen(
 
         IconButton(
             onClick = {
-                val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(AuthConstants.WEB_CLIENT_ID)
-                    .requestEmail()
-                    .build()
-                val client = GoogleSignIn.getClient(context, gso)
-                googleSignInLauncher.launch(client.signInIntent)
+                scope.launch {
+                    try {
+                        val googleIdOption = GetGoogleIdOption.Builder()
+                            .setFilterByAuthorizedAccounts(false)
+                            .setServerClientId(AuthConstants.WEB_CLIENT_ID)
+                            .setAutoSelectEnabled(false)
+                            .build()
+
+                        val request = GetCredentialRequest.Builder()
+                            .addCredentialOption(googleIdOption)
+                            .build()
+
+                        val result = credentialManager.getCredential(
+                            context = context,
+                            request = request
+                        )
+
+                        val credential = result.credential
+                        if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                            viewModel.signInWithGoogle(googleIdTokenCredential.idToken)
+                        }
+                    } catch (e: Exception) {
+                        Log.e("AUTH", "Credential Manager Error: ${e.message}")
+                    }
+                }
             },
-            modifier = Modifier
-                .size(52.dp)
-                .align(Alignment.CenterHorizontally)
+            modifier = Modifier.size(52.dp).align(Alignment.CenterHorizontally)
         ) {
             Icon(
-                modifier = Modifier
-                    .size(40.dp),
                 imageVector = ImageVector.vectorResource(R.drawable.google_icon),
-                contentDescription = "",
-                tint = Color.Unspecified
+                contentDescription = "Google Login",
+                tint = Color.Unspecified,
+                modifier = Modifier.size(40.dp)
             )
         }
     }
