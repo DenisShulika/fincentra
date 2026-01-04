@@ -4,109 +4,106 @@ import com.denisshulika.fincentra.data.models.TransactionCategory
 
 object MccDirectory {
     private val mccMap = mapOf(
-        // --- ЇЖА (FOOD) ---
-        5411 to MccDetails(TransactionCategory.FOOD, "Супермаркети"),
-        5422 to MccDetails(TransactionCategory.FOOD, "М'ясні магазини"),
-        5441 to MccDetails(TransactionCategory.FOOD, "Кондитерські"),
-        5451 to MccDetails(TransactionCategory.FOOD, "Молочні продукти"),
-        5462 to MccDetails(TransactionCategory.FOOD, "Булочні та пекарні"),
-        5499 to MccDetails(TransactionCategory.FOOD, "Продуктові магазини"),
-        5811 to MccDetails(TransactionCategory.FOOD, "Кейтеринг"),
-        5812 to MccDetails(TransactionCategory.FOOD, "Ресторани та кафе"),
-        5813 to MccDetails(TransactionCategory.FOOD, "Бари та нічні клуби"),
-        5814 to MccDetails(TransactionCategory.FOOD, "Фастфуд"),
-        5921 to MccDetails(TransactionCategory.FOOD, "Алкогольні напої"),
+        // --- AGRICULTURAL SERVICES (0001–1499) ---
+        0742 to MccDetails(TransactionCategory.SERVICES, "Ветеринарні послуги"),
+        0763 to MccDetails(TransactionCategory.SERVICES, "Агро-кооперативи"),
+        0780 to MccDetails(TransactionCategory.SERVICES, "Ландшафтні послуги"),
 
-        // --- ТРАНСПОРТ ТА АВТО (TRANSPORT) ---
+        // --- CONTRACTED SERVICES (1500–2999) ---
+        1520 to MccDetails(TransactionCategory.HOUSING, "Генпідрядники"),
+        1711 to MccDetails(TransactionCategory.HOUSING, "Опалення та сантехніка"),
+        1731 to MccDetails(TransactionCategory.HOUSING, "Електромонтаж"),
+        1740 to MccDetails(TransactionCategory.HOUSING, "Будівельні роботи"),
+        1799 to MccDetails(TransactionCategory.SERVICES, "Спец-підрядники"),
+        2741 to MccDetails(TransactionCategory.SERVICES, "Друкарські послуги"),
+        2842 to MccDetails(TransactionCategory.SERVICES, "Клінінг"),
+
+        // --- TRANSPORTATION (4000–4799) ---
+        4011 to MccDetails(TransactionCategory.TRAVEL, "Залізниця (Вантажі)"),
         4111 to MccDetails(TransactionCategory.TRANSPORT, "Громадський транспорт"),
-        4112 to MccDetails(TransactionCategory.TRANSPORT, "Залізниця"),
-        4121 to MccDetails(TransactionCategory.TRANSPORT, "Таксі"),
+        4112 to MccDetails(TransactionCategory.TRANSPORT, "Пасажирська залізниця"),
+        4121 to MccDetails(TransactionCategory.TRANSPORT, "Таксі та лімузини"),
         4131 to MccDetails(TransactionCategory.TRANSPORT, "Автобусні лінії"),
-        4511 to MccDetails(TransactionCategory.TRANSPORT, "Авіалінії"),
-        4784 to MccDetails(TransactionCategory.TRANSPORT, "Платні дороги"),
-        4789 to MccDetails(TransactionCategory.TRANSPORT, "Транспорт інше"),
+        4215 to MccDetails(TransactionCategory.SERVICES, "Кур'єрські послуги"),
+        4411 to MccDetails(TransactionCategory.TRAVEL, "Круїзні лінії"),
+        4511 to MccDetails(TransactionCategory.TRAVEL, "Авіалінії"),
+        4582 to MccDetails(TransactionCategory.TRAVEL, "Аеропорти"),
+        4722 to MccDetails(TransactionCategory.TRAVEL, "Турагенції"),
+        4784 to MccDetails(TransactionCategory.TRANSPORT, "Дорожні збори/Мости"),
+
+        // --- UTILITIES (4800–4999) ---
+        4812 to MccDetails(TransactionCategory.SHOPPING, "Обладнання зв'язку"),
+        4814 to MccDetails(TransactionCategory.HOUSING, "Мобільний зв'язок"),
+        4816 to MccDetails(TransactionCategory.SERVICES, "IT послуги"),
+        4829 to MccDetails(TransactionCategory.TRANSFERS, "Грошові перекази"),
+        4899 to MccDetails(TransactionCategory.SUBSCRIPTIONS, "ТБ/Радіо сервіси"),
+        4900 to MccDetails(TransactionCategory.HOUSING, "Комунальні послуги"),
+
+        // --- RETAIL OUTLET (5000–5599) ---
+        5013 to MccDetails(TransactionCategory.TRANSPORT, "Автотовари"),
+        5045 to MccDetails(TransactionCategory.SHOPPING, "Комп'ютери та ПЗ"),
+        5094 to MccDetails(TransactionCategory.SHOPPING, "Ювелірні вироби"),
+        5122 to MccDetails(TransactionCategory.HEALTH, "Аптечні товари"),
+        5192 to MccDetails(TransactionCategory.SHOPPING, "Книги та газети"),
+        5211 to MccDetails(TransactionCategory.HOUSING, "Будматеріали"),
+        5261 to MccDetails(TransactionCategory.HOUSING, "Сад та город"),
+        5310 to MccDetails(TransactionCategory.SHOPPING, "Дисконт-центри"),
+        5311 to MccDetails(TransactionCategory.SHOPPING, "Універмаги"),
+        5331 to MccDetails(TransactionCategory.SHOPPING, "Магазини низьких цін"),
+        5411 to MccDetails(TransactionCategory.FOOD, "Супермаркети"),
+        5441 to MccDetails(TransactionCategory.FOOD, "Кондитерські"),
+        5462 to MccDetails(TransactionCategory.FOOD, "Булочні та пекарні"),
+        5499 to MccDetails(TransactionCategory.FOOD, "Продукти харчування"),
         5511 to MccDetails(TransactionCategory.TRANSPORT, "Продаж авто"),
         5533 to MccDetails(TransactionCategory.TRANSPORT, "Автозапчастини"),
         5541 to MccDetails(TransactionCategory.TRANSPORT, "АЗС"),
-        5542 to MccDetails(TransactionCategory.TRANSPORT, "АЗС самообслуговування"),
-        7512 to MccDetails(TransactionCategory.TRANSPORT, "Прокат авто"),
-        7523 to MccDetails(TransactionCategory.TRANSPORT, "Паркінги"),
+        5542 to MccDetails(TransactionCategory.TRANSPORT, "АЗС (автомат)"),
 
-        // --- ЖИТЛО ТА ПОБУТ (HOUSING) ---
-        4812 to MccDetails(TransactionCategory.HOUSING, "Продаж телефонів"),
-        4814 to MccDetails(TransactionCategory.HOUSING, "Мобільний зв'язок"),
-        4900 to MccDetails(TransactionCategory.HOUSING, "Комунальні послуги"),
-        5211 to MccDetails(TransactionCategory.HOUSING, "Будівельні матеріали"),
-        5261 to MccDetails(TransactionCategory.HOUSING, "Садові товари"),
+        // --- CLOTHING (5600–5699) ---
+        5611 to MccDetails(TransactionCategory.SHOPPING, "Чоловічий одяг"),
+        5621 to MccDetails(TransactionCategory.SHOPPING, "Жіночий одяг"),
+        5641 to MccDetails(TransactionCategory.SHOPPING, "Дитячий одяг"),
+        5651 to MccDetails(TransactionCategory.SHOPPING, "Сімейний одяг"),
+        5661 to MccDetails(TransactionCategory.SHOPPING, "Взуття"),
+
+        // --- MISC STORES & EATING (5700–7299) ---
         5712 to MccDetails(TransactionCategory.HOUSING, "Меблі"),
-        5719 to MccDetails(TransactionCategory.HOUSING, "Товари для дому"),
         5722 to MccDetails(TransactionCategory.HOUSING, "Побутова техніка"),
-        5732 to MccDetails(TransactionCategory.HOUSING, "Електроніка"),
-        7622 to MccDetails(TransactionCategory.HOUSING, "Ремонт електроніки"),
-
-        // --- ЗДОРОВ'Я (HEALTH) ---
+        5732 to MccDetails(TransactionCategory.SHOPPING, "Електроніка"),
+        5811 to MccDetails(TransactionCategory.FOOD, "Кейтеринг"),
+        5812 to MccDetails(TransactionCategory.FOOD, "Ресторани"),
+        5813 to MccDetails(TransactionCategory.FOOD, "Бари та клуби"),
+        5814 to MccDetails(TransactionCategory.FOOD, "Фастфуд"),
         5912 to MccDetails(TransactionCategory.HEALTH, "Аптеки"),
-        5977 to MccDetails(TransactionCategory.HEALTH, "Косметика"),
-        8011 to MccDetails(TransactionCategory.HEALTH, "Лікарі та клініки"),
-        8021 to MccDetails(TransactionCategory.HEALTH, "Стоматологія"),
-        8043 to MccDetails(TransactionCategory.HEALTH, "Оптика"),
-        8062 to MccDetails(TransactionCategory.HEALTH, "Госпіталі"),
-        8099 to MccDetails(TransactionCategory.HEALTH, "Медичні послуги"),
-
-        // --- РОЗВАГИ (ENTERTAINMENT) ---
+        5921 to MccDetails(TransactionCategory.FOOD, "Алкогольні магазини"),
+        5941 to MccDetails(TransactionCategory.ENTERTAINMENT, "Спорттовари"),
         5942 to MccDetails(TransactionCategory.ENTERTAINMENT, "Книжкові магазини"),
-        7333 to MccDetails(TransactionCategory.ENTERTAINMENT, "Фотостудії"),
+        5945 to MccDetails(TransactionCategory.ENTERTAINMENT, "Іграшки та хобі"),
+        5977 to MccDetails(TransactionCategory.HEALTH, "Косметика"),
+        5995 to MccDetails(TransactionCategory.SERVICES, "Зоотовари"),
+        6010 to MccDetails(TransactionCategory.SALARY, "Готівка (каса)"),
+        6011 to MccDetails(TransactionCategory.SALARY, "Готівка (банкомат)"),
+        6538 to MccDetails(TransactionCategory.TRANSFERS, "Поповнення картки"),
+
+        // --- SERVICES (7000–8999) ---
+        7011 to MccDetails(TransactionCategory.TRAVEL, "Готелі та мотелі"),
+        7230 to MccDetails(TransactionCategory.SERVICES, "Перукарні"),
+        7298 to MccDetails(TransactionCategory.HEALTH, "SPA-салони"),
+        7512 to MccDetails(TransactionCategory.TRANSPORT, "Оренда авто"),
+        7542 to MccDetails(TransactionCategory.TRANSPORT, "Автомийки"),
         7832 to MccDetails(TransactionCategory.ENTERTAINMENT, "Кінотеатри"),
-        7922 to MccDetails(TransactionCategory.ENTERTAINMENT, "Театри та концерти"),
-        7933 to MccDetails(TransactionCategory.ENTERTAINMENT, "Боулінг"),
-        7941 to MccDetails(TransactionCategory.ENTERTAINMENT, "Спортивні заходи"),
-        7991 to MccDetails(TransactionCategory.ENTERTAINMENT, "Музеї"),
-        7994 to MccDetails(TransactionCategory.ENTERTAINMENT, "Відеоігри"),
-        7996 to MccDetails(TransactionCategory.ENTERTAINMENT, "Парки розваг"),
-        7997 to MccDetails(TransactionCategory.ENTERTAINMENT, "Фітнес-центри"),
-        7999 to MccDetails(TransactionCategory.ENTERTAINMENT, "Розваги інше"),
+        7997 to MccDetails(TransactionCategory.ENTERTAINMENT, "Фітнес-клуби"),
+        8011 to MccDetails(TransactionCategory.HEALTH, "Лікарі"),
+        8021 to MccDetails(TransactionCategory.HEALTH, "Стоматологи"),
+        8211 to MccDetails(TransactionCategory.EDUCATION, "Школи"),
+        8220 to MccDetails(TransactionCategory.EDUCATION, "Університети"),
+        8398 to MccDetails(TransactionCategory.GOVERNMENT, "Благодійність"),
 
-        // --- ПІДПИСКИ ТА СЕРВІСИ (SUBSCRIPTIONS) ---
-        4899 to MccDetails(TransactionCategory.SUBSCRIPTIONS, "Кабельне/Цифрове ТБ"),
-        5815 to MccDetails(TransactionCategory.SUBSCRIPTIONS, "Цифровий контент"),
-        5817 to MccDetails(TransactionCategory.SUBSCRIPTIONS, "Цифрові програми/ігри"),
-        5968 to MccDetails(TransactionCategory.SUBSCRIPTIONS, "Підписки за прямим маркетингом"),
-
-        // --- ЗАРПЛАТА ТА ФІНАНСИ (SALARY / CASH) ---
-        6010 to MccDetails(TransactionCategory.SALARY, "Зняття готівки (банк)"),
-        6011 to MccDetails(TransactionCategory.SALARY, "Зняття готівки (банкомат)"),
-        6012 to MccDetails(TransactionCategory.SALARY, "Фінансові установи"),
-        6051 to MccDetails(TransactionCategory.SALARY, "Криптовалюти/Чеки"),
-
-        // --- ПЕРЕКАЗИ (TRANSFERS) ---
-        4829 to MccDetails(TransactionCategory.TRANSFERS, "Грошові перекази"),
-        6534 to MccDetails(TransactionCategory.TRANSFERS, "Переказ коштів"),
-        6536 to MccDetails(TransactionCategory.TRANSFERS, "P2P переказ"),
-        6538 to MccDetails(TransactionCategory.TRANSFERS, "Поповнення карти"),
-        6539 to MccDetails(TransactionCategory.TRANSFERS, "Фінансові послуги"),
-        6540 to MccDetails(TransactionCategory.TRANSFERS, "Поповнення гаманця"),
-
-        // --- ПОКУПКИ ТА ІНШЕ (OTHERS) ---
-        5311 to MccDetails(TransactionCategory.OTHERS, "Універмаги"),
-        5331 to MccDetails(TransactionCategory.OTHERS, "Магазини низьких цін"),
-        5399 to MccDetails(TransactionCategory.OTHERS, "Товари широкого вжитку"),
-        5611 to MccDetails(TransactionCategory.OTHERS, "Чоловічий одяг"),
-        5621 to MccDetails(TransactionCategory.OTHERS, "Жіночий одяг"),
-        5641 to MccDetails(TransactionCategory.OTHERS, "Дитячий одяг"),
-        5651 to MccDetails(TransactionCategory.OTHERS, "Сімейний одяг"),
-        5661 to MccDetails(TransactionCategory.OTHERS, "Взуття"),
-        5691 to MccDetails(TransactionCategory.OTHERS, "Магазини одягу"),
-        5941 to MccDetails(TransactionCategory.OTHERS, "Спортивні товари"),
-        5943 to MccDetails(TransactionCategory.OTHERS, "Канцтовари"),
-        5944 to MccDetails(TransactionCategory.OTHERS, "Ювелірні вироби"),
-        5945 to MccDetails(TransactionCategory.OTHERS, "Іграшки та хобі"),
-        5948 to MccDetails(TransactionCategory.OTHERS, "Шкіргалантерея"),
-        5999 to MccDetails(TransactionCategory.OTHERS, "Спеціалізовані магазини"),
-        7230 to MccDetails(TransactionCategory.OTHERS, "Салони краси"),
-        7298 to MccDetails(TransactionCategory.OTHERS, "SPA послуги"),
-        7311 to MccDetails(TransactionCategory.OTHERS, "Рекламні послуги"),
-        8398 to MccDetails(TransactionCategory.OTHERS, "Благодійність"),
-        9399 to MccDetails(TransactionCategory.OTHERS, "Держпослуги")
+        // --- GOVERNMENT (9000–9999) ---
+        9222 to MccDetails(TransactionCategory.GOVERNMENT, "Штрафи"),
+        9311 to MccDetails(TransactionCategory.GOVERNMENT, "Податки"),
+        9399 to MccDetails(TransactionCategory.GOVERNMENT, "Держпослуги"),
+        9402 to MccDetails(TransactionCategory.SERVICES, "Поштові послуги")
     )
 
     fun getSubcategoriesFor(category: TransactionCategory): List<String> {
