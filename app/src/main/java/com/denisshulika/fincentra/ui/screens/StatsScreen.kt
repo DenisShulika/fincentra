@@ -5,9 +5,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
@@ -28,25 +31,46 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.data.models.CategoryStat
 import com.denisshulika.fincentra.data.models.CurrencyStats
+import com.denisshulika.fincentra.data.models.StatsPeriod
+import com.denisshulika.fincentra.ui.components.transactions.DateRangePickerDialog
 import com.denisshulika.fincentra.viewmodels.StatsViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatsScreen(viewModel: StatsViewModel) {
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedIndex by viewModel.selectedCurrencyIndex.collectAsStateWithLifecycle()
+    val selectedPeriod by viewModel.selectedPeriod.collectAsStateWithLifecycle() // НОВЕ
 
     val currentStats = uiState.currencyData.getOrNull(selectedIndex)
+    var showDatePicker by remember { mutableStateOf(false) } // Для виклику календаря
+
+    if (showDatePicker) {
+        val dateRangePickerState = rememberDateRangePickerState()
+        DateRangePickerDialog(
+            state = dateRangePickerState,
+            onDismiss = { showDatePicker = false },
+            onConfirm = {
+                val start = dateRangePickerState.selectedStartDateMillis
+                val end = dateRangePickerState.selectedEndDateMillis
+                if (start != null && end != null) {
+                    viewModel.setCustomDateRange(start..end)
+                }
+                showDatePicker = false
+            }
+        )
+    }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
             .padding(horizontal = 16.dp)
     ) {
         Text(
             text = "Фінансовий звіт",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+            modifier = Modifier.padding(top = 16.dp)
         )
 
         if (uiState.currencyData.size > 1) {
@@ -68,8 +92,28 @@ fun StatsScreen(viewModel: StatsViewModel) {
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
+        LazyRow(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            items(listOf(StatsPeriod.WEEK, StatsPeriod.MONTH, StatsPeriod.QUARTER, StatsPeriod.ALL)) { period ->
+                FilterChip(
+                    selected = selectedPeriod == period,
+                    onClick = { viewModel.setPeriod(period) },
+                    label = { Text(period.displayName) }
+                )
+            }
+            item {
+                IconButton(onClick = { showDatePicker = true }) {
+                    Icon(
+                        imageVector = Icons.Default.DateRange,
+                        contentDescription = "Календар",
+                        tint = if (selectedPeriod == StatsPeriod.CUSTOM) MaterialTheme.colorScheme.primary else Color.Gray
+                    )
+                }
+            }
+        }
         if (currentStats != null) {
             val symbol = com.denisshulika.fincentra.data.network.common.CurrencyMapper.getSymbol(currentStats.currencyCode)
 
@@ -78,22 +122,12 @@ fun StatsScreen(viewModel: StatsViewModel) {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(bottom = 32.dp)
             ) {
+                item { BalanceFlowCard(currentStats, symbol) }
                 item {
-                    BalanceFlowCard(currentStats, symbol)
-                }
-
-                item {
-                    Box(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        SpendingDonutChart(
-                            categories = currentStats.categories,
-                            symbol = symbol
-                        )
+                    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp), contentAlignment = Alignment.Center) {
+                        SpendingDonutChart(categories = currentStats.categories, symbol = symbol)
                     }
                 }
-
                 item {
                     Text(
                         text = "Розподіл витрат",
@@ -349,6 +383,43 @@ fun SpendingDonutChart(
                 text = "${String.format("%.0f", totalExpense)} $symbol",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.ExtraBold
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PeriodSelector(
+    selectedPeriod: StatsPeriod,
+    onPeriodSelected: (StatsPeriod) -> Unit,
+    onCalendarClick: () -> Unit
+) {
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        items(listOf(StatsPeriod.WEEK, StatsPeriod.MONTH, StatsPeriod.QUARTER, StatsPeriod.ALL)) { period ->
+            FilterChip(
+                selected = selectedPeriod == period,
+                onClick = { onPeriodSelected(period) },
+                label = { Text(period.displayName) },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            )
+        }
+
+        item {
+            FilterChip(
+                selected = selectedPeriod == StatsPeriod.CUSTOM,
+                onClick = onCalendarClick,
+                label = { Icon(Icons.Default.DateRange, contentDescription = null, modifier = Modifier.size(18.dp)) },
+                leadingIcon = { if (selectedPeriod == StatsPeriod.CUSTOM) Icon(Icons.Default.Check, null, Modifier.size(14.dp)) else null }
             )
         }
     }

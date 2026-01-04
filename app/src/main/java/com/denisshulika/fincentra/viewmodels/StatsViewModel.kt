@@ -32,6 +32,13 @@ class StatsViewModel : ViewModel() {
         initialValue = StatsUiState()
     )
 
+    private val _selectedPeriod = MutableStateFlow(StatsPeriod.MONTH)
+    val selectedPeriod = _selectedPeriod.asStateFlow()
+
+    init {
+        setPeriod(StatsPeriod.MONTH)
+    }
+
     private fun calculateOptimizedStats(
         allTx: List<Transaction>,
         accounts: List<BankAccount>,
@@ -88,6 +95,40 @@ class StatsViewModel : ViewModel() {
             .sortedByDescending { it.currencyCode == 980 }
 
         return StatsUiState(currencyData = currencyData, dateRange = range)
+    }
+
+    fun setPeriod(period: StatsPeriod) {
+        _selectedPeriod.value = period
+        if (period == StatsPeriod.CUSTOM) return
+
+        val now = System.currentTimeMillis()
+        val calendar = java.util.Calendar.getInstance()
+        calendar.timeInMillis = now
+
+        val range = when (period) {
+            StatsPeriod.WEEK -> {
+                calendar.add(java.util.Calendar.DAY_OF_YEAR, -7)
+                calendar.timeInMillis..now
+            }
+            StatsPeriod.MONTH -> {
+                calendar.set(java.util.Calendar.DAY_OF_MONTH, 1)
+                calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
+                calendar.set(java.util.Calendar.MINUTE, 0)
+                calendar.timeInMillis..now
+            }
+            StatsPeriod.QUARTER -> {
+                calendar.add(java.util.Calendar.MONTH, -3)
+                calendar.timeInMillis..now
+            }
+            StatsPeriod.ALL -> null
+            StatsPeriod.CUSTOM -> _selectedDateRange.value
+        }
+        _selectedDateRange.value = range
+    }
+
+    fun setCustomDateRange(range: LongRange?) {
+        _selectedPeriod.value = StatsPeriod.CUSTOM
+        _selectedDateRange.value = range
     }
 
     fun selectCurrency(index: Int) { _selectedCurrencyIndex.value = index }
