@@ -49,19 +49,21 @@ class StatsViewModel : ViewModel() {
         val currencyData = allTx.groupBy { it.currencyCode }.map { (code, transactions) ->
             var periodIncome = 0.0
             var periodExpense = 0.0
+            var totalRealSpending = 0.0
+
             val categoryMap = mutableMapOf<TransactionCategory, Double>()
             val subCategoryMap = mutableMapOf<TransactionCategory, MutableMap<String, Double>>()
 
             transactions.forEach { tx ->
                 val isInRange = range == null || tx.timestamp in range
                 if (isInRange) {
-                    if (tx.isExpense) {
-                        periodExpense += tx.amount
+                    if (tx.isExpense) periodExpense += tx.amount else periodIncome += tx.amount
+
+                    if (tx.isExpense && tx.category != TransactionCategory.TRANSFERS) {
+                        totalRealSpending += tx.amount
                         categoryMap[tx.category] = (categoryMap[tx.category] ?: 0.0) + tx.amount
                         val subs = subCategoryMap.getOrPut(tx.category) { mutableMapOf() }
                         subs[tx.subCategoryName] = (subs[tx.subCategoryName] ?: 0.0) + tx.amount
-                    } else {
-                        periodIncome += tx.amount
                     }
                 }
             }
@@ -73,24 +75,27 @@ class StatsViewModel : ViewModel() {
             val endBalance = selectedAccounts.sumOf { it.balance }
             val startBalance = endBalance - periodIncome + periodExpense
 
-            Log.d("STATS_CHECK", """
-            Валюта: $code
-            К-сть вибраних карт: ${selectedAccounts.size}
-            Поточний баланс (End): $endBalance
-            Доходи за період: $periodIncome
-            Витрати за період: $periodExpense
-            Розрахований старт: $startBalance
-        """.trimIndent())
-
             val categoryStats = categoryMap.map { (cat, catSum) ->
                 val subStats = subCategoryMap[cat]?.map { (subName, subSum) ->
                     SubCategoryStat(subName, subSum, if (catSum > 0) (subSum / catSum).toFloat() else 0f)
                 }?.sortedByDescending { it.amount } ?: emptyList()
 
-                CategoryStat(cat, catSum, if (periodExpense > 0) (catSum / periodExpense).toFloat() else 0f, subStats)
+                CategoryStat(
+                    category = cat,
+                    amount = catSum,
+                    percentage = if (totalRealSpending > 0) (catSum / totalRealSpending).toFloat() else 0f,
+                    subCategories = subStats
+                )
             }.sortedByDescending { it.amount }
 
-            CurrencyStats(code, startBalance, endBalance, periodIncome, periodExpense, categoryStats)
+            CurrencyStats(
+                currencyCode = code,
+                startPeriodBalance = startBalance,
+                endPeriodBalance = endBalance,
+                totalIncome = periodIncome,
+                totalExpense = totalRealSpending,
+                categories = categoryStats
+            )
         }.filter { it.totalIncome > 0 || it.totalExpense > 0 || it.endPeriodBalance > 0 }
             .sortedByDescending { it.currencyCode == 980 }
 

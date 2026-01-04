@@ -71,6 +71,11 @@ object MccDirectory {
         6012 to MccDetails(TransactionCategory.SALARY, "Фінансові послуги"),
         6538 to MccDetails(TransactionCategory.SALARY, "Грошові перекази"),
 
+        // --- ПЕРЕКАЗИ (TRANSFERS) ---
+        4829 to MccDetails(TransactionCategory.TRANSFERS, "Переказ коштів"),
+        6538 to MccDetails(TransactionCategory.TRANSFERS, "Поповнення карти"),
+        6012 to MccDetails(TransactionCategory.TRANSFERS, "Фінансові послуги"),
+
         // --- ПОКУПКИ ТА ІНШЕ (OTHERS) ---
         5311 to MccDetails(TransactionCategory.OTHERS, "Універмаги"),
         5331 to MccDetails(TransactionCategory.OTHERS, "Магазини низьких цін"),
@@ -83,7 +88,7 @@ object MccDirectory {
         5944 to MccDetails(TransactionCategory.OTHERS, "Ювелірні вироби"),
         5945 to MccDetails(TransactionCategory.OTHERS, "Іграшки та хобі"),
         7230 to MccDetails(TransactionCategory.OTHERS, "Салони краси"),
-        7298 to MccDetails(TransactionCategory.OTHERS, "SPA послуги")
+        7298 to MccDetails(TransactionCategory.OTHERS, "SPA послуги"),
     )
 
     fun getSubcategoriesFor(category: TransactionCategory): List<String> {

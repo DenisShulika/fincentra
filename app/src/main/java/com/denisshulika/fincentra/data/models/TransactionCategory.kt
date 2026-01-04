@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.SyncAlt
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -24,5 +25,6 @@ enum class TransactionCategory(
     ENTERTAINMENT("Розваги", Color(0xFF9C27B0), materialIcon = Icons.Default.PlayArrow),
     SALARY("Зарплата", Color(0xFFFFEB3B), materialIcon = Icons.Default.Star),
     SUBSCRIPTIONS("Підписки", Color(0xFF3F51B5), materialIcon = Icons.Default.Refresh),
-    OTHERS("Різне", Color(0xFF9E9E9E), materialIcon = Icons.AutoMirrored.Filled.List)
+    OTHERS("Різне", Color(0xFF9E9E9E), materialIcon = Icons.AutoMirrored.Filled.List),
+    TRANSFERS("Перекази", Color(0xFF90A4AE), materialIcon = Icons.Default.SyncAlt),
 }
