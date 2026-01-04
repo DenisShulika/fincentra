@@ -318,9 +318,9 @@ fun CategoryStatItem(stat: CategoryStat, symbol: String) {
                         progress = { sub.percentageOfParent },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(2.dp)
+                            .height(5.dp)
                             .padding(bottom = 4.dp),
-                        color = stat.category.color.copy(alpha = 0.4f),
+                        color = stat.category.color.copy(alpha = 0.5f),
                         trackColor = Color.Transparent
                     )
                 }
@@ -380,8 +380,8 @@ fun SpendingDonutChart(
                 color = Color.Gray
             )
             Text(
-                text = "${String.format("%.0f", totalExpense)} $symbol",
-                style = MaterialTheme.typography.headlineMedium,
+                text = "${String.format("%.2f", totalExpense)} $symbol",
+                style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.ExtraBold
             )
         }
