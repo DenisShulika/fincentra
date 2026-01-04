@@ -25,28 +25,52 @@ class AuthViewModel : ViewModel() {
     private val _events = MutableSharedFlow<AuthUiEvent>()
     val events = _events.asSharedFlow()
 
+    private val _confirmPassword = MutableStateFlow("")
+    val confirmPassword = _confirmPassword.asStateFlow()
+
+    fun onConfirmPasswordChange(newValue: String) { _confirmPassword.value = newValue }
     fun onEmailChange(newValue: String) { _email.value = newValue }
     fun onPasswordChange(newValue: String) { _password.value = newValue }
 
     fun signIn() {
         viewModelScope.launch {
             _isLoading.value = true
+            DependencyProvider.repository.clearAllData()
+
             val result = authRepository.signInWithEmail(_email.value, _password.value)
             _isLoading.value = false
 
-            result.onSuccess { _events.emit(AuthUiEvent.NavigateToMain) }
-                .onFailure { _events.emit(AuthUiEvent.ShowError(it.message ?: "Помилка входу")) }
+            result.onSuccess {
+                DependencyProvider.repository.observeUserTransactions()
+                _events.emit(AuthUiEvent.NavigateToMain)
+            }
         }
     }
 
     fun signUp() {
+        val mail = _email.value.trim()
+        val pass = _password.value.trim()
+        val confirm = _confirmPassword.value.trim()
+
+        if (pass != confirm) {
+            viewModelScope.launch { _events.emit(AuthUiEvent.ShowError("Паролі не збігаються")) }
+            return
+        }
+
+        if (pass.length < 6) {
+            viewModelScope.launch { _events.emit(AuthUiEvent.ShowError("Пароль має бути не менше 6 символів")) }
+            return
+        }
+
         viewModelScope.launch {
             _isLoading.value = true
-            val result = authRepository.signUpWithEmail(_email.value, _password.value)
+            val result = authRepository.signUpWithEmail(mail, pass)
             _isLoading.value = false
 
-            result.onSuccess { _events.emit(AuthUiEvent.NavigateToMain) }
-                .onFailure { _events.emit(AuthUiEvent.ShowError(it.message ?: "Помилка реєстрації")) }
+            result.onSuccess {
+                DependencyProvider.repository.observeUserTransactions()
+                _events.emit(AuthUiEvent.NavigateToMain)
+            }
         }
     }
 
@@ -57,8 +81,10 @@ class AuthViewModel : ViewModel() {
             val result = authRepository.signInWithGoogle(credential)
             _isLoading.value = false
 
-            result.onSuccess { _events.emit(AuthUiEvent.NavigateToMain) }
-                .onFailure { _events.emit(AuthUiEvent.ShowError("Google Auth Error")) }
+            result.onSuccess {
+                DependencyProvider.repository.observeUserTransactions()
+                _events.emit(AuthUiEvent.NavigateToMain)
+            }
         }
     }
 }

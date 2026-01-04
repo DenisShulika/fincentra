@@ -1,5 +1,6 @@
 package com.denisshulika.fincentra.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,12 +13,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.data.models.CurrencySummary
@@ -25,7 +28,10 @@ import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.viewmodels.ProfileViewModel
 
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel) {
+fun ProfileScreen(
+    viewModel: ProfileViewModel,
+    onLogout: () -> Unit
+) {
     val summaries by viewModel.currencySummaries.collectAsStateWithLifecycle()
 
     Column(
@@ -40,23 +46,47 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
             modifier = Modifier.padding(bottom = 24.dp)
         )
 
-        if (summaries.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Немає даних. Натисніть синхронізацію в Банках.", color = Color.Gray)
-            }
-        } else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(summaries) { summary ->
-                    BalanceCard(summary)
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            if (summaries.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Немає даних. Натисніть синхронізацію в Банках.",
+                        color = Color.Gray,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(summaries) { summary ->
+                        BalanceCard(summary)
+                    }
                 }
             }
+        }
+
+        TextButton(
+            onClick = { viewModel.logout(onLogout) },
+            modifier = Modifier
+                .padding(top = 16.dp, bottom = 8.dp)
+                .fillMaxWidth()
+        ) {
+            Text("Вийти з акаунта", color = Color.Red)
         }
     }
 }
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun BalanceCard(summary: CurrencySummary) {
     val symbol = CurrencyMapper.getSymbol(summary.currencyCode)

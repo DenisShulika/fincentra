@@ -7,6 +7,8 @@ import com.denisshulika.fincentra.data.util.BankProviders
 import com.denisshulika.fincentra.data.util.FirestoreCollections
 import com.denisshulika.fincentra.data.util.FirestoreDocuments
 import com.denisshulika.fincentra.di.DependencyProvider
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
@@ -17,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.tasks.await
 
 class FinanceRepository {
@@ -28,32 +31,39 @@ class FinanceRepository {
     val transactions: StateFlow<List<Transaction>> = _transactions.asStateFlow()
 
     private var transactionsListener: ListenerRegistration? = null
+    private var accountsListener: ListenerRegistration? = null
 
     init {
         observeUserTransactions()
     }
 
-    private fun getUserDoc() = db.collection(FirestoreCollections.USERS)
-        .document(auth.currentUser?.uid ?: "anonymous")
+    private fun getUserDoc(): DocumentReference? {
+        val uid = auth.currentUser?.uid ?: return null
+        return db.collection(FirestoreCollections.USERS).document(uid)
+    }
 
-    private fun getTransactionsRef() = getUserDoc().collection(FirestoreCollections.TRANSACTIONS)
-    private fun getAccountsRef() = getUserDoc().collection(FirestoreCollections.ACCOUNTS)
-    private fun getSettingsRef() = getUserDoc().collection(FirestoreCollections.SETTINGS)
+    private fun getTransactionsRef(): CollectionReference? =
+        getUserDoc()?.collection(FirestoreCollections.TRANSACTIONS)
+
+    private fun getAccountsRef(): CollectionReference? =
+        getUserDoc()?.collection(FirestoreCollections.ACCOUNTS)
+
+    private fun getSettingsRef(): CollectionReference? =
+        getUserDoc()?.collection(FirestoreCollections.SETTINGS)
 
     fun observeUserTransactions() {
         val uid = auth.currentUser?.uid
         if (uid == null) {
-            _transactions.value = emptyList()
+            clearAllData()
             return
         }
 
         transactionsListener?.remove()
-
         transactionsListener = getTransactionsRef()
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshot, error ->
+            ?.orderBy("timestamp", Query.Direction.DESCENDING)
+            ?.addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    Log.e("REPO", "Слухач транзакцій впав", error)
+                    Log.e("REPO", "Помилка слухача транзакцій", error)
                     return@addSnapshotListener
                 }
                 if (snapshot != null) {
@@ -63,30 +73,65 @@ class FinanceRepository {
             }
     }
 
+    fun clearAllData() {
+        transactionsListener?.remove()
+        accountsListener?.remove()
+        transactionsListener = null
+        accountsListener = null
+        _transactions.value = emptyList()
+    }
+
     suspend fun addTransaction(transaction: Transaction) {
+        val ref = getTransactionsRef() ?: return
         try {
-            getTransactionsRef().document(transaction.id).set(transaction).await()
-            Log.d("REPO", "Транзакція збережена успішно: ${transaction.id}")
+            ref.document(transaction.id).set(transaction).await()
         } catch (e: Exception) {
-            Log.e("REPO", "Помилка збереження транзакції: ${e.message}")
+            Log.e("REPO", "Помилка addTransaction: ${e.message}")
             throw e
         }
     }
 
+    suspend fun addTransactionsBatch(list: List<Transaction>) {
+        val ref = getTransactionsRef() ?: return
+        if (list.isEmpty()) return
+        val batch = db.batch()
+        list.forEach { batch.set(ref.document(it.id), it) }
+        batch.commit().await()
+    }
+
+    suspend fun deleteTransaction(id: String) {
+        getTransactionsRef()?.document(id)?.delete()?.await()
+    }
+
     suspend fun getAccountsOnce(): List<BankAccount> {
+        val ref = getAccountsRef() ?: return emptyList()
         return try {
-            val snapshot = getAccountsRef().get().await()
+            val snapshot = ref.get().await()
             snapshot.toObjects(BankAccount::class.java)
         } catch (e: Exception) {
             emptyList()
         }
     }
 
+    fun getAccountsFlow(): Flow<List<BankAccount>> {
+        val ref = getAccountsRef() ?: return flowOf(emptyList())
+        return callbackFlow {
+            val subscription = ref.addSnapshotListener { snapshot, _ ->
+                if (snapshot != null) {
+                    trySend(snapshot.toObjects(BankAccount::class.java))
+                }
+            }
+            awaitClose { subscription.remove() }
+        }
+    }
+
     suspend fun saveAccounts(accounts: List<BankAccount>, updateSelection: Boolean = false) {
+        val ref = getAccountsRef() ?: return
         val selectedIds = getSelectedAccountIds()
         val batch = db.batch()
+
         accounts.forEach { acc ->
-            val docRef = getAccountsRef().document(acc.id)
+            val docRef = ref.document(acc.id)
             val isSelected = if (updateSelection) acc.selected else selectedIds.contains(acc.id)
             val updatedAcc = acc.copy(selected = isSelected)
             batch.set(docRef, updatedAcc, SetOptions.merge())
@@ -99,92 +144,86 @@ class FinanceRepository {
         saveSelectedAccountIds(newSelectedIds)
     }
 
-    suspend fun addTransactionsBatch(list: List<Transaction>) {
-        if (list.isEmpty()) return
-        val batch = db.batch()
-        list.forEach { batch.set(getTransactionsRef().document(it.id), it) }
-        batch.commit().await()
-    }
-
     suspend fun saveMonoToken(token: String) {
-        getSettingsRef().document(FirestoreDocuments.USER_SETTINGS)
-            .set(mapOf("monoToken" to token), SetOptions.merge())
-            .await()
+        getSettingsRef()?.document(FirestoreDocuments.USER_SETTINGS)
+            ?.set(mapOf("monoToken" to token), SetOptions.merge())
+            ?.await()
     }
 
     suspend fun getMonoToken(): String? {
         return try {
-            val doc = getSettingsRef().document(FirestoreDocuments.USER_SETTINGS).get().await()
-            doc.getString("monoToken")
+            val doc = getSettingsRef()?.document(FirestoreDocuments.USER_SETTINGS)?.get()?.await()
+            doc?.getString("monoToken")
         } catch (e: Exception) {
             null
         }
     }
 
     private suspend fun saveSelectedAccountIds(ids: List<String>) {
-        getSettingsRef().document(FirestoreDocuments.USER_SETTINGS)
-            .set(mapOf("selectedIds" to ids), SetOptions.merge())
-            .await()
+        getSettingsRef()?.document(FirestoreDocuments.USER_SETTINGS)
+            ?.set(mapOf("selectedIds" to ids), SetOptions.merge())
+            ?.await()
     }
 
     @Suppress("UNCHECKED_CAST")
     suspend fun getSelectedAccountIds(): List<String> {
-        val snapshot = getSettingsRef().document(FirestoreDocuments.USER_SETTINGS).get().await()
-        return snapshot.get("selectedIds") as? List<String> ?: emptyList()
+        return try {
+            val snapshot = getSettingsRef()?.document(FirestoreDocuments.USER_SETTINGS)?.get()?.await()
+            snapshot?.get("selectedIds") as? List<String> ?: emptyList()
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
     suspend fun saveLastSyncTimestamp(accountId: String, timestamp: Long) {
-        getSettingsRef().document(FirestoreDocuments.SYNC_METADATA)
-            .set(mapOf("lastSync_$accountId" to timestamp), SetOptions.merge())
-            .await()
+        getSettingsRef()?.document(FirestoreDocuments.SYNC_METADATA)
+            ?.set(mapOf("lastSync_$accountId" to timestamp), SetOptions.merge())
+            ?.await()
     }
 
     suspend fun getLastSyncTimestamp(accountId: String): Long {
-        val snapshot = getSettingsRef().document(FirestoreDocuments.SYNC_METADATA).get().await()
-        return snapshot.getLong("lastSync_$accountId") ?: 0L
+        return try {
+            val snapshot = getSettingsRef()?.document(FirestoreDocuments.SYNC_METADATA)?.get()?.await()
+            snapshot?.getLong("lastSync_$accountId") ?: 0L
+        } catch (e: Exception) {
+            0L
+        }
     }
 
     suspend fun saveLastGlobalSyncTime(timestamp: Long) {
-        getSettingsRef().document(FirestoreDocuments.SYNC_METADATA)
-            .set(mapOf("lastGlobalSync" to timestamp), SetOptions.merge())
-            .await()
+        getSettingsRef()?.document(FirestoreDocuments.SYNC_METADATA)
+            ?.set(mapOf("lastGlobalSync" to timestamp), SetOptions.merge())
+            ?.await()
     }
 
-    fun getLastGlobalSyncTimeFlow(): Flow<Long?> = callbackFlow {
-        val subscription = getSettingsRef().document(FirestoreDocuments.SYNC_METADATA)
-            .addSnapshotListener { snapshot, _ ->
-                if (snapshot != null && snapshot.exists()) {
-                    trySend(snapshot.getLong("lastGlobalSync"))
+    fun getLastGlobalSyncTimeFlow(): Flow<Long?> {
+        val ref = getSettingsRef() ?: return flowOf(null)
+        return callbackFlow {
+            val subscription = ref.document(FirestoreDocuments.SYNC_METADATA)
+                .addSnapshotListener { snapshot, _ ->
+                    if (snapshot != null && snapshot.exists()) {
+                        trySend(snapshot.getLong("lastGlobalSync"))
+                    }
                 }
-            }
-        awaitClose { subscription.remove() }
-    }
-
-    suspend fun deleteTransaction(id: String) {
-        getTransactionsRef().document(id).delete().await()
-    }
-
-    fun getAccountsFlow(): Flow<List<BankAccount>> = callbackFlow {
-        val subscription = getAccountsRef().addSnapshotListener { snapshot, _ ->
-            if (snapshot != null) {
-                trySend(snapshot.toObjects(BankAccount::class.java))
-            }
+            awaitClose { subscription.remove() }
         }
-        awaitClose { subscription.remove() }
     }
 
     suspend fun clearMonobankData() {
-        getSettingsRef().document(FirestoreDocuments.USER_SETTINGS).update(
+        val settingsRef = getSettingsRef() ?: return
+        val accountsRef = getAccountsRef() ?: return
+
+        settingsRef.document(FirestoreDocuments.USER_SETTINGS).update(
             mapOf(
                 "monoToken" to null,
                 "selectedIds" to emptyList<String>()
             )
         ).await()
 
-        val accounts = getAccountsRef().whereEqualTo("provider", BankProviders.MONOBANK).get().await()
+        val accounts = accountsRef.whereEqualTo("provider", BankProviders.MONOBANK).get().await()
         val batch = db.batch()
         accounts.documents.forEach { batch.delete(it.reference) }
-        getSettingsRef().document(FirestoreDocuments.SYNC_METADATA).delete().await()
+        settingsRef.document(FirestoreDocuments.SYNC_METADATA).delete().await()
         batch.commit().await()
     }
 }

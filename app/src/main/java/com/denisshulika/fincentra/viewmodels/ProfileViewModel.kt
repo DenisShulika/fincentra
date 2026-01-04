@@ -13,6 +13,9 @@ class ProfileViewModel : ViewModel() {
     private val _currencySummaries = MutableStateFlow<List<CurrencySummary>>(emptyList())
     val currencySummaries = _currencySummaries.asStateFlow()
 
+
+    private val authRepository = DependencyProvider.authRepository
+
     init {
         viewModelScope.launch {
             repository.getAccountsFlow().collect { accounts ->
@@ -25,6 +28,15 @@ class ProfileViewModel : ViewModel() {
                     .sortedByDescending { it.currencyCode == 980 }
                 _currencySummaries.value = summaries
             }
+        }
+    }
+
+    fun logout(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            authRepository.signOut()
+
+            DependencyProvider.repository.clearAllData()
+            onSuccess()
         }
     }
 }

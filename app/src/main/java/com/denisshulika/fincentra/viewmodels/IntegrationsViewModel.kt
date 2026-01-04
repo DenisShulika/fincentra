@@ -55,7 +55,27 @@ class IntegrationsViewModel : ViewModel() {
     private val _showDeleteConfirmation = MutableStateFlow(false)
     val showDeleteConfirmation = _showDeleteConfirmation.asStateFlow()
 
-    init { checkConnectionStatus() }
+    init {
+        refreshConnectionStatus()
+    }
+
+    fun refreshConnectionStatus() {
+        viewModelScope.launch {
+            _isLoading.value = true
+
+            val token = repository.getMonoToken()
+            _isBankConnected.value = !token.isNullOrBlank()
+
+            if (_isBankConnected.value) {
+                val saved = repository.getAccountsOnce()
+                _availableAccounts.value = saved.sortedBy { it.id }
+            } else {
+                _availableAccounts.value = emptyList()
+            }
+
+            _isLoading.value = false
+        }
+    }
 
     private fun checkConnectionStatus() {
         viewModelScope.launch {
@@ -254,6 +274,7 @@ class IntegrationsViewModel : ViewModel() {
             try {
                 repository.clearMonobankData()
                 _isBankConnected.value = false
+                _availableAccounts.value = emptyList()
                 closeBankDetails()
                 _events.emit(IntegrationsUiEvent.ShowToast("Банк відключено"))
             } finally {

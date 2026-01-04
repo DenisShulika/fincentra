@@ -79,6 +79,8 @@ fun IntegrationsScreen(viewModel: IntegrationsViewModel) {
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
+        viewModel.refreshConnectionStatus()
+
         viewModel.events.collect { event ->
             when (event) {
                 is IntegrationsUiEvent.OpenUrl -> {

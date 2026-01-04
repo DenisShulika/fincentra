@@ -28,6 +28,7 @@ import com.denisshulika.fincentra.navigation.Screen
 import com.denisshulika.fincentra.ui.screens.IntegrationsScreen
 import com.denisshulika.fincentra.ui.screens.LoginScreen
 import com.denisshulika.fincentra.ui.screens.ProfileScreen
+import com.denisshulika.fincentra.ui.screens.RegisterScreen
 import com.denisshulika.fincentra.ui.screens.StatsScreen
 import com.denisshulika.fincentra.ui.screens.TransactionsScreen
 import com.denisshulika.fincentra.ui.theme.FinCentraTheme
@@ -128,7 +129,20 @@ fun MainScreen() {
                             popUpTo(Screen.Login.route) { inclusive = true }
                         }
                     },
-                    onNavigateToRegister = { /* navController.navigate(Screen.Register.route) */ }
+                    onNavigateToRegister = { navController.navigate(Screen.Register.route) }
+                )
+            }
+
+            composable(Screen.Register.route) {
+                val authViewModel: AuthViewModel = viewModel()
+                RegisterScreen(
+                    viewModel = authViewModel,
+                    onNavigateToMain = {
+                        navController.navigate(Screen.Transactions.route) {
+                            popUpTo(Screen.Login.route) { inclusive = true }
+                        }
+                    },
+                    onBackToLogin = { navController.popBackStack() }
                 )
             }
 
@@ -143,7 +157,14 @@ fun MainScreen() {
             }
             composable(Screen.Profile.route) {
                 val viewModel: ProfileViewModel = viewModel()
-                ProfileScreen(viewModel)
+                ProfileScreen(
+                    viewModel,
+                    onLogout = {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                )
             }
         }
     }
