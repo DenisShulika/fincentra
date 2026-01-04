@@ -66,7 +66,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.data.models.BankProviderInfo
 import com.denisshulika.fincentra.data.models.SupportedBanks
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
-import com.denisshulika.fincentra.viewmodels.IntegrationsUiEvent
+import com.denisshulika.fincentra.data.models.IntegrationsUiEvent
 import com.denisshulika.fincentra.viewmodels.IntegrationsViewModel
 
 @Composable

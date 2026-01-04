@@ -2,6 +2,7 @@ package com.denisshulika.fincentra.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.denisshulika.fincentra.data.models.AuthUiEvent
 import com.denisshulika.fincentra.di.DependencyProvider
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.flow.MutableSharedFlow

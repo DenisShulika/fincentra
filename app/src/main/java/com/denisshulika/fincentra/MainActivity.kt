@@ -35,6 +35,7 @@ import com.denisshulika.fincentra.ui.theme.FinCentraTheme
 import com.denisshulika.fincentra.viewmodels.AuthViewModel
 import com.denisshulika.fincentra.viewmodels.IntegrationsViewModel
 import com.denisshulika.fincentra.viewmodels.ProfileViewModel
+import com.denisshulika.fincentra.viewmodels.StatsViewModel
 import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 
 class MainActivity : ComponentActivity() {
@@ -150,7 +151,11 @@ fun MainScreen() {
                 val viewModel: TransactionsViewModel = viewModel()
                 TransactionsScreen(viewModel)
             }
-            composable(Screen.Stats.route) { StatsScreen() }
+            composable(Screen.Stats.route) {
+                val statsViewModel: StatsViewModel = viewModel()
+
+                StatsScreen(viewModel = statsViewModel)
+            }
             composable(Screen.Integrations.route) {
                 val viewModel: IntegrationsViewModel = viewModel()
                 IntegrationsScreen(viewModel)

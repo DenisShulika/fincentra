@@ -1,9 +1,6 @@
 package com.denisshulika.fincentra.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -11,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.denisshulika.fincentra.viewmodels.AuthUiEvent
+import com.denisshulika.fincentra.data.models.AuthUiEvent
 import com.denisshulika.fincentra.viewmodels.AuthViewModel
 
 @Composable

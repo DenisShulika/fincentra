@@ -1,4 +1,4 @@
-package com.denisshulika.fincentra.viewmodels
+package com.denisshulika.fincentra.data.models
 
 sealed class IntegrationsUiEvent {
     data class OpenUrl(val url: String) : IntegrationsUiEvent()

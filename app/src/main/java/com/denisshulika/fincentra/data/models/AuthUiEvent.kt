@@ -1,4 +1,4 @@
-package com.denisshulika.fincentra.viewmodels
+package com.denisshulika.fincentra.data.models
 
 sealed class AuthUiEvent {
     data object NavigateToMain : AuthUiEvent()
