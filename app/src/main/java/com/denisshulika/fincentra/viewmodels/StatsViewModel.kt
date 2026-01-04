@@ -1,13 +1,13 @@
 package com.denisshulika.fincentra.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.denisshulika.fincentra.data.models.CategoryStat
-import com.denisshulika.fincentra.data.models.CurrencyStats
-import com.denisshulika.fincentra.data.models.StatsUiState
-import com.denisshulika.fincentra.data.models.Transaction
+import com.denisshulika.fincentra.data.models.*
 import com.denisshulika.fincentra.di.DependencyProvider
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.withContext
 
 class StatsViewModel : ViewModel() {
     private val repository = DependencyProvider.repository
@@ -23,58 +23,71 @@ class StatsViewModel : ViewModel() {
         repository.getAccountsFlow(),
         _selectedDateRange
     ) { transactions, accounts, range ->
-
-        val periodTx = if (range != null) {
-            transactions.filter { it.timestamp in range }
-        } else {
-            transactions
+        withContext(Dispatchers.Default) {
+            calculateOptimizedStats(transactions, accounts, range)
         }
-
-        val currencyData = transactions.groupBy { it.currencyCode }.map { (code, allTxForCurrency) ->
-            val filteredTx = allTxForCurrency.filter { tx ->
-                if (range == null) true else tx.timestamp in range
-            }
-
-            val income = filteredTx.filter { !it.isExpense }.sumOf { it.amount }
-            val expense = filteredTx.filter { it.isExpense }.sumOf { it.amount }
-
-            val endBalance = accounts
-                .filter { it.currencyCode == code && it.selected }
-                .sumOf { it.balance }
-
-            val startBalance = endBalance - income + expense
-
-            CurrencyStats(
-                currencyCode = code,
-                startPeriodBalance = startBalance,
-                endPeriodBalance = endBalance,
-                totalIncome = income,
-                totalExpense = expense,
-                categories = groupByCategory(filteredTx, expense)
-            )
-        }.filter { it.totalIncome > 0 || it.totalExpense > 0 || it.endPeriodBalance > 0 }
-            .sortedByDescending { it.currencyCode == 980 }
-
-        StatsUiState(currencyData = currencyData, dateRange = range)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = StatsUiState()
     )
 
-    private fun groupByCategory(txList: List<Transaction>, totalExpense: Double): List<CategoryStat> {
-        return txList
-            .filter { it.isExpense }
-            .groupBy { it.category }
-            .map { (cat, list) ->
-                val sum = list.sumOf { it.amount }
-                CategoryStat(
-                    category = cat,
-                    amount = sum,
-                    percentage = if (totalExpense > 0) (sum / totalExpense).toFloat() else 0f
-                )
+    private fun calculateOptimizedStats(
+        allTx: List<Transaction>,
+        accounts: List<BankAccount>,
+        range: LongRange?
+    ): StatsUiState {
+        if (allTx.isEmpty()) return StatsUiState()
+
+        val currencyData = allTx.groupBy { it.currencyCode }.map { (code, transactions) ->
+            var periodIncome = 0.0
+            var periodExpense = 0.0
+            val categoryMap = mutableMapOf<TransactionCategory, Double>()
+            val subCategoryMap = mutableMapOf<TransactionCategory, MutableMap<String, Double>>()
+
+            transactions.forEach { tx ->
+                val isInRange = range == null || tx.timestamp in range
+                if (isInRange) {
+                    if (tx.isExpense) {
+                        periodExpense += tx.amount
+                        categoryMap[tx.category] = (categoryMap[tx.category] ?: 0.0) + tx.amount
+                        val subs = subCategoryMap.getOrPut(tx.category) { mutableMapOf() }
+                        subs[tx.subCategoryName] = (subs[tx.subCategoryName] ?: 0.0) + tx.amount
+                    } else {
+                        periodIncome += tx.amount
+                    }
+                }
             }
-            .sortedByDescending { it.amount }
+
+            val selectedAccounts = accounts
+                .filter { it.currencyCode == code && it.selected }
+                .distinctBy { it.id }
+
+            val endBalance = selectedAccounts.sumOf { it.balance }
+            val startBalance = endBalance - periodIncome + periodExpense
+
+            Log.d("STATS_CHECK", """
+            Валюта: $code
+            К-сть вибраних карт: ${selectedAccounts.size}
+            Поточний баланс (End): $endBalance
+            Доходи за період: $periodIncome
+            Витрати за період: $periodExpense
+            Розрахований старт: $startBalance
+        """.trimIndent())
+
+            val categoryStats = categoryMap.map { (cat, catSum) ->
+                val subStats = subCategoryMap[cat]?.map { (subName, subSum) ->
+                    SubCategoryStat(subName, subSum, if (catSum > 0) (subSum / catSum).toFloat() else 0f)
+                }?.sortedByDescending { it.amount } ?: emptyList()
+
+                CategoryStat(cat, catSum, if (periodExpense > 0) (catSum / periodExpense).toFloat() else 0f, subStats)
+            }.sortedByDescending { it.amount }
+
+            CurrencyStats(code, startBalance, endBalance, periodIncome, periodExpense, categoryStats)
+        }.filter { it.totalIncome > 0 || it.totalExpense > 0 || it.endPeriodBalance > 0 }
+            .sortedByDescending { it.currencyCode == 980 }
+
+        return StatsUiState(currencyData = currencyData, dateRange = range)
     }
 
     fun selectCurrency(index: Int) { _selectedCurrencyIndex.value = index }
