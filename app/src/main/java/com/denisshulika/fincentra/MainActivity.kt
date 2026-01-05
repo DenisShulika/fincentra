@@ -57,8 +57,18 @@ fun MainScreen() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    val integrationsViewModel: IntegrationsViewModel = viewModel()
+    val transactionsViewModel: TransactionsViewModel = viewModel()
+    val profileViewModel: ProfileViewModel = viewModel()
+    val authViewModel: AuthViewModel = viewModel()
+    val statsViewModel: StatsViewModel = viewModel()
+
     val startDestination = remember {
-        if (authRepository.getCurrentUser() != null) Screen.Transactions.route else Screen.Login.route
+        if (authRepository.getCurrentUser() != null) {
+            Screen.Transactions.route
+        } else {
+            Screen.Login.route
+        }
     }
 
     val screensWithBottomBar = listOf(
@@ -74,43 +84,87 @@ fun MainScreen() {
                 NavigationBar {
                     NavigationBarItem(
                         selected = currentRoute == Screen.Transactions.route,
-                        onClick = { navController.navigate(Screen.Transactions.route) {
-                            popUpTo(navController.graph.startDestinationId) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }},
-                        label = { Text(Screen.Transactions.title) },
-                        icon = { Icon(Icons.AutoMirrored.Filled.ReceiptLong, null) }
+                        label = {
+                            Text(text = Screen.Transactions.title)
+                        },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ReceiptLong,
+                                contentDescription = null
+                            )
+                        },
+                        onClick = {
+                            navController.navigate(Screen.Transactions.route) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
                     )
                     NavigationBarItem(
                         selected = currentRoute == Screen.Stats.route,
-                        onClick = { navController.navigate(Screen.Stats.route) {
-                            popUpTo(navController.graph.startDestinationId) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }},
-                        label = { Text(Screen.Stats.title) },
-                        icon = { Icon(Icons.Default.BarChart, null) }
+                        label = {
+                            Text(text = Screen.Stats.title)
+                        },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.BarChart,
+                                contentDescription = null
+                            )
+                        },
+                        onClick = {
+                            navController.navigate(Screen.Stats.route) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
                     )
                     NavigationBarItem(
                         selected = currentRoute == Screen.Integrations.route,
-                        onClick = { navController.navigate(Screen.Integrations.route) {
-                            popUpTo(navController.graph.startDestinationId) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }},
-                        label = { Text(Screen.Integrations.title) },
-                        icon = { Icon(Icons.Default.AccountBalance, null) }
+                        label = {
+                            Text(text = Screen.Integrations.title)
+                        },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.AccountBalance,
+                                contentDescription = null
+                            )
+                        },
+                        onClick = {
+                            navController.navigate(Screen.Integrations.route) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
                     )
                     NavigationBarItem(
                         selected = currentRoute == Screen.Profile.route,
-                        onClick = { navController.navigate(Screen.Profile.route) {
-                            popUpTo(navController.graph.startDestinationId) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }},
-                        label = { Text(Screen.Profile.title) },
-                        icon = { Icon(Icons.Default.Person, null) }
+                        label = {
+                            Text(text = Screen.Profile.title)
+                        },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null
+                            )
+                        },
+                        onClick = {
+                            navController.navigate(Screen.Profile.route) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
                     )
                 }
             }
@@ -121,52 +175,58 @@ fun MainScreen() {
             startDestination = startDestination,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Login.route) {
-                val authViewModel: AuthViewModel = viewModel()
+            composable(route = Screen.Login.route) {
                 LoginScreen(
                     viewModel = authViewModel,
                     onNavigateToMain = {
                         navController.navigate(Screen.Transactions.route) {
-                            popUpTo(Screen.Login.route) { inclusive = true }
+                            popUpTo(Screen.Login.route) {
+                                inclusive = true
+                            }
                         }
                     },
-                    onNavigateToRegister = { navController.navigate(Screen.Register.route) }
+                    onNavigateToRegister = {
+                        navController.navigate(Screen.Register.route)
+                    }
                 )
             }
 
-            composable(Screen.Register.route) {
-                val authViewModel: AuthViewModel = viewModel()
+            composable(route = Screen.Register.route) {
                 RegisterScreen(
                     viewModel = authViewModel,
                     onNavigateToMain = {
                         navController.navigate(Screen.Transactions.route) {
-                            popUpTo(Screen.Login.route) { inclusive = true }
+                            popUpTo(Screen.Login.route) {
+                                inclusive = true
+                            }
                         }
                     },
-                    onBackToLogin = { navController.popBackStack() }
+                    onBackToLogin = {
+                        navController.popBackStack()
+                    }
                 )
             }
 
-            composable(Screen.Transactions.route) {
-                val viewModel: TransactionsViewModel = viewModel()
-                TransactionsScreen(viewModel)
+            composable(route = Screen.Transactions.route) {
+                TransactionsScreen(viewModel = transactionsViewModel)
             }
-            composable(Screen.Stats.route) {
-                val statsViewModel: StatsViewModel = viewModel()
 
+            composable(route = Screen.Stats.route) {
                 StatsScreen(viewModel = statsViewModel)
             }
-            composable(Screen.Integrations.route) {
-                val viewModel: IntegrationsViewModel = viewModel()
-                IntegrationsScreen(viewModel)
+
+            composable(route = Screen.Integrations.route) {
+                IntegrationsScreen(viewModel = integrationsViewModel)
             }
-            composable(Screen.Profile.route) {
-                val viewModel: ProfileViewModel = viewModel()
+
+            composable(route = Screen.Profile.route) {
                 ProfileScreen(
-                    viewModel,
+                    viewModel = profileViewModel,
                     onLogout = {
                         navController.navigate(Screen.Login.route) {
-                            popUpTo(0) { inclusive = true }
+                            popUpTo(0) {
+                                inclusive = true
+                            }
                         }
                     }
                 )

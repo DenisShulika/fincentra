@@ -206,7 +206,7 @@ private fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsVi
             Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Info, contentDescription = null, tint = Color(0xFFFBC02D), modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Обмеження: 1 запит виписки на 60 секунд. Будь ласка, зачекайте після натискання.", style = MaterialTheme.typography.bodySmall)
+                Text("Обмеження: 1 запит виписки на 60 секунд. Будь ласка, зачекайте після натискання.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimary)
             }
         }
 

@@ -136,8 +136,13 @@ class FinanceRepository {
         val ref = getAccountsRef() ?: return emptyList()
         return try {
             val snapshot = ref.get().await()
-            snapshot.toObjects(BankAccount::class.java)
+            if (snapshot != null && !snapshot.isEmpty) {
+                snapshot.toObjects(BankAccount::class.java)
+            } else {
+                emptyList()
+            }
         } catch (e: Exception) {
+            Log.e("REPO", "Помилка getAccountsOnce: ${e.message}")
             emptyList()
         }
     }
