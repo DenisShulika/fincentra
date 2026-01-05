@@ -114,6 +114,17 @@ class TransactionsViewModel : ViewModel() {
 
     private val _paginatedTransactions = MutableStateFlow<List<Transaction>>(emptyList())
 
+    private val _viewingTransaction = MutableStateFlow<Transaction?>(null)
+    val viewingTransaction = _viewingTransaction.asStateFlow()
+
+    fun showTransactionDetails(tx: Transaction) {
+        _viewingTransaction.value = tx
+    }
+
+    fun closeTransactionDetails() {
+        _viewingTransaction.value = null
+    }
+
     fun loadMoreTransactions() {
         viewModelScope.launch {
             val newPage = repository.fetchNextPage()
