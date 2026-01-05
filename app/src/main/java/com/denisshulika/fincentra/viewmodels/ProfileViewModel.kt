@@ -13,10 +13,18 @@ class ProfileViewModel : ViewModel() {
     private val _currencySummaries = MutableStateFlow<List<CurrencySummary>>(emptyList())
     val currencySummaries = _currencySummaries.asStateFlow()
 
-
     private val authRepository = DependencyProvider.authRepository
 
+    private val _user = MutableStateFlow<com.denisshulika.fincentra.data.models.User?>(null)
+    val user = _user.asStateFlow()
+
+    private val _totalTransactionsCount = MutableStateFlow(0)
+    val totalTransactionsCount = _totalTransactionsCount.asStateFlow()
+
     init {
+        loadUserData()
+        observeStats()
+
         viewModelScope.launch {
             repository.getAccountsFlow().collect { accounts ->
                 val summaries = accounts
@@ -34,9 +42,27 @@ class ProfileViewModel : ViewModel() {
     fun logout(onSuccess: () -> Unit) {
         viewModelScope.launch {
             authRepository.signOut()
-
             DependencyProvider.repository.clearAllData()
             onSuccess()
+        }
+    }
+
+    private fun loadUserData() {
+        _user.value = authRepository.getCurrentUser()
+    }
+
+    private fun observeStats() {
+        viewModelScope.launch {
+            repository.transactions.collect { list ->
+                _totalTransactionsCount.value = list.size
+            }
+        }
+    }
+
+    fun getSupportIntent(): android.content.Intent {
+        return android.content.Intent(android.content.Intent.ACTION_SENDTO).apply {
+            data = android.net.Uri.parse("mailto:denisshulika31@gmail.com")
+            putExtra(android.content.Intent.EXTRA_SUBJECT, "FinCentra Feedback")
         }
     }
 }

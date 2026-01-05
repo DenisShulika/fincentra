@@ -5,9 +5,9 @@ import com.denisshulika.fincentra.data.models.TransactionCategory
 object MccDirectory {
     private val mccMap = mapOf(
         // --- AGRICULTURAL SERVICES (0001–1499) ---
-        0742 to MccDetails(TransactionCategory.SERVICES, "Ветеринарні послуги"),
-        0763 to MccDetails(TransactionCategory.SERVICES, "Агро-кооперативи"),
-        0780 to MccDetails(TransactionCategory.SERVICES, "Ландшафтні послуги"),
+        742 to MccDetails(TransactionCategory.SERVICES, "Ветеринарні послуги"),
+        763 to MccDetails(TransactionCategory.SERVICES, "Агро-кооперативи"),
+        780 to MccDetails(TransactionCategory.SERVICES, "Ландшафтні послуги"),
 
         // --- CONTRACTED SERVICES (1500–2999) ---
         1520 to MccDetails(TransactionCategory.HOUSING, "Генпідрядники"),
