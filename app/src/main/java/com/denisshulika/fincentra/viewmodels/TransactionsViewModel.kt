@@ -108,10 +108,31 @@ class TransactionsViewModel : ViewModel() {
         it.accountId == TransactionConstants.ACCOUNT_ID_MANUAL || ids.contains(it.accountId)
     }
 
-    private fun List<Transaction>.filterBySearch(query: String) = filter {
-        it.description.contains(query, ignoreCase = true) ||
-                it.category.displayName.contains(query, ignoreCase = true) ||
-                it.subCategoryName.contains(query, ignoreCase = true)
+    private fun List<Transaction>.filterBySearch(query: String): List<Transaction> {
+        if (query.isBlank()) return this
+
+        val trimmedQuery = query.trim()
+
+        return filter { tx ->
+            if (trimmedQuery.startsWith(">")) {
+                val numberPart = trimmedQuery.drop(1).toDoubleOrNull()
+                if (numberPart != null) {
+                    return@filter tx.amount > numberPart
+                }
+            }
+
+            if (trimmedQuery.startsWith("<")) {
+                val numberPart = trimmedQuery.drop(1).toDoubleOrNull()
+                if (numberPart != null) {
+                    return@filter tx.amount < numberPart
+                }
+            }
+
+            tx.description.contains(query, ignoreCase = true) ||
+                    tx.category.displayName.contains(query, ignoreCase = true) ||
+                    tx.subCategoryName.contains(query, ignoreCase = true) ||
+                    tx.amount.toString().contains(query)
+        }
     }
 
     private fun List<Transaction>.filterByBank(bank: String) = filter {
