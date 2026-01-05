@@ -63,10 +63,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.denisshulika.fincentra.data.models.BankProviderInfo
-import com.denisshulika.fincentra.data.models.SupportedBanks
+import com.denisshulika.fincentra.data.models.ui.BankProviderInfo
+import com.denisshulika.fincentra.data.models.ui.SupportedBanks
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
-import com.denisshulika.fincentra.data.models.IntegrationsUiEvent
+import com.denisshulika.fincentra.data.models.events.IntegrationsUiEvent
 import com.denisshulika.fincentra.viewmodels.IntegrationsViewModel
 
 @Composable

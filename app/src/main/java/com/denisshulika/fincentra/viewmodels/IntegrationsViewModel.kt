@@ -3,9 +3,9 @@ package com.denisshulika.fincentra.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.denisshulika.fincentra.data.models.BankAccount
-import com.denisshulika.fincentra.data.models.BankProviderInfo
-import com.denisshulika.fincentra.data.models.IntegrationsUiEvent
+import com.denisshulika.fincentra.data.models.domain.BankAccount
+import com.denisshulika.fincentra.data.models.ui.BankProviderInfo
+import com.denisshulika.fincentra.data.models.events.IntegrationsUiEvent
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow

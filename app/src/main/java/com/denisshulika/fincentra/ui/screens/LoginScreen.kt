@@ -13,7 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.denisshulika.fincentra.data.models.AuthUiEvent
+import com.denisshulika.fincentra.data.models.events.AuthUiEvent
 import com.denisshulika.fincentra.viewmodels.AuthViewModel
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector

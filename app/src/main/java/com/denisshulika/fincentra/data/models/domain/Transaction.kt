@@ -1,4 +1,4 @@
-package com.denisshulika.fincentra.data.models
+package com.denisshulika.fincentra.data.models.domain
 
 import com.denisshulika.fincentra.data.util.TransactionConstants
 import com.google.firebase.firestore.PropertyName
@@ -22,5 +22,5 @@ data class Transaction(
     val balance: Double? = null,
     val comment: String? = null,
 
-    val subCategoryName: String = "Різне"
+    val subCategoryName: String = TransactionConstants.DEFAULT_SUB_CATEGORY
 )

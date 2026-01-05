@@ -1,6 +1,6 @@
 package com.denisshulika.fincentra.data.repository
 
-import com.denisshulika.fincentra.data.models.User
+import com.denisshulika.fincentra.data.models.domain.User
 import com.denisshulika.fincentra.di.DependencyProvider
 import com.google.firebase.auth.AuthCredential
 import kotlinx.coroutines.tasks.await

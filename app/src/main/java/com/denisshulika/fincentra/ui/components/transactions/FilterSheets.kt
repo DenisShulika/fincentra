@@ -41,15 +41,9 @@ fun CategoryFilterContent(
     onDismiss: () -> Unit
 ) {
     val selectedCats by viewModel.selectedCategories.collectAsStateWithLifecycle()
-    val unfilteredTx by viewModel.allTransactions.collectAsStateWithLifecycle()
-    val categories = viewModel.categories
+    val categoriesMap by viewModel.categoriesWithSubs.collectAsStateWithLifecycle()
 
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth()
-            .padding(bottom = 32.dp)
-    ) {
+    Column(modifier = Modifier.padding(16.dp).fillMaxWidth().padding(bottom = 32.dp)) {
         Text(
             text = "Фільтр за категоріями",
             style = MaterialTheme.typography.titleLarge,
@@ -57,45 +51,31 @@ fun CategoryFilterContent(
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        LazyColumn(
-            modifier = Modifier.weight(1f, fill = false)
-        ) {
-            items(categories) { mainCat ->
-                val subCategories = remember(mainCat) {
-                    com.denisshulika.fincentra.data.network.common.MccDirectory.getSubcategoriesFor(mainCat)
-                }
+        LazyColumn(modifier = Modifier.weight(1f, fill = false)) {
+            items(categoriesMap.keys.toList()) { mainCat ->
+                val subCategories = categoriesMap[mainCat] ?: emptyList()
                 var isExpanded by remember { mutableStateOf(false) }
 
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 2.dp),
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Checkbox(
                             checked = selectedCats.contains(mainCat.displayName),
-                            onCheckedChange = {
-                                viewModel.toggleCategoryFilter(mainCat.displayName)
-                            }
+                            onCheckedChange = { viewModel.toggleCategoryFilter(mainCat.displayName) }
                         )
-
                         Text(
                             text = mainCat.displayName,
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(start = 8.dp)
+                            modifier = Modifier.weight(1f).padding(start = 8.dp)
                         )
-
                         if (subCategories.isNotEmpty()) {
-                            IconButton(
-                                onClick = { isExpanded = !isExpanded }
-                            ) {
+                            IconButton(onClick = { isExpanded = !isExpanded }) {
                                 Icon(
                                     imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                    contentDescription = "Розгорнути",
+                                    contentDescription = null,
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
@@ -108,17 +88,13 @@ fun CategoryFilterContent(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(start = 40.dp)
-                                    .clickable {
-                                        viewModel.toggleCategoryFilter(subName)
-                                    }
+                                    .clickable { viewModel.toggleCategoryFilter(subName) }
                                     .padding(vertical = 2.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Checkbox(
                                     checked = selectedCats.contains(subName),
-                                    onCheckedChange = {
-                                        viewModel.toggleCategoryFilter(subName)
-                                    }
+                                    onCheckedChange = { viewModel.toggleCategoryFilter(subName) }
                                 )
                                 Text(
                                     text = subName,
@@ -137,13 +113,7 @@ fun CategoryFilterContent(
                 }
             }
         }
-
-        Button(
-            onClick = onDismiss,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 24.dp)
-        ) {
+        Button(onClick = onDismiss, modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) {
             Text("Застосувати")
         }
     }

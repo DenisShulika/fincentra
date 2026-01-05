@@ -1,7 +1,7 @@
 package com.denisshulika.fincentra.data.network.common
 
-import com.denisshulika.fincentra.data.models.BankAccount
-import com.denisshulika.fincentra.data.models.Transaction
+import com.denisshulika.fincentra.data.models.domain.BankAccount
+import com.denisshulika.fincentra.data.models.domain.Transaction
 
 interface BankProvider {
     suspend fun fetchAccounts(token: String): List<BankAccount>

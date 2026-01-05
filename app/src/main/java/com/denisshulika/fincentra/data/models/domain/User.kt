@@ -1,4 +1,4 @@
-package com.denisshulika.fincentra.data.models
+package com.denisshulika.fincentra.data.models.domain
 
 data class User(
     val uid: String = "",

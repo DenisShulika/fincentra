@@ -19,10 +19,12 @@ class FinCentraApplication : Application() {
     private fun setupBackgroundSync() {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
+            .setRequiresBatteryNotLow(true) // Додано: не вантажити на розрядженому тілі
             .build()
 
         val syncRequest = PeriodicWorkRequestBuilder<GlobalSyncWorker>(8, TimeUnit.HOURS)
             .setConstraints(constraints)
+            .setBackoffCriteria(androidx.work.BackoffPolicy.EXPONENTIAL, 1, TimeUnit.HOURS)
             .build()
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(

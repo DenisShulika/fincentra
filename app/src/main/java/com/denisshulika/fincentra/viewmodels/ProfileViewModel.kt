@@ -2,7 +2,8 @@ package com.denisshulika.fincentra.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.denisshulika.fincentra.data.models.CurrencySummary
+import com.denisshulika.fincentra.data.models.state.CurrencySummary
+import com.denisshulika.fincentra.data.models.domain.User
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +16,7 @@ class ProfileViewModel : ViewModel() {
 
     private val authRepository = DependencyProvider.authRepository
 
-    private val _user = MutableStateFlow<com.denisshulika.fincentra.data.models.User?>(null)
+    private val _user = MutableStateFlow<User?>(null)
     val user = _user.asStateFlow()
 
     private val _totalTransactionsCount = MutableStateFlow(0)

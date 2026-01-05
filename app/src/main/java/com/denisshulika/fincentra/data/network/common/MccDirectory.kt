@@ -1,6 +1,6 @@
 package com.denisshulika.fincentra.data.network.common
 
-import com.denisshulika.fincentra.data.models.TransactionCategory
+import com.denisshulika.fincentra.data.models.domain.TransactionCategory
 
 object MccDirectory {
     private val mccMap = mapOf(
@@ -106,12 +106,16 @@ object MccDirectory {
         9402 to MccDetails(TransactionCategory.SERVICES, "Поштові послуги")
     )
 
+    private val subcategoriesCache = mutableMapOf<TransactionCategory, List<String>>()
+
     fun getSubcategoriesFor(category: TransactionCategory): List<String> {
-        return mccMap.values
-            .filter { it.category == category }
-            .map { it.subCategoryName }
-            .distinct()
-            .sorted()
+        return subcategoriesCache.getOrPut(category) {
+            mccMap.values
+                .filter { it.category == category }
+                .map { it.subCategoryName }
+                .distinct()
+                .sorted()
+        }
     }
 
     fun getCategory(mcc: Int?): TransactionCategory {

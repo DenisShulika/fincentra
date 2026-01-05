@@ -2,9 +2,9 @@ package com.denisshulika.fincentra.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.denisshulika.fincentra.data.models.BankAccount
-import com.denisshulika.fincentra.data.models.Transaction
-import com.denisshulika.fincentra.data.models.TransactionCategory
+import com.denisshulika.fincentra.data.models.domain.BankAccount
+import com.denisshulika.fincentra.data.models.domain.Transaction
+import com.denisshulika.fincentra.data.models.domain.TransactionCategory
 import com.denisshulika.fincentra.data.util.TransactionConstants
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class TransactionsViewModel : ViewModel() {
     private val repository = DependencyProvider.repository
@@ -104,34 +105,36 @@ class TransactionsViewModel : ViewModel() {
 
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val categoriesWithSubs: StateFlow<Map<TransactionCategory, List<String>>> = allTransactions
+        .map { _ ->
+            TransactionCategory.entries.associateWith { mainCat ->
+                com.denisshulika.fincentra.data.network.common.MccDirectory.getSubcategoriesFor(mainCat)
+            }
+        }.stateIn(viewModelScope, SharingStarted.Lazily, emptyMap())
+
     private fun List<Transaction>.filterByActiveAccounts(ids: List<String>) = filter {
         it.accountId == TransactionConstants.ACCOUNT_ID_MANUAL || ids.contains(it.accountId)
     }
 
     private fun List<Transaction>.filterBySearch(query: String): List<Transaction> {
         if (query.isBlank()) return this
-
         val trimmedQuery = query.trim()
 
         return filter { tx ->
-            if (trimmedQuery.startsWith(">")) {
-                val numberPart = trimmedQuery.drop(1).toDoubleOrNull()
-                if (numberPart != null) {
-                    return@filter tx.amount > numberPart
-                }
+            val amountFilter = when {
+                trimmedQuery.startsWith(">") -> trimmedQuery.drop(1).toDoubleOrNull()?.let { it }
+                trimmedQuery.startsWith("<") -> trimmedQuery.drop(1).toDoubleOrNull()?.let { it }
+                else -> null
             }
 
-            if (trimmedQuery.startsWith("<")) {
-                val numberPart = trimmedQuery.drop(1).toDoubleOrNull()
-                if (numberPart != null) {
-                    return@filter tx.amount < numberPart
-                }
+            if (amountFilter != null) {
+                if (trimmedQuery.startsWith(">")) tx.amount > amountFilter
+                else tx.amount < amountFilter
+            } else {
+                tx.description.contains(trimmedQuery, ignoreCase = true) ||
+                        tx.category.displayName.contains(trimmedQuery, ignoreCase = true) ||
+                        tx.subCategoryName.contains(trimmedQuery, ignoreCase = true)
             }
-
-            tx.description.contains(query, ignoreCase = true) ||
-                    tx.category.displayName.contains(query, ignoreCase = true) ||
-                    tx.subCategoryName.contains(query, ignoreCase = true) ||
-                    tx.amount.toString().contains(query)
         }
     }
 
@@ -269,7 +272,7 @@ class TransactionsViewModel : ViewModel() {
         val amountDouble = _amount.value.toDoubleOrNull() ?: return
         viewModelScope.launch {
             val transaction = Transaction(
-                id = _editingTransactionId.value ?: java.util.UUID.randomUUID().toString(),
+                id = _editingTransactionId.value ?: UUID.randomUUID().toString(),
                 amount = amountDouble,
                 description = _description.value,
                 bankName = "Готівка",
@@ -284,11 +287,4 @@ class TransactionsViewModel : ViewModel() {
             toggleBottomSheet(false)
         }
     }
-
-    val categoriesWithSubs: StateFlow<Map<TransactionCategory, List<String>>> = allTransactions
-        .map { txList ->
-            TransactionCategory.entries.associateWith { mainCat ->
-                com.denisshulika.fincentra.data.network.common.MccDirectory.getSubcategoriesFor(mainCat)
-            }
-        }.stateIn(viewModelScope, SharingStarted.Lazily, emptyMap())
 }

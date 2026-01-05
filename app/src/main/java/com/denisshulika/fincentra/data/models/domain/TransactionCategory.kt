@@ -1,4 +1,4 @@
-package com.denisshulika.fincentra.data.models
+package com.denisshulika.fincentra.data.models.domain
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List

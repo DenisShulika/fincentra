@@ -23,37 +23,37 @@ fun DateRangePickerDialog(
     DatePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text("OK")
-            }
+            TextButton(onClick = onConfirm) { Text("OK") }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Скасувати")
-            }
+            TextButton(onClick = onDismiss) { Text("Скасувати") }
         }
     ) {
         DateRangePicker(
             state = state,
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
+            modifier = Modifier.fillMaxWidth().weight(1f),
             showModeToggle = true,
             title = {
                 Text(
                     text = "Виберіть період",
                     modifier = Modifier.padding(start = 24.dp, top = 16.dp),
-                    style = MaterialTheme.typography.labelMedium
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.secondary
                 )
             },
             headline = {
-                val sdf = java.text.SimpleDateFormat("dd.MM.yyyy", java.util.Locale.getDefault())
-                val start = state.selectedStartDateMillis?.let { sdf.format(it) } ?: "Початок"
-                val end = state.selectedEndDateMillis?.let { sdf.format(it) } ?: "Завершення"
+                val start = state.selectedStartDateMillis?.let {
+                    com.denisshulika.fincentra.data.util.DateFormatter.fullDate.format(it)
+                } ?: "Початок"
+                val end = state.selectedEndDateMillis?.let {
+                    com.denisshulika.fincentra.data.util.DateFormatter.fullDate.format(it)
+                } ?: "Завершення"
+
                 Text(
                     text = "$start — $end",
                     modifier = Modifier.padding(start = 24.dp, bottom = 12.dp),
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         )

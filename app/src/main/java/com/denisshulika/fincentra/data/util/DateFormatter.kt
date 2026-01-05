@@ -7,5 +7,5 @@ object DateFormatter {
     val fullDate: SimpleDateFormat get() = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
     val dateTime: SimpleDateFormat get() = SimpleDateFormat("dd.MM, HH:mm", Locale.getDefault())
     val dayMonth: SimpleDateFormat get() = SimpleDateFormat("dd MMM", Locale.getDefault())
-    val timeOnly: SimpleDateFormat get() = SimpleDateFormat("HH:mm", Locale.getDefault())
+    val monthYear: SimpleDateFormat get() = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
 }

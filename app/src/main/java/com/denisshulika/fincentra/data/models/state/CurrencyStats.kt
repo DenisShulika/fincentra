@@ -1,4 +1,4 @@
-package com.denisshulika.fincentra.data.models
+package com.denisshulika.fincentra.data.models.state
 
 data class CurrencyStats(
     val currencyCode: Int,

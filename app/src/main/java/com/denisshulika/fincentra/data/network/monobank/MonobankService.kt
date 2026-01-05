@@ -1,8 +1,8 @@
 package com.denisshulika.fincentra.data.network.monobank
 
 import android.util.Log
-import com.denisshulika.fincentra.data.models.BankAccount
-import com.denisshulika.fincentra.data.models.Transaction
+import com.denisshulika.fincentra.data.models.domain.BankAccount
+import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.network.common.BankProvider
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.data.network.common.MccDirectory
@@ -24,16 +24,20 @@ class MonobankService : BankProvider {
             response.accounts.forEach { acc ->
                 val symbol = CurrencyMapper.getSymbol(acc.currencyCode)
                 val pan = acc.maskedPan.firstOrNull()?.let { if (it.length >= 4) "*${it.takeLast(4)}" else "" } ?: ""
-                accounts.add(BankAccount(
+                accounts.add(
+                    BankAccount(
                     id = acc.id, provider = BankProviders.MONOBANK, name = "Картка $symbol $pan".trim(),
                     type = acc.type, balance = acc.balance / 100.0, currencyCode = acc.currencyCode
-                ))
+                )
+                )
             }
             response.jars?.forEach { jar ->
-                accounts.add(BankAccount(
+                accounts.add(
+                    BankAccount(
                     id = jar.id, provider = BankProviders.MONOBANK, name = "Банка: ${jar.title}",
                     type = BankAccountTypes.JAR, balance = jar.balance / 100.0, currencyCode = jar.currencyCode
-                ))
+                )
+                )
             }
             accounts
         } catch (e: Exception) {

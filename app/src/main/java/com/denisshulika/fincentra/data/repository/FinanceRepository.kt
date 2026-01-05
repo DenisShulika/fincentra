@@ -1,8 +1,8 @@
 package com.denisshulika.fincentra.data.repository
 
 import android.util.Log
-import com.denisshulika.fincentra.data.models.BankAccount
-import com.denisshulika.fincentra.data.models.Transaction
+import com.denisshulika.fincentra.data.models.domain.BankAccount
+import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.util.BankProviders
 import com.denisshulika.fincentra.data.util.FirestoreCollections
 import com.denisshulika.fincentra.data.util.FirestoreDocuments

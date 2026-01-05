@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.denisshulika.fincentra.data.models.AuthUiEvent
+import com.denisshulika.fincentra.data.models.events.AuthUiEvent
 import com.denisshulika.fincentra.viewmodels.AuthViewModel
 
 @Composable
