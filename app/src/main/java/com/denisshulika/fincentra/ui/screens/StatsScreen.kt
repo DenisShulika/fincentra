@@ -1,5 +1,8 @@
 package com.denisshulika.fincentra.ui.screens
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,17 +17,14 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -32,19 +32,19 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.data.models.CategoryStat
 import com.denisshulika.fincentra.data.models.CurrencyStats
 import com.denisshulika.fincentra.data.models.StatsPeriod
+import com.denisshulika.fincentra.ui.components.AnimatedAmount
 import com.denisshulika.fincentra.ui.components.transactions.DateRangePickerDialog
 import com.denisshulika.fincentra.viewmodels.StatsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatsScreen(viewModel: StatsViewModel) {
-
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedIndex by viewModel.selectedCurrencyIndex.collectAsStateWithLifecycle()
-    val selectedPeriod by viewModel.selectedPeriod.collectAsStateWithLifecycle() // НОВЕ
+    val selectedPeriod by viewModel.selectedPeriod.collectAsStateWithLifecycle()
 
     val currentStats = uiState.currencyData.getOrNull(selectedIndex)
-    var showDatePicker by remember { mutableStateOf(false) } // Для виклику календаря
+    var showDatePicker by remember { mutableStateOf(false) }
 
     if (showDatePicker) {
         val dateRangePickerState = rememberDateRangePickerState()
@@ -63,7 +63,8 @@ fun StatsScreen(viewModel: StatsViewModel) {
     }
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .padding(horizontal = 16.dp)
     ) {
         Text(
@@ -92,28 +93,12 @@ fun StatsScreen(viewModel: StatsViewModel) {
             }
         }
 
-        LazyRow(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            items(listOf(StatsPeriod.WEEK, StatsPeriod.MONTH, StatsPeriod.QUARTER, StatsPeriod.ALL)) { period ->
-                FilterChip(
-                    selected = selectedPeriod == period,
-                    onClick = { viewModel.setPeriod(period) },
-                    label = { Text(period.displayName) }
-                )
-            }
-            item {
-                IconButton(onClick = { showDatePicker = true }) {
-                    Icon(
-                        imageVector = Icons.Default.DateRange,
-                        contentDescription = "Календар",
-                        tint = if (selectedPeriod == StatsPeriod.CUSTOM) MaterialTheme.colorScheme.primary else Color.Gray
-                    )
-                }
-            }
-        }
+        PeriodSelector(
+            selectedPeriod = selectedPeriod,
+            onPeriodSelected = { viewModel.setPeriod(it) },
+            onCalendarClick = { showDatePicker = true }
+        )
+
         if (currentStats != null) {
             val symbol = com.denisshulika.fincentra.data.network.common.CurrencyMapper.getSymbol(currentStats.currencyCode)
 
@@ -122,12 +107,19 @@ fun StatsScreen(viewModel: StatsViewModel) {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(bottom = 32.dp)
             ) {
-                item { BalanceFlowCard(currentStats, symbol) }
                 item {
-                    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp), contentAlignment = Alignment.Center) {
+                    BalanceFlowCard(currentStats, symbol)
+                }
+
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
                         SpendingDonutChart(categories = currentStats.categories, symbol = symbol)
                     }
                 }
+
                 item {
                     Text(
                         text = "Розподіл витрат",
@@ -164,7 +156,11 @@ fun BalanceFlowCard(stats: CurrencyStats, symbol: String) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("На початок періоду", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
-                Text("${String.format("%.2f", stats.startPeriodBalance)} $symbol", style = MaterialTheme.typography.bodyMedium)
+                AnimatedAmount(
+                    targetAmount = stats.startPeriodBalance,
+                    symbol = symbol,
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
 
             val netChange = stats.totalIncome - stats.totalExpense
@@ -176,10 +172,10 @@ fun BalanceFlowCard(stats: CurrencyStats, symbol: String) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Рух коштів (Net)", style = MaterialTheme.typography.titleMedium)
-                Text(
-                    text = (if (netChange >= 0) "+" else "") + "${String.format("%.2f", netChange)} $symbol",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
+                AnimatedAmount(
+                    targetAmount = netChange,
+                    symbol = symbol,
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     color = changeColor
                 )
             }
@@ -191,10 +187,10 @@ fun BalanceFlowCard(stats: CurrencyStats, symbol: String) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text("Поточний баланс", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-                Text(
-                    text = "${String.format("%.2f", stats.endPeriodBalance)} $symbol",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold,
+                AnimatedAmount(
+                    targetAmount = stats.endPeriodBalance,
+                    symbol = symbol,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.primary
                 )
             }
@@ -203,19 +199,15 @@ fun BalanceFlowCard(stats: CurrencyStats, symbol: String) {
 }
 
 @Composable
-fun CategoryStatRow(stat: CategoryStat, symbol: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(stat.category.displayName)
-        Text("${String.format("%.2f", stat.amount)} $symbol")
-    }
-}
-
-@Composable
 fun CategoryStatItem(stat: CategoryStat, symbol: String) {
     var isExpanded by remember { mutableStateOf(false) }
+
+    // Анімація прогресу
+    val animatedProgress by animateFloatAsState(
+        targetValue = stat.percentage,
+        animationSpec = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
+        label = "ProgressAnimation"
+    )
 
     Column(
         modifier = Modifier
@@ -255,10 +247,10 @@ fun CategoryStatItem(stat: CategoryStat, symbol: String) {
             }
 
             Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    text = "${String.format("%.2f", stat.amount)} $symbol",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
+                AnimatedAmount(
+                    targetAmount = stat.amount,
+                    symbol = symbol,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
                 )
                 Icon(
                     imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
@@ -280,7 +272,7 @@ fun CategoryStatItem(stat: CategoryStat, symbol: String) {
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(stat.percentage)
+                    .fillMaxWidth(animatedProgress)
                     .fillMaxHeight()
                     .clip(CircleShape)
                     .background(stat.category.color)
@@ -294,6 +286,12 @@ fun CategoryStatItem(stat: CategoryStat, symbol: String) {
                     .fillMaxWidth()
             ) {
                 stat.subCategories.forEach { sub ->
+                    val subProgress by animateFloatAsState(
+                        targetValue = sub.percentageOfParent,
+                        animationSpec = tween(durationMillis = 1000),
+                        label = "SubProgress"
+                    )
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -303,22 +301,22 @@ fun CategoryStatItem(stat: CategoryStat, symbol: String) {
                     ) {
                         Text(
                             text = sub.name,
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                             modifier = Modifier.weight(1f)
                         )
-                        Text(
-                            text = "${String.format("%.2f", sub.amount)} $symbol",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium
+                        AnimatedAmount(
+                            targetAmount = sub.amount,
+                            symbol = symbol,
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium)
                         )
                     }
 
                     LinearProgressIndicator(
-                        progress = { sub.percentageOfParent },
+                        progress = { subProgress },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(5.dp)
+                            .height(2.dp)
                             .padding(bottom = 4.dp),
                         color = stat.category.color.copy(alpha = 0.5f),
                         trackColor = Color.Transparent
@@ -336,6 +334,12 @@ fun SpendingDonutChart(
     modifier: Modifier = Modifier
 ) {
     val totalExpense = categories.sumOf { it.amount }
+
+    val animatedTotal by animateFloatAsState(
+        targetValue = totalExpense.toFloat(),
+        animationSpec = tween(durationMillis = 1000),
+        label = "TotalAnimation"
+    )
 
     Box(
         modifier = modifier.size(220.dp),
@@ -380,7 +384,7 @@ fun SpendingDonutChart(
                 color = Color.Gray
             )
             Text(
-                text = "${String.format("%.2f", totalExpense)} $symbol",
+                text = "${String.format("%.0f", animatedTotal)} $symbol",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -388,7 +392,6 @@ fun SpendingDonutChart(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PeriodSelector(
     selectedPeriod: StatsPeriod,
@@ -404,21 +407,17 @@ fun PeriodSelector(
     ) {
         items(listOf(StatsPeriod.WEEK, StatsPeriod.MONTH, StatsPeriod.QUARTER, StatsPeriod.ALL)) { period ->
             FilterChip(
-                selected = selectedPeriod == period,
+                selected = (selectedPeriod == period),
                 onClick = { onPeriodSelected(period) },
-                label = { Text(period.displayName) },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                label = { Text(period.displayName) }
             )
         }
 
         item {
             FilterChip(
-                selected = selectedPeriod == StatsPeriod.CUSTOM,
+                selected = (selectedPeriod == StatsPeriod.CUSTOM),
                 onClick = onCalendarClick,
-                label = { Icon(Icons.Default.DateRange, contentDescription = null, modifier = Modifier.size(18.dp)) },
+                label = { Icon(Icons.Default.DateRange, null, Modifier.size(18.dp)) },
                 leadingIcon = { if (selectedPeriod == StatsPeriod.CUSTOM) Icon(Icons.Default.Check, null, Modifier.size(14.dp)) else null }
             )
         }
