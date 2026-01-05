@@ -53,6 +53,7 @@ fun CategoryFilterContent(
         Text(
             text = "Фільтр за категоріями",
             style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
@@ -122,6 +123,7 @@ fun CategoryFilterContent(
                                 Text(
                                     text = subName,
                                     style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     modifier = Modifier.padding(start = 8.dp)
                                 )
                             }
@@ -130,7 +132,7 @@ fun CategoryFilterContent(
                     HorizontalDivider(
                         modifier = Modifier.padding(top = 4.dp),
                         thickness = 0.5.dp,
-                        color = Color.LightGray.copy(alpha = 0.3f)
+                        color = MaterialTheme.colorScheme.outlineVariant
                     )
                 }
             }

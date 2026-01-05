@@ -43,7 +43,7 @@ fun TransactionItem(
                 onLongClick = onLongClick
             ),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
         )
     ) {
         Row(
@@ -73,7 +73,10 @@ fun TransactionItem(
                     modifier = Modifier
                         .size(20.dp)
                         .offset(x = 2.dp, y = 2.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.5f))
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                    )
                 ) {
                     if (transaction.bankName == BankProviders.MONOBANK) {
                         Image(

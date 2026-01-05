@@ -138,7 +138,7 @@ fun StatsScreen(viewModel: StatsViewModel) {
                 Text(
                     text = "Транзакцій не знайдено.\nСинхронізуйте дані у вкладці 'Банки'.",
                     textAlign = TextAlign.Center,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -149,13 +149,22 @@ fun StatsScreen(viewModel: StatsViewModel) {
 fun BalanceFlowCard(stats: CurrencyStats, symbol: String) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(2.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f))
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("На початок періоду", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+                Text(
+                    "На початок періоду",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 AnimatedAmount(
                     targetAmount = stats.startPeriodBalance,
                     symbol = symbol,
@@ -240,7 +249,7 @@ fun CategoryStatItem(stat: CategoryStat, symbol: String) {
                         Text(
                             text = "${stat.subCategories.size} підкатегорій",
                             style = MaterialTheme.typography.labelSmall,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -341,6 +350,8 @@ fun SpendingDonutChart(
         label = "TotalAnimation"
     )
 
+    val color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+
     Box(
         modifier = modifier.size(220.dp),
         contentAlignment = Alignment.Center
@@ -351,7 +362,7 @@ fun SpendingDonutChart(
 
             if (totalExpense == 0.0) {
                 drawArc(
-                    color = Color.Gray.copy(alpha = 0.2f),
+                    color = color,
                     startAngle = 0f,
                     sweepAngle = 360f,
                     useCenter = false,
