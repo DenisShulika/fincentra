@@ -112,6 +112,15 @@ class TransactionsViewModel : ViewModel() {
             }
         }.stateIn(viewModelScope, SharingStarted.Lazily, emptyMap())
 
+    private val _paginatedTransactions = MutableStateFlow<List<Transaction>>(emptyList())
+
+    fun loadMoreTransactions() {
+        viewModelScope.launch {
+            val newPage = repository.fetchNextPage()
+            _paginatedTransactions.value = (_paginatedTransactions.value + newPage).distinctBy { it.id }
+        }
+    }
+
     private fun List<Transaction>.filterByActiveAccounts(ids: List<String>) = filter {
         it.accountId == TransactionConstants.ACCOUNT_ID_MANUAL || ids.contains(it.accountId)
     }

@@ -51,6 +51,35 @@ class FinanceRepository {
     private fun getSettingsRef(): CollectionReference? =
         getUserDoc()?.collection(FirestoreCollections.SETTINGS)
 
+    private var lastVisibleDocument: com.google.firebase.firestore.DocumentSnapshot? = null
+    private val PAGE_SIZE = 20L
+
+    suspend fun fetchNextPage(): List<Transaction> {
+        val ref = getTransactionsRef() ?: return emptyList()
+
+        val query = if (lastVisibleDocument == null) {
+            ref.orderBy("timestamp", Query.Direction.DESCENDING).limit(PAGE_SIZE)
+        } else {
+            ref.orderBy("timestamp", Query.Direction.DESCENDING)
+                .startAfter(lastVisibleDocument!!)
+                .limit(PAGE_SIZE)
+        }
+
+        return try {
+            val snapshot = query.get().await()
+            if (snapshot.documents.isNotEmpty()) {
+                lastVisibleDocument = snapshot.documents.last()
+            }
+            snapshot.toObjects(Transaction::class.java)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    fun resetPagination() {
+        lastVisibleDocument = null
+    }
+
     fun observeUserTransactions() {
         val uid = auth.currentUser?.uid
         if (uid == null) {

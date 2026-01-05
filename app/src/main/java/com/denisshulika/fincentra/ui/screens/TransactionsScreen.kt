@@ -180,11 +180,13 @@ fun TransactionsScreen(viewModel: TransactionsViewModel) {
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(list, key = { it.id + it.timestamp }) { tx ->
-                        TransactionItem(
-                            transaction = tx,
-                            onClick = { viewModel.prepareForEdit(tx) },
-                            onLongClick = { transactionToDelete = tx }
-                        )
+                        Box(modifier = Modifier.animateItem()) {
+                            TransactionItem(
+                                transaction = tx,
+                                onClick = { viewModel.prepareForEdit(tx) },
+                                onLongClick = { transactionToDelete = tx }
+                            )
+                        }
                     }
                 }
             }
