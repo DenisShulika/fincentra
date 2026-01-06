@@ -14,6 +14,21 @@ class ProfileViewModel : ViewModel() {
     private val _currencySummaries = MutableStateFlow<List<CurrencySummary>>(emptyList())
     val currencySummaries = _currencySummaries.asStateFlow()
 
+    init {
+        viewModelScope.launch {
+            repository.accounts.collect { accounts ->
+                val summaries = accounts
+                    .filter { it.selected }
+                    .groupBy { it.currencyCode }
+                    .map { (code, list) ->
+                        CurrencySummary(code, list.sumOf { it.balance })
+                    }
+                    .sortedByDescending { it.currencyCode == 980 }
+                _currencySummaries.value = summaries
+            }
+        }
+    }
+
     private val authRepository = DependencyProvider.authRepository
 
     private val _user = MutableStateFlow<User?>(null)
@@ -50,26 +65,6 @@ class ProfileViewModel : ViewModel() {
             result.onSuccess { onDeleted() }
                 .onFailure { onError("Для видалення потрібно заново увійти в акаунт (вимоги безпеки)") }
         }
-    }
-
-    init {
-        loadUserData()
-        observeStats()
-
-        viewModelScope.launch {
-            repository.getAccountsFlow().collect { accounts ->
-                val summaries = accounts
-                    .filter { it.selected }
-                    .groupBy { it.currencyCode }
-                    .map { (code, list) ->
-                        CurrencySummary(code, list.sumOf { it.balance })
-                    }
-                    .sortedByDescending { it.currencyCode == 980 }
-                _currencySummaries.value = summaries
-            }
-        }
-
-        _provider.value = authRepository.getSignInProvider()
     }
 
     fun logout(onSuccess: () -> Unit) {

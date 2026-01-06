@@ -33,6 +33,7 @@ import com.denisshulika.fincentra.ui.screens.StatsScreen
 import com.denisshulika.fincentra.ui.screens.TransactionsScreen
 import com.denisshulika.fincentra.ui.theme.FinCentraTheme
 import com.denisshulika.fincentra.viewmodels.AuthViewModel
+import com.denisshulika.fincentra.viewmodels.BudgetsViewModel
 import com.denisshulika.fincentra.viewmodels.IntegrationsViewModel
 import com.denisshulika.fincentra.viewmodels.ProfileViewModel
 import com.denisshulika.fincentra.viewmodels.StatsViewModel
@@ -62,6 +63,7 @@ fun MainScreen() {
     val profileViewModel: ProfileViewModel = viewModel()
     val authViewModel: AuthViewModel = viewModel()
     val statsViewModel: StatsViewModel = viewModel()
+    val budgetsViewModel: BudgetsViewModel = viewModel()
 
     val startDestination = remember {
         if (authRepository.getCurrentUser() != null) {
@@ -222,6 +224,7 @@ fun MainScreen() {
             composable(route = Screen.Profile.route) {
                 ProfileScreen(
                     viewModel = profileViewModel,
+                    budgetsViewModel = budgetsViewModel,
                     onLogout = {
                         navController.navigate(Screen.Login.route) {
                             popUpTo(0) {

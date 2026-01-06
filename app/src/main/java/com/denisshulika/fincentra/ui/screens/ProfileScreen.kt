@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,11 +15,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -27,9 +31,14 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Surface
@@ -42,26 +51,37 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.data.models.domain.BudgetProgress
+import com.denisshulika.fincentra.data.models.domain.TransactionCategory
 import com.denisshulika.fincentra.data.models.state.CurrencySummary
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
+import com.denisshulika.fincentra.viewmodels.BudgetsViewModel
 import com.denisshulika.fincentra.viewmodels.ProfileViewModel
 
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel,
+    budgetsViewModel: BudgetsViewModel,
     onLogout: () -> Unit
 ) {
+    val showAddBudget by budgetsViewModel.showAddSheet.collectAsStateWithLifecycle()
     val summaries by viewModel.currencySummaries.collectAsStateWithLifecycle()
     val user by viewModel.user.collectAsStateWithLifecycle()
     val txCount by viewModel.totalTransactionsCount.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val provider by viewModel.provider.collectAsStateWithLifecycle()
-    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+
+    if (showAddBudget) {
+        AddBudgetSheet(viewModel = budgetsViewModel)
+    }
 
     var showPasswordDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -130,11 +150,7 @@ fun ProfileScreen(
                         style = MaterialTheme.typography.headlineLarge
                     )
                 } else {
-                    Icon(
-                        Icons.Default.Person,
-                        contentDescription = null,
-                        modifier = Modifier.size(40.dp)
-                    )
+                    Icon(Icons.Default.Person, null, modifier = Modifier.size(40.dp))
                 }
             }
         }
@@ -146,58 +162,58 @@ fun ProfileScreen(
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
-        Text(
-            text = user?.email ?: "",
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.Gray
+        Text(text = user?.email ?: "", color = Color.Gray)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        SuggestionChip(
+            onClick = { },
+            label = { Text("$txCount транзакцій") },
+            icon = { Icon(Icons.AutoMirrored.Filled.ReceiptLong, null, Modifier.size(16.dp)) }
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            SuggestionChip(
-                onClick = { },
-                label = { Text("$txCount транзакцій") },
-                icon = { Icon(Icons.AutoMirrored.Filled.ReceiptLong, null, Modifier.size(16.dp)) }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         HorizontalDivider(thickness = 0.5.dp, color = Color.LightGray.copy(alpha = 0.3f))
-        Spacer(modifier = Modifier.height(24.dp))
 
-        Box(
+        LazyColumn(
             modifier = Modifier
                 .weight(1f)
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(vertical = 16.dp)
         ) {
-            if (summaries.isEmpty()) {
-                Text(
-                    "Немає даних про рахунки",
-                    modifier = Modifier.align(Alignment.Center),
-                    color = Color.Gray
-                )
+            if (summaries.isNotEmpty()) {
+                items(summaries) { summary ->
+                    BalanceCard(summary)
+                }
             } else {
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    items(summaries) { summary ->
-                        BalanceCard(summary)
-                    }
+                item {
+                    Text(
+                        "Рахунки не підключені",
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                        textAlign = TextAlign.Center,
+                        color = Color.Gray,
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.weight(1f))
+            item {
+                BudgetSection(
+                    viewModel = budgetsViewModel,
+                    onAddClick = { budgetsViewModel.toggleAddSheet(true) }
+                )
+            }
+        }
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
+                .padding(top = 8.dp, bottom = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TextButton(
-                onClick = {
-                    context.startActivity(viewModel.getSupportIntent())
-                },
+                onClick = { context.startActivity(viewModel.getSupportIntent()) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(Icons.Default.Email, null, modifier = Modifier.size(18.dp))
@@ -205,52 +221,28 @@ fun ProfileScreen(
                 Text("Зв'язатися з розробником")
             }
 
-            Spacer(Modifier.height(12.dp))
-
             Text(
                 text = "Керування акаунтом",
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.Gray
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.Gray,
+                modifier = Modifier.padding(top = 8.dp)
             )
 
-            Spacer(Modifier.width(8.dp))
-
-            if (provider == "password") {
-                TextButton(
-                    onClick = { showPasswordDialog = true }
-                ) {
-                    Icon(
-                        Icons.Default.Lock,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text("Змінити пароль")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                if (provider == "password") {
+                    IconButton(onClick = { showPasswordDialog = true }) {
+                        Icon(Icons.Default.Lock, null, tint = MaterialTheme.colorScheme.primary)
+                    }
                 }
-            }
-
-            TextButton(
-                onClick = { showDeleteDialog = true }
-            ) {
-                Icon(
-                    Icons.Default.DeleteForever,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(Modifier.width(8.dp))
-                Text("Видалити акаунт", color = Color.Red)
-            }
-
-            TextButton(
-                onClick = { viewModel.logout(onLogout) }
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.Logout,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(Modifier.width(8.dp))
-                Text("Вийти з акаунта", color = Color.Red)
+                IconButton(onClick = { showDeleteDialog = true }) {
+                    Icon(Icons.Default.DeleteForever, null, tint = Color.Red)
+                }
+                IconButton(onClick = { viewModel.logout(onLogout) }) {
+                    Icon(Icons.AutoMirrored.Filled.Logout, null, tint = Color.Red)
+                }
             }
         }
     }
@@ -275,6 +267,113 @@ fun BalanceCard(summary: CurrencySummary) {
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Bold
             )
+        }
+    }
+}
+
+@Composable
+fun BudgetSection(
+    viewModel: BudgetsViewModel,
+    onAddClick: () -> Unit
+) {
+    val budgets by viewModel.budgetProgressList.collectAsStateWithLifecycle()
+
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Мої ліміти", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            IconButton(onClick = onAddClick) {
+                Icon(Icons.Default.AddCircleOutline, contentDescription = "Додати ліміт")
+            }
+        }
+
+        if (budgets.isEmpty()) {
+            Text("Ліміти ще не встановлені", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+        } else {
+            budgets.forEach { item ->
+                BudgetProgressItem(item)
+                Spacer(Modifier.height(12.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun BudgetProgressItem(item: BudgetProgress) {
+    val symbol = CurrencyMapper.getSymbol(item.budget.currencyCode)
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(item.budget.categoryName, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                "Залишилось: ${String.format("%.0f", item.remainingAmount)} $symbol",
+                style = MaterialTheme.typography.bodySmall,
+                color = if (item.progress > 0.9f) Color.Red else Color.Gray
+            )
+        }
+        Spacer(Modifier.height(4.dp))
+        LinearProgressIndicator(
+            progress = { item.progress },
+            modifier = Modifier.fillMaxWidth().height(6.dp).clip(CircleShape),
+            color = if (item.progress > 0.9f) Color.Red else MaterialTheme.colorScheme.primary,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddBudgetSheet(viewModel: BudgetsViewModel) {
+    val amount by viewModel.amount.collectAsStateWithLifecycle()
+    val selectedCat by viewModel.selectedCategory.collectAsStateWithLifecycle()
+    val selectedCurrency by viewModel.selectedCurrency.collectAsStateWithLifecycle()
+
+    ModalBottomSheet(onDismissRequest = { viewModel.toggleAddSheet(false) }) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+                .padding(bottom = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Встановити ліміт на місяць", style = MaterialTheme.typography.titleLarge)
+
+            Spacer(Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = amount,
+                onValueChange = { viewModel.onAmountChange(it) },
+                label = { Text("Сума ліміту") },
+                suffix = { Text(CurrencyMapper.getSymbol(selectedCurrency)) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            Text("Категорія", modifier = Modifier.align(Alignment.Start))
+            LazyRow(modifier = Modifier.padding(vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(TransactionCategory.entries) { cat ->
+                    FilterChip(
+                        selected = selectedCat == cat,
+                        onClick = { viewModel.onCategoryChange(cat) },
+                        label = { Text(cat.displayName) }
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            Button(
+                onClick = { viewModel.saveNewBudget() },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = amount.isNotBlank()
+            ) {
+                Text("Зберегти ліміт")
+            }
         }
     }
 }

@@ -31,11 +31,22 @@ class FinanceRepository {
     private val _transactions = MutableStateFlow<List<Transaction>>(emptyList())
     val transactions: StateFlow<List<Transaction>> = _transactions.asStateFlow()
 
+    private val _accounts = MutableStateFlow<List<BankAccount>>(emptyList())
+    val accounts: StateFlow<List<BankAccount>> = _accounts.asStateFlow()
+
     private var transactionsListener: ListenerRegistration? = null
     private var accountsListener: ListenerRegistration? = null
 
     init {
-        observeUserTransactions()
+        auth.addAuthStateListener { firebaseAuth ->
+            val uid = firebaseAuth.currentUser?.uid
+            if (uid != null) {
+                observeUserTransactions()
+                observeUserAccounts()
+            } else {
+                clearAllData()
+            }
+        }
     }
 
     private fun getUserDoc(): DocumentReference? {
@@ -43,62 +54,28 @@ class FinanceRepository {
         return db.collection(FirestoreCollections.USERS).document(uid)
     }
 
-    private fun getTransactionsRef(): CollectionReference? =
-        getUserDoc()?.collection(FirestoreCollections.TRANSACTIONS)
-
-    private fun getAccountsRef(): CollectionReference? =
-        getUserDoc()?.collection(FirestoreCollections.ACCOUNTS)
-
-    private fun getSettingsRef(): CollectionReference? =
-        getUserDoc()?.collection(FirestoreCollections.SETTINGS)
-
-    private var lastVisibleDocument: com.google.firebase.firestore.DocumentSnapshot? = null
-    private val PAGE_SIZE = 20L
-
-    suspend fun fetchNextPage(): List<Transaction> {
-        val ref = getTransactionsRef() ?: return emptyList()
-
-        val query = if (lastVisibleDocument == null) {
-            ref.orderBy("timestamp", Query.Direction.DESCENDING).limit(PAGE_SIZE)
-        } else {
-            ref.orderBy("timestamp", Query.Direction.DESCENDING)
-                .startAfter(lastVisibleDocument!!)
-                .limit(PAGE_SIZE)
-        }
-
-        return try {
-            val snapshot = query.get().await()
-            if (snapshot.documents.isNotEmpty()) {
-                lastVisibleDocument = snapshot.documents.last()
-            }
-            snapshot.toObjects(Transaction::class.java)
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
-
-    fun resetPagination() {
-        lastVisibleDocument = null
-    }
+    private fun getTransactionsRef() = getUserDoc()?.collection(FirestoreCollections.TRANSACTIONS)
+    private fun getAccountsRef() = getUserDoc()?.collection(FirestoreCollections.ACCOUNTS)
+    private fun getSettingsRef() = getUserDoc()?.collection(FirestoreCollections.SETTINGS)
+    private fun getBudgetsRef() = getUserDoc()?.collection("budgets")
 
     fun observeUserTransactions() {
-        val uid = auth.currentUser?.uid
-        if (uid == null) {
-            clearAllData()
-            return
-        }
-
         transactionsListener?.remove()
         transactionsListener = getTransactionsRef()
             ?.orderBy("timestamp", Query.Direction.DESCENDING)
-            ?.addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    Log.e("REPO", "Помилка слухача транзакцій", error)
-                    return@addSnapshotListener
-                }
+            ?.addSnapshotListener { snapshot, _ ->
                 if (snapshot != null) {
-                    val list = snapshot.toObjects(Transaction::class.java)
-                    _transactions.value = list.distinctBy { it.id }
+                    _transactions.value = snapshot.toObjects(Transaction::class.java).distinctBy { it.id }
+                }
+            }
+    }
+
+    private fun observeUserAccounts() {
+        accountsListener?.remove()
+        accountsListener = getAccountsRef()
+            ?.addSnapshotListener { snapshot, _ ->
+                if (snapshot != null) {
+                    _accounts.value = snapshot.toObjects(BankAccount::class.java)
                 }
             }
     }
@@ -108,17 +85,16 @@ class FinanceRepository {
         accountsListener?.remove()
         transactionsListener = null
         accountsListener = null
+
         _transactions.value = emptyList()
+        _accounts.value = emptyList()
+        Log.d("REPO", "Дані успішно очищено при виході")
     }
 
+    fun getAccountsFlow(): Flow<List<BankAccount>> = accounts
+
     suspend fun addTransaction(transaction: Transaction) {
-        val ref = getTransactionsRef() ?: return
-        try {
-            ref.document(transaction.id).set(transaction).await()
-        } catch (e: Exception) {
-            Log.e("REPO", "Помилка addTransaction: ${e.message}")
-            throw e
-        }
+        getTransactionsRef()?.document(transaction.id)?.set(transaction)?.await()
     }
 
     suspend fun addTransactionsBatch(list: List<Transaction>) {
@@ -134,29 +110,12 @@ class FinanceRepository {
     }
 
     suspend fun getAccountsOnce(): List<BankAccount> {
-        val ref = getAccountsRef() ?: return emptyList()
         return try {
+            val ref = getAccountsRef() ?: return emptyList()
             val snapshot = ref.get().await()
-            if (snapshot != null && !snapshot.isEmpty) {
-                snapshot.toObjects(BankAccount::class.java)
-            } else {
-                emptyList()
-            }
+            snapshot?.toObjects(BankAccount::class.java) ?: emptyList()
         } catch (e: Exception) {
-            Log.e("REPO", "Помилка getAccountsOnce: ${e.message}")
             emptyList()
-        }
-    }
-
-    fun getAccountsFlow(): Flow<List<BankAccount>> {
-        val ref = getAccountsRef() ?: return flowOf(emptyList())
-        return callbackFlow {
-            val subscription = ref.addSnapshotListener { snapshot, _ ->
-                if (snapshot != null) {
-                    trySend(snapshot.toObjects(BankAccount::class.java))
-                }
-            }
-            awaitClose { subscription.remove() }
         }
     }
 
@@ -177,6 +136,24 @@ class FinanceRepository {
             .filter { if (updateSelection) it.selected else selectedIds.contains(it.id) }
             .map { it.id }
         saveSelectedAccountIds(newSelectedIds)
+    }
+
+    suspend fun saveBudget(budget: Budget) {
+        getBudgetsRef()?.document(budget.id)?.set(budget)?.await()
+    }
+
+    fun getBudgetsFlow(monthYear: String): Flow<List<Budget>> {
+        val ref = getBudgetsRef() ?: return flowOf(emptyList())
+        return callbackFlow {
+            val subscription = ref
+                .whereEqualTo("monthYear", monthYear)
+                .addSnapshotListener { snapshot, _ ->
+                    if (snapshot != null) {
+                        trySend(snapshot.toObjects(Budget::class.java))
+                    }
+                }
+            awaitClose { subscription.remove() }
+        }
     }
 
     suspend fun saveMonoToken(token: String) {
@@ -200,11 +177,9 @@ class FinanceRepository {
             ?.await()
     }
 
-    @Suppress("UNCHECKED_CAST")
     suspend fun getSelectedAccountIds(): List<String> {
         return try {
-            val snapshot =
-                getSettingsRef()?.document(FirestoreDocuments.USER_SETTINGS)?.get()?.await()
+            val snapshot = getSettingsRef()?.document(FirestoreDocuments.USER_SETTINGS)?.get()?.await()
             snapshot?.get("selectedIds") as? List<String> ?: emptyList()
         } catch (e: Exception) {
             emptyList()
@@ -219,8 +194,7 @@ class FinanceRepository {
 
     suspend fun getLastSyncTimestamp(accountId: String): Long {
         return try {
-            val snapshot =
-                getSettingsRef()?.document(FirestoreDocuments.SYNC_METADATA)?.get()?.await()
+            val snapshot = getSettingsRef()?.document(FirestoreDocuments.SYNC_METADATA)?.get()?.await()
             snapshot?.getLong("lastSync_$accountId") ?: 0L
         } catch (e: Exception) {
             0L
@@ -251,10 +225,7 @@ class FinanceRepository {
         val accountsRef = getAccountsRef() ?: return
 
         settingsRef.document(FirestoreDocuments.USER_SETTINGS).update(
-            mapOf(
-                "monoToken" to null,
-                "selectedIds" to emptyList<String>()
-            )
+            mapOf("monoToken" to null, "selectedIds" to emptyList<String>())
         ).await()
 
         val accounts = accountsRef.whereEqualTo("provider", BankProviders.MONOBANK).get().await()
@@ -264,32 +235,32 @@ class FinanceRepository {
         batch.commit().await()
     }
 
-    private fun getBudgetsRef() = getUserDoc()?.collection("budgets")
+    private var lastVisibleDocument: com.google.firebase.firestore.DocumentSnapshot? = null
+    private val PAGE_SIZE = 20L
 
-    suspend fun saveBudget(budget: Budget) {
-        val ref = getBudgetsRef() ?: return
-        try {
-            ref.document(budget.id).set(budget).await()
-        } catch (e: Exception) {
-            Log.e("REPO", "Помилка збереження бюджету: ${e.message}")
+    suspend fun fetchNextPage(): List<Transaction> {
+        val ref = getTransactionsRef() ?: return emptyList()
+        val query = if (lastVisibleDocument == null) {
+            ref.orderBy("timestamp", Query.Direction.DESCENDING).limit(PAGE_SIZE)
+        } else {
+            ref.orderBy("timestamp", Query.Direction.DESCENDING).startAfter(lastVisibleDocument!!).limit(PAGE_SIZE)
         }
+        return try {
+            val snapshot = query.get().await()
+            if (snapshot.documents.isNotEmpty()) lastVisibleDocument = snapshot.documents.last()
+            snapshot.toObjects(Transaction::class.java)
+        } catch (e: Exception) { emptyList() }
     }
 
-    fun getBudgetsFlow(monthYear: String): Flow<List<Budget>> {
-        val ref = getBudgetsRef() ?: return flowOf(emptyList())
-        return callbackFlow {
-            val subscription = ref
-                .whereEqualTo("monthYear", monthYear)
-                .addSnapshotListener { snapshot, _ ->
-                    if (snapshot != null) {
-                        trySend(snapshot.toObjects(Budget::class.java))
-                    }
-                }
-            awaitClose { subscription.remove() }
-        }
-    }
+    fun resetPagination() { lastVisibleDocument = null }
 
     suspend fun deleteBudget(budgetId: String) {
-        getBudgetsRef()?.document(budgetId)?.delete()?.await()
+        val ref = getBudgetsRef() ?: return
+        try {
+            ref.document(budgetId).delete().await()
+            Log.d("REPO", "Бюджет видалено: $budgetId")
+        } catch (e: Exception) {
+            Log.e("REPO", "Помилка видалення бюджету: ${e.message}")
+        }
     }
 }
