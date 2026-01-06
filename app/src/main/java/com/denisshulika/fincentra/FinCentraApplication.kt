@@ -13,7 +13,19 @@ class FinCentraApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        createNotificationChannel()
         setupBackgroundSync()
+    }
+
+    private fun createNotificationChannel() {
+        val name = "Фінансові ліміти"
+        val descriptionText = "Сповіщення про перевищення місячного бюджету"
+        val importance = android.app.NotificationManager.IMPORTANCE_DEFAULT
+        val channel = android.app.NotificationChannel("BUDGET_ALERTS", name, importance).apply {
+            description = descriptionText
+        }
+        val notificationManager = getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        notificationManager.createNotificationChannel(channel)
     }
 
     private fun setupBackgroundSync() {

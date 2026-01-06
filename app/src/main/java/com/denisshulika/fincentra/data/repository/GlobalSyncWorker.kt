@@ -4,8 +4,10 @@ import android.content.Context
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.firstOrNull
 
 class GlobalSyncWorker(
     context: Context,
@@ -14,21 +16,6 @@ class GlobalSyncWorker(
 
     private val repository = DependencyProvider.repository
     private val monoService = DependencyProvider.monobankProvider
-
-    override suspend fun doWork(): Result {
-        Log.d("SYNC_WORKER", "Розпочато глобальну фонову синхронізацію")
-
-        return try {
-            syncMonobank()
-
-            Log.d("SYNC_WORKER", "Глобальна синхронізація успішно завершена")
-            repository.saveLastGlobalSyncTime(System.currentTimeMillis())
-            Result.success()
-        } catch (e: Exception) {
-            Log.e("SYNC_WORKER", "Помилка під час синхронізації: ${e.message}")
-            Result.retry()
-        }
-    }
 
     private suspend fun syncMonobank() {
         val token = repository.getMonoToken()
@@ -68,6 +55,58 @@ class GlobalSyncWorker(
 
             if (id != selectedIds.last()) {
                 delay(60000)
+            }
+        }
+    }
+
+    override suspend fun doWork(): Result {
+        return try {
+            syncMonobank()
+            checkBudgetsAndNotify()
+
+            repository.saveLastGlobalSyncTime(System.currentTimeMillis())
+            Result.success()
+        } catch (e: Exception) {
+            Result.retry()
+        }
+    }
+
+    private suspend fun checkBudgetsAndNotify() {
+        val cal = java.util.Calendar.getInstance()
+        val monthYear = "${cal.get(java.util.Calendar.MONTH) + 1}-${cal.get(java.util.Calendar.YEAR)}"
+
+        val budgets = repository.getBudgetsFlow(monthYear).firstOrNull() ?: return
+        val transactions = repository.transactions.value
+
+        for (budget in budgets) {
+            val spent = transactions.filter { tx ->
+                val txCal = java.util.Calendar.getInstance().apply { timeInMillis = tx.timestamp }
+                tx.isExpense &&
+                        tx.category.displayName == budget.categoryName &&
+                        txCal.get(java.util.Calendar.MONTH) == cal.get(java.util.Calendar.MONTH) &&
+                        tx.currencyCode == budget.currencyCode
+            }.sumOf { it.amount }
+
+            if (spent > budget.limitAmount) {
+                sendNotification(
+                    title = "Перевищено ліміт: ${budget.categoryName}",
+                    message = "Ви витратили ${spent.toInt()} з запланованих ${budget.limitAmount.toInt()} грн"
+                )
+            }
+        }
+    }
+
+    private fun sendNotification(title: String, message: String) {
+        val builder = androidx.core.app.NotificationCompat.Builder(applicationContext, "BUDGET_ALERTS")
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(androidx.core.app.NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+
+        with(androidx.core.app.NotificationManagerCompat.from(applicationContext)) {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(applicationContext, android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                notify(title.hashCode(), builder.build())
             }
         }
     }
