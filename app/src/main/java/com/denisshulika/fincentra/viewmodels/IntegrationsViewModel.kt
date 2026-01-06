@@ -1,11 +1,10 @@
 package com.denisshulika.fincentra.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.denisshulika.fincentra.data.models.domain.BankAccount
-import com.denisshulika.fincentra.data.models.ui.BankProviderInfo
 import com.denisshulika.fincentra.data.models.events.IntegrationsUiEvent
+import com.denisshulika.fincentra.data.models.ui.BankProviderInfo
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -47,8 +46,10 @@ class IntegrationsViewModel : ViewModel() {
     private val _events = MutableSharedFlow<IntegrationsUiEvent>()
     val events = _events.asSharedFlow()
 
-    val lastSyncTime = repository.getLastGlobalSyncTimeFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
-    private val savedAccounts = repository.getAccountsFlow().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    val lastSyncTime = repository.getLastGlobalSyncTimeFlow()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+    private val savedAccounts =
+        repository.getAccountsFlow().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     private val _selectedBank = MutableStateFlow<BankProviderInfo?>(null)
     val selectedBank = _selectedBank.asStateFlow()
@@ -117,7 +118,8 @@ class IntegrationsViewModel : ViewModel() {
 
                         _syncStatus.value = "Синхронізація: ${account.name}..."
                         val lastSync = repository.getLastSyncTimestamp(account.id)
-                        val fromTime = if (lastSync == 0L) (System.currentTimeMillis() / 1000) - 2682000L else (lastSync / 1000 + 1)
+                        val fromTime =
+                            if (lastSync == 0L) (System.currentTimeMillis() / 1000) - 2682000L else (lastSync / 1000 + 1)
 
                         monoService.fetchTransactionsForAccount(
                             token = token,
@@ -127,7 +129,9 @@ class IntegrationsViewModel : ViewModel() {
                             onProgress = { status -> _syncStatus.value = status },
                             onBatchLoaded = { batch ->
                                 repository.addTransactionsBatch(batch)
-                                repository.saveLastSyncTimestamp(account.id, batch.maxOf { it.timestamp })
+                                repository.saveLastSyncTimestamp(
+                                    account.id,
+                                    batch.maxOf { it.timestamp })
                             }
                         )
                         _syncProgress.value = (index + 1).toFloat() / accountsToSync.size.toFloat()
@@ -237,13 +241,34 @@ class IntegrationsViewModel : ViewModel() {
         }
     }
 
-    fun openMonobankAuth() { viewModelScope.launch { _events.emit(IntegrationsUiEvent.OpenUrl("https://api.monobank.ua/")) } }
-    fun toggleAccountSelection(id: String) { _availableAccounts.value = _availableAccounts.value.map { if (it.id == id) it.copy(selected = !it.selected) else it } }
-    fun toggleAccountBottomSheet(show: Boolean) { _showAccountSelection.value = show }
-    fun onTokenChange(newToken: String) { _monoToken.value = newToken }
-    fun toggleMonoInput(visible: Boolean) { _isMonoInputVisible.value = visible }
-    fun askDeleteConfirmation() { _showDeleteConfirmation.value = true }
-    fun dismissDeleteConfirmation() { _showDeleteConfirmation.value = false }
+    fun openMonobankAuth() {
+        viewModelScope.launch { _events.emit(IntegrationsUiEvent.OpenUrl("https://api.monobank.ua/")) }
+    }
+
+    fun toggleAccountSelection(id: String) {
+        _availableAccounts.value =
+            _availableAccounts.value.map { if (it.id == id) it.copy(selected = !it.selected) else it }
+    }
+
+    fun toggleAccountBottomSheet(show: Boolean) {
+        _showAccountSelection.value = show
+    }
+
+    fun onTokenChange(newToken: String) {
+        _monoToken.value = newToken
+    }
+
+    fun toggleMonoInput(visible: Boolean) {
+        _isMonoInputVisible.value = visible
+    }
+
+    fun askDeleteConfirmation() {
+        _showDeleteConfirmation.value = true
+    }
+
+    fun dismissDeleteConfirmation() {
+        _showDeleteConfirmation.value = false
+    }
 
     fun disconnectBank() {
         viewModelScope.launch {

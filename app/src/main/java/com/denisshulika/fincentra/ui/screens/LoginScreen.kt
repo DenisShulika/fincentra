@@ -1,28 +1,45 @@
 package com.denisshulika.fincentra.ui.screens
 
 import android.util.Log
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.denisshulika.fincentra.data.models.events.AuthUiEvent
-import com.denisshulika.fincentra.viewmodels.AuthViewModel
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.R
+import com.denisshulika.fincentra.data.models.events.AuthUiEvent
 import com.denisshulika.fincentra.data.util.AuthConstants
+import com.denisshulika.fincentra.viewmodels.AuthViewModel
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import kotlinx.coroutines.launch
@@ -46,14 +63,20 @@ fun LoginScreen(
             when (event) {
                 is AuthUiEvent.NavigateToMain -> onNavigateToMain()
                 is AuthUiEvent.ShowError -> {
-                    android.widget.Toast.makeText(context, event.message, android.widget.Toast.LENGTH_LONG).show()
+                    android.widget.Toast.makeText(
+                        context,
+                        event.message,
+                        android.widget.Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -120,7 +143,8 @@ fun LoginScreen(
 
                         val credential = result.credential
                         if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                            val googleIdTokenCredential =
+                                GoogleIdTokenCredential.createFrom(credential.data)
                             viewModel.signInWithGoogle(googleIdTokenCredential.idToken)
                         }
                     } catch (e: Exception) {
@@ -128,7 +152,9 @@ fun LoginScreen(
                     }
                 }
             },
-            modifier = Modifier.size(52.dp).align(Alignment.CenterHorizontally)
+            modifier = Modifier
+                .size(52.dp)
+                .align(Alignment.CenterHorizontally)
         ) {
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.google_icon),

@@ -71,7 +71,12 @@ fun TransactionDetailSheet(
             DetailRow("Категорія", transaction.category.displayName)
             DetailRow("Підкатегорія", transaction.subCategoryName)
             DetailRow("Джерело", transaction.bankName)
-            DetailRow("Дата", com.denisshulika.fincentra.data.util.DateFormatter.dateTime.format(java.util.Date(transaction.timestamp)))
+            DetailRow(
+                "Дата",
+                com.denisshulika.fincentra.data.util.DateFormatter.dateTime.format(
+                    java.util.Date(transaction.timestamp)
+                )
+            )
 
             transaction.mcc?.let { DetailRow("MCC код", it.toString()) }
             transaction.comment?.let { DetailRow("Коментар банку", it) }
@@ -88,6 +93,10 @@ fun DetailRow(label: String, value: String) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(text = label, color = Color.Gray, style = MaterialTheme.typography.bodyMedium)
-        Text(text = value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium
+        )
     }
 }

@@ -63,10 +63,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.data.models.events.IntegrationsUiEvent
 import com.denisshulika.fincentra.data.models.ui.BankProviderInfo
 import com.denisshulika.fincentra.data.models.ui.SupportedBanks
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
-import com.denisshulika.fincentra.data.models.events.IntegrationsUiEvent
 import com.denisshulika.fincentra.viewmodels.IntegrationsViewModel
 
 @Composable
@@ -86,8 +86,13 @@ fun IntegrationsScreen(viewModel: IntegrationsViewModel) {
                 is IntegrationsUiEvent.OpenUrl -> {
                     context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(event.url)))
                 }
+
                 is IntegrationsUiEvent.ShowToast -> {
-                    android.widget.Toast.makeText(context, event.message, android.widget.Toast.LENGTH_SHORT).show()
+                    android.widget.Toast.makeText(
+                        context,
+                        event.message,
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
@@ -138,7 +143,12 @@ fun IntegrationsScreen(viewModel: IntegrationsViewModel) {
             title = { Text("Відключити банк?") },
             text = { Text("Ви впевнені? Дані рахунків будуть видалені з налаштувань.") },
             confirmButton = {
-                TextButton(onClick = { viewModel.disconnectBank() }) { Text("Так", color = Color.Red) }
+                TextButton(onClick = { viewModel.disconnectBank() }) {
+                    Text(
+                        "Так",
+                        color = Color.Red
+                    )
+                }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.dismissDeleteConfirmation() }) { Text("Скасувати") }
@@ -156,15 +166,26 @@ private fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsVi
     val monoToken by viewModel.monoToken.collectAsStateWithLifecycle()
     val accounts by viewModel.availableAccounts.collectAsStateWithLifecycle()
 
-    Column(modifier = Modifier.padding(20.dp).fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .padding(20.dp)
+            .fillMaxSize()
+    ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
                 painter = painterResource(id = bank.logo),
                 contentDescription = null,
-                modifier = Modifier.size(32.dp).clip(CircleShape)
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
             )
             Spacer(Modifier.width(12.dp))
-            Text(bank.name, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+            Text(
+                bank.name,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f)
+            )
             IconButton(onClick = { viewModel.closeBankDetails() }) {
                 Icon(Icons.Default.Close, contentDescription = "Close")
             }
@@ -176,12 +197,18 @@ private fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsVi
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
             )
         }
 
         if (isLoading && syncProgress > 0) {
-            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            ) {
                 Text(
                     text = "Загальний прогрес: ${(syncProgress * 100).toInt()}%",
                     style = MaterialTheme.typography.labelSmall,
@@ -191,7 +218,10 @@ private fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsVi
                 Spacer(Modifier.height(4.dp))
                 LinearProgressIndicator(
                     progress = { syncProgress },
-                    modifier = Modifier.fillMaxWidth().height(8.dp).clip(MaterialTheme.shapes.small),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                        .clip(MaterialTheme.shapes.small),
                     color = bank.brandColor,
                     trackColor = bank.brandColor.copy(alpha = 0.2f)
                 )
@@ -203,10 +233,22 @@ private fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsVi
             shape = MaterialTheme.shapes.medium,
             modifier = Modifier.padding(vertical = 12.dp)
         ) {
-            Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Info, contentDescription = null, tint = Color(0xFFFBC02D), modifier = Modifier.size(20.dp))
+            Row(
+                modifier = Modifier.padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Default.Info,
+                    contentDescription = null,
+                    tint = Color(0xFFFBC02D),
+                    modifier = Modifier.size(20.dp)
+                )
                 Spacer(Modifier.width(8.dp))
-                Text("Обмеження: 1 запит виписки на 60 секунд. Будь ласка, зачекайте після натискання.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimary)
+                Text(
+                    "Обмеження: 1 запит виписки на 60 секунд. Будь ласка, зачекайте після натискання.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
 
@@ -216,10 +258,15 @@ private fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsVi
             LazyColumn(modifier = Modifier.weight(1f)) {
                 items(accounts) { account ->
                     Row(
-                        modifier = Modifier.fillMaxWidth().clickable { viewModel.toggleAccountSelection(account.id) }.padding(vertical = 8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { viewModel.toggleAccountSelection(account.id) }
+                            .padding(vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Checkbox(checked = account.selected, onCheckedChange = { viewModel.toggleAccountSelection(account.id) })
+                        Checkbox(
+                            checked = account.selected,
+                            onCheckedChange = { viewModel.toggleAccountSelection(account.id) })
                         Text(account.name, modifier = Modifier.weight(1f))
                         Text("${account.balance} ${CurrencyMapper.getSymbol(account.currencyCode)}")
                     }
@@ -234,15 +281,19 @@ private fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsVi
 
             Button(
                 onClick = { viewModel.confirmAccountSelection() },
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
                 enabled = !isLoading
             ) { Text("Синхронізувати транзакції") }
 
             TextButton(
                 onClick = { viewModel.askDeleteConfirmation() },
-                modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 8.dp),
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 8.dp),
                 enabled = !isLoading
-            ) { Text("Відключити підключення", color = if(isLoading) Color.Gray else Color.Red) }
+            ) { Text("Відключити підключення", color = if (isLoading) Color.Gray else Color.Red) }
 
         } else {
             Spacer(Modifier.height(16.dp))
@@ -250,7 +301,13 @@ private fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsVi
             val annotatedString = buildAnnotatedString {
                 append("Щоб підключити банк, отримайте токен у ")
                 withLink(LinkAnnotation.Url("https://api.monobank.ua/")) {
-                    withStyle(style = SpanStyle(color = bank.brandColor, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline)) {
+                    withStyle(
+                        style = SpanStyle(
+                            color = bank.brandColor,
+                            fontWeight = FontWeight.Bold,
+                            textDecoration = TextDecoration.Underline
+                        )
+                    ) {
                         append("Особистому кабінеті")
                     }
                 }
@@ -269,27 +326,45 @@ private fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsVi
 
             Button(
                 onClick = { viewModel.connectNewBank() },
-                modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp),
                 enabled = monoToken.isNotBlank() && !isLoading
             ) {
-                if (isLoading) CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White) else Text("Підключити")
+                if (isLoading) CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    color = Color.White
+                ) else Text("Підключити")
             }
         }
     }
 }
 
 @Composable
-fun BankGridItem(bank: BankProviderInfo, isConnected: Boolean, isLoading: Boolean, onClick: () -> Unit) {
+fun BankGridItem(
+    bank: BankProviderInfo,
+    isConnected: Boolean,
+    isLoading: Boolean,
+    onClick: () -> Unit
+) {
     Card(
-        modifier = Modifier.size(140.dp).clickable { onClick() }
-            .border(2.dp, if (isConnected) bank.brandColor else Color.Transparent, MaterialTheme.shapes.medium)
+        modifier = Modifier
+            .size(140.dp)
+            .clickable { onClick() }
+            .border(
+                2.dp,
+                if (isConnected) bank.brandColor else Color.Transparent,
+                MaterialTheme.shapes.medium
+            )
     ) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Image(
                     painter = painterResource(id = bank.logo),
                     contentDescription = null,
-                    modifier = Modifier.size(50.dp).clip(CircleShape)
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape)
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(bank.name, style = MaterialTheme.typography.titleMedium)
@@ -300,7 +375,10 @@ fun BankGridItem(bank: BankProviderInfo, isConnected: Boolean, isLoading: Boolea
                     Icons.Default.CheckCircle,
                     contentDescription = null,
                     tint = bank.brandColor,
-                    modifier = Modifier.align(Alignment.TopEnd).padding(8.dp).size(20.dp)
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                        .size(20.dp)
                 )
             }
 

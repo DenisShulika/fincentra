@@ -108,7 +108,9 @@ class TransactionsViewModel : ViewModel() {
     val categoriesWithSubs: StateFlow<Map<TransactionCategory, List<String>>> = allTransactions
         .map { _ ->
             TransactionCategory.entries.associateWith { mainCat ->
-                com.denisshulika.fincentra.data.network.common.MccDirectory.getSubcategoriesFor(mainCat)
+                com.denisshulika.fincentra.data.network.common.MccDirectory.getSubcategoriesFor(
+                    mainCat
+                )
             }
         }.stateIn(viewModelScope, SharingStarted.Lazily, emptyMap())
 
@@ -128,7 +130,8 @@ class TransactionsViewModel : ViewModel() {
     fun loadMoreTransactions() {
         viewModelScope.launch {
             val newPage = repository.fetchNextPage()
-            _paginatedTransactions.value = (_paginatedTransactions.value + newPage).distinctBy { it.id }
+            _paginatedTransactions.value =
+                (_paginatedTransactions.value + newPage).distinctBy { it.id }
         }
     }
 
@@ -223,7 +226,10 @@ class TransactionsViewModel : ViewModel() {
         val mainCat = categories.find { it.displayName == name }
 
         if (mainCat != null) {
-            val subs = com.denisshulika.fincentra.data.network.common.MccDirectory.getSubcategoriesFor(mainCat)
+            val subs =
+                com.denisshulika.fincentra.data.network.common.MccDirectory.getSubcategoriesFor(
+                    mainCat
+                )
             if (current.contains(name)) {
                 current.remove(name)
                 subs.forEach { current.remove(it) }

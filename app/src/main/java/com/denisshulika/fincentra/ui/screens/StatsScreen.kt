@@ -3,10 +3,23 @@ package com.denisshulika.fincentra.ui.screens
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -17,16 +30,36 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDateRangePickerState
+import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.data.models.state.CategoryStat
@@ -42,6 +75,11 @@ fun StatsScreen(viewModel: StatsViewModel) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedIndex by viewModel.selectedCurrencyIndex.collectAsStateWithLifecycle()
     val selectedPeriod by viewModel.selectedPeriod.collectAsStateWithLifecycle()
+
+    val isExpenseMode by viewModel.isExpenseMode.collectAsStateWithLifecycle()
+    val selectedBank by viewModel.selectedBank.collectAsStateWithLifecycle()
+    val selectedAccountId by viewModel.selectedAccountId.collectAsStateWithLifecycle()
+    val availableAccounts by viewModel.availableAccounts.collectAsStateWithLifecycle()
 
     val currentStats = uiState.currencyData.getOrNull(selectedIndex)
     var showDatePicker by remember { mutableStateOf(false) }
@@ -74,6 +112,25 @@ fun StatsScreen(viewModel: StatsViewModel) {
             modifier = Modifier.padding(top = 16.dp)
         )
 
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            SegmentedButton(
+                selected = isExpenseMode,
+                onClick = { viewModel.toggleMode(true) },
+                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                label = { Text("Витрати") }
+            )
+            SegmentedButton(
+                selected = !isExpenseMode,
+                onClick = { viewModel.toggleMode(false) },
+                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                label = { Text("Доходи") }
+            )
+        }
+
         if (uiState.currencyData.size > 1) {
             ScrollableTabRow(
                 selectedTabIndex = selectedIndex,
@@ -86,7 +143,11 @@ fun StatsScreen(viewModel: StatsViewModel) {
                         selected = selectedIndex == index,
                         onClick = { viewModel.selectCurrency(index) },
                         text = {
-                            Text(com.denisshulika.fincentra.data.network.common.CurrencyMapper.getCodeName(data.currencyCode))
+                            Text(
+                                text = com.denisshulika.fincentra.data.network.common.CurrencyMapper.getCodeName(
+                                    data.currencyCode
+                                )
+                            )
                         }
                     )
                 }
@@ -99,8 +160,53 @@ fun StatsScreen(viewModel: StatsViewModel) {
             onCalendarClick = { showDatePicker = true }
         )
 
+        Column(modifier = Modifier.fillMaxWidth()) {
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                val banks = listOf("Всі", "Monobank", "Готівка")
+                items(banks) { bank ->
+                    FilterChip(
+                        selected = selectedBank == bank,
+                        onClick = { viewModel.onBankFilterChange(bank) },
+                        label = { Text(bank) }
+                    )
+                }
+            }
+
+            if (selectedBank != "Всі") {
+                val filteredAccounts =
+                    availableAccounts.filter { it.provider == selectedBank && it.selected }
+                if (filteredAccounts.isNotEmpty()) {
+                    LazyRow(
+                        modifier = Modifier.padding(top = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        item {
+                            FilterChip(
+                                selected = selectedAccountId == null,
+                                onClick = { viewModel.onAccountFilterChange(null) },
+                                label = { Text("Всі карти") }
+                            )
+                        }
+                        items(filteredAccounts) { acc ->
+                            FilterChip(
+                                selected = selectedAccountId == acc.id,
+                                onClick = { viewModel.onAccountFilterChange(acc.id) },
+                                label = { Text(acc.name) }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
         if (currentStats != null) {
-            val symbol = com.denisshulika.fincentra.data.network.common.CurrencyMapper.getSymbol(currentStats.currencyCode)
+            val symbol =
+                com.denisshulika.fincentra.data.network.common.CurrencyMapper.getSymbol(currentStats.currencyCode)
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -113,16 +219,22 @@ fun StatsScreen(viewModel: StatsViewModel) {
 
                 item {
                     Box(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 24.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        SpendingDonutChart(categories = currentStats.categories, symbol = symbol)
+                        SpendingDonutChart(
+                            categories = currentStats.categories,
+                            symbol = symbol,
+                            isExpenseMode = isExpenseMode
+                        )
                     }
                 }
 
                 item {
                     Text(
-                        text = "Розподіл витрат",
+                        text = if (isExpenseMode) "Розподіл витрат" else "Джерела доходів",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(bottom = 8.dp)
@@ -135,29 +247,14 @@ fun StatsScreen(viewModel: StatsViewModel) {
             }
         } else {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Column(
-                    modifier = Modifier.padding(32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
-                        imageVector = Icons.Default.Analytics,
-                        contentDescription = null,
-                        modifier = Modifier.size(80.dp),
+                        Icons.Default.Analytics,
+                        null,
+                        Modifier.size(80.dp),
                         tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
                     )
-                    Spacer(Modifier.height(16.dp))
-                    Text(
-                        text = "Даних для аналізу поки немає",
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "Додайте витрати вручну або синхронізуйте рахунки у вкладці 'Банки'",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
+                    Text("Даних не знайдено", color = Color.Gray)
                 }
             }
         }
@@ -172,13 +269,16 @@ fun BalanceFlowCard(stats: CurrencyStats, symbol: String) {
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        border = androidx.compose.foundation.BorderStroke(
+        border = BorderStroke(
             width = 1.dp,
             color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
         )
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
                     "На початок періоду",
                     style = MaterialTheme.typography.bodyMedium,
@@ -195,7 +295,9 @@ fun BalanceFlowCard(stats: CurrencyStats, symbol: String) {
             val changeColor = if (netChange >= 0) Color(0xFF4CAF50) else Color(0xFFF44336)
 
             Row(
-                modifier = Modifier.padding(vertical = 12.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(vertical = 12.dp)
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -211,10 +313,16 @@ fun BalanceFlowCard(stats: CurrencyStats, symbol: String) {
             HorizontalDivider(thickness = 0.5.dp, color = Color.LightGray.copy(alpha = 0.5f))
 
             Row(
-                modifier = Modifier.padding(top = 12.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Поточний баланс", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+                Text(
+                    "Поточний баланс",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium
+                )
                 AnimatedAmount(
                     targetAmount = stats.endPeriodBalance,
                     symbol = symbol,
@@ -230,7 +338,6 @@ fun BalanceFlowCard(stats: CurrencyStats, symbol: String) {
 fun CategoryStatItem(stat: CategoryStat, symbol: String) {
     var isExpanded by remember { mutableStateOf(false) }
 
-    // Анімація прогресу
     val animatedProgress by animateFloatAsState(
         targetValue = stat.percentage,
         animationSpec = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
@@ -263,7 +370,10 @@ fun CategoryStatItem(stat: CategoryStat, symbol: String) {
                 }
                 Spacer(Modifier.width(12.dp))
                 Column {
-                    Text(text = stat.category.displayName, style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = stat.category.displayName,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
                     if (stat.subCategories.isNotEmpty()) {
                         Text(
                             text = "${stat.subCategories.size} підкатегорій",
@@ -359,17 +469,16 @@ fun CategoryStatItem(stat: CategoryStat, symbol: String) {
 fun SpendingDonutChart(
     categories: List<CategoryStat>,
     symbol: String,
+    isExpenseMode: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val totalExpense = categories.sumOf { it.amount }
+    val totalAmount = categories.sumOf { it.amount }
 
     val animatedTotal by animateFloatAsState(
-        targetValue = totalExpense.toFloat(),
+        targetValue = totalAmount.toFloat(),
         animationSpec = tween(durationMillis = 1000),
         label = "TotalAnimation"
     )
-
-    val color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
 
     Box(
         modifier = modifier.size(220.dp),
@@ -379,9 +488,9 @@ fun SpendingDonutChart(
             val strokeWidth = 24.dp.toPx()
             var startAngle = -90f
 
-            if (totalExpense == 0.0) {
+            if (totalAmount == 0.0) {
                 drawArc(
-                    color = color,
+                    color = Color.Gray.copy(alpha = 0.2f),
                     startAngle = 0f,
                     sweepAngle = 360f,
                     useCenter = false,
@@ -393,8 +502,7 @@ fun SpendingDonutChart(
                 val availableAngle = 360f - totalGapAngle
 
                 categories.forEach { stat ->
-                    val sweepAngle = (stat.amount / totalExpense).toFloat() * availableAngle
-
+                    val sweepAngle = (stat.amount / totalAmount).toFloat() * availableAngle
                     drawArc(
                         color = stat.category.color,
                         startAngle = startAngle,
@@ -409,7 +517,7 @@ fun SpendingDonutChart(
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Витрати",
+                text = if (isExpenseMode) "Витрати" else "Доходи",
                 style = MaterialTheme.typography.labelMedium,
                 color = Color.Gray
             )
@@ -435,7 +543,14 @@ fun PeriodSelector(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        items(listOf(StatsPeriod.WEEK, StatsPeriod.MONTH, StatsPeriod.QUARTER, StatsPeriod.ALL)) { period ->
+        items(
+            listOf(
+                StatsPeriod.WEEK,
+                StatsPeriod.MONTH,
+                StatsPeriod.QUARTER,
+                StatsPeriod.ALL
+            )
+        ) { period ->
             FilterChip(
                 selected = (selectedPeriod == period),
                 onClick = { onPeriodSelected(period) },
@@ -448,7 +563,13 @@ fun PeriodSelector(
                 selected = (selectedPeriod == StatsPeriod.CUSTOM),
                 onClick = onCalendarClick,
                 label = { Icon(Icons.Default.DateRange, null, Modifier.size(18.dp)) },
-                leadingIcon = { if (selectedPeriod == StatsPeriod.CUSTOM) Icon(Icons.Default.Check, null, Modifier.size(14.dp)) else null }
+                leadingIcon = {
+                    if (selectedPeriod == StatsPeriod.CUSTOM) Icon(
+                        Icons.Default.Check,
+                        null,
+                        Modifier.size(14.dp)
+                    ) else null
+                }
             )
         }
     }

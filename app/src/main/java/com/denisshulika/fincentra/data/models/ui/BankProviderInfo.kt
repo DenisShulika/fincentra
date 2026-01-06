@@ -15,7 +15,7 @@ val SupportedBanks = listOf(
     BankProviderInfo(
         id = BankProviders.MONOBANK,
         name = BankProviders.MONOBANK,
-        logo = R.drawable.monobank_logo ,
+        logo = R.drawable.monobank_logo,
         brandColor = Color(0xFFE91E63)
     ),
 )

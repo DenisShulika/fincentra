@@ -13,7 +13,7 @@ data class MonoTransactionResponse(
     val commissionRate: Long,
     val cashbackAmount: Long,
     val balance: Long,
-    
+
     val comment: String? = null,
     val receiptId: String? = null,
     val invoiceId: String? = null,

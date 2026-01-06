@@ -31,5 +31,6 @@ object BankAccountTypes {
 }
 
 object AuthConstants {
-    const val WEB_CLIENT_ID = "531383896940-lk0qd97ohp6jaue4u9nunl8jpo6dg4th.apps.googleusercontent.com"
+    const val WEB_CLIENT_ID =
+        "531383896940-lk0qd97ohp6jaue4u9nunl8jpo6dg4th.apps.googleusercontent.com"
 }

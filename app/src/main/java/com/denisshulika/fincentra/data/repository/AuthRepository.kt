@@ -57,6 +57,29 @@ class AuthRepository {
         }
     }
 
+    fun getSignInProvider(): String {
+        return auth.currentUser?.providerData?.get(1)?.providerId ?: "password"
+    }
+
+    suspend fun updatePassword(newPassword: String): Result<Unit> {
+        return try {
+            auth.currentUser?.updatePassword(newPassword)?.await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deleteUserAccount(): Result<Unit> {
+        val user = auth.currentUser ?: return Result.failure(Exception("Користувач не в мережі"))
+        return try {
+            user.delete().await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     fun signOut() {
         auth.signOut()
     }

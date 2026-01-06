@@ -185,7 +185,8 @@ fun TransactionsScreen(viewModel: TransactionsViewModel) {
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(list, key = { it.id + it.timestamp }) { tx ->
-                        val isManual = tx.accountId == com.denisshulika.fincentra.data.util.TransactionConstants.ACCOUNT_ID_MANUAL
+                        val isManual =
+                            tx.accountId == com.denisshulika.fincentra.data.util.TransactionConstants.ACCOUNT_ID_MANUAL
 
                         if (isManual) {
                             val dismissState = rememberSwipeToDismissBoxState(
@@ -195,10 +196,12 @@ fun TransactionsScreen(viewModel: TransactionsViewModel) {
                                             transactionToDelete = tx
                                             false
                                         }
+
                                         SwipeToDismissBoxValue.StartToEnd -> {
                                             viewModel.prepareForEdit(tx)
                                             false
                                         }
+
                                         else -> false
                                     }
                                 }

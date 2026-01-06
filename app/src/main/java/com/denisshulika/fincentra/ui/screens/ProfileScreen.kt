@@ -1,6 +1,7 @@
 package com.denisshulika.fincentra.ui.screens
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,20 +17,29 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,6 +60,55 @@ fun ProfileScreen(
     val user by viewModel.user.collectAsStateWithLifecycle()
     val txCount by viewModel.totalTransactionsCount.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val provider by viewModel.provider.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+
+    var showPasswordDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var newPassword by remember { mutableStateOf("") }
+
+    if (showPasswordDialog) {
+        AlertDialog(
+            onDismissRequest = { showPasswordDialog = false },
+            title = { Text("Зміна пароля") },
+            text = {
+                OutlinedTextField(
+                    value = newPassword,
+                    onValueChange = { newPassword = it },
+                    label = { Text("Новий пароль") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                Button(onClick = {
+                    viewModel.changePassword(newPassword) { msg ->
+                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                    }
+                    showPasswordDialog = false
+                    newPassword = ""
+                }) { Text("Оновити") }
+            }
+        )
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Видалити акаунт?") },
+            text = { Text("Всі ваші дані в хмарі будуть втрачені. Цю дію не можна скасувати.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.deleteAccount(
+                        onDeleted = onLogout,
+                        onError = { msg -> Toast.makeText(context, msg, Toast.LENGTH_LONG).show() }
+                    )
+                }) { Text("Видалити", color = Color.Red) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text("Скасувати") }
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -71,7 +130,11 @@ fun ProfileScreen(
                         style = MaterialTheme.typography.headlineLarge
                     )
                 } else {
-                    Icon(Icons.Default.Person, contentDescription = null, modifier = Modifier.size(40.dp))
+                    Icon(
+                        Icons.Default.Person,
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp)
+                    )
                 }
             }
         }
@@ -103,7 +166,11 @@ fun ProfileScreen(
         HorizontalDivider(thickness = 0.5.dp, color = Color.LightGray.copy(alpha = 0.3f))
         Spacer(modifier = Modifier.height(24.dp))
 
-        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        ) {
             if (summaries.isEmpty()) {
                 Text(
                     "Немає даних про рахунки",
@@ -119,17 +186,72 @@ fun ProfileScreen(
             }
         }
 
-        TextButton(onClick = { context.startActivity(viewModel.getSupportIntent()) }) {
-            Icon(Icons.Default.Email, null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(8.dp))
-            Text("Зв'язатися з розробником")
-        }
+        Spacer(modifier = Modifier.weight(1f))
 
-        TextButton(
-            onClick = { viewModel.logout(onLogout) },
-            modifier = Modifier.fillMaxWidth()
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Вийти з акаунта", color = Color.Red)
+            TextButton(
+                onClick = {
+                    context.startActivity(viewModel.getSupportIntent())
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Default.Email, null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Зв'язатися з розробником")
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            Text(
+                text = "Керування акаунтом",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Gray
+            )
+
+            Spacer(Modifier.width(8.dp))
+
+            if (provider == "password") {
+                TextButton(
+                    onClick = { showPasswordDialog = true }
+                ) {
+                    Icon(
+                        Icons.Default.Lock,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text("Змінити пароль")
+                }
+            }
+
+            TextButton(
+                onClick = { showDeleteDialog = true }
+            ) {
+                Icon(
+                    Icons.Default.DeleteForever,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text("Видалити акаунт", color = Color.Red)
+            }
+
+            TextButton(
+                onClick = { viewModel.logout(onLogout) }
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Filled.Logout,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text("Вийти з акаунта", color = Color.Red)
+            }
         }
     }
 }
@@ -143,7 +265,10 @@ fun BalanceCard(summary: CurrencySummary) {
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
     ) {
-        Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Text("Загальний баланс ($symbol)", style = MaterialTheme.typography.labelLarge)
             Text(
                 text = "${String.format("%.2f", summary.balance)} $symbol",

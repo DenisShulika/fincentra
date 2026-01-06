@@ -23,20 +23,29 @@ class MonobankService : BankProvider {
             val accounts = mutableListOf<BankAccount>()
             response.accounts.forEach { acc ->
                 val symbol = CurrencyMapper.getSymbol(acc.currencyCode)
-                val pan = acc.maskedPan.firstOrNull()?.let { if (it.length >= 4) "*${it.takeLast(4)}" else "" } ?: ""
+                val pan = acc.maskedPan.firstOrNull()
+                    ?.let { if (it.length >= 4) "*${it.takeLast(4)}" else "" } ?: ""
                 accounts.add(
                     BankAccount(
-                    id = acc.id, provider = BankProviders.MONOBANK, name = "Картка $symbol $pan".trim(),
-                    type = acc.type, balance = acc.balance / 100.0, currencyCode = acc.currencyCode
-                )
+                        id = acc.id,
+                        provider = BankProviders.MONOBANK,
+                        name = "Картка $symbol $pan".trim(),
+                        type = acc.type,
+                        balance = acc.balance / 100.0,
+                        currencyCode = acc.currencyCode
+                    )
                 )
             }
             response.jars?.forEach { jar ->
                 accounts.add(
                     BankAccount(
-                    id = jar.id, provider = BankProviders.MONOBANK, name = "Банка: ${jar.title}",
-                    type = BankAccountTypes.JAR, balance = jar.balance / 100.0, currencyCode = jar.currencyCode
-                )
+                        id = jar.id,
+                        provider = BankProviders.MONOBANK,
+                        name = "Банка: ${jar.title}",
+                        type = BankAccountTypes.JAR,
+                        balance = jar.balance / 100.0,
+                        currencyCode = jar.currencyCode
+                    )
                 )
             }
             accounts
@@ -57,7 +66,8 @@ class MonobankService : BankProvider {
         val allTransactions = mutableListOf<Transaction>()
         val now = System.currentTimeMillis() / 1000
         val maxHistory = 2682000L
-        val finalFrom = if (now - fromTimeSeconds > maxHistory || fromTimeSeconds == 0L) now - maxHistory else fromTimeSeconds
+        val finalFrom =
+            if (now - fromTimeSeconds > maxHistory || fromTimeSeconds == 0L) now - maxHistory else fromTimeSeconds
 
         var currentTo = now
         var shouldContinue = true
@@ -98,7 +108,10 @@ class MonobankService : BankProvider {
         return allTransactions
     }
 
-    private fun MonoTransactionResponse.toDomainModel(accountId: String, accountCurrency: Int): Transaction {
+    private fun MonoTransactionResponse.toDomainModel(
+        accountId: String,
+        accountCurrency: Int
+    ): Transaction {
         val mccInfo = MccDirectory.getDetails(this.mcc)
         return Transaction(
             id = this.id,

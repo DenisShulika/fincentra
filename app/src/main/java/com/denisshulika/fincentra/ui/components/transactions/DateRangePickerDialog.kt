@@ -31,7 +31,9 @@ fun DateRangePickerDialog(
     ) {
         DateRangePicker(
             state = state,
-            modifier = Modifier.fillMaxWidth().weight(1f),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
             showModeToggle = true,
             title = {
                 Text(

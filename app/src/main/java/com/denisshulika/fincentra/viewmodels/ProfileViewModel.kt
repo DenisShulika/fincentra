@@ -2,8 +2,8 @@ package com.denisshulika.fincentra.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.denisshulika.fincentra.data.models.state.CurrencySummary
 import com.denisshulika.fincentra.data.models.domain.User
+import com.denisshulika.fincentra.data.models.state.CurrencySummary
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,6 +22,36 @@ class ProfileViewModel : ViewModel() {
     private val _totalTransactionsCount = MutableStateFlow(0)
     val totalTransactionsCount = _totalTransactionsCount.asStateFlow()
 
+    private val _provider = MutableStateFlow("")
+    val provider = _provider.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+
+    fun changePassword(newPass: String, onComplete: (String) -> Unit) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val result = authRepository.updatePassword(newPass)
+            _isLoading.value = false
+
+            result.onSuccess { onComplete("Пароль змінено") }
+                .onFailure { onComplete("Помилка: ${it.message}. Можливо, потрібно перелогінитись.") }
+        }
+    }
+
+    fun deleteAccount(onDeleted: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            repository.clearAllData()
+
+            val result = authRepository.deleteUserAccount()
+            _isLoading.value = false
+
+            result.onSuccess { onDeleted() }
+                .onFailure { onError("Для видалення потрібно заново увійти в акаунт (вимоги безпеки)") }
+        }
+    }
+
     init {
         loadUserData()
         observeStats()
@@ -38,6 +68,8 @@ class ProfileViewModel : ViewModel() {
                 _currencySummaries.value = summaries
             }
         }
+
+        _provider.value = authRepository.getSignInProvider()
     }
 
     fun logout(onSuccess: () -> Unit) {

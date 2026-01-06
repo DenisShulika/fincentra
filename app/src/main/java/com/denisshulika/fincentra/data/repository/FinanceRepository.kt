@@ -2,6 +2,7 @@ package com.denisshulika.fincentra.data.repository
 
 import android.util.Log
 import com.denisshulika.fincentra.data.models.domain.BankAccount
+import com.denisshulika.fincentra.data.models.domain.Budget
 import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.util.BankProviders
 import com.denisshulika.fincentra.data.util.FirestoreCollections
@@ -202,7 +203,8 @@ class FinanceRepository {
     @Suppress("UNCHECKED_CAST")
     suspend fun getSelectedAccountIds(): List<String> {
         return try {
-            val snapshot = getSettingsRef()?.document(FirestoreDocuments.USER_SETTINGS)?.get()?.await()
+            val snapshot =
+                getSettingsRef()?.document(FirestoreDocuments.USER_SETTINGS)?.get()?.await()
             snapshot?.get("selectedIds") as? List<String> ?: emptyList()
         } catch (e: Exception) {
             emptyList()
@@ -217,7 +219,8 @@ class FinanceRepository {
 
     suspend fun getLastSyncTimestamp(accountId: String): Long {
         return try {
-            val snapshot = getSettingsRef()?.document(FirestoreDocuments.SYNC_METADATA)?.get()?.await()
+            val snapshot =
+                getSettingsRef()?.document(FirestoreDocuments.SYNC_METADATA)?.get()?.await()
             snapshot?.getLong("lastSync_$accountId") ?: 0L
         } catch (e: Exception) {
             0L
@@ -259,5 +262,34 @@ class FinanceRepository {
         accounts.documents.forEach { batch.delete(it.reference) }
         settingsRef.document(FirestoreDocuments.SYNC_METADATA).delete().await()
         batch.commit().await()
+    }
+
+    private fun getBudgetsRef() = getUserDoc()?.collection("budgets")
+
+    suspend fun saveBudget(budget: Budget) {
+        val ref = getBudgetsRef() ?: return
+        try {
+            ref.document(budget.id).set(budget).await()
+        } catch (e: Exception) {
+            Log.e("REPO", "Помилка збереження бюджету: ${e.message}")
+        }
+    }
+
+    fun getBudgetsFlow(monthYear: String): Flow<List<Budget>> {
+        val ref = getBudgetsRef() ?: return flowOf(emptyList())
+        return callbackFlow {
+            val subscription = ref
+                .whereEqualTo("monthYear", monthYear)
+                .addSnapshotListener { snapshot, _ ->
+                    if (snapshot != null) {
+                        trySend(snapshot.toObjects(Budget::class.java))
+                    }
+                }
+            awaitClose { subscription.remove() }
+        }
+    }
+
+    suspend fun deleteBudget(budgetId: String) {
+        getBudgetsRef()?.document(budgetId)?.delete()?.await()
     }
 }

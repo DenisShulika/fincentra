@@ -29,7 +29,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -43,7 +42,12 @@ fun CategoryFilterContent(
     val selectedCats by viewModel.selectedCategories.collectAsStateWithLifecycle()
     val categoriesMap by viewModel.categoriesWithSubs.collectAsStateWithLifecycle()
 
-    Column(modifier = Modifier.padding(16.dp).fillMaxWidth().padding(bottom = 32.dp)) {
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+            .padding(bottom = 32.dp)
+    ) {
         Text(
             text = "Фільтр за категоріями",
             style = MaterialTheme.typography.titleLarge,
@@ -58,7 +62,9 @@ fun CategoryFilterContent(
 
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Checkbox(
@@ -69,7 +75,9 @@ fun CategoryFilterContent(
                             text = mainCat.displayName,
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.weight(1f).padding(start = 8.dp)
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 8.dp)
                         )
                         if (subCategories.isNotEmpty()) {
                             IconButton(onClick = { isExpanded = !isExpanded }) {
@@ -113,7 +121,11 @@ fun CategoryFilterContent(
                 }
             }
         }
-        Button(onClick = onDismiss, modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) {
+        Button(
+            onClick = onDismiss, modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp)
+        ) {
             Text("Застосувати")
         }
     }

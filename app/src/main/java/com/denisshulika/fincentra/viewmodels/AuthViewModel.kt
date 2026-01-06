@@ -29,9 +29,49 @@ class AuthViewModel : ViewModel() {
     private val _confirmPassword = MutableStateFlow("")
     val confirmPassword = _confirmPassword.asStateFlow()
 
-    fun onConfirmPasswordChange(newValue: String) { _confirmPassword.value = newValue }
-    fun onEmailChange(newValue: String) { _email.value = newValue }
-    fun onPasswordChange(newValue: String) { _password.value = newValue }
+    fun onConfirmPasswordChange(newValue: String) {
+        _confirmPassword.value = newValue
+    }
+
+    fun onEmailChange(newValue: String) {
+        _email.value = newValue
+    }
+
+    fun onPasswordChange(newValue: String) {
+        _password.value = newValue
+    }
+
+    fun getProvider() = authRepository.getSignInProvider()
+
+    fun changePassword(newPass: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val result = authRepository.updatePassword(newPass)
+            _isLoading.value = false
+
+            result.onSuccess {
+                _events.emit(AuthUiEvent.ShowError("Пароль успішно змінено"))
+            }.onFailure {
+                _events.emit(AuthUiEvent.ShowError("Помилка: ${it.message}"))
+            }
+        }
+    }
+
+    fun deleteAccount(onDeleted: () -> Unit) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            DependencyProvider.repository.clearAllData()
+
+            val result = authRepository.deleteUserAccount()
+            _isLoading.value = false
+
+            result.onSuccess {
+                onDeleted()
+            }.onFailure {
+                _events.emit(AuthUiEvent.ShowError("Для видалення потрібно перезайти в додаток"))
+            }
+        }
+    }
 
     fun signIn() {
         viewModelScope.launch {
