@@ -1,9 +1,11 @@
 package com.denisshulika.fincentra.ui.screens
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
@@ -34,9 +37,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.data.models.domain.Transaction
+import com.denisshulika.fincentra.data.util.TransactionConstants
 import com.denisshulika.fincentra.ui.components.SwipeBackground
 import com.denisshulika.fincentra.ui.components.TransactionDetailSheet
 import com.denisshulika.fincentra.ui.components.TransactionItem
@@ -47,7 +52,7 @@ import com.denisshulika.fincentra.ui.components.transactions.TransactionsTopBar
 import com.denisshulika.fincentra.ui.components.transactions.TypeBankFilterContent
 import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun TransactionsScreen(viewModel: TransactionsViewModel) {
     val list by viewModel.transactions.collectAsStateWithLifecycle()
@@ -183,50 +188,68 @@ fun TransactionsScreen(viewModel: TransactionsViewModel) {
                     }
                 }
             } else {
+                val groupedList by viewModel.groupedTransactions.collectAsStateWithLifecycle()
+
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(list, key = { it.id + it.timestamp }) { tx ->
-                        val isManual =
-                            tx.accountId == com.denisshulika.fincentra.data.util.TransactionConstants.ACCOUNT_ID_MANUAL
-
-                        if (isManual) {
-                            val dismissState = rememberSwipeToDismissBoxState(
-                                confirmValueChange = { value ->
-                                    when (value) {
-                                        SwipeToDismissBoxValue.EndToStart -> {
-                                            transactionToDelete = tx
-                                            false
-                                        }
-
-                                        SwipeToDismissBoxValue.StartToEnd -> {
-                                            viewModel.prepareForEdit(tx)
-                                            false
-                                        }
-
-                                        else -> false
-                                    }
-                                }
-                            )
-
-                            SwipeToDismissBox(
-                                state = dismissState,
-                                backgroundContent = { SwipeBackground(dismissState) },
-                                modifier = Modifier.animateItem()
+                    groupedList.forEach { (dateHeader, transactions) ->
+                        stickyHeader {
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = MaterialTheme.colorScheme.background
                             ) {
-                                TransactionItem(
-                                    transaction = tx,
-                                    onClick = { viewModel.showTransactionDetails(tx) },
-                                    onLongClick = {
-                                        transactionToDelete = tx
-                                    }
+                                Text(
+                                    text = dateHeader,
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Bold
                                 )
                             }
-                        } else {
-                            Box(modifier = Modifier.animateItem()) {
-                                TransactionItem(
-                                    transaction = tx,
-                                    onClick = { viewModel.showTransactionDetails(tx) },
-                                    onLongClick = { }
+                        }
+
+                        items(transactions, key = { it.id + it.timestamp }) { tx ->
+                            val isManual = tx.accountId == TransactionConstants.ACCOUNT_ID_MANUAL
+
+                            if (isManual) {
+                                val dismissState = rememberSwipeToDismissBoxState(
+                                    confirmValueChange = { value ->
+                                        when (value) {
+                                            SwipeToDismissBoxValue.EndToStart -> {
+                                                transactionToDelete = tx
+                                                false
+                                            }
+
+                                            SwipeToDismissBoxValue.StartToEnd -> {
+                                                viewModel.prepareForEdit(tx)
+                                                false
+                                            }
+
+                                            else -> false
+                                        }
+                                    }
                                 )
+
+                                SwipeToDismissBox(
+                                    state = dismissState,
+                                    backgroundContent = { SwipeBackground(dismissState) },
+                                    modifier = Modifier.animateItem()
+                                ) {
+                                    TransactionItem(
+                                        transaction = tx,
+                                        onClick = { viewModel.showTransactionDetails(tx) },
+                                        onLongClick = {
+                                            transactionToDelete = tx
+                                        }
+                                    )
+                                }
+                            } else {
+                                Box(modifier = Modifier.animateItem()) {
+                                    TransactionItem(
+                                        transaction = tx,
+                                        onClick = { viewModel.showTransactionDetails(tx) },
+                                        onLongClick = { }
+                                    )
+                                }
                             }
                         }
                     }

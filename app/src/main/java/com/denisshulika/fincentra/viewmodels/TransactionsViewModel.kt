@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.denisshulika.fincentra.data.models.domain.BankAccount
 import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.models.domain.TransactionCategory
+import com.denisshulika.fincentra.data.util.DateFormatter
 import com.denisshulika.fincentra.data.util.TransactionConstants
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,12 +16,14 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.Date
 import java.util.UUID
 
 class TransactionsViewModel : ViewModel() {
     private val repository = DependencyProvider.repository
 
-    val allTransactions: StateFlow<List<Transaction>> = repository.transactions
+    private val allTransactions: StateFlow<List<Transaction>> = repository.transactions
 
     private val accounts = repository.getAccountsFlow()
         .stateIn(
@@ -105,6 +108,30 @@ class TransactionsViewModel : ViewModel() {
 
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val groupedTransactions: StateFlow<Map<String, List<Transaction>>> = transactions
+        .map { list ->
+            list.groupBy { tx ->
+                val calendar = Calendar.getInstance()
+                val now = Calendar.getInstance()
+
+                calendar.timeInMillis = tx.timestamp
+
+                val isToday = calendar.get(Calendar.YEAR) == now.get(Calendar.YEAR) &&
+                        calendar.get(Calendar.DAY_OF_YEAR) == now.get(Calendar.DAY_OF_YEAR)
+
+                val yesterday = (now.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, -1) }
+                val isYesterday = calendar.get(Calendar.YEAR) == yesterday.get(Calendar.YEAR) &&
+                        calendar.get(Calendar.DAY_OF_YEAR) == yesterday.get(Calendar.DAY_OF_YEAR)
+
+                when {
+                    isToday -> "Сьогодні"
+                    isYesterday -> "Вчора"
+                    else -> DateFormatter.dayMonth.format(Date(tx.timestamp))
+                }
+            }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
+
     val categoriesWithSubs: StateFlow<Map<TransactionCategory, List<String>>> = allTransactions
         .map { _ ->
             TransactionCategory.entries.associateWith { mainCat ->
@@ -145,8 +172,8 @@ class TransactionsViewModel : ViewModel() {
 
         return filter { tx ->
             val amountFilter = when {
-                trimmedQuery.startsWith(">") -> trimmedQuery.drop(1).toDoubleOrNull()?.let { it }
-                trimmedQuery.startsWith("<") -> trimmedQuery.drop(1).toDoubleOrNull()?.let { it }
+                trimmedQuery.startsWith(">") -> trimmedQuery.drop(1).toDoubleOrNull()
+                trimmedQuery.startsWith("<") -> trimmedQuery.drop(1).toDoubleOrNull()
                 else -> null
             }
 

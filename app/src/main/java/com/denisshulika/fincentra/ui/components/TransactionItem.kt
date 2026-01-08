@@ -1,5 +1,6 @@
 package com.denisshulika.fincentra.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
@@ -81,7 +82,7 @@ fun TransactionItem(
                     modifier = Modifier
                         .size(20.dp)
                         .offset(x = 2.dp, y = 2.dp),
-                    border = androidx.compose.foundation.BorderStroke(
+                    border = BorderStroke(
                         1.dp,
                         MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
                     )
@@ -109,19 +110,20 @@ fun TransactionItem(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = transaction.description.ifBlank { "Транзакція" },
+                    text = transaction.description.ifBlank { transaction.category.displayName },
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
-                if (transaction.subCategoryName.isNotBlank() && transaction.subCategoryName != "Різне") {
-                    Text(
-                        text = transaction.subCategoryName,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                Text(
+                    text = if (transaction.subCategoryName == com.denisshulika.fincentra.data.util.TransactionConstants.DEFAULT_SUB_CATEGORY)
+                        transaction.category.displayName
+                    else
+                        transaction.subCategoryName,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
 
             Column(horizontalAlignment = Alignment.End) {
