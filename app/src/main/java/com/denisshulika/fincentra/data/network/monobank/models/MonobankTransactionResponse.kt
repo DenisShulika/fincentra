@@ -1,6 +1,6 @@
 package com.denisshulika.fincentra.data.network.monobank.models
 
-data class MonoTransactionResponse(
+data class MonobankTransactionResponse(
     val id: String,
     val time: Long,
     val description: String,

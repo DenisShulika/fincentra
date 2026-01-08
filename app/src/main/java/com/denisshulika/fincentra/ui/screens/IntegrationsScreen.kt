@@ -143,7 +143,7 @@ fun IntegrationsScreen(viewModel: IntegrationsViewModel) {
             title = { Text("Відключити банк?") },
             text = { Text("Ви впевнені? Дані рахунків будуть видалені з налаштувань.") },
             confirmButton = {
-                TextButton(onClick = { viewModel.disconnectBank() }) {
+                TextButton(onClick = { viewModel.removeMonobankIntegration() }) {
                     Text(
                         "Так",
                         color = Color.Red
@@ -163,7 +163,7 @@ private fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsVi
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val syncProgress by viewModel.syncProgress.collectAsStateWithLifecycle()
     val syncStatus by viewModel.syncStatus.collectAsStateWithLifecycle()
-    val monoToken by viewModel.monoToken.collectAsStateWithLifecycle()
+    val monoToken by viewModel.monobankToken.collectAsStateWithLifecycle()
     val accounts by viewModel.availableAccounts.collectAsStateWithLifecycle()
 
     Column(
@@ -274,7 +274,7 @@ private fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsVi
             }
 
             OutlinedButton(
-                onClick = { viewModel.refreshAccountsInDetails() },
+                onClick = { viewModel.refreshMonobankAccounts() },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !isLoading
             ) { Text("Оновити список рахунків") }
@@ -318,14 +318,14 @@ private fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsVi
 
             OutlinedTextField(
                 value = monoToken,
-                onValueChange = { viewModel.onTokenChange(it) },
+                onValueChange = { viewModel.onMonobankTokenChange(it) },
                 label = { Text("API Токен") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
 
             Button(
-                onClick = { viewModel.connectNewBank() },
+                onClick = { viewModel.connectMonobankAccount() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 24.dp),

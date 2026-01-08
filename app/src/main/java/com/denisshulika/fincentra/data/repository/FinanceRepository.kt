@@ -8,7 +8,6 @@ import com.denisshulika.fincentra.data.util.BankProviders
 import com.denisshulika.fincentra.data.util.FirestoreCollections
 import com.denisshulika.fincentra.data.util.FirestoreDocuments
 import com.denisshulika.fincentra.di.DependencyProvider
-import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -156,16 +155,16 @@ class FinanceRepository {
         }
     }
 
-    suspend fun saveMonoToken(token: String) {
+    suspend fun saveMonobankApiToken(token: String) {
         getSettingsRef()?.document(FirestoreDocuments.USER_SETTINGS)
-            ?.set(mapOf("monoToken" to token), SetOptions.merge())
+            ?.set(mapOf("monobankToken" to token), SetOptions.merge())
             ?.await()
     }
 
-    suspend fun getMonoToken(): String? {
+    suspend fun getMonobankApiToken(): String? {
         return try {
             val doc = getSettingsRef()?.document(FirestoreDocuments.USER_SETTINGS)?.get()?.await()
-            doc?.getString("monoToken")
+            doc?.getString("monobankToken")
         } catch (e: Exception) {
             null
         }
@@ -220,12 +219,12 @@ class FinanceRepository {
         }
     }
 
-    suspend fun clearMonobankData() {
+    suspend fun clearAllMonobankData() {
         val settingsRef = getSettingsRef() ?: return
         val accountsRef = getAccountsRef() ?: return
 
         settingsRef.document(FirestoreDocuments.USER_SETTINGS).update(
-            mapOf("monoToken" to null, "selectedIds" to emptyList<String>())
+            mapOf("monobankToken" to null, "selectedIds" to emptyList<String>())
         ).await()
 
         val accounts = accountsRef.whereEqualTo("provider", BankProviders.MONOBANK).get().await()

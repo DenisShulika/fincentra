@@ -1,6 +1,6 @@
 package com.denisshulika.fincentra.data.network.monobank.models
 
-data class MonoAccountResponse(
+data class MonobankAccountResponse(
     val id: String,
     val type: String,
     val balance: Long,

@@ -6,7 +6,7 @@ import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.network.common.BankProvider
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.data.network.common.MccDirectory
-import com.denisshulika.fincentra.data.network.monobank.models.MonoTransactionResponse
+import com.denisshulika.fincentra.data.network.monobank.models.MonobankTransactionResponse
 import com.denisshulika.fincentra.data.util.BankAccountTypes
 import com.denisshulika.fincentra.data.util.BankProviders
 import com.denisshulika.fincentra.di.DependencyProvider
@@ -90,7 +90,7 @@ class MonobankService : BankProvider {
             if (monoList.isEmpty()) {
                 shouldContinue = false
             } else {
-                val mapped = monoList.map { it.toDomainModel(accountId, accountCurrency) }
+                val mapped = monoList.map { it.mapToDomainTransaction(accountId, accountCurrency) }
                 onBatchLoaded(mapped)
                 allTransactions.addAll(mapped)
 
@@ -108,7 +108,7 @@ class MonobankService : BankProvider {
         return allTransactions
     }
 
-    private fun MonoTransactionResponse.toDomainModel(
+    private fun MonobankTransactionResponse.mapToDomainTransaction(
         accountId: String,
         accountCurrency: Int
     ): Transaction {

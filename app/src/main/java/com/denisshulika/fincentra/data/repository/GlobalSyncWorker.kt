@@ -18,7 +18,7 @@ class GlobalSyncWorker(
     private val monoService = DependencyProvider.monobankProvider
 
     private suspend fun syncMonobank() {
-        val token = repository.getMonoToken()
+        val token = repository.getMonobankApiToken()
         val selectedIds = repository.getSelectedAccountIds()
 
         if (token.isNullOrBlank() || selectedIds.isEmpty()) return
