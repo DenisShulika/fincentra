@@ -39,6 +39,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -67,10 +68,11 @@ import com.denisshulika.fincentra.data.models.events.IntegrationsUiEvent
 import com.denisshulika.fincentra.data.models.ui.BankProviderInfo
 import com.denisshulika.fincentra.data.models.ui.SupportedBanks
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
+import com.denisshulika.fincentra.ui.components.FinCentraTopBar
 import com.denisshulika.fincentra.viewmodels.IntegrationsViewModel
 
 @Composable
-fun IntegrationsScreen(viewModel: IntegrationsViewModel) {
+fun IntegrationsScreen(viewModel: IntegrationsViewModel, onBack: () -> Unit) {
     val selectedBank by viewModel.selectedBank.collectAsStateWithLifecycle()
     val isConnected by viewModel.isBankConnected.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
@@ -115,23 +117,37 @@ fun IntegrationsScreen(viewModel: IntegrationsViewModel) {
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text("Підключення банків", style = MaterialTheme.typography.headlineMedium)
-            Spacer(Modifier.height(24.dp))
+    Scaffold(
+        topBar = {
+            FinCentraTopBar(
+                title = "Банки та рахунки",
+                isTopLevelScreen = false,
+                onNavigationClick = onBack
+            )
+        }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Підключення банків", style = MaterialTheme.typography.headlineMedium)
+                Spacer(Modifier.height(24.dp))
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(SupportedBanks) { bank ->
-                    BankGridItem(
-                        bank = bank,
-                        isConnected = isConnected,
-                        isLoading = isLoading,
-                        onClick = { viewModel.selectBank(bank) }
-                    )
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(SupportedBanks) { bank ->
+                        BankGridItem(
+                            bank = bank,
+                            isConnected = isConnected,
+                            isLoading = isLoading,
+                            onClick = { viewModel.selectBank(bank) }
+                        )
+                    }
                 }
             }
         }

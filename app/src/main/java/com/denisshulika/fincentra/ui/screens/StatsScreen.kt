@@ -38,6 +38,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -58,7 +59,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -66,12 +66,13 @@ import com.denisshulika.fincentra.data.models.state.CategoryStat
 import com.denisshulika.fincentra.data.models.state.CurrencyStats
 import com.denisshulika.fincentra.data.models.state.StatsPeriod
 import com.denisshulika.fincentra.ui.components.AnimatedAmount
+import com.denisshulika.fincentra.ui.components.FinCentraTopBar
 import com.denisshulika.fincentra.ui.components.transactions.DateRangePickerDialog
 import com.denisshulika.fincentra.viewmodels.StatsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StatsScreen(viewModel: StatsViewModel) {
+fun StatsScreen(viewModel: StatsViewModel, onOpenDrawer: () -> Unit) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedIndex by viewModel.selectedCurrencyIndex.collectAsStateWithLifecycle()
     val selectedPeriod by viewModel.selectedPeriod.collectAsStateWithLifecycle()
@@ -99,162 +100,174 @@ fun StatsScreen(viewModel: StatsViewModel) {
             }
         )
     }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp)
-    ) {
-        Text(
-            text = "Фінансовий звіт",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 16.dp)
-        )
-
-        SingleChoiceSegmentedButtonRow(
+    Scaffold(
+        topBar = {
+            FinCentraTopBar(
+                title = "Аналітика",
+                isTopLevelScreen = true,
+                onNavigationClick = onOpenDrawer
+            )
+        }
+    ) { innerPadding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp)
         ) {
-            SegmentedButton(
-                selected = isExpenseMode,
-                onClick = { viewModel.toggleMode(true) },
-                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                label = { Text("Витрати") }
+            Text(
+                text = "Фінансовий звіт",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(top = 16.dp)
             )
-            SegmentedButton(
-                selected = !isExpenseMode,
-                onClick = { viewModel.toggleMode(false) },
-                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                label = { Text("Доходи") }
-            )
-        }
 
-        if (uiState.currencyData.size > 1) {
-            ScrollableTabRow(
-                selectedTabIndex = selectedIndex,
-                edgePadding = 0.dp,
-                containerColor = Color.Transparent,
-                divider = {}
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
             ) {
-                uiState.currencyData.forEachIndexed { index, data ->
-                    Tab(
-                        selected = selectedIndex == index,
-                        onClick = { viewModel.selectCurrency(index) },
-                        text = {
-                            Text(
-                                text = com.denisshulika.fincentra.data.network.common.CurrencyMapper.getCodeName(
-                                    data.currencyCode
+                SegmentedButton(
+                    selected = isExpenseMode,
+                    onClick = { viewModel.toggleMode(true) },
+                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                    label = { Text("Витрати") }
+                )
+                SegmentedButton(
+                    selected = !isExpenseMode,
+                    onClick = { viewModel.toggleMode(false) },
+                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                    label = { Text("Доходи") }
+                )
+            }
+
+            if (uiState.currencyData.size > 1) {
+                ScrollableTabRow(
+                    selectedTabIndex = selectedIndex,
+                    edgePadding = 0.dp,
+                    containerColor = Color.Transparent,
+                    divider = {}
+                ) {
+                    uiState.currencyData.forEachIndexed { index, data ->
+                        Tab(
+                            selected = selectedIndex == index,
+                            onClick = { viewModel.selectCurrency(index) },
+                            text = {
+                                Text(
+                                    text = com.denisshulika.fincentra.data.network.common.CurrencyMapper.getCodeName(
+                                        data.currencyCode
+                                    )
                                 )
-                            )
-                        }
-                    )
-                }
-            }
-        }
-
-        PeriodSelector(
-            selectedPeriod = selectedPeriod,
-            onPeriodSelected = { viewModel.setPeriod(it) },
-            onCalendarClick = { showDatePicker = true }
-        )
-
-        Column(modifier = Modifier.fillMaxWidth()) {
-            LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                val banks = listOf("Всі", "Monobank", "Готівка")
-                items(banks) { bank ->
-                    FilterChip(
-                        selected = selectedBank == bank,
-                        onClick = { viewModel.onBankFilterChange(bank) },
-                        label = { Text(bank) }
-                    )
-                }
-            }
-
-            if (selectedBank != "Всі") {
-                val filteredAccounts =
-                    availableAccounts.filter { it.provider == selectedBank && it.selected }
-                if (filteredAccounts.isNotEmpty()) {
-                    LazyRow(
-                        modifier = Modifier.padding(top = 4.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        item {
-                            FilterChip(
-                                selected = selectedAccountId == null,
-                                onClick = { viewModel.onAccountFilterChange(null) },
-                                label = { Text("Всі карти") }
-                            )
-                        }
-                        items(filteredAccounts) { acc ->
-                            FilterChip(
-                                selected = selectedAccountId == acc.id,
-                                onClick = { viewModel.onAccountFilterChange(acc.id) },
-                                label = { Text(acc.name) }
-                            )
-                        }
+                            }
+                        )
                     }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(8.dp))
+            PeriodSelector(
+                selectedPeriod = selectedPeriod,
+                onPeriodSelected = { viewModel.setPeriod(it) },
+                onCalendarClick = { showDatePicker = true }
+            )
 
-        if (currentStats != null) {
-            val symbol =
-                com.denisshulika.fincentra.data.network.common.CurrencyMapper.getSymbol(currentStats.currencyCode)
-
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(bottom = 32.dp)
-            ) {
-                item {
-                    BalanceFlowCard(currentStats, symbol)
-                }
-
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 24.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        SpendingDonutChart(
-                            categories = currentStats.categories,
-                            symbol = symbol,
-                            isExpenseMode = isExpenseMode
+            Column(modifier = Modifier.fillMaxWidth()) {
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val banks = listOf("Всі", "Monobank", "Готівка")
+                    items(banks) { bank ->
+                        FilterChip(
+                            selected = selectedBank == bank,
+                            onClick = { viewModel.onBankFilterChange(bank) },
+                            label = { Text(bank) }
                         )
                     }
                 }
 
-                item {
-                    Text(
-                        text = if (isExpenseMode) "Розподіл витрат" else "Джерела доходів",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                }
-
-                items(currentStats.categories) { stat ->
-                    CategoryStatItem(stat = stat, symbol = symbol)
+                if (selectedBank != "Всі") {
+                    val filteredAccounts =
+                        availableAccounts.filter { it.provider == selectedBank && it.selected }
+                    if (filteredAccounts.isNotEmpty()) {
+                        LazyRow(
+                            modifier = Modifier.padding(top = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            item {
+                                FilterChip(
+                                    selected = selectedAccountId == null,
+                                    onClick = { viewModel.onAccountFilterChange(null) },
+                                    label = { Text("Всі карти") }
+                                )
+                            }
+                            items(filteredAccounts) { acc ->
+                                FilterChip(
+                                    selected = selectedAccountId == acc.id,
+                                    onClick = { viewModel.onAccountFilterChange(acc.id) },
+                                    label = { Text(acc.name) }
+                                )
+                            }
+                        }
+                    }
                 }
             }
-        } else {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        Icons.Default.Analytics,
-                        null,
-                        Modifier.size(80.dp),
-                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (currentStats != null) {
+                val symbol =
+                    com.denisshulika.fincentra.data.network.common.CurrencyMapper.getSymbol(
+                        currentStats.currencyCode
                     )
-                    Text("Даних не знайдено", color = Color.Gray)
+
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(bottom = 32.dp)
+                ) {
+                    item {
+                        BalanceFlowCard(currentStats, symbol)
+                    }
+
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 24.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            SpendingDonutChart(
+                                categories = currentStats.categories,
+                                symbol = symbol,
+                                isExpenseMode = isExpenseMode
+                            )
+                        }
+                    }
+
+                    item {
+                        Text(
+                            text = if (isExpenseMode) "Розподіл витрат" else "Джерела доходів",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+
+                    items(currentStats.categories) { stat ->
+                        CategoryStatItem(stat = stat, symbol = symbol)
+                    }
+                }
+            } else {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            Icons.Default.Analytics,
+                            null,
+                            Modifier.size(80.dp),
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                        )
+                        Text("Даних не знайдено", color = Color.Gray)
+                    }
                 }
             }
         }

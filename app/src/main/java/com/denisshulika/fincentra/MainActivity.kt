@@ -3,21 +3,29 @@ package com.denisshulika.fincentra
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ReceiptLong
-import androidx.compose.material.icons.filled.AccountBalance
-import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,6 +33,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.denisshulika.fincentra.di.DependencyProvider
 import com.denisshulika.fincentra.navigation.Screen
+import com.denisshulika.fincentra.ui.screens.BudgetsScreen
+import com.denisshulika.fincentra.ui.screens.HomeScreen
 import com.denisshulika.fincentra.ui.screens.IntegrationsScreen
 import com.denisshulika.fincentra.ui.screens.LoginScreen
 import com.denisshulika.fincentra.ui.screens.ProfileScreen
@@ -38,6 +48,7 @@ import com.denisshulika.fincentra.viewmodels.IntegrationsViewModel
 import com.denisshulika.fincentra.viewmodels.ProfileViewModel
 import com.denisshulika.fincentra.viewmodels.StatsViewModel
 import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,186 +64,185 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-    val authRepository = DependencyProvider.authRepository
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    val authViewModel: AuthViewModel = viewModel()
     val integrationsViewModel: IntegrationsViewModel = viewModel()
     val transactionsViewModel: TransactionsViewModel = viewModel()
-    val profileViewModel: ProfileViewModel = viewModel()
-    val authViewModel: AuthViewModel = viewModel()
     val statsViewModel: StatsViewModel = viewModel()
+    val profileViewModel: ProfileViewModel = viewModel()
     val budgetsViewModel: BudgetsViewModel = viewModel()
 
     val startDestination = remember {
-        if (authRepository.getCurrentUser() != null) {
-            Screen.Transactions.route
+        if (DependencyProvider.authRepository.getCurrentUser() != null) {
+            Screen.Home.route
         } else {
             Screen.Login.route
         }
     }
 
-    val screensWithBottomBar = listOf(
+    val navigateWithClearStack: (String) -> Unit = { route ->
+        navController.navigate(route) {
+            popUpTo(navController.graph.startDestinationId) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
+    val isAuthScreen = currentRoute == Screen.Login.route || currentRoute == Screen.Register.route
+    val isTopLevelScreen = currentRoute in listOf(
+        Screen.Home.route,
         Screen.Transactions.route,
-        Screen.Stats.route,
-        Screen.Integrations.route,
-        Screen.Profile.route
+        Screen.Stats.route
     )
 
-    Scaffold(
-        bottomBar = {
-            if (currentRoute in screensWithBottomBar) {
-                NavigationBar {
-                    NavigationBarItem(
-                        selected = currentRoute == Screen.Transactions.route,
-                        label = {
-                            Text(text = Screen.Transactions.title)
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ReceiptLong,
-                                contentDescription = null
-                            )
-                        },
-                        onClick = {
-                            navController.navigate(Screen.Transactions.route) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        gesturesEnabled = !isAuthScreen && isTopLevelScreen,
+        drawerContent = {
+            if (!isAuthScreen) {
+                ModalDrawerSheet {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "FinCentra",
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    HorizontalDivider()
+
+                    val drawerItems = listOf(
+                        Screen.Profile,
+                        Screen.Integrations,
+                        Screen.Budgets,
+                        Screen.Goals
+                    )
+
+                    drawerItems.forEach { screen ->
+                        NavigationDrawerItem(
+                            icon = { Icon(screen.icon, null) },
+                            label = { Text(screen.title) },
+                            selected = currentRoute == screen.route,
+                            onClick = {
+                                scope.launch { drawerState.close() }
+                                navController.navigate(screen.route) {
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
+                            },
+                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        )
+                    }
+                }
+            }
+        }
+    ) {
+        Scaffold(
+            bottomBar = {
+                // BottomBar тепер видимий скрізь, крім логіну/реєстрації
+                if (!isAuthScreen) {
+                    NavigationBar {
+                        val bottomItems = listOf(Screen.Home, Screen.Transactions, Screen.Stats)
+                        bottomItems.forEach { screen ->
+                            NavigationBarItem(
+                                selected = currentRoute == screen.route,
+                                label = { Text(screen.title) },
+                                icon = { Icon(screen.icon, null) },
+                                onClick = { navigateWithClearStack(screen.route) }
+                            )
+                        }
+                    }
+                }
+            }
+        ) { innerPadding ->
+            NavHost(
+                navController = navController,
+                startDestination = startDestination,
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                composable(Screen.Login.route) {
+                    LoginScreen(
+                        viewModel = authViewModel,
+                        onNavigateToMain = {
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(0) { inclusive = true }
                             }
+                        },
+                        onNavigateToRegister = {
+                            navController.navigate(Screen.Register.route)
                         }
                     )
-                    NavigationBarItem(
-                        selected = currentRoute == Screen.Stats.route,
-                        label = {
-                            Text(text = Screen.Stats.title)
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Default.BarChart,
-                                contentDescription = null
-                            )
-                        },
-                        onClick = {
-                            navController.navigate(Screen.Stats.route) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
+                }
+
+                composable(Screen.Register.route) {
+                    RegisterScreen(
+                        viewModel = authViewModel,
+                        onNavigateToMain = {
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(0) { inclusive = true }
                             }
+                        },
+                        onBackToLogin = {
+                            navController.popBackStack()
                         }
                     )
-                    NavigationBarItem(
-                        selected = currentRoute == Screen.Integrations.route,
-                        label = {
-                            Text(text = Screen.Integrations.title)
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Default.AccountBalance,
-                                contentDescription = null
-                            )
-                        },
-                        onClick = {
-                            navController.navigate(Screen.Integrations.route) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
+                }
+
+                composable(Screen.Home.route) {
+                    HomeScreen(
+                        statsViewModel = statsViewModel,
+                        transactionsViewModel = transactionsViewModel,
+                        budgetsViewModel = budgetsViewModel,
+                        onOpenDrawer = { scope.launch { drawerState.open() } },
+                        onNavigateToBudgets = {
+                            navController.navigate(Screen.Budgets.route)
                         }
                     )
-                    NavigationBarItem(
-                        selected = currentRoute == Screen.Profile.route,
-                        label = {
-                            Text(text = Screen.Profile.title)
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = null
-                            )
-                        },
-                        onClick = {
-                            navController.navigate(Screen.Profile.route) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
+                }
+
+                composable(Screen.Transactions.route) {
+                    TransactionsScreen(
+                        viewModel = transactionsViewModel,
+                        onOpenDrawer = { scope.launch { drawerState.open() } }
+                    )
+                }
+
+                composable(Screen.Stats.route) {
+                    StatsScreen(
+                        viewModel = statsViewModel,
+                        onOpenDrawer = { scope.launch { drawerState.open() } }
+                    )
+                }
+
+                composable(Screen.Integrations.route) {
+                    IntegrationsScreen(
+                        viewModel = integrationsViewModel,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+
+                composable(Screen.Profile.route) {
+                    ProfileScreen(
+                        viewModel = profileViewModel,
+                        budgetsViewModel = budgetsViewModel,
+                        onBack = { navController.popBackStack() },
+                        onLogout = {
+                            navController.navigate(Screen.Login.route) {
+                                popUpTo(0) { inclusive = true }
                             }
                         }
                     )
                 }
-            }
-        }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = startDestination,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable(route = Screen.Login.route) {
-                LoginScreen(
-                    viewModel = authViewModel,
-                    onNavigateToMain = {
-                        navController.navigate(Screen.Transactions.route) {
-                            popUpTo(Screen.Login.route) {
-                                inclusive = true
-                            }
-                        }
-                    },
-                    onNavigateToRegister = {
-                        navController.navigate(Screen.Register.route)
-                    }
-                )
-            }
 
-            composable(route = Screen.Register.route) {
-                RegisterScreen(
-                    viewModel = authViewModel,
-                    onNavigateToMain = {
-                        navController.navigate(Screen.Transactions.route) {
-                            popUpTo(Screen.Login.route) {
-                                inclusive = true
-                            }
-                        }
-                    },
-                    onBackToLogin = {
-                        navController.popBackStack()
-                    }
-                )
-            }
-
-            composable(route = Screen.Transactions.route) {
-                TransactionsScreen(viewModel = transactionsViewModel)
-            }
-
-            composable(route = Screen.Stats.route) {
-                StatsScreen(viewModel = statsViewModel)
-            }
-
-            composable(route = Screen.Integrations.route) {
-                IntegrationsScreen(viewModel = integrationsViewModel)
-            }
-
-            composable(route = Screen.Profile.route) {
-                ProfileScreen(
-                    viewModel = profileViewModel,
-                    budgetsViewModel = budgetsViewModel,
-                    onLogout = {
-                        navController.navigate(Screen.Login.route) {
-                            popUpTo(0) {
-                                inclusive = true
-                            }
-                        }
-                    }
-                )
+                composable(Screen.Budgets.route) {
+                    BudgetsScreen()
+                }
             }
         }
     }

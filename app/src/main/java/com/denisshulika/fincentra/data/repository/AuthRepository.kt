@@ -6,7 +6,7 @@ import com.google.firebase.auth.AuthCredential
 import kotlinx.coroutines.tasks.await
 
 class AuthRepository {
-    private val auth = DependencyProvider.auth
+    val auth = DependencyProvider.auth
 
     fun getCurrentUser(): User? {
         val firebaseUser = auth.currentUser

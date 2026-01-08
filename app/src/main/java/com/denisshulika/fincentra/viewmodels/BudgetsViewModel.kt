@@ -115,7 +115,8 @@ class BudgetsViewModel : ViewModel() {
             _isLoading.value = true
             try {
                 val budget = Budget(
-                    id = _editingBudgetId.value ?: "${_selectedCategory.value.name}_$currentMonthYear",
+                    id = _editingBudgetId.value
+                        ?: "${_selectedCategory.value.name}_$currentMonthYear",
                     categoryName = _selectedCategory.value.displayName,
                     limitAmount = amt,
                     currencyCode = _selectedCurrency.value,

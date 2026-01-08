@@ -40,7 +40,8 @@ fun RegisterScreen(
         viewModel.events.collect { event ->
             when (event) {
                 is AuthUiEvent.NavigateToMain -> onNavigateToMain()
-                is AuthUiEvent.ShowError -> { /* Toast або Snackbar */
+                is AuthUiEvent.ShowError -> {
+
                 }
             }
         }

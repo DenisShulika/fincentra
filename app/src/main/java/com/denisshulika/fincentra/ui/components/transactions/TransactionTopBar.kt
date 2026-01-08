@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Icon
@@ -29,6 +30,7 @@ import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 fun TransactionsTopBar(
     viewModel: TransactionsViewModel,
     onFilterCategoryClick: () -> Unit,
+    onOpenDrawer: () -> Unit,
     onFilterTypeClick: () -> Unit,
     onFilterDateClick: () -> Unit
 ) {
@@ -42,17 +44,19 @@ fun TransactionsTopBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (!isSearchActive) {
+            IconButton(onClick = onOpenDrawer) {
+                Icon(imageVector = Icons.Default.Menu, contentDescription = "Відкрити меню")
+            }
+
             Text(
-                text = "Транзакції",
-                style = MaterialTheme.typography.headlineMedium,
+                text = "Операції",
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 8.dp)
             )
-            IconButton(
-                onClick = { viewModel.toggleSearch(true) }
-            ) {
+            IconButton(onClick = { viewModel.toggleSearch(true) }) {
                 Icon(Icons.Default.Search, contentDescription = "Пошук")
             }
         } else {

@@ -64,7 +64,8 @@ class FinanceRepository {
             ?.orderBy("timestamp", Query.Direction.DESCENDING)
             ?.addSnapshotListener { snapshot, _ ->
                 if (snapshot != null) {
-                    _transactions.value = snapshot.toObjects(Transaction::class.java).distinctBy { it.id }
+                    _transactions.value =
+                        snapshot.toObjects(Transaction::class.java).distinctBy { it.id }
                 }
             }
     }
@@ -178,7 +179,8 @@ class FinanceRepository {
 
     suspend fun getSelectedAccountIds(): List<String> {
         return try {
-            val snapshot = getSettingsRef()?.document(FirestoreDocuments.USER_SETTINGS)?.get()?.await()
+            val snapshot =
+                getSettingsRef()?.document(FirestoreDocuments.USER_SETTINGS)?.get()?.await()
             snapshot?.get("selectedIds") as? List<String> ?: emptyList()
         } catch (e: Exception) {
             emptyList()
@@ -193,7 +195,8 @@ class FinanceRepository {
 
     suspend fun getLastSyncTimestamp(accountId: String): Long {
         return try {
-            val snapshot = getSettingsRef()?.document(FirestoreDocuments.SYNC_METADATA)?.get()?.await()
+            val snapshot =
+                getSettingsRef()?.document(FirestoreDocuments.SYNC_METADATA)?.get()?.await()
             snapshot?.getLong("lastSync_$accountId") ?: 0L
         } catch (e: Exception) {
             0L
@@ -242,16 +245,21 @@ class FinanceRepository {
         val query = if (lastVisibleDocument == null) {
             ref.orderBy("timestamp", Query.Direction.DESCENDING).limit(PAGE_SIZE)
         } else {
-            ref.orderBy("timestamp", Query.Direction.DESCENDING).startAfter(lastVisibleDocument!!).limit(PAGE_SIZE)
+            ref.orderBy("timestamp", Query.Direction.DESCENDING).startAfter(lastVisibleDocument!!)
+                .limit(PAGE_SIZE)
         }
         return try {
             val snapshot = query.get().await()
             if (snapshot.documents.isNotEmpty()) lastVisibleDocument = snapshot.documents.last()
             snapshot.toObjects(Transaction::class.java)
-        } catch (e: Exception) { emptyList() }
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
-    fun resetPagination() { lastVisibleDocument = null }
+    fun resetPagination() {
+        lastVisibleDocument = null
+    }
 
     suspend fun deleteBudget(budgetId: String) {
         val ref = getBudgetsRef() ?: return

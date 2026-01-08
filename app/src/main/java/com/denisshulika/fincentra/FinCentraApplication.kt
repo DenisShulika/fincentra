@@ -24,7 +24,8 @@ class FinCentraApplication : Application() {
         val channel = android.app.NotificationChannel("BUDGET_ALERTS", name, importance).apply {
             description = descriptionText
         }
-        val notificationManager = getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        val notificationManager =
+            getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
 

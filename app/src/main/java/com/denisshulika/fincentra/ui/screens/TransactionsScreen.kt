@@ -54,7 +54,7 @@ import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun TransactionsScreen(viewModel: TransactionsViewModel) {
+fun TransactionsScreen(viewModel: TransactionsViewModel, onOpenDrawer: () -> Unit) {
     val list by viewModel.transactions.collectAsStateWithLifecycle()
     val showBottomSheet by viewModel.showBottomSheet.collectAsStateWithLifecycle()
 
@@ -148,7 +148,8 @@ fun TransactionsScreen(viewModel: TransactionsViewModel) {
                 viewModel = viewModel,
                 onFilterCategoryClick = { showFilterSheet = true },
                 onFilterTypeClick = { showTypeBankSheet = true },
-                onFilterDateClick = { showDatePicker = true }
+                onFilterDateClick = { showDatePicker = true },
+                onOpenDrawer = onOpenDrawer
             )
         },
         floatingActionButton = {
@@ -199,7 +200,10 @@ fun TransactionsScreen(viewModel: TransactionsViewModel) {
                             ) {
                                 Text(
                                     text = dateHeader,
-                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                    modifier = Modifier.padding(
+                                        horizontal = 16.dp,
+                                        vertical = 12.dp
+                                    ),
                                     style = MaterialTheme.typography.labelLarge,
                                     color = MaterialTheme.colorScheme.primary,
                                     fontWeight = FontWeight.Bold

@@ -73,7 +73,8 @@ class GlobalSyncWorker(
 
     private suspend fun checkBudgetsAndNotify() {
         val cal = java.util.Calendar.getInstance()
-        val monthYear = "${cal.get(java.util.Calendar.MONTH) + 1}-${cal.get(java.util.Calendar.YEAR)}"
+        val monthYear =
+            "${cal.get(java.util.Calendar.MONTH) + 1}-${cal.get(java.util.Calendar.YEAR)}"
 
         val budgets = repository.getBudgetsFlow(monthYear).firstOrNull() ?: return
         val transactions = repository.transactions.value
@@ -97,15 +98,20 @@ class GlobalSyncWorker(
     }
 
     private fun sendNotification(title: String, message: String) {
-        val builder = androidx.core.app.NotificationCompat.Builder(applicationContext, "BUDGET_ALERTS")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle(title)
-            .setContentText(message)
-            .setPriority(androidx.core.app.NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
+        val builder =
+            androidx.core.app.NotificationCompat.Builder(applicationContext, "BUDGET_ALERTS")
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setPriority(androidx.core.app.NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true)
 
         with(androidx.core.app.NotificationManagerCompat.from(applicationContext)) {
-            if (androidx.core.content.ContextCompat.checkSelfPermission(applicationContext, android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(
+                    applicationContext,
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+            ) {
                 notify(title.hashCode(), builder.build())
             }
         }
