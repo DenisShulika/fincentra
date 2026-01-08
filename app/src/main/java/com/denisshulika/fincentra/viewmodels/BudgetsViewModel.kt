@@ -21,6 +21,20 @@ class BudgetsViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
+    private val _showAddSheet = MutableStateFlow(false)
+    val showAddSheet = _showAddSheet.asStateFlow()
+
+    private val _amount = MutableStateFlow("")
+    val amount = _amount.asStateFlow()
+
+    private val _selectedCategory = MutableStateFlow(TransactionCategory.FOOD)
+    val selectedCategory = _selectedCategory.asStateFlow()
+
+    private val _selectedCurrency = MutableStateFlow(980)
+    val selectedCurrency = _selectedCurrency.asStateFlow()
+
+    private val _editingBudgetId = MutableStateFlow<String?>(null)
+    val editingBudgetId = _editingBudgetId.asStateFlow()
 
     private val currentMonthYear: String
         get() {
@@ -51,27 +65,24 @@ class BudgetsViewModel : ViewModel() {
                 budget = budget,
                 spentAmount = spent,
                 remainingAmount = (budget.limitAmount - spent).coerceAtLeast(0.0),
-                progress = if (budget.limitAmount > 0) (spent / budget.limitAmount).toFloat().coerceIn(0f, 1f) else 0f
+                progress = if (budget.limitAmount > 0) {
+                    (spent / budget.limitAmount).toFloat().coerceIn(0f, 1.1f)
+                } else {
+                    0f
+                }
             )
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    private val _showAddSheet = MutableStateFlow(false)
-    val showAddSheet = _showAddSheet.asStateFlow()
-
-    private val _amount = MutableStateFlow("")
-    val amount = _amount.asStateFlow()
-
-    private val _selectedCategory = MutableStateFlow(TransactionCategory.FOOD)
-    val selectedCategory = _selectedCategory.asStateFlow()
-
-    private val _selectedCurrency = MutableStateFlow(980)
-    val selectedCurrency = _selectedCurrency.asStateFlow()
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
 
     fun toggleAddSheet(show: Boolean) {
         _showAddSheet.value = show
         if (!show) {
             _amount.value = ""
+            _editingBudgetId.value = null
         }
     }
 
@@ -79,28 +90,42 @@ class BudgetsViewModel : ViewModel() {
         _amount.value = newAmount.filter { it.isDigit() }
     }
 
-    fun onCategoryChange(cat: TransactionCategory) { _selectedCategory.value = cat }
+    fun onCategoryChange(cat: TransactionCategory) {
+        _selectedCategory.value = cat
+    }
 
-    fun onCurrencyChange(code: Int) { _selectedCurrency.value = code }
+    fun onCurrencyChange(code: Int) {
+        _selectedCurrency.value = code
+    }
+
+    fun prepareForEdit(budget: Budget) {
+        _amount.value = budget.limitAmount.toInt().toString()
+        _selectedCategory.value = TransactionCategory.entries.find {
+            it.displayName == budget.categoryName
+        } ?: TransactionCategory.OTHERS
+        _selectedCurrency.value = budget.currencyCode
+        _editingBudgetId.value = budget.id
+        _showAddSheet.value = true
+    }
 
     fun saveNewBudget() {
         val amt = _amount.value.toDoubleOrNull() ?: return
-        setLimit(_selectedCategory.value, amt, _selectedCurrency.value)
-        toggleAddSheet(false)
-    }
 
-    fun setLimit(category: TransactionCategory, amount: Double, currencyCode: Int) {
         viewModelScope.launch {
             _isLoading.value = true
-            val budget = Budget(
-                id = "${category.name}_$currentMonthYear",
-                categoryName = category.displayName,
-                limitAmount = amount,
-                currencyCode = currencyCode,
-                monthYear = currentMonthYear
-            )
-            repository.saveBudget(budget)
-            _isLoading.value = false
+            try {
+                val budget = Budget(
+                    id = _editingBudgetId.value ?: "${_selectedCategory.value.name}_$currentMonthYear",
+                    categoryName = _selectedCategory.value.displayName,
+                    limitAmount = amt,
+                    currencyCode = _selectedCurrency.value,
+                    monthYear = currentMonthYear
+                )
+                repository.saveBudget(budget)
+                toggleAddSheet(false)
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 

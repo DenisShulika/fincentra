@@ -2,6 +2,11 @@ package com.denisshulika.fincentra.ui.screens
 
 import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,6 +59,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -294,7 +300,12 @@ fun BudgetSection(
             Text("Ліміти ще не встановлені", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
         } else {
             budgets.forEach { item ->
-                BudgetProgressItem(item)
+                BudgetProgressItem(
+                    item = item,
+                    onClick = {
+                        viewModel.prepareForEdit(item.budget)
+                    }
+                )
                 Spacer(Modifier.height(12.dp))
             }
         }
@@ -302,25 +313,85 @@ fun BudgetSection(
 }
 
 @Composable
-fun BudgetProgressItem(item: BudgetProgress) {
+fun BudgetProgressItem(
+    item: BudgetProgress,
+    onClick: () -> Unit
+) {
     val symbol = CurrencyMapper.getSymbol(item.budget.currencyCode)
 
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(item.budget.categoryName, style = MaterialTheme.typography.bodyMedium)
-            Text(
-                "Залишилось: ${String.format("%.0f", item.remainingAmount)} $symbol",
-                style = MaterialTheme.typography.bodySmall,
-                color = if (item.progress > 0.9f) Color.Red else Color.Gray
+    val statusColor = when {
+        item.progress <= 0.5f -> Color(0xFF4CAF50)
+        item.progress <= 0.85f -> Color(0xFFFFB300)
+        item.progress < 1.0f -> Color(0xFFFF5722)
+        else -> Color(0xFFB71C1C)
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+    ) {
+        Column(modifier = Modifier.padding(vertical = 8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = item.treeImageRes),
+                    contentDescription = null,
+                    modifier = Modifier.size(48.dp)
+                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = item.budget.categoryName,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = item.statusMessage,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = statusColor
+                    )
+                }
+
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = "${String.format("%.0f", item.remainingAmount)} $symbol",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = if (item.progress >= 1f) Color.Red else MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "залишилось",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Gray
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            val animatedProgress by animateFloatAsState(
+                targetValue = item.progress,
+                animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing),
+                label = "BudgetProgress"
+            )
+
+            LinearProgressIndicator(
+                progress = { animatedProgress },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .clip(CircleShape),
+                color = statusColor,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant
             )
         }
-        Spacer(Modifier.height(4.dp))
-        LinearProgressIndicator(
-            progress = { item.progress },
-            modifier = Modifier.fillMaxWidth().height(6.dp).clip(CircleShape),
-            color = if (item.progress > 0.9f) Color.Red else MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant
-        )
     }
 }
 
