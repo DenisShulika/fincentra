@@ -3,6 +3,7 @@ package com.denisshulika.fincentra.data.repository
 import android.util.Log
 import com.denisshulika.fincentra.data.models.domain.BankAccount
 import com.denisshulika.fincentra.data.models.domain.Budget
+import com.denisshulika.fincentra.data.models.domain.Dream
 import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.util.BankProviders
 import com.denisshulika.fincentra.data.util.FirestoreCollections
@@ -269,5 +270,28 @@ class FinanceRepository {
         } catch (e: Exception) {
             Log.e("REPO", "Помилка видалення бюджету: ${e.message}")
         }
+    }
+
+    fun getDreamFlow(): Flow<Dream?> {
+        val ref = getSettingsRef() ?: return flowOf(null)
+        return callbackFlow {
+            val subscription = ref.document("user_dream")
+                .addSnapshotListener { snapshot, _ ->
+                    if (snapshot != null && snapshot.exists()) {
+                        trySend(snapshot.toObject(Dream::class.java))
+                    } else {
+                        trySend(null)
+                    }
+                }
+            awaitClose { subscription.remove() }
+        }
+    }
+
+    suspend fun saveDream(dream: Dream) {
+        getSettingsRef()?.document("user_dream")?.set(dream)?.await()
+    }
+
+    suspend fun deleteDream() {
+        getSettingsRef()?.document("user_dream")?.delete()?.await()
     }
 }
