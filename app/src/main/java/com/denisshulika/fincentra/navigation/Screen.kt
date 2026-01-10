@@ -21,7 +21,7 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     data object Profile : Screen("profile", "Профіль", Icons.Default.Person)
     data object Integrations : Screen("integrations", "Банки", Icons.Default.AccountBalance)
     data object Budgets : Screen("budgets_manage", "Ліміти", Icons.Default.TrackChanges)
-    data object Goals : Screen("goals", "Мрії", Icons.Default.AutoAwesome)
+    data object Dream : Screen("dream", "Мрія", Icons.Default.AutoAwesome)
     data object Login : Screen("login", "Вхід", Icons.AutoMirrored.Filled.Login)
     data object Register : Screen("register", "Реєстрація", Icons.Default.AppRegistration)
 }

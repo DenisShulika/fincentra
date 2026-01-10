@@ -32,7 +32,7 @@ class FinCentraApplication : Application() {
     private fun setupBackgroundSync() {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
-            .setRequiresBatteryNotLow(true) // Додано: не вантажити на розрядженому тілі
+            .setRequiresBatteryNotLow(true)
             .build()
 
         val syncRequest = PeriodicWorkRequestBuilder<GlobalSyncWorker>(8, TimeUnit.HOURS)

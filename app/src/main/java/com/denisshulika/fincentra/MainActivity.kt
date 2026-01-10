@@ -34,6 +34,7 @@ import androidx.navigation.compose.rememberNavController
 import com.denisshulika.fincentra.di.DependencyProvider
 import com.denisshulika.fincentra.navigation.Screen
 import com.denisshulika.fincentra.ui.screens.BudgetsScreen
+import com.denisshulika.fincentra.ui.screens.DreamScreen
 import com.denisshulika.fincentra.ui.screens.HomeScreen
 import com.denisshulika.fincentra.ui.screens.IntegrationsScreen
 import com.denisshulika.fincentra.ui.screens.LoginScreen
@@ -44,6 +45,7 @@ import com.denisshulika.fincentra.ui.screens.TransactionsScreen
 import com.denisshulika.fincentra.ui.theme.FinCentraTheme
 import com.denisshulika.fincentra.viewmodels.AuthViewModel
 import com.denisshulika.fincentra.viewmodels.BudgetsViewModel
+import com.denisshulika.fincentra.viewmodels.DreamViewModel
 import com.denisshulika.fincentra.viewmodels.IntegrationsViewModel
 import com.denisshulika.fincentra.viewmodels.ProfileViewModel
 import com.denisshulika.fincentra.viewmodels.StatsViewModel
@@ -76,6 +78,7 @@ fun MainScreen() {
     val statsViewModel: StatsViewModel = viewModel()
     val profileViewModel: ProfileViewModel = viewModel()
     val budgetsViewModel: BudgetsViewModel = viewModel()
+    val dreamViewModel: DreamViewModel = viewModel()
 
     val startDestination = remember {
         if (DependencyProvider.authRepository.getCurrentUser() != null) {
@@ -121,7 +124,7 @@ fun MainScreen() {
                         Screen.Profile,
                         Screen.Integrations,
                         Screen.Budgets,
-                        Screen.Goals
+                        Screen.Dream
                     )
 
                     drawerItems.forEach { screen ->
@@ -145,7 +148,6 @@ fun MainScreen() {
     ) {
         Scaffold(
             bottomBar = {
-                // BottomBar тепер видимий скрізь, крім логіну/реєстрації
                 if (!isAuthScreen) {
                     NavigationBar {
                         val bottomItems = listOf(Screen.Home, Screen.Transactions, Screen.Stats)
@@ -199,10 +201,10 @@ fun MainScreen() {
                         statsViewModel = statsViewModel,
                         transactionsViewModel = transactionsViewModel,
                         budgetsViewModel = budgetsViewModel,
+                        dreamViewModel = dreamViewModel,
+                        navController = navController,
                         onOpenDrawer = { scope.launch { drawerState.open() } },
-                        onNavigateToBudgets = {
-                            navController.navigate(Screen.Budgets.route)
-                        }
+                        onNavigateToBudgets = { navController.navigate(Screen.Budgets.route) }
                     )
                 }
 
@@ -227,21 +229,32 @@ fun MainScreen() {
                     )
                 }
 
-                composable(Screen.Profile.route) {
-                    ProfileScreen(
-                        viewModel = profileViewModel,
-                        budgetsViewModel = budgetsViewModel,
-                        onBack = { navController.popBackStack() },
-                        onLogout = {
-                            navController.navigate(Screen.Login.route) {
-                                popUpTo(0) { inclusive = true }
-                            }
-                        }
+                composable(Screen.Budgets.route) {
+                    BudgetsScreen(
+                        viewModel = budgetsViewModel,
+                        onBack = { navController.popBackStack() }
                     )
                 }
 
-                composable(Screen.Budgets.route) {
-                    BudgetsScreen()
+                composable(Screen.Dream.route) {
+                    DreamScreen(
+                        viewModel = dreamViewModel,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+
+                composable(Screen.Profile.route) {
+                    ProfileScreen(
+                        viewModel = profileViewModel,
+                        onBack = { navController.popBackStack() },
+                        onLogout = {
+                            navController.navigate(Screen.Login.route) {
+                                popUpTo(0) {
+                                    inclusive = true
+                                }
+                            }
+                        }
+                    )
                 }
             }
         }

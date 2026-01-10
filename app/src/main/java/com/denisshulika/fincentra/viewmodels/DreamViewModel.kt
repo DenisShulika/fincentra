@@ -5,13 +5,20 @@ import androidx.lifecycle.viewModelScope
 import com.denisshulika.fincentra.data.models.domain.Dream
 import com.denisshulika.fincentra.data.models.domain.DreamProgress
 import com.denisshulika.fincentra.di.DependencyProvider
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class GoalsViewModel : ViewModel() {
+class DreamViewModel : ViewModel() {
     private val repository = DependencyProvider.repository
 
-    // Потік прогресу мрії
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+
     val dreamProgress: StateFlow<DreamProgress?> = combine(
         repository.getDreamFlow(),
         repository.accounts
@@ -32,12 +39,14 @@ class GoalsViewModel : ViewModel() {
 
     fun updateDream(title: String, target: Double, buffer: Double) {
         viewModelScope.launch {
+            _isLoading.value = true
             val newDream = Dream(
                 title = title,
                 targetAmount = target,
                 safetyBuffer = buffer
             )
             repository.saveDream(newDream)
+            _isLoading.value = false
         }
     }
 }
