@@ -60,13 +60,23 @@ class FinanceRepository {
     private fun getBudgetsRef() = getUserDoc()?.collection("budgets")
 
     fun observeUserTransactions() {
+        val ref = getTransactionsRef() ?: run {
+            _isInitialLoadComplete.value = true
+            return
+        }
+
         transactionsListener?.remove()
-        transactionsListener = getTransactionsRef()
-            ?.orderBy("timestamp", Query.Direction.DESCENDING)
-            ?.addSnapshotListener { snapshot, _ ->
+        transactionsListener = ref
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    _isInitialLoadComplete.value = true
+                    return@addSnapshotListener
+                }
                 if (snapshot != null) {
-                    _transactions.value =
-                        snapshot.toObjects(Transaction::class.java).distinctBy { it.id }
+                    val list = snapshot.toObjects(Transaction::class.java)
+                    _transactions.value = list.distinctBy { it.id }
+                    _isInitialLoadComplete.value = true
                 }
             }
     }
@@ -294,4 +304,7 @@ class FinanceRepository {
     suspend fun deleteDream() {
         getSettingsRef()?.document("user_dream")?.delete()?.await()
     }
+
+    private val _isInitialLoadComplete = MutableStateFlow(false)
+    val isInitialLoadComplete: StateFlow<Boolean> = _isInitialLoadComplete.asStateFlow()
 }

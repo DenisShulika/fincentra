@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -58,7 +59,21 @@ import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
+
         super.onCreate(savedInstanceState)
+
+        val repository = DependencyProvider.repository
+
+        splashScreen.setKeepOnScreenCondition {
+            val user = DependencyProvider.authRepository.getCurrentUser()
+            if (user != null) {
+                repository.transactions.value.isEmpty()
+            } else {
+                false
+            }
+        }
+
         setContent {
             FinCentraTheme {
                 MainScreen()
@@ -108,7 +123,6 @@ fun MainScreen() {
         }
     }
 
-    val isAuthScreen = currentRoute == Screen.Login.route || currentRoute == Screen.Register.route
     val isTopLevelScreen = currentRoute in listOf(
         Screen.Home.route,
         Screen.Transactions.route,

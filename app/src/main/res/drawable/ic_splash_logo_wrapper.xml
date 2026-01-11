@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="288dp"
+        android:height="288dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+    я'
+    <item
+        android:drawable="@drawable/fincentra_logo"
+        android:top="64dp"
+        android:bottom="64dp"
+        android:left="64dp"
+        android:right="64dp"
+        android:gravity="center" />
+</layer-list>

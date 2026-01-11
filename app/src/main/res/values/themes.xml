@@ -2,4 +2,9 @@
 <resources>
 
     <style name="Theme.FinCentra" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#121212</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/fincentra_icon_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.FinCentra</item>
+    </style>
 </resources>
