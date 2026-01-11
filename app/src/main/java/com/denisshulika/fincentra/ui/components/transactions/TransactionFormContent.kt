@@ -2,12 +2,13 @@ package com.denisshulika.fincentra.ui.components.transactions
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
@@ -21,9 +22,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 
 @Composable
@@ -36,57 +39,80 @@ fun TransactionFormContent(viewModel: TransactionsViewModel) {
 
     Column(
         modifier = Modifier
-            .padding(16.dp)
+            .padding(horizontal = 24.dp)
             .fillMaxWidth()
-            .padding(bottom = 32.dp),
+            .padding(bottom = 48.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = if (editingId == null) "Нова транзакція" else "Редагування",
-            style = MaterialTheme.typography.titleLarge
+            text = if (editingId == null) "Нова операція" else "Редагування",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Black,
+            color = MaterialTheme.colorScheme.onSurface
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedTextField(
             value = amount,
             onValueChange = { viewModel.onAmountChange(it) },
             label = { Text("Сума") },
+            textStyle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+            suffix = {
+                Text(
+                    text = CurrencyMapper.getSymbol(980),
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp)
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         OutlinedTextField(
             value = description,
             onValueChange = { viewModel.onDescriptionChange(it) },
-            label = { Text("Опис") },
-            modifier = Modifier.fillMaxWidth()
+            label = { Text("Опис або назва") },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            singleLine = true
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-        Text("Категорія", style = MaterialTheme.typography.labelLarge)
+        Text(
+            text = "Категорія",
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.align(Alignment.Start),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
 
-        LazyRow(
-            modifier = Modifier.padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        Spacer(modifier = Modifier.height(12.dp))
+
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            items(viewModel.categories) { cat ->
+            viewModel.categories.forEach { cat ->
                 FilterChip(
                     selected = (category == cat),
-                    onClick = {
-                        viewModel.onCategoryChange(cat)
-                    },
+                    onClick = { viewModel.onCategoryChange(cat) },
                     label = {
-                        Text(cat.displayName)
-                    }
+                        Text(
+                            text = cat.displayName,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    },
+                    shape = CircleShape
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         SingleChoiceSegmentedButtonRow(
             modifier = Modifier.fillMaxWidth()
@@ -97,26 +123,33 @@ fun TransactionFormContent(viewModel: TransactionsViewModel) {
                         index = index,
                         count = viewModel.expenseOptions.size
                     ),
-                    onClick = {
-                        viewModel.onTypeChange(index == 0)
-                    },
-                    selected = if (index == 0) isExpense else !isExpense
-                ) {
-                    Text(label)
-                }
+                    onClick = { viewModel.onTypeChange(index == 0) },
+                    selected = if (index == 0) isExpense else !isExpense,
+                    label = {
+                        Text(
+                            text = label,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                )
             }
         }
 
+        Spacer(modifier = Modifier.height(32.dp))
+
         Button(
-            onClick = {
-                viewModel.saveTransaction()
-            },
+            onClick = { viewModel.saveTransaction() },
             modifier = Modifier
-                .padding(top = 24.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = RoundedCornerShape(16.dp),
             enabled = amount.isNotBlank()
         ) {
-            Text(if (editingId == null) "Зберегти" else "Оновити")
+            Text(
+                text = if (editingId == null) "Зберегти" else "Оновити",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.denisshulika.fincentra.ui.components
+package com.denisshulika.fincentra.ui.components.transactions
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

@@ -1,8 +1,11 @@
 package com.denisshulika.fincentra.ui.components.transactions
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
@@ -13,6 +16,7 @@ import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -37,61 +41,66 @@ fun TransactionsTopBar(
     val isSearchActive by viewModel.isSearchActive.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Surface(
+        color = MaterialTheme.colorScheme.background,
+        modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
     ) {
-        if (!isSearchActive) {
-            IconButton(onClick = onOpenDrawer) {
-                Icon(imageVector = Icons.Default.Menu, contentDescription = "Відкрити меню")
-            }
-
-            Text(
-                text = "Операції",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 8.dp)
-            )
-            IconButton(onClick = { viewModel.toggleSearch(true) }) {
-                Icon(Icons.Default.Search, contentDescription = "Пошук")
-            }
-        } else {
-            Row(
-                modifier = Modifier.weight(1f),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onFilterCategoryClick) {
-                    Icon(Icons.Default.FilterList, contentDescription = "Категорії")
-                }
-                IconButton(onClick = onFilterTypeClick) {
-                    Icon(Icons.Default.Tune, contentDescription = "Банк/Тип")
-                }
-                IconButton(onClick = onFilterDateClick) {
-                    Icon(Icons.Default.DateRange, contentDescription = "Дати")
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (!isSearchActive) {
+                IconButton(onClick = onOpenDrawer) {
+                    Icon(imageVector = Icons.Default.Menu, contentDescription = "Відкрити меню")
                 }
 
-                TextField(
-                    value = searchQuery,
-                    onValueChange = { viewModel.onSearchQueryChange(it) },
-                    placeholder = { Text("Пошук...") },
-                    modifier = Modifier.weight(1f),
-                    singleLine = true,
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    )
+                Text(
+                    text = "Операції",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 8.dp)
                 )
-            }
-            IconButton(
-                onClick = { viewModel.toggleSearch(false) }
-            ) {
-                Icon(Icons.Default.Close, contentDescription = "Закрити")
+                IconButton(onClick = { viewModel.toggleSearch(true) }) {
+                    Icon(Icons.Default.Search, contentDescription = "Пошук")
+                }
+            } else {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = onFilterCategoryClick) {
+                        Icon(Icons.Default.FilterList, contentDescription = "Категорії")
+                    }
+                    IconButton(onClick = onFilterTypeClick) {
+                        Icon(Icons.Default.Tune, contentDescription = "Банк/Тип")
+                    }
+                    IconButton(onClick = onFilterDateClick) {
+                        Icon(Icons.Default.DateRange, contentDescription = "Дати")
+                    }
+
+                    TextField(
+                        value = searchQuery,
+                        onValueChange = { viewModel.onSearchQueryChange(it) },
+                        placeholder = { Text("Пошук...") },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent
+                        )
+                    )
+                }
+                IconButton(
+                    onClick = { viewModel.toggleSearch(false) }
+                ) {
+                    Icon(Icons.Default.Close, contentDescription = "Закрити")
+                }
             }
         }
     }

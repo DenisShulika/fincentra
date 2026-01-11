@@ -2,23 +2,32 @@ package com.denisshulika.fincentra.ui.screens
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -37,6 +46,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -90,45 +100,78 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        // --- ЗАГОЛОВОК (Зелений) ---
         Text(
-            "FinCentra",
+            text = "FinCentra",
             style = MaterialTheme.typography.displayMedium,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.Black,
             color = MaterialTheme.colorScheme.primary
         )
-        Text("Твій вірний фінансовий хаб та помічник!", style = MaterialTheme.typography.bodyLarge)
 
-        Spacer(Modifier.height(40.dp))
+        Text(
+            text = "Твій вірний фінансовий хаб та помічник!",
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+        )
+
+        Spacer(modifier = Modifier.height(48.dp))
 
         OutlinedTextField(
             value = email,
-            onValueChange = { viewModel.onEmailChange(it) },
-            label = { Text("Email") },
+            onValueChange = {
+                viewModel.onEmailChange(it)
+            },
+            label = {
+                Text("Електронна пошта")
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Email,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            },
             isError = emailError != null,
             supportingText = {
                 emailError?.let {
                     Text(
-                        it,
-                        color = MaterialTheme.colorScheme.error
+                        text = it,
+                        style = MaterialTheme.typography.bodySmall
                     )
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            shape = RoundedCornerShape(16.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+            )
         )
-
-        Spacer(Modifier.height(8.dp))
 
         OutlinedTextField(
             value = password,
-            onValueChange = { viewModel.onPasswordChange(it) },
-            label = { Text("Пароль") },
+            onValueChange = {
+                viewModel.onPasswordChange(it)
+            },
+            label = {
+                Text("Пароль")
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            },
             isError = passwordError != null,
             supportingText = {
                 passwordError?.let {
                     Text(
-                        it,
-                        color = MaterialTheme.colorScheme.error
+                        text = it,
+                        style = MaterialTheme.typography.bodySmall
                     )
                 }
             },
@@ -137,58 +180,107 @@ fun LoginScreen(
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(
                         imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        null
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            shape = RoundedCornerShape(16.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+            )
         )
 
+        Spacer(modifier = Modifier.height(32.dp))
+
         Button(
-            onClick = { viewModel.signIn() },
-            modifier = Modifier.fillMaxWidth().height(56.dp).padding(top = 16.dp),
-            enabled = !isLoading && !isGoogleLoading
+            onClick = {
+                viewModel.signIn()
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = RoundedCornerShape(16.dp),
+            enabled = !isLoading && !isGoogleLoading,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
         ) {
             if (isLoading || isGoogleLoading) {
-                CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White)
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    strokeWidth = 3.dp
+                )
             } else {
-                Text("Увійти")
+                Text(
+                    text = "Увійти",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
 
-        TextButton(onClick = onNavigateToRegister) { Text("Створити новий акаунт") }
+        Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(Modifier.height(12.dp))
-        Text("або увійдіть через", style = MaterialTheme.typography.labelMedium, color = Color.Gray)
+        TextButton(
+            onClick = onNavigateToRegister
+        ) {
+            Text(
+                text = "Ще немає акаунта? Зареєструватися",
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        ) {
+            HorizontalDivider(modifier = Modifier.weight(1f), thickness = 0.5.dp)
+            Text(
+                text = "або через",
+                modifier = Modifier.padding(horizontal = 16.dp),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            HorizontalDivider(modifier = Modifier.weight(1f), thickness = 0.5.dp)
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         IconButton(
             onClick = {
                 scope.launch {
                     try {
                         viewModel.setGoogleLoading(true)
-
                         val googleIdOption = GetGoogleIdOption.Builder()
                             .setFilterByAuthorizedAccounts(false)
                             .setServerClientId(AuthConstants.WEB_CLIENT_ID)
                             .build()
-
                         val request = GetCredentialRequest.Builder()
                             .addCredentialOption(googleIdOption)
                             .build()
-
                         val result = credentialManager.getCredential(
                             context = context,
                             request = request
                         )
-
                         val credential = result.credential
-                        if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                        if (credential is CustomCredential &&
+                            credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+                        ) {
+                            val googleIdTokenCredential =
+                                GoogleIdTokenCredential.createFrom(credential.data)
                             viewModel.signInWithGoogle(googleIdTokenCredential.idToken)
                         }
                     } catch (e: GetCredentialCancellationException) {
-                        Log.d("AUTH", "User cancelled Google Sign-In")
+                        Log.d("AUTH", "User cancelled")
                         viewModel.setGoogleLoading(false)
                     } catch (e: Exception) {
                         Log.e("AUTH", "Error: ${e.message}")
@@ -197,7 +289,13 @@ fun LoginScreen(
                 }
             },
             enabled = !isLoading && !isGoogleLoading,
-            modifier = Modifier.size(52.dp)
+            modifier = Modifier
+                .size(48.dp)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                    shape = CircleShape
+                )
         ) {
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.google_icon),

@@ -1,0 +1,66 @@
+package com.denisshulika.fincentra.ui.components.stats
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+
+@Composable
+fun FilterRow(
+    selectedBank: String,
+    selectedAccountId: String?,
+    availableAccounts: List<com.denisshulika.fincentra.data.models.domain.BankAccount>,
+    onBankChange: (String) -> Unit,
+    onAccountChange: (String?) -> Unit
+) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = 4.dp)) {
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            val banks = listOf("Всі", "Monobank", "Готівка")
+            items(banks) { bank ->
+                FilterChip(
+                    selected = selectedBank == bank,
+                    onClick = { onBankChange(bank) },
+                    label = { Text(bank) },
+                    shape = CircleShape
+                )
+            }
+        }
+
+        if (selectedBank != "Всі") {
+            val filtered = availableAccounts.filter { it.provider == selectedBank && it.selected }
+            if (filtered.isNotEmpty()) {
+                LazyRow(
+                    modifier = Modifier.padding(top = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    item {
+                        FilterChip(
+                            selected = selectedAccountId == null,
+                            onClick = { onAccountChange(null) },
+                            label = { Text("Всі карти") },
+                            shape = CircleShape
+                        )
+                    }
+                    items(filtered) { acc ->
+                        FilterChip(
+                            selected = selectedAccountId == acc.id,
+                            onClick = { onAccountChange(acc.id) },
+                            label = { Text(acc.name) },
+                            shape = CircleShape
+                        )
+                    }
+                }
+            }
+        }
+    }
+}

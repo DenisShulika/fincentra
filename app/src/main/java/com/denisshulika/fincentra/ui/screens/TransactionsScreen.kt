@@ -1,19 +1,14 @@
 package com.denisshulika.fincentra.ui.screens
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.FilterListOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -22,50 +17,44 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDateRangePickerState
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.data.models.domain.Transaction
-import com.denisshulika.fincentra.data.util.TransactionConstants
-import com.denisshulika.fincentra.ui.components.SwipeBackground
 import com.denisshulika.fincentra.ui.components.TransactionDetailSheet
-import com.denisshulika.fincentra.ui.components.TransactionItem
 import com.denisshulika.fincentra.ui.components.transactions.CategoryFilterContent
 import com.denisshulika.fincentra.ui.components.transactions.DateRangePickerDialog
+import com.denisshulika.fincentra.ui.components.transactions.EmptyTransactionsPlaceholder
 import com.denisshulika.fincentra.ui.components.transactions.TransactionFormContent
+import com.denisshulika.fincentra.ui.components.transactions.TransactionSwipeWrapper
 import com.denisshulika.fincentra.ui.components.transactions.TransactionsTopBar
 import com.denisshulika.fincentra.ui.components.transactions.TypeBankFilterContent
 import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionsScreen(viewModel: TransactionsViewModel, onOpenDrawer: () -> Unit) {
     val list by viewModel.transactions.collectAsStateWithLifecycle()
     val showBottomSheet by viewModel.showBottomSheet.collectAsStateWithLifecycle()
+    val groupedList by viewModel.groupedTransactions.collectAsStateWithLifecycle()
+
+    val viewingTx by viewModel.viewingTransaction.collectAsStateWithLifecycle()
 
     var showFilterSheet by remember { mutableStateOf(false) }
     var showTypeBankSheet by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
-
-    val sheetState = rememberModalBottomSheetState()
     var transactionToDelete by remember { mutableStateOf<Transaction?>(null) }
 
-    val viewingTx by viewModel.viewingTransaction.collectAsStateWithLifecycle()
     viewingTx?.let { tx ->
         TransactionDetailSheet(transaction = tx) {
             viewModel.closeTransactionDetails()
@@ -75,31 +64,29 @@ fun TransactionsScreen(viewModel: TransactionsViewModel, onOpenDrawer: () -> Uni
     if (transactionToDelete != null) {
         AlertDialog(
             onDismissRequest = { transactionToDelete = null },
-            title = { Text("Видалити транзакцію?") },
-            text = { Text("Ви впевнені? Цю дію не можна буде скасувати.") },
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text("Видалити транзакцію?", fontWeight = FontWeight.Bold) },
+            text = { Text("Ви впевнені? Цю дію не можна скасувати.") },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.deleteTransaction(transactionToDelete!!)
-                        transactionToDelete = null
-                    }
-                ) {
-                    Text("Видалити", color = Color.Red)
+                TextButton(onClick = {
+                    viewModel.deleteTransaction(transactionToDelete!!)
+                    transactionToDelete = null
+                }) {
+                    Text(
+                        "Видалити",
+                        color = MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             },
             dismissButton = {
-                TextButton(onClick = { transactionToDelete = null }) {
-                    Text("Скасувати")
-                }
+                TextButton(onClick = { transactionToDelete = null }) { Text("Скасувати") }
             }
         )
     }
 
     if (showBottomSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { viewModel.toggleBottomSheet(false) },
-            sheetState = sheetState
-        ) {
+        ModalBottomSheet(onDismissRequest = { viewModel.toggleBottomSheet(false) }) {
             TransactionFormContent(viewModel)
         }
     }
@@ -143,118 +130,61 @@ fun TransactionsScreen(viewModel: TransactionsViewModel, onOpenDrawer: () -> Uni
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TransactionsTopBar(
                 viewModel = viewModel,
+                onOpenDrawer = onOpenDrawer,
                 onFilterCategoryClick = { showFilterSheet = true },
                 onFilterTypeClick = { showTypeBankSheet = true },
-                onFilterDateClick = { showDatePicker = true },
-                onOpenDrawer = onOpenDrawer
+                onFilterDateClick = { showDatePicker = true }
             )
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { viewModel.toggleBottomSheet(true) }
+                onClick = { viewModel.toggleBottomSheet(true) },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
+                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(28.dp))
             }
         }
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .padding(innerPadding)
                 .fillMaxSize()
+                .padding(top = innerPadding.calculateTopPadding())
         ) {
             if (list.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            modifier = Modifier.size(64.dp),
-                            imageVector = Icons.Default.FilterListOff,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-                        )
-                        Spacer(Modifier.height(16.dp))
-                        Text(
-                            text = "Транзакцій за такими фільтрами немає",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        TextButton(onClick = { viewModel.toggleSearch(false) }) {
-                            Text("Скинути всі фільтри")
-                        }
-                    }
-                }
+                EmptyTransactionsPlaceholder { viewModel.toggleSearch(false) }
             } else {
-                val groupedList by viewModel.groupedTransactions.collectAsStateWithLifecycle()
-
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     groupedList.forEach { (dateHeader, transactions) ->
                         stickyHeader {
                             Surface(
                                 modifier = Modifier.fillMaxWidth(),
-                                color = MaterialTheme.colorScheme.background
+                                color = MaterialTheme.colorScheme.background.copy(alpha = 0.95f)
                             ) {
                                 Text(
-                                    text = dateHeader,
+                                    text = dateHeader.uppercase(),
                                     modifier = Modifier.padding(
-                                        horizontal = 16.dp,
+                                        horizontal = 20.dp,
                                         vertical = 12.dp
                                     ),
-                                    style = MaterialTheme.typography.labelLarge,
+                                    style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.primary,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Black,
+                                    letterSpacing = 1.sp
                                 )
                             }
                         }
 
                         items(transactions, key = { it.id + it.timestamp }) { tx ->
-                            val isManual = tx.accountId == TransactionConstants.ACCOUNT_ID_MANUAL
-
-                            if (isManual) {
-                                val dismissState = rememberSwipeToDismissBoxState(
-                                    confirmValueChange = { value ->
-                                        when (value) {
-                                            SwipeToDismissBoxValue.EndToStart -> {
-                                                transactionToDelete = tx
-                                                false
-                                            }
-
-                                            SwipeToDismissBoxValue.StartToEnd -> {
-                                                viewModel.prepareForEdit(tx)
-                                                false
-                                            }
-
-                                            else -> false
-                                        }
-                                    }
-                                )
-
-                                SwipeToDismissBox(
-                                    state = dismissState,
-                                    backgroundContent = { SwipeBackground(dismissState) },
-                                    modifier = Modifier.animateItem()
-                                ) {
-                                    TransactionItem(
-                                        transaction = tx,
-                                        onClick = { viewModel.showTransactionDetails(tx) },
-                                        onLongClick = {
-                                            transactionToDelete = tx
-                                        }
-                                    )
-                                }
-                            } else {
-                                Box(modifier = Modifier.animateItem()) {
-                                    TransactionItem(
-                                        transaction = tx,
-                                        onClick = { viewModel.showTransactionDetails(tx) },
-                                        onLongClick = { }
-                                    )
-                                }
-                            }
+                            TransactionSwipeWrapper(
+                                transaction = tx,
+                                viewModel = viewModel,
+                                onDeleteRequest = { transactionToDelete = tx }
+                            )
                         }
                     }
                 }

@@ -1,7 +1,6 @@
 package com.denisshulika.fincentra.ui.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material3.Card
@@ -35,8 +35,9 @@ import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.data.util.BankProviders
+import com.denisshulika.fincentra.data.util.DateFormatter
+import com.denisshulika.fincentra.data.util.TransactionConstants
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TransactionItem(
     transaction: Transaction,
@@ -46,26 +47,31 @@ fun TransactionItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp, horizontal = 8.dp)
+            .padding(vertical = 4.dp, horizontal = 12.dp)
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onLongClick
             ),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        ),
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
         )
     ) {
         Row(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(12.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(contentAlignment = Alignment.BottomEnd) {
                 Surface(
                     shape = CircleShape,
-                    color = transaction.category.color.copy(alpha = 0.15f),
-                    modifier = Modifier.size(48.dp)
+                    color = transaction.category.color.copy(alpha = 0.1f),
+                    modifier = Modifier.size(44.dp)
                 ) {
                     Icon(
                         imageVector = transaction.category.materialIcon,
@@ -80,11 +86,11 @@ fun TransactionItem(
                     color = MaterialTheme.colorScheme.surface,
                     tonalElevation = 4.dp,
                     modifier = Modifier
-                        .size(20.dp)
-                        .offset(x = 2.dp, y = 2.dp),
+                        .size(18.dp)
+                        .offset(x = 4.dp, y = 4.dp),
                     border = BorderStroke(
-                        1.dp,
-                        MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
                     )
                 ) {
                     if (transaction.bankName == BankProviders.MONOBANK) {
@@ -99,53 +105,55 @@ fun TransactionItem(
                         Icon(
                             imageVector = Icons.Default.Payments,
                             contentDescription = null,
-                            tint = Color.Gray,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(3.dp)
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(12.dp))
 
-            Column(modifier = Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 12.dp)
+            ) {
                 Text(
                     text = transaction.description.ifBlank { transaction.category.displayName },
                     style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-
                 Text(
-                    text = if (transaction.subCategoryName == com.denisshulika.fincentra.data.util.TransactionConstants.DEFAULT_SUB_CATEGORY)
-                        transaction.category.displayName
-                    else
-                        transaction.subCategoryName,
+                    text = if (transaction.subCategoryName == TransactionConstants.DEFAULT_SUB_CATEGORY)
+                        transaction.category.displayName else transaction.subCategoryName,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
             Column(horizontalAlignment = Alignment.End) {
-                val prefix = if (transaction.isExpense) "-" else "+"
-                val amountColor =
-                    if (transaction.isExpense) Color(0xFFE57373) else Color(0xFF81C784)
-                val currencySymbol = CurrencyMapper.getSymbol(transaction.currencyCode)
+                val symbol = CurrencyMapper.getSymbol(transaction.currencyCode)
+                val color =
+                    if (transaction.isExpense) MaterialTheme.colorScheme.error else Color(0xFF4CAF50)
 
                 Text(
-                    text = "$prefix${String.format("%.2f", transaction.amount)} $currencySymbol",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = amountColor,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Text(
-                    text = com.denisshulika.fincentra.data.util.DateFormatter.dateTime.format(
-                        java.util.Date(
-                            transaction.timestamp
+                    text = "${if (transaction.isExpense) "-" else "+"}${
+                        String.format(
+                            "%.2f",
+                            transaction.amount
                         )
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
+                    } $symbol",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = color,
+                    fontWeight = FontWeight.ExtraBold
+                )
+                Text(
+                    text = DateFormatter.timeOnly.format(java.util.Date(transaction.timestamp)),
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
