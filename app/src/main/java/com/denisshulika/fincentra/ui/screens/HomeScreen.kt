@@ -44,6 +44,7 @@ import com.denisshulika.fincentra.navigation.Screen
 import com.denisshulika.fincentra.ui.components.FinCentraTopBar
 import com.denisshulika.fincentra.ui.components.TransactionDetailSheet
 import com.denisshulika.fincentra.ui.components.TransactionItem
+import com.denisshulika.fincentra.ui.theme.RubikFontFamily
 import com.denisshulika.fincentra.viewmodels.BudgetsViewModel
 import com.denisshulika.fincentra.viewmodels.DreamViewModel
 import com.denisshulika.fincentra.viewmodels.StatsViewModel
@@ -166,7 +167,7 @@ fun HomeScreen(
                 dreamState?.let { progressData ->
                     item {
                         Text(
-                            "Твоя мрія",
+                            "Моя мрія",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
