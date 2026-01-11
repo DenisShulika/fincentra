@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.TrackChanges
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class Screen(val route: String, val title: String, val icon: ImageVector) {
+    data object Onboarding : Screen("onboarding", "Вступ", Icons.Default.AutoAwesome)
     data object Home : Screen("home", "Огляд", Icons.Default.Dashboard)
     data object Transactions :
         Screen("transactions", "Транзакції", Icons.AutoMirrored.Filled.ReceiptLong)

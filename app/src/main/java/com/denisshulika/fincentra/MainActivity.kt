@@ -1,5 +1,6 @@
 package com.denisshulika.fincentra
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -31,6 +33,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.denisshulika.fincentra.data.util.PrefConstants
 import com.denisshulika.fincentra.di.DependencyProvider
 import com.denisshulika.fincentra.navigation.Screen
 import com.denisshulika.fincentra.ui.screens.BudgetsScreen
@@ -38,6 +41,7 @@ import com.denisshulika.fincentra.ui.screens.DreamScreen
 import com.denisshulika.fincentra.ui.screens.HomeScreen
 import com.denisshulika.fincentra.ui.screens.IntegrationsScreen
 import com.denisshulika.fincentra.ui.screens.LoginScreen
+import com.denisshulika.fincentra.ui.screens.OnboardingScreen
 import com.denisshulika.fincentra.ui.screens.ProfileScreen
 import com.denisshulika.fincentra.ui.screens.RegisterScreen
 import com.denisshulika.fincentra.ui.screens.StatsScreen
@@ -65,6 +69,20 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen() {
+    val context = LocalContext.current
+    val prefs =
+        remember { context.getSharedPreferences(PrefConstants.PREFS_NAME, Context.MODE_PRIVATE) }
+    val isOnboardingCompleted =
+        remember { prefs.getBoolean(PrefConstants.KEY_IS_ONBOARDING_COMPLETED, false) }
+
+    val startDestination = remember {
+        when {
+            !isOnboardingCompleted -> Screen.Onboarding.route
+            DependencyProvider.authRepository.getCurrentUser() != null -> Screen.Home.route
+            else -> Screen.Login.route
+        }
+    }
+
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -79,14 +97,6 @@ fun MainScreen() {
     val profileViewModel: ProfileViewModel = viewModel()
     val budgetsViewModel: BudgetsViewModel = viewModel()
     val dreamViewModel: DreamViewModel = viewModel()
-
-    val startDestination = remember {
-        if (DependencyProvider.authRepository.getCurrentUser() != null) {
-            Screen.Home.route
-        } else {
-            Screen.Login.route
-        }
-    }
 
     val navigateWithClearStack: (String) -> Unit = { route ->
         navController.navigate(route) {
@@ -105,11 +115,17 @@ fun MainScreen() {
         Screen.Stats.route
     )
 
+    val showNavElements = currentRoute !in listOf(
+        Screen.Login.route,
+        Screen.Register.route,
+        Screen.Onboarding.route
+    )
+
     ModalNavigationDrawer(
         drawerState = drawerState,
-        gesturesEnabled = !isAuthScreen && isTopLevelScreen,
+        gesturesEnabled = showNavElements && isTopLevelScreen,
         drawerContent = {
-            if (!isAuthScreen) {
+            if (showNavElements) {
                 ModalDrawerSheet {
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
@@ -148,7 +164,7 @@ fun MainScreen() {
     ) {
         Scaffold(
             bottomBar = {
-                if (!isAuthScreen) {
+                if (showNavElements) {
                     NavigationBar {
                         val bottomItems = listOf(Screen.Home, Screen.Transactions, Screen.Stats)
                         bottomItems.forEach { screen ->
@@ -168,6 +184,16 @@ fun MainScreen() {
                 startDestination = startDestination,
                 modifier = Modifier.padding(innerPadding)
             ) {
+                composable(Screen.Onboarding.route) {
+                    OnboardingScreen(
+                        onFinish = {
+                            prefs.edit().putBoolean(PrefConstants.KEY_IS_ONBOARDING_COMPLETED, true)
+                                .apply()
+                            navController.navigate(Screen.Login.route) { popUpTo(0) }
+                        }
+                    )
+                }
+
                 composable(Screen.Login.route) {
                     LoginScreen(
                         viewModel = authViewModel,

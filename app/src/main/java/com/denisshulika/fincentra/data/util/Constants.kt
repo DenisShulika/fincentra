@@ -34,3 +34,8 @@ object AuthConstants {
     const val WEB_CLIENT_ID =
         "531383896940-lk0qd97ohp6jaue4u9nunl8jpo6dg4th.apps.googleusercontent.com"
 }
+
+object PrefConstants {
+    const val PREFS_NAME = "fincentra_prefs"
+    const val KEY_IS_ONBOARDING_COMPLETED = "is_onboarding_completed"
+}
