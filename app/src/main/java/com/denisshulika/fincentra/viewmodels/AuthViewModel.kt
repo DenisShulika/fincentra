@@ -29,6 +29,107 @@ class AuthViewModel : ViewModel() {
     private val _confirmPassword = MutableStateFlow("")
     val confirmPassword = _confirmPassword.asStateFlow()
 
+    private val _name = MutableStateFlow("")
+    val name = _name.asStateFlow()
+
+    private val _nameError = MutableStateFlow<String?>(null)
+    val nameError = _nameError.asStateFlow()
+
+    private val _emailError = MutableStateFlow<String?>(null)
+    val emailError = _emailError.asStateFlow()
+
+    private val _passwordError = MutableStateFlow<String?>(null)
+    val passwordError = _passwordError.asStateFlow()
+
+    private val _confirmPasswordError = MutableStateFlow<String?>(null)
+    val confirmPasswordError = _confirmPasswordError.asStateFlow()
+
+    private val _isGoogleLoading = MutableStateFlow(false)
+    val isGoogleLoading = _isGoogleLoading.asStateFlow()
+
+    fun onNameChange(v: String) {
+        _name.value = v; _nameError.value = null
+    }
+
+    private fun validateEmail(email: String): Boolean {
+        val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$".toRegex()
+        return email.matches(emailRegex)
+    }
+
+    fun signIn() {
+        if (_email.value.isBlank()) {
+            _emailError.value = "Введіть Email"; return
+        }
+        if (_password.value.isBlank()) {
+            _passwordError.value = "Введіть пароль"; return
+        }
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            DependencyProvider.repository.clearAllData()
+            val result = authRepository.signInWithEmail(_email.value, _password.value)
+            _isLoading.value = false
+
+            result.onSuccess {
+                DependencyProvider.repository.observeUserTransactions()
+                _events.emit(AuthUiEvent.NavigateToMain)
+            }.onFailure {
+                _events.emit(AuthUiEvent.ShowError("Неправильна пошта або пароль"))
+            }
+        }
+    }
+
+    fun signUp() {
+        var isValid = true
+        if (_name.value.isBlank()) {
+            _nameError.value = "Як вас звати?"; isValid = false
+        }
+        if (!validateEmail(_email.value)) {
+            _emailError.value = "Невірний формат пошти"; isValid = false
+        }
+        if (_password.value.length < 6) {
+            _passwordError.value = "Мінімум 6 символів"; isValid = false
+        }
+        if (_password.value != _confirmPassword.value) {
+            _confirmPasswordError.value = "Паролі не збігаються"; isValid = false
+        }
+
+        if (!isValid) return
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            val result = authRepository.signUpWithEmail(_email.value, _password.value, _name.value)
+            _isLoading.value = false
+
+            result.onSuccess {
+                DependencyProvider.repository.observeUserTransactions()
+                _events.emit(AuthUiEvent.NavigateToMain)
+            }.onFailure {
+                _events.emit(AuthUiEvent.ShowError(it.message ?: "Помилка реєстрації"))
+            }
+        }
+    }
+
+    fun signInWithGoogle(idToken: String) {
+        viewModelScope.launch {
+            _isGoogleLoading.value = true
+            val credential = GoogleAuthProvider.getCredential(idToken, null)
+            val result = authRepository.signInWithGoogle(credential)
+
+            result.onSuccess {
+                DependencyProvider.repository.observeUserTransactions()
+                _events.emit(AuthUiEvent.NavigateToMain)
+            }.onFailure {
+                _events.emit(AuthUiEvent.ShowError("Помилка входу через Google"))
+            }
+            _isGoogleLoading.value = false
+        }
+    }
+
+    fun setGoogleLoading(loading: Boolean) {
+        _isGoogleLoading.value = loading
+    }
+
     fun onConfirmPasswordChange(newValue: String) {
         _confirmPassword.value = newValue
     }
@@ -69,62 +170,6 @@ class AuthViewModel : ViewModel() {
                 onDeleted()
             }.onFailure {
                 _events.emit(AuthUiEvent.ShowError("Для видалення потрібно перезайти в додаток"))
-            }
-        }
-    }
-
-    fun signIn() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            DependencyProvider.repository.clearAllData()
-
-            val result = authRepository.signInWithEmail(_email.value, _password.value)
-            _isLoading.value = false
-
-            result.onSuccess {
-                DependencyProvider.repository.observeUserTransactions()
-                _events.emit(AuthUiEvent.NavigateToMain)
-            }
-        }
-    }
-
-    fun signUp() {
-        val mail = _email.value.trim()
-        val pass = _password.value.trim()
-        val confirm = _confirmPassword.value.trim()
-
-        if (pass != confirm) {
-            viewModelScope.launch { _events.emit(AuthUiEvent.ShowError("Паролі не збігаються")) }
-            return
-        }
-
-        if (pass.length < 6) {
-            viewModelScope.launch { _events.emit(AuthUiEvent.ShowError("Пароль має бути не менше 6 символів")) }
-            return
-        }
-
-        viewModelScope.launch {
-            _isLoading.value = true
-            val result = authRepository.signUpWithEmail(mail, pass)
-            _isLoading.value = false
-
-            result.onSuccess {
-                DependencyProvider.repository.observeUserTransactions()
-                _events.emit(AuthUiEvent.NavigateToMain)
-            }
-        }
-    }
-
-    fun signInWithGoogle(idToken: String) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            val credential = GoogleAuthProvider.getCredential(idToken, null)
-            val result = authRepository.signInWithGoogle(credential)
-            _isLoading.value = false
-
-            result.onSuccess {
-                DependencyProvider.repository.observeUserTransactions()
-                _events.emit(AuthUiEvent.NavigateToMain)
             }
         }
     }

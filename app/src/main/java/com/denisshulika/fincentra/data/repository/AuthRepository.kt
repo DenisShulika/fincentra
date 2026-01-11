@@ -20,11 +20,22 @@ class AuthRepository {
         }
     }
 
-    suspend fun signUpWithEmail(email: String, pass: String): Result<User> {
+    suspend fun signUpWithEmail(email: String, pass: String, name: String): Result<User> {
         return try {
             val result = auth.createUserWithEmailAndPassword(email, pass).await()
-            val user = result.user?.let { User(uid = it.uid, email = it.email ?: "") }
-            if (user != null) Result.success(user) else Result.failure(Exception("Помилка реєстрації"))
+            val firebaseUser = result.user
+
+            val profileUpdates = com.google.firebase.auth.userProfileChangeRequest {
+                displayName = name
+            }
+            firebaseUser?.updateProfile(profileUpdates)?.await()
+
+            val user = User(
+                uid = firebaseUser?.uid ?: "",
+                email = firebaseUser?.email ?: "",
+                displayName = name
+            )
+            Result.success(user)
         } catch (e: Exception) {
             Result.failure(e)
         }
