@@ -1,5 +1,6 @@
 package com.denisshulika.fincentra.ui.components.budgets
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -63,16 +64,23 @@ fun AddBudgetSheet(viewModel: BudgetsViewModel) {
             OutlinedTextField(
                 value = amount,
                 onValueChange = { viewModel.onAmountChange(it) },
-                label = { Text("Сума на місяць") },
-                textStyle = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                label = { Text("Сума") },
                 suffix = {
                     Text(
                         text = CurrencyMapper.getSymbol(selectedCurrency),
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Black
+                        modifier = Modifier.clickable {
+                            val next = when(selectedCurrency) {
+                                980 -> 840
+                                840 -> 978
+                                else -> 980
+                            }
+                            viewModel.onCurrencyChange(next)
+                        },
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 },
+                textStyle = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,

@@ -1,5 +1,6 @@
 package com.denisshulika.fincentra.ui.components.transactions
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -36,6 +37,7 @@ fun TransactionFormContent(viewModel: TransactionsViewModel) {
     val isExpense by viewModel.isExpense.collectAsStateWithLifecycle()
     val category by viewModel.category.collectAsStateWithLifecycle()
     val editingId by viewModel.editingTransactionId.collectAsStateWithLifecycle()
+    val selectedCurrency by viewModel.selectedCurrency.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -57,10 +59,17 @@ fun TransactionFormContent(viewModel: TransactionsViewModel) {
             value = amount,
             onValueChange = { viewModel.onAmountChange(it) },
             label = { Text("Сума") },
-            textStyle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             suffix = {
                 Text(
-                    text = CurrencyMapper.getSymbol(980),
+                    text = CurrencyMapper.getSymbol(selectedCurrency),
+                    modifier = Modifier.clickable {
+                        val next = when(selectedCurrency) {
+                            980 -> 840
+                            840 -> 978
+                            else -> 980
+                        }
+                        viewModel.onCurrencyChange(next)
+                    },
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )

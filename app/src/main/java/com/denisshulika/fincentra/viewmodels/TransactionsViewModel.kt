@@ -22,11 +22,11 @@ import java.util.Date
 import java.util.UUID
 
 class TransactionsViewModel : ViewModel() {
-    private val repository = DependencyProvider.financeRepository
+    private val financeRepository = DependencyProvider.financeRepository
 
-    private val allTransactions: StateFlow<List<Transaction>> = repository.transactions
+    private val allTransactions: StateFlow<List<Transaction>> = financeRepository.transactions
 
-    private val accounts = repository.getAccountsFlow()
+    private val accounts = financeRepository.getAccountsFlow()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,
@@ -50,6 +50,33 @@ class TransactionsViewModel : ViewModel() {
 
     private val _selectedDateRange = MutableStateFlow<LongRange?>(null)
     val selectedDateRange = _selectedDateRange.asStateFlow()
+
+    private val _selectedCurrency = MutableStateFlow(980)
+    val selectedCurrency = _selectedCurrency.asStateFlow()
+
+    fun onCurrencyChange(code: Int) {
+        _selectedCurrency.value = code
+    }
+
+    fun saveTransaction() {
+        val amountDouble = _amount.value.toDoubleOrNull() ?: return
+        viewModelScope.launch {
+            val transaction = Transaction(
+                id = _editingTransactionId.value ?: UUID.randomUUID().toString(),
+                amount = amountDouble,
+                description = _description.value,
+                bankName = "Готівка",
+                category = _category.value,
+                isExpense = _isExpense.value,
+                timestamp = editingTimestamp ?: System.currentTimeMillis(),
+                accountId = TransactionConstants.ACCOUNT_ID_MANUAL,
+                currencyCode = _selectedCurrency.value, // ВИКОРИСТОВУЄМО СТАН
+                subCategoryName = "Ручне введення"
+            )
+            financeRepository.addTransaction(transaction)
+            toggleBottomSheet(false)
+        }
+    }
 
     enum class SortOrder(val displayName: String) {
         DATE_DESC("Спочатку нові"),
@@ -156,7 +183,7 @@ class TransactionsViewModel : ViewModel() {
 
     fun loadMoreTransactions() {
         viewModelScope.launch {
-            val newPage = repository.fetchNextPage()
+            val newPage = financeRepository.fetchNextPage()
             _paginatedTransactions.value =
                 (_paginatedTransactions.value + newPage).distinctBy { it.id }
         }
@@ -302,6 +329,7 @@ class TransactionsViewModel : ViewModel() {
             _category.value = TransactionCategory.OTHERS
             _editingTransactionId.value = null
             editingTimestamp = null
+            _selectedCurrency.value = 980
         }
     }
 
@@ -317,27 +345,7 @@ class TransactionsViewModel : ViewModel() {
 
     fun deleteTransaction(tx: Transaction) {
         viewModelScope.launch {
-            repository.deleteTransaction(tx.id)
-        }
-    }
-
-    fun saveTransaction() {
-        val amountDouble = _amount.value.toDoubleOrNull() ?: return
-        viewModelScope.launch {
-            val transaction = Transaction(
-                id = _editingTransactionId.value ?: UUID.randomUUID().toString(),
-                amount = amountDouble,
-                description = _description.value,
-                bankName = "Готівка",
-                category = _category.value,
-                isExpense = _isExpense.value,
-                timestamp = editingTimestamp ?: System.currentTimeMillis(),
-                accountId = TransactionConstants.ACCOUNT_ID_MANUAL,
-                currencyCode = 980,
-                subCategoryName = "Ручне введення"
-            )
-            repository.addTransaction(transaction)
-            toggleBottomSheet(false)
+            financeRepository.deleteTransaction(tx.id)
         }
     }
 }
