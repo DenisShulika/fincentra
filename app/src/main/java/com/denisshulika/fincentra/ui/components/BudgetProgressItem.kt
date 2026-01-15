@@ -41,10 +41,9 @@ fun BudgetProgressItem(
     val symbol = CurrencyMapper.getSymbol(item.budget.currencyCode)
 
     val statusColor = when {
-        item.progress <= 0.5f -> Color(0xFF4CAF50)
-        item.progress <= 0.85f -> Color(0xFFFFB300)
-        item.progress < 1.0f -> Color(0xFFFF5722)
-        else -> Color(0xFFF44336)
+        item.progress <= 0.5f -> MaterialTheme.colorScheme.primary
+        item.progress < 1.0f -> Color(0xFFFFB300)
+        else -> MaterialTheme.colorScheme.error
     }
 
     Card(

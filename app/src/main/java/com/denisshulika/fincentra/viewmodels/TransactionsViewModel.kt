@@ -7,6 +7,7 @@ import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.models.domain.TransactionCategory
 import com.denisshulika.fincentra.data.util.DateFormatter
 import com.denisshulika.fincentra.data.util.TransactionConstants
+import com.denisshulika.fincentra.data.util.TransactionFilterEngine
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,7 +22,7 @@ import java.util.Date
 import java.util.UUID
 
 class TransactionsViewModel : ViewModel() {
-    private val repository = DependencyProvider.repository
+    private val repository = DependencyProvider.financeRepository
 
     private val allTransactions: StateFlow<List<Transaction>> = repository.transactions
 
@@ -83,29 +84,28 @@ class TransactionsViewModel : ViewModel() {
     private var editingTimestamp: Long? = null
 
     val transactions: StateFlow<List<Transaction>> = combine(
-        allTransactions, accounts, _searchQuery, _selectedBankFilter,
-        _selectedCategories, _selectedDateRange, _selectedTypeFilter, _selectedSortOrder
+        allTransactions,
+        accounts,
+        _searchQuery,
+        _selectedBankFilter,
+        _selectedCategories,
+        _selectedDateRange,
+        _selectedTypeFilter,
+        _selectedSortOrder
     ) { args ->
         val txList = args[0] as List<Transaction>
         val accountList = args[1] as List<BankAccount>
-        val query = args[2] as String
-        val bankFilter = args[3] as String
-        val selectedCats = args[4] as Set<String>
-        val dateRange = args[5] as LongRange?
-        val typeFilter = args[6] as String
-        val sortOrder = args[7] as SortOrder
 
-        val selectedAccountIds = accountList.filter { it.selected }.map { it.id }
-
-        txList
-            .filterByActiveAccounts(selectedAccountIds)
-            .filterBySearch(query)
-            .filterByBank(bankFilter)
-            .filterByType(typeFilter)
-            .filterByCategories(selectedCats)
-            .filterByDate(dateRange)
-            .applySort(sortOrder)
-
+        TransactionFilterEngine.filter(
+            transactions = txList,
+            selectedAccountIds = accountList.filter { it.selected }.map { it.id },
+            query = args[2] as String,
+            bankFilter = args[3] as String,
+            selectedCats = args[4] as Set<String>,
+            dateRange = args[5] as LongRange?,
+            typeFilter = args[6] as String,
+            sortOrder = args[7] as SortOrder
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val groupedTransactions: StateFlow<Map<String, List<Transaction>>> = transactions

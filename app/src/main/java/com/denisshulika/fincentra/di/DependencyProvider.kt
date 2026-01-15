@@ -4,14 +4,35 @@ import com.denisshulika.fincentra.data.network.common.BankProvider
 import com.denisshulika.fincentra.data.network.monobank.MonobankApi
 import com.denisshulika.fincentra.data.network.monobank.MonobankService
 import com.denisshulika.fincentra.data.repository.AuthRepository
+import com.denisshulika.fincentra.data.repository.BudgetRepository
 import com.denisshulika.fincentra.data.repository.FinanceRepository
+import com.denisshulika.fincentra.data.repository.SettingsRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object DependencyProvider {
-    val repository by lazy { FinanceRepository() }
+    val financeRepository by lazy {
+        FinanceRepository(
+            db = getInstance(),
+            auth = auth
+        )
+    }
+
+    val budgetRepository by lazy {
+        BudgetRepository(
+            db = getInstance(),
+            auth = auth
+        )
+    }
+
+    val settingsRepository by lazy {
+        SettingsRepository(
+            db = getInstance(),
+            auth = auth
+        )
+    }
 
     private val retrofit by lazy {
         Retrofit.Builder()

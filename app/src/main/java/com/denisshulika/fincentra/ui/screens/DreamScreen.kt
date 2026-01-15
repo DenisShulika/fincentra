@@ -22,7 +22,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.ui.components.FinCentraTopBar
 import com.denisshulika.fincentra.ui.components.dream.DreamForm
 import com.denisshulika.fincentra.ui.components.dream.DreamProgressView
-import com.denisshulika.fincentra.ui.components.dream.InfoCard
+import com.denisshulika.fincentra.ui.components.dream.DreamInfoCard
 import com.denisshulika.fincentra.viewmodels.DreamViewModel
 
 @Composable
@@ -66,7 +66,7 @@ fun DreamScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            InfoCard()
+            DreamInfoCard()
 
             Spacer(modifier = Modifier.height(32.dp))
 

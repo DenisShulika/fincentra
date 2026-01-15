@@ -36,7 +36,7 @@ fun BalanceFlowCard(stats: CurrencyStats, symbol: String) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(
-                    text = "На початок периоду",
+                    text = "На початок періоду",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

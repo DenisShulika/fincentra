@@ -10,17 +10,15 @@ data class BudgetProgress(
 ) {
     val treeImageRes: Int
         get() = when {
-            progress <= 0.5f -> R.drawable.img_tree_healthy
-            progress <= 0.8f -> R.drawable.img_tree_medium
-            progress < 1.0f -> R.drawable.img_tree_warning
+            progress <= 0.5f -> R.drawable.img_tree_money
+            progress < 1.0f -> R.drawable.img_tree_healthy
             else -> R.drawable.img_tree_dead
         }
 
     val statusMessage: String
         get() = when {
-            progress <= 0.5f -> "Все чудово!"
-            progress <= 0.8f -> "Нормальний темп"
-            progress < 1.0f -> "Бюджет закінчується"
-            else -> "Межу перевищено"
+            progress <= 0.5f -> "Запас безпечний"
+            progress < 1.0f -> "Витрачаєте ліміт"
+            else -> "Ліміт порушено!"
         }
 }

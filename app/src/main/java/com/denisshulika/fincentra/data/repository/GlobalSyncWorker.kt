@@ -14,26 +14,28 @@ class GlobalSyncWorker(
     workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams) {
 
-    private val repository = DependencyProvider.repository
+    private val financeRepository = DependencyProvider.financeRepository
+    private val settingsRepository = DependencyProvider.settingsRepository
+    private val budgetRepository = DependencyProvider.budgetRepository
     private val monoService = DependencyProvider.monobankProvider
 
     private suspend fun syncMonobank() {
-        val token = repository.getMonobankApiToken()
-        val selectedIds = repository.getSelectedAccountIds()
+        val token = settingsRepository.getMonobankApiToken()
+        val selectedIds = settingsRepository.getSelectedAccountIds()
 
         if (token.isNullOrBlank() || selectedIds.isEmpty()) return
 
         val actualAccounts = monoService.fetchAccounts(token)
         if (actualAccounts.isNotEmpty()) {
-            repository.saveAccounts(actualAccounts, updateSelection = false)
+            financeRepository.saveAccounts(actualAccounts, updateSelection = false)
         }
 
         for (id in selectedIds) {
             val acc = actualAccounts.find { it.id == id }
-                ?: repository.getAccountsOnce().find { it.id == id }
+                ?: financeRepository.getAccountsOnce().find { it.id == id }
                 ?: continue
 
-            val lastSyncMillis = repository.getLastSyncTimestamp(id)
+            val lastSyncMillis = settingsRepository.getLastSyncTimestamp(id)
 
             val fromTimeSeconds = if (lastSyncMillis == 0L) 0L else (lastSyncMillis / 1000) + 1
 
@@ -45,8 +47,8 @@ class GlobalSyncWorker(
                     fromTimeSeconds = fromTimeSeconds,
                     onProgress = { },
                     onBatchLoaded = { batch ->
-                        repository.addTransactionsBatch(batch)
-                        repository.saveLastSyncTimestamp(id, batch.maxOf { it.timestamp })
+                        financeRepository.addTransactionsBatch(batch)
+                        settingsRepository.saveLastSyncTimestamp(id, batch.maxOf { it.timestamp })
                     }
                 )
             } catch (e: Exception) {
@@ -64,7 +66,7 @@ class GlobalSyncWorker(
             syncMonobank()
             checkBudgetsAndNotify()
 
-            repository.saveLastGlobalSyncTime(System.currentTimeMillis())
+            settingsRepository.saveLastGlobalSyncTime(System.currentTimeMillis())
             Result.success()
         } catch (e: Exception) {
             Result.retry()
@@ -76,8 +78,8 @@ class GlobalSyncWorker(
         val monthYear =
             "${cal.get(java.util.Calendar.MONTH) + 1}-${cal.get(java.util.Calendar.YEAR)}"
 
-        val budgets = repository.getBudgetsFlow(monthYear).firstOrNull() ?: return
-        val transactions = repository.transactions.value
+        val budgets = budgetRepository.getBudgetsFlow(monthYear).firstOrNull() ?: return
+        val transactions = financeRepository.transactions.value
 
         for (budget in budgets) {
             val spent = transactions.filter { tx ->

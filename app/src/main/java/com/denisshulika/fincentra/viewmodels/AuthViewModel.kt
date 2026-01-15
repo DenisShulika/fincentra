@@ -66,12 +66,12 @@ class AuthViewModel : ViewModel() {
 
         viewModelScope.launch {
             _isLoading.value = true
-            DependencyProvider.repository.clearAllData()
+            DependencyProvider.financeRepository.clearAllData()
             val result = authRepository.signInWithEmail(_email.value, _password.value)
             _isLoading.value = false
 
             result.onSuccess {
-                DependencyProvider.repository.observeUserTransactions()
+                DependencyProvider.financeRepository.observeUserTransactions()
                 _events.emit(AuthUiEvent.NavigateToMain)
             }.onFailure {
                 _events.emit(AuthUiEvent.ShowError("Неправильна пошта або пароль"))
@@ -102,7 +102,7 @@ class AuthViewModel : ViewModel() {
             _isLoading.value = false
 
             result.onSuccess {
-                DependencyProvider.repository.observeUserTransactions()
+                DependencyProvider.financeRepository.observeUserTransactions()
                 _events.emit(AuthUiEvent.NavigateToMain)
             }.onFailure {
                 _events.emit(AuthUiEvent.ShowError(it.message ?: "Помилка реєстрації"))
@@ -117,7 +117,7 @@ class AuthViewModel : ViewModel() {
             val result = authRepository.signInWithGoogle(credential)
 
             result.onSuccess {
-                DependencyProvider.repository.observeUserTransactions()
+                DependencyProvider.financeRepository.observeUserTransactions()
                 _events.emit(AuthUiEvent.NavigateToMain)
             }.onFailure {
                 _events.emit(AuthUiEvent.ShowError("Помилка входу через Google"))
@@ -161,7 +161,7 @@ class AuthViewModel : ViewModel() {
     fun deleteAccount(onDeleted: () -> Unit) {
         viewModelScope.launch {
             _isLoading.value = true
-            DependencyProvider.repository.clearAllData()
+            DependencyProvider.financeRepository.clearAllData()
 
             val result = authRepository.deleteUserAccount()
             _isLoading.value = false

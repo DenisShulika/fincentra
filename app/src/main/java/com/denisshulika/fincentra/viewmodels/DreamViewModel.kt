@@ -14,14 +14,15 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class DreamViewModel : ViewModel() {
-    private val repository = DependencyProvider.repository
-
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
+    private val settingsRepository = DependencyProvider.settingsRepository
+    private val financeRepository = DependencyProvider.financeRepository
+
     val dreamProgress: StateFlow<DreamProgress?> = combine(
-        repository.getDreamFlow(),
-        repository.accounts
+        settingsRepository.getDreamFlow(),
+        financeRepository.accounts
     ) { dream, accounts ->
         if (dream == null) return@combine null
 
@@ -45,7 +46,7 @@ class DreamViewModel : ViewModel() {
                 targetAmount = target,
                 safetyBuffer = buffer
             )
-            repository.saveDream(newDream)
+            settingsRepository.saveDream(newDream)
             _isLoading.value = false
         }
     }

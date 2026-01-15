@@ -23,7 +23,7 @@ import java.util.Calendar
 import kotlin.math.round
 
 class StatsViewModel : ViewModel() {
-    private val repository = DependencyProvider.repository
+    private val repository = DependencyProvider.financeRepository
 
     private val _selectedDateRange = MutableStateFlow<LongRange?>(null)
     val selectedDateRange = _selectedDateRange.asStateFlow()

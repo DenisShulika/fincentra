@@ -2,12 +2,10 @@ package com.denisshulika.fincentra.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// --- БАЗОВІ ВІДТІНКИ ---
-val MainGreen = Color(0xFF16A34A)    // Твій вибір
-val NeonGreen = Color(0xFF22C55E)    // Акцент для темної теми
-val DeepBlackGreen = Color(0xFF041E13) // Твій фон лого
+val MainGreen = Color(0xFF16A34A)
+val NeonGreen = Color(0xFF22C55E)
+val DeepBlackGreen = Color(0xFF041E13)
 
-// --- ТЕМНА ТЕМА (Neon Emerald) ---
 val DarkPrimary = NeonGreen
 val DarkOnPrimary = Color(0xFF00391C)
 val DarkPrimaryContainer = Color(0xFF00522B)
@@ -26,16 +24,15 @@ val DarkOnTertiaryContainer = Color(0xFFC1EEF3)
 val DarkBackground = DeepBlackGreen
 val DarkOnBackground = Color(0xFFE1E3DF)
 
-val DarkSurface = Color(0xFF062216) // Глибокий зелений замість сірого
+val DarkSurface = Color(0xFF062216)
 val DarkOnSurface = Color(0xFFE1E3DF)
-val DarkSurfaceVariant = Color(0xFF0A2E1F) // Для карток та полів
+val DarkSurfaceVariant = Color(0xFF0A2E1F)
 val DarkOnSurfaceVariant = Color(0xFFC1C9BF)
 
 val DarkOutline = Color(0xFF14532D)
 val DarkError = Color(0xFFFFB4AB)
 val DarkOnError = Color(0xFF690005)
 
-// --- СВІТЛА ТЕМА (Fresh Mint) ---
 val LightPrimary = MainGreen
 val LightOnPrimary = Color.White
 val LightPrimaryContainer = Color(0xFFDCFCE7)
@@ -51,7 +48,7 @@ val LightOnTertiary = Color.White
 val LightTertiaryContainer = Color(0xFFBCEBF0)
 val LightOnTertiaryContainer = Color(0xFF001F22)
 
-val LightBackground = Color(0xFFF0FDF4) // Дуже світлий зелений фон
+val LightBackground = Color(0xFFF0FDF4)
 val LightOnBackground = Color(0xFF191C19)
 
 val LightSurface = Color(0xFFF7FBF4)

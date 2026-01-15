@@ -122,7 +122,7 @@ fun OnboardingPageContent(
                         ) {
                             append("живе дерево")
                         }
-                        append(". Контролюй витрати, щоб твій фінансовий ліс завжди залишався ")
+                        append(". Контролюй витрати, щоб твоє фінансове дерево завжли зростало та залишалось ")
                         withStyle(
                             SpanStyle(
                                 fontWeight = FontWeight.Bold,
@@ -170,16 +170,16 @@ fun OnboardingPageContent(
 
                 Text(
                     text = buildAnnotatedString {
-                        append("Ми автоматично ")
+                        append("Ти автоматично ")
                         withStyle(
                             SpanStyle(
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary
                             )
                         ) {
-                            append("захистимо гроші на життя")
+                            append("захищаєш гроші на життя")
                         }
-                        append(", а надлишок спрямуємо до мети. Досягай мрій, зберігаючи ")
+                        append(", а надлишок буде спрямований. Досягай мрій, зберігаючи ")
                         withStyle(
                             SpanStyle(
                                 fontWeight = FontWeight.Bold,

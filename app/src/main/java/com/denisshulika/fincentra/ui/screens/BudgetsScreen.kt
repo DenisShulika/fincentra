@@ -30,6 +30,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.ui.components.BudgetProgressItem
 import com.denisshulika.fincentra.ui.components.FinCentraTopBar
 import com.denisshulika.fincentra.ui.components.budgets.AddBudgetSheet
+import com.denisshulika.fincentra.ui.components.dream.BudgetsInfoCard
 import com.denisshulika.fincentra.viewmodels.BudgetsViewModel
 
 @Composable
@@ -73,6 +74,8 @@ fun BudgetsScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+            BudgetsInfoCard()
+
             if (budgets.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),

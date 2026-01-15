@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ProfileViewModel : ViewModel() {
-    private val repository = DependencyProvider.repository
+    private val repository = DependencyProvider.financeRepository
     private val _currencySummaries = MutableStateFlow<List<CurrencySummary>>(emptyList())
     val currencySummaries = _currencySummaries.asStateFlow()
 
@@ -70,7 +70,7 @@ class ProfileViewModel : ViewModel() {
     fun logout(onSuccess: () -> Unit) {
         viewModelScope.launch {
             authRepository.signOut()
-            DependencyProvider.repository.clearAllData()
+            DependencyProvider.financeRepository.clearAllData()
             onSuccess()
         }
     }

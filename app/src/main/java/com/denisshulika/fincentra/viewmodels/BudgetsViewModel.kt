@@ -16,7 +16,8 @@ import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class BudgetsViewModel : ViewModel() {
-    private val repository = DependencyProvider.repository
+    private val budgetRepository = DependencyProvider.budgetRepository
+    private val repository = DependencyProvider.financeRepository
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
@@ -43,7 +44,7 @@ class BudgetsViewModel : ViewModel() {
         }
 
     val budgetProgressList: StateFlow<List<BudgetProgress>> = combine(
-        repository.getBudgetsFlow(currentMonthYear),
+        budgetRepository.getBudgetsFlow(currentMonthYear), // ТУТ ЗМІНА
         repository.transactions
     ) { budgets, transactions ->
 
@@ -122,7 +123,7 @@ class BudgetsViewModel : ViewModel() {
                     currencyCode = _selectedCurrency.value,
                     monthYear = currentMonthYear
                 )
-                repository.saveBudget(budget)
+                budgetRepository.saveBudget(budget)
                 toggleAddSheet(false)
             } finally {
                 _isLoading.value = false
@@ -132,7 +133,7 @@ class BudgetsViewModel : ViewModel() {
 
     fun deleteBudget(budgetId: String) {
         viewModelScope.launch {
-            repository.deleteBudget(budgetId)
+            budgetRepository.deleteBudget(budgetId)
         }
     }
 }

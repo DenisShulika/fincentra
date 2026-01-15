@@ -25,9 +25,8 @@ fun TreeAnimationBlock(
 ) {
     val treeStages = listOf(
         R.drawable.img_tree_dead,
-        R.drawable.img_tree_warning,
-        R.drawable.img_tree_medium,
-        R.drawable.img_tree_healthy
+        R.drawable.img_tree_healthy,
+        R.drawable.img_tree_money
     )
 
     var currentIndex by remember {
@@ -44,11 +43,11 @@ fun TreeAnimationBlock(
                     currentIndex = i
                     delay(stayDuration)
                 }
+
                 delay(500)
-                for (i in (treeStages.size - 2) downTo 1) {
-                    currentIndex = i
-                    delay(stayDuration)
-                }
+
+                currentIndex = 1
+                delay(stayDuration)
             }
         } else {
             currentIndex = 0
