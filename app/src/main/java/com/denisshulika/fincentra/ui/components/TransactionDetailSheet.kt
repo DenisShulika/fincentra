@@ -89,7 +89,7 @@ fun TransactionDetailSheet(transaction: Transaction, onDismiss: () -> Unit) {
                 DetailRow("Джерело", transaction.bankName)
                 DetailRow(
                     "Час операції",
-                    DateFormatter.dateTime.format(java.util.Date(transaction.timestamp))
+                    DateFormatter.formatDateTime(transaction.timestamp)
                 )
 
                 if (transaction.comment != null) {

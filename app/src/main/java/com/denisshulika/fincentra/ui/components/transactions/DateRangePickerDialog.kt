@@ -12,6 +12,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.denisshulika.fincentra.data.util.DateFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,10 +46,10 @@ fun DateRangePickerDialog(
             },
             headline = {
                 val start = state.selectedStartDateMillis?.let {
-                    com.denisshulika.fincentra.data.util.DateFormatter.fullDate.format(it)
+                    DateFormatter.formatFullDate(it)
                 } ?: "Початок"
                 val end = state.selectedEndDateMillis?.let {
-                    com.denisshulika.fincentra.data.util.DateFormatter.fullDate.format(it)
+                    DateFormatter.formatFullDate(it)
                 } ?: "Завершення"
 
                 Text(

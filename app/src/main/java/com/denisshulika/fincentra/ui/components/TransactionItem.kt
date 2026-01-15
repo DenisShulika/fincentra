@@ -152,7 +152,7 @@ fun TransactionItem(
                     fontWeight = FontWeight.ExtraBold
                 )
                 Text(
-                    text = DateFormatter.timeOnly.format(java.util.Date(transaction.timestamp)),
+                    text = DateFormatter.formatTimeOnly(transaction.timestamp),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

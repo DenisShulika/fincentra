@@ -153,7 +153,7 @@ class TransactionsViewModel : ViewModel() {
                 when {
                     isToday -> "Сьогодні"
                     isYesterday -> "Вчора"
-                    else -> DateFormatter.dayMonth.format(Date(tx.timestamp))
+                    else -> DateFormatter.formatDayMonth(tx.timestamp)
                 }
             }
         }
