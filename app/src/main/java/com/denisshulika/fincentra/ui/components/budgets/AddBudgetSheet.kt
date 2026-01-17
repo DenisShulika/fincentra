@@ -69,7 +69,7 @@ fun AddBudgetSheet(viewModel: BudgetsViewModel) {
                     Text(
                         text = CurrencyMapper.getSymbol(selectedCurrency),
                         modifier = Modifier.clickable {
-                            val next = when(selectedCurrency) {
+                            val next = when (selectedCurrency) {
                                 980 -> 840
                                 840 -> 978
                                 else -> 980

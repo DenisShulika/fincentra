@@ -1,7 +1,6 @@
 package com.denisshulika.fincentra.data.util
 
 import com.denisshulika.fincentra.data.models.domain.Transaction
-import com.denisshulika.fincentra.viewmodels.TransactionsViewModel.SortOrder
 
 object TransactionFilterEngine {
 
@@ -12,8 +11,7 @@ object TransactionFilterEngine {
         bankFilter: String,
         typeFilter: String,
         selectedCats: Set<String>,
-        dateRange: LongRange?,
-        sortOrder: SortOrder
+        dateRange: LongRange?
     ): List<Transaction> {
         return transactions
             .filterByActiveAccounts(selectedAccountIds)
@@ -22,31 +20,29 @@ object TransactionFilterEngine {
             .filterByType(typeFilter)
             .filterByCategories(selectedCats)
             .filterByDate(dateRange)
-            .applySort(sortOrder)
     }
 
     private fun List<Transaction>.filterByActiveAccounts(ids: List<String>) = filter {
-        it.accountId == TransactionConstants.ACCOUNT_ID_MANUAL || ids.contains(it.accountId)
+        if (it.accountId == TransactionConstants.ACCOUNT_ID_MANUAL) return@filter true
+        if (ids.isEmpty()) return@filter true
+        ids.contains(it.accountId)
     }
 
     private fun List<Transaction>.filterBySearch(query: String): List<Transaction> {
         if (query.isBlank()) return this
-        val trimmedQuery = query.trim()
-
+        val trimmed = query.trim().lowercase()
         return filter { tx ->
             val amountFilter = when {
-                trimmedQuery.startsWith(">") -> trimmedQuery.drop(1).toDoubleOrNull()
-                trimmedQuery.startsWith("<") -> trimmedQuery.drop(1).toDoubleOrNull()
+                trimmed.startsWith(">") -> trimmed.drop(1).toDoubleOrNull()
+                trimmed.startsWith("<") -> trimmed.drop(1).toDoubleOrNull()
                 else -> null
             }
-
             if (amountFilter != null) {
-                if (trimmedQuery.startsWith(">")) tx.amount > amountFilter
-                else tx.amount < amountFilter
+                if (trimmed.startsWith(">")) tx.amount > amountFilter else tx.amount < amountFilter
             } else {
-                tx.description.contains(trimmedQuery, ignoreCase = true) ||
-                        tx.category.displayName.contains(trimmedQuery, ignoreCase = true) ||
-                        tx.subCategoryName.contains(trimmedQuery, ignoreCase = true)
+                tx.description.lowercase().contains(trimmed) ||
+                        tx.category.displayName.lowercase().contains(trimmed) ||
+                        tx.subCategoryName.lowercase().contains(trimmed)
             }
         }
     }
@@ -70,12 +66,5 @@ object TransactionFilterEngine {
 
     private fun List<Transaction>.filterByDate(range: LongRange?) = filter {
         if (range == null) true else it.timestamp in range
-    }
-
-    private fun List<Transaction>.applySort(order: SortOrder) = when (order) {
-        SortOrder.DATE_DESC -> sortedByDescending { it.timestamp }
-        SortOrder.DATE_ASC -> sortedBy { it.timestamp }
-        SortOrder.AMOUNT_DESC -> sortedByDescending { it.amount }
-        SortOrder.AMOUNT_ASC -> sortedBy { it.amount }
     }
 }

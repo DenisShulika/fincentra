@@ -21,9 +21,11 @@ fun FilterRow(
     onBankChange: (String) -> Unit,
     onAccountChange: (String?) -> Unit
 ) {
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .padding(vertical = 4.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             val banks = listOf("Всі", "Monobank", "Готівка")
             items(banks) { bank ->

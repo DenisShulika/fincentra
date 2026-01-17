@@ -8,8 +8,25 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -24,9 +41,24 @@ import androidx.navigation.compose.rememberNavController
 import com.denisshulika.fincentra.data.util.PrefConstants
 import com.denisshulika.fincentra.di.DependencyProvider
 import com.denisshulika.fincentra.navigation.Screen
-import com.denisshulika.fincentra.ui.screens.*
+import com.denisshulika.fincentra.ui.screens.BudgetsScreen
+import com.denisshulika.fincentra.ui.screens.DreamScreen
+import com.denisshulika.fincentra.ui.screens.HomeScreen
+import com.denisshulika.fincentra.ui.screens.IntegrationsScreen
+import com.denisshulika.fincentra.ui.screens.LoginScreen
+import com.denisshulika.fincentra.ui.screens.OnboardingScreen
+import com.denisshulika.fincentra.ui.screens.ProfileScreen
+import com.denisshulika.fincentra.ui.screens.RegisterScreen
+import com.denisshulika.fincentra.ui.screens.StatsScreen
+import com.denisshulika.fincentra.ui.screens.TransactionsScreen
 import com.denisshulika.fincentra.ui.theme.FinCentraTheme
-import com.denisshulika.fincentra.viewmodels.*
+import com.denisshulika.fincentra.viewmodels.AuthViewModel
+import com.denisshulika.fincentra.viewmodels.BudgetsViewModel
+import com.denisshulika.fincentra.viewmodels.DreamViewModel
+import com.denisshulika.fincentra.viewmodels.IntegrationsViewModel
+import com.denisshulika.fincentra.viewmodels.ProfileViewModel
+import com.denisshulika.fincentra.viewmodels.StatsViewModel
+import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -88,8 +120,10 @@ fun MainScreen() {
         }
     }
 
-    val isAuthScreen = currentRoute in listOf(Screen.Login.route, Screen.Register.route, Screen.Onboarding.route)
-    val isTopLevelScreen = currentRoute in listOf(Screen.Home.route, Screen.Transactions.route, Screen.Stats.route)
+    val isAuthScreen =
+        currentRoute in listOf(Screen.Login.route, Screen.Register.route, Screen.Onboarding.route)
+    val isTopLevelScreen =
+        currentRoute in listOf(Screen.Home.route, Screen.Transactions.route, Screen.Stats.route)
 
     LaunchedEffect(currentRoute) {
         if (drawerState.isOpen) {
@@ -128,7 +162,8 @@ fun MainScreen() {
                         color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
                     )
 
-                    val drawerItems = listOf(Screen.Profile, Screen.Integrations, Screen.Budgets, Screen.Dream)
+                    val drawerItems =
+                        listOf(Screen.Profile, Screen.Integrations, Screen.Budgets, Screen.Dream)
                     drawerItems.forEach { screen ->
                         NavigationDrawerItem(
                             icon = { Icon(screen.icon, null) },
@@ -142,7 +177,9 @@ fun MainScreen() {
                                 }
                             },
                             colors = NavigationDrawerItemDefaults.colors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer.copy(
+                                    alpha = 0.5f
+                                ),
                                 selectedIconColor = MaterialTheme.colorScheme.primary,
                                 selectedTextColor = MaterialTheme.colorScheme.primary,
                                 unselectedContainerColor = Color.Transparent
@@ -175,7 +212,9 @@ fun MainScreen() {
                                 icon = { Icon(screen.icon, null) },
                                 onClick = { navigateWithClearStack(screen.route) },
                                 colors = NavigationBarItemDefaults.colors(
-                                    indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
+                                    indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(
+                                        alpha = 0.6f
+                                    )
                                 )
                             )
                         }
@@ -192,7 +231,8 @@ fun MainScreen() {
             ) {
                 composable(Screen.Onboarding.route) {
                     OnboardingScreen {
-                        prefs.edit().putBoolean(PrefConstants.KEY_IS_ONBOARDING_COMPLETED, true).apply()
+                        prefs.edit().putBoolean(PrefConstants.KEY_IS_ONBOARDING_COMPLETED, true)
+                            .apply()
                         navController.navigate(Screen.Login.route) { popUpTo(0) }
                     }
                 }
@@ -200,7 +240,11 @@ fun MainScreen() {
                     LoginScreen(
                         viewModel = authViewModel,
                         onNavigateToMain = {
-                            navController.navigate(Screen.Home.route) { popUpTo(0) { inclusive = true } }
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(0) {
+                                    inclusive = true
+                                }
+                            }
                         },
                         onNavigateToRegister = { navController.navigate(Screen.Register.route) }
                     )
@@ -209,7 +253,11 @@ fun MainScreen() {
                     RegisterScreen(
                         viewModel = authViewModel,
                         onNavigateToMain = {
-                            navController.navigate(Screen.Home.route) { popUpTo(0) { inclusive = true } }
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(0) {
+                                    inclusive = true
+                                }
+                            }
                         },
                         onBackToLogin = { navController.popBackStack() }
                     )
@@ -245,7 +293,11 @@ fun MainScreen() {
                         viewModel = profileViewModel,
                         onBack = { navController.popBackStack() },
                         onLogout = {
-                            navController.navigate(Screen.Login.route) { popUpTo(0) { inclusive = true } }
+                            navController.navigate(Screen.Login.route) {
+                                popUpTo(0) {
+                                    inclusive = true
+                                }
+                            }
                         }
                     )
                 }

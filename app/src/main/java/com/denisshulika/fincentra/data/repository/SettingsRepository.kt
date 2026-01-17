@@ -1,7 +1,7 @@
 package com.denisshulika.fincentra.data.repository
 
-import com.denisshulika.fincentra.data.util.FirestoreDocuments
 import com.denisshulika.fincentra.data.util.FirestoreCollections
+import com.denisshulika.fincentra.data.util.FirestoreDocuments
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -19,14 +19,16 @@ class SettingsRepository(
     private fun getSettingsRef(): DocumentReference? {
         return auth.currentUser?.uid?.let { uid ->
             db.collection(FirestoreCollections.USERS).document(uid)
-                .collection(FirestoreCollections.SETTINGS).document(FirestoreDocuments.USER_SETTINGS)
+                .collection(FirestoreCollections.SETTINGS)
+                .document(FirestoreDocuments.USER_SETTINGS)
         }
     }
 
     private fun getSyncMetadataRef(): DocumentReference? {
         return auth.currentUser?.uid?.let { uid ->
             db.collection(FirestoreCollections.USERS).document(uid)
-                .collection(FirestoreCollections.SETTINGS).document(FirestoreDocuments.SYNC_METADATA)
+                .collection(FirestoreCollections.SETTINGS)
+                .document(FirestoreDocuments.SYNC_METADATA)
         }
     }
 
@@ -47,7 +49,8 @@ class SettingsRepository(
     }
 
     suspend fun saveLastSyncTimestamp(accountId: String, timestamp: Long) {
-        getSyncMetadataRef()?.set(mapOf("lastSync_$accountId" to timestamp), SetOptions.merge())?.await()
+        getSyncMetadataRef()?.set(mapOf("lastSync_$accountId" to timestamp), SetOptions.merge())
+            ?.await()
     }
 
     suspend fun getLastSyncTimestamp(accountId: String): Long {

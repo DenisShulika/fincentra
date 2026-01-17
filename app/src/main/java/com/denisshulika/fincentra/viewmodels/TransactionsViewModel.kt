@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.denisshulika.fincentra.data.models.domain.BankAccount
 import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.models.domain.TransactionCategory
+import com.denisshulika.fincentra.data.network.common.MccDirectory
 import com.denisshulika.fincentra.data.util.DateFormatter
 import com.denisshulika.fincentra.data.util.TransactionConstants
 import com.denisshulika.fincentra.data.util.TransactionFilterEngine
@@ -18,7 +19,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Calendar
-import java.util.Date
 import java.util.UUID
 
 class TransactionsViewModel : ViewModel() {
@@ -70,7 +70,7 @@ class TransactionsViewModel : ViewModel() {
                 isExpense = _isExpense.value,
                 timestamp = editingTimestamp ?: System.currentTimeMillis(),
                 accountId = TransactionConstants.ACCOUNT_ID_MANUAL,
-                currencyCode = _selectedCurrency.value, // ВИКОРИСТОВУЄМО СТАН
+                currencyCode = _selectedCurrency.value,
                 subCategoryName = "Ручне введення"
             )
             financeRepository.addTransaction(transaction)
@@ -114,24 +114,27 @@ class TransactionsViewModel : ViewModel() {
         allTransactions,
         accounts,
         _searchQuery,
-        _selectedBankFilter,
         _selectedCategories,
-        _selectedDateRange,
-        _selectedTypeFilter,
-        _selectedSortOrder
+        _selectedBankFilter,
+        _selectedTypeFilter
     ) { args ->
         val txList = args[0] as List<Transaction>
         val accountList = args[1] as List<BankAccount>
+        val query = args[2] as String
+        val selectedCats = args[3] as Set<String>
+        val bankFilter = args[4] as String
+        val typeFilter = args[5] as String
+
+        val selectedIds = accountList.filter { it.selected }.map { it.id }
 
         TransactionFilterEngine.filter(
             transactions = txList,
-            selectedAccountIds = accountList.filter { it.selected }.map { it.id },
-            query = args[2] as String,
-            bankFilter = args[3] as String,
-            selectedCats = args[4] as Set<String>,
-            dateRange = args[5] as LongRange?,
-            typeFilter = args[6] as String,
-            sortOrder = args[7] as SortOrder
+            selectedAccountIds = selectedIds,
+            query = query,
+            bankFilter = bankFilter,
+            typeFilter = typeFilter,
+            selectedCats = selectedCats,
+            dateRange = null
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -162,7 +165,7 @@ class TransactionsViewModel : ViewModel() {
     val categoriesWithSubs: StateFlow<Map<TransactionCategory, List<String>>> = allTransactions
         .map { _ ->
             TransactionCategory.entries.associateWith { mainCat ->
-                com.denisshulika.fincentra.data.network.common.MccDirectory.getSubcategoriesFor(
+                MccDirectory.getSubcategoriesFor(
                     mainCat
                 )
             }
@@ -179,68 +182,6 @@ class TransactionsViewModel : ViewModel() {
 
     fun closeTransactionDetails() {
         _viewingTransaction.value = null
-    }
-
-    fun loadMoreTransactions() {
-        viewModelScope.launch {
-            val newPage = financeRepository.fetchNextPage()
-            _paginatedTransactions.value =
-                (_paginatedTransactions.value + newPage).distinctBy { it.id }
-        }
-    }
-
-    private fun List<Transaction>.filterByActiveAccounts(ids: List<String>) = filter {
-        it.accountId == TransactionConstants.ACCOUNT_ID_MANUAL || ids.contains(it.accountId)
-    }
-
-    private fun List<Transaction>.filterBySearch(query: String): List<Transaction> {
-        if (query.isBlank()) return this
-        val trimmedQuery = query.trim()
-
-        return filter { tx ->
-            val amountFilter = when {
-                trimmedQuery.startsWith(">") -> trimmedQuery.drop(1).toDoubleOrNull()
-                trimmedQuery.startsWith("<") -> trimmedQuery.drop(1).toDoubleOrNull()
-                else -> null
-            }
-
-            if (amountFilter != null) {
-                if (trimmedQuery.startsWith(">")) tx.amount > amountFilter
-                else tx.amount < amountFilter
-            } else {
-                tx.description.contains(trimmedQuery, ignoreCase = true) ||
-                        tx.category.displayName.contains(trimmedQuery, ignoreCase = true) ||
-                        tx.subCategoryName.contains(trimmedQuery, ignoreCase = true)
-            }
-        }
-    }
-
-    private fun List<Transaction>.filterByBank(bank: String) = filter {
-        if (bank == "Всі") true else it.bankName == bank
-    }
-
-    private fun List<Transaction>.filterByType(type: String) = filter {
-        when (type) {
-            "Витрати" -> it.isExpense
-            "Доходи" -> !it.isExpense
-            else -> true
-        }
-    }
-
-    private fun List<Transaction>.filterByCategories(selectedCats: Set<String>) = filter {
-        if (selectedCats.isEmpty()) true
-        else selectedCats.contains(it.category.displayName) || selectedCats.contains(it.subCategoryName)
-    }
-
-    private fun List<Transaction>.filterByDate(range: LongRange?) = filter {
-        if (range == null) true else it.timestamp in range
-    }
-
-    private fun List<Transaction>.applySort(order: SortOrder) = when (order) {
-        SortOrder.DATE_DESC -> sortedByDescending { it.timestamp }
-        SortOrder.DATE_ASC -> sortedBy { it.timestamp }
-        SortOrder.AMOUNT_DESC -> sortedByDescending { it.amount }
-        SortOrder.AMOUNT_ASC -> sortedBy { it.amount }
     }
 
     fun onSortOrderChange(order: SortOrder) {
@@ -281,7 +222,7 @@ class TransactionsViewModel : ViewModel() {
 
         if (mainCat != null) {
             val subs =
-                com.denisshulika.fincentra.data.network.common.MccDirectory.getSubcategoriesFor(
+                MccDirectory.getSubcategoriesFor(
                     mainCat
                 )
             if (current.contains(name)) {

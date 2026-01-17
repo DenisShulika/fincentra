@@ -1,13 +1,20 @@
 package com.denisshulika.fincentra.data.repository
 
+import android.Manifest
+import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
+import java.util.Calendar
 
 class GlobalSyncWorker(
     context: Context,
@@ -36,8 +43,8 @@ class GlobalSyncWorker(
                 ?: continue
 
             val lastSyncMillis = settingsRepository.getLastSyncTimestamp(id)
-
-            val fromTimeSeconds = if (lastSyncMillis == 0L) 0L else (lastSyncMillis / 1000) + 1
+            val fromTimeSeconds =
+                if (lastSyncMillis == 0L) (System.currentTimeMillis() / 1000) - 2682000L else (lastSyncMillis / 1000) + 1
 
             try {
                 monoService.fetchTransactionsForAccount(
@@ -69,24 +76,25 @@ class GlobalSyncWorker(
             settingsRepository.saveLastGlobalSyncTime(System.currentTimeMillis())
             Result.success()
         } catch (e: Exception) {
+            Log.e("SYNC_WORKER", "Work failed: ${e.message}")
             Result.retry()
         }
     }
 
     private suspend fun checkBudgetsAndNotify() {
-        val cal = java.util.Calendar.getInstance()
+        val cal = Calendar.getInstance()
         val monthYear =
-            "${cal.get(java.util.Calendar.MONTH) + 1}-${cal.get(java.util.Calendar.YEAR)}"
+            "${cal.get(Calendar.MONTH) + 1}-${cal.get(Calendar.YEAR)}"
 
         val budgets = budgetRepository.getBudgetsFlow(monthYear).firstOrNull() ?: return
         val transactions = financeRepository.transactions.value
 
         for (budget in budgets) {
             val spent = transactions.filter { tx ->
-                val txCal = java.util.Calendar.getInstance().apply { timeInMillis = tx.timestamp }
+                val txCal = Calendar.getInstance().apply { timeInMillis = tx.timestamp }
                 tx.isExpense &&
                         tx.category.displayName == budget.categoryName &&
-                        txCal.get(java.util.Calendar.MONTH) == cal.get(java.util.Calendar.MONTH) &&
+                        txCal.get(Calendar.MONTH) == cal.get(Calendar.MONTH) &&
                         tx.currencyCode == budget.currencyCode
             }.sumOf { it.amount }
 
@@ -101,21 +109,26 @@ class GlobalSyncWorker(
 
     private fun sendNotification(title: String, message: String) {
         val builder =
-            androidx.core.app.NotificationCompat.Builder(applicationContext, "BUDGET_ALERTS")
+            NotificationCompat.Builder(applicationContext, "BUDGET_ALERTS")
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setPriority(androidx.core.app.NotificationCompat.PRIORITY_DEFAULT)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setAutoCancel(true)
 
-        with(androidx.core.app.NotificationManagerCompat.from(applicationContext)) {
-            if (androidx.core.content.ContextCompat.checkSelfPermission(
+        val notificationManager =
+            applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
                     applicationContext,
-                    android.Manifest.permission.POST_NOTIFICATIONS
-                ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
             ) {
-                notify(title.hashCode(), builder.build())
+                notificationManager.notify(title.hashCode(), builder.build())
             }
+        } else {
+            notificationManager.notify(title.hashCode(), builder.build())
         }
     }
 }

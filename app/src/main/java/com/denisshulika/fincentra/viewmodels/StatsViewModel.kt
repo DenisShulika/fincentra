@@ -11,14 +11,13 @@ import com.denisshulika.fincentra.data.models.state.StatsPeriod
 import com.denisshulika.fincentra.data.models.state.StatsUiState
 import com.denisshulika.fincentra.data.models.state.SubCategoryStat
 import com.denisshulika.fincentra.di.DependencyProvider
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 import java.util.Calendar
 import kotlin.math.round
 
@@ -47,7 +46,7 @@ class StatsViewModel : ViewModel() {
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     val uiState: StateFlow<StatsUiState> = combine(
-        repository.transactions,
+        repository.statsTransactions,
         availableAccounts,
         _selectedDateRange,
         _selectedBank,
@@ -61,17 +60,22 @@ class StatsViewModel : ViewModel() {
         val accId = args[4] as String?
         val isExpMode = args[5] as Boolean
 
-        withContext(Dispatchers.Default) {
-            calculateOptimizedStats(transactions, accounts, range, bank, accId, isExpMode)
-        }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = StatsUiState()
-    )
+        calculateOptimizedStats(transactions, accounts, range, bank, accId, isExpMode)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), StatsUiState())
 
     init {
         setPeriod(StatsPeriod.MONTH)
+
+        viewModelScope.launch {
+            combine(_selectedDateRange, _selectedBank) { range, bank ->
+                com.denisshulika.fincentra.data.models.state.TransactionQuery(
+                    bank = bank,
+                    dateRange = range
+                )
+            }.collect { query ->
+                repository.observeTransactionsForStats(query)
+            }
+        }
     }
 
     private fun calculateOptimizedStats(
@@ -82,75 +86,96 @@ class StatsViewModel : ViewModel() {
         accountIdFilter: String?,
         isExpenseMode: Boolean
     ): StatsUiState {
-        if (allTx.isEmpty()) return StatsUiState()
+        if (accounts.isEmpty()) return StatsUiState()
 
-        val currencyData = allTx.groupBy { it.currencyCode }.map { (code, transactions) ->
-            var periodIncome = 0.0
-            var periodExpense = 0.0
-            val categoryMap = mutableMapOf<TransactionCategory, Double>()
-            val subCategoryMap = mutableMapOf<TransactionCategory, MutableMap<String, Double>>()
+        val userSelected = accounts.filter { it.selected }
+        val baseAccounts = if (userSelected.isEmpty()) accounts else userSelected
 
-            transactions.forEach { tx ->
-                val isInRange = range == null || tx.timestamp in range
-                val matchesBank = if (bankFilter == "Всі") true else tx.bankName == bankFilter
-                val matchesAccount =
-                    if (accountIdFilter == null) true else tx.accountId == accountIdFilter
+        val filteredAccounts = baseAccounts.filter { acc ->
+            (bankFilter == "Всі" || acc.provider == bankFilter) &&
+                    (accountIdFilter == null || acc.id == accountIdFilter)
+        }
 
-                if (isInRange && matchesBank && matchesAccount) {
-                    if (tx.isExpense) periodExpense += tx.amount else periodIncome += tx.amount
+        if (filteredAccounts.isEmpty()) return StatsUiState()
 
-                    if (tx.isExpense == isExpenseMode) {
-                        categoryMap[tx.category] = (categoryMap[tx.category] ?: 0.0) + tx.amount
-                        val subs = subCategoryMap.getOrPut(tx.category) { mutableMapOf() }
-                        subs[tx.subCategoryName] = (subs[tx.subCategoryName] ?: 0.0) + tx.amount
+        val currencyData =
+            filteredAccounts.groupBy { it.currencyCode }.map { (code, accsInCurrency) ->
+
+                val txsInPeriod = allTx.filter { tx ->
+                    tx.currencyCode == code &&
+                            accsInCurrency.any { it.id == tx.accountId } &&
+                            (range == null || tx.timestamp in range)
+                }
+
+                val endBalance = accsInCurrency.sumOf { it.balance }
+
+                var calculatedStartBalance = 0.0
+                accsInCurrency.forEach { acc ->
+                    val oldestTx =
+                        txsInPeriod.filter { it.accountId == acc.id }.minByOrNull { it.timestamp }
+
+                    if (oldestTx != null && oldestTx.balance != null) {
+                        calculatedStartBalance += if (oldestTx.isExpense) {
+                            oldestTx.balance + oldestTx.amount
+                        } else {
+                            oldestTx.balance - oldestTx.amount
+                        }
+                    } else {
+                        val periodInc =
+                            txsInPeriod.filter { it.accountId == acc.id && !it.isExpense }
+                                .sumOf { it.amount }
+                        val periodExp =
+                            txsInPeriod.filter { it.accountId == acc.id && it.isExpense }
+                                .sumOf { it.amount }
+                        calculatedStartBalance += (acc.balance - periodInc + periodExp)
                     }
                 }
-            }
 
-            periodIncome = periodIncome.round(2)
-            periodExpense = periodExpense.round(2)
+                val periodIncome = txsInPeriod.filter { !it.isExpense }.sumOf { it.amount }
+                val periodExpense = txsInPeriod.filter { it.isExpense }.sumOf { it.amount }
 
-            val selectedAccounts = accounts
-                .filter { it.currencyCode == code && it.selected }
-                .filter { if (bankFilter == "Всі") true else it.provider == bankFilter }
-                .filter { if (accountIdFilter == null) true else it.id == accountIdFilter }
-                .distinctBy { it.id }
+                val categoryMap = mutableMapOf<TransactionCategory, Double>()
+                val subCategoryMap = mutableMapOf<TransactionCategory, MutableMap<String, Double>>()
 
-            val endBalance = selectedAccounts.sumOf { it.balance }.round(2)
-            val startBalance = (endBalance - periodIncome + periodExpense).round(2)
+                txsInPeriod.filter { it.isExpense == isExpenseMode }.forEach { tx ->
+                    categoryMap[tx.category] = (categoryMap[tx.category] ?: 0.0) + tx.amount
+                    val subs = subCategoryMap.getOrPut(tx.category) { mutableMapOf() }
+                    val subName = tx.subCategoryName.ifBlank { "Інше" }
+                    subs[subName] = (subs[subName] ?: 0.0) + tx.amount
+                }
 
-            val totalForPercentage = if (isExpenseMode) periodExpense else periodIncome
+                val totalForPercentage = if (isExpenseMode) periodExpense else periodIncome
 
-            val categoryStats = categoryMap.map { (cat, catSum) ->
-                val subStats = subCategoryMap[cat]?.map { (subName, subSum) ->
-                    SubCategoryStat(
-                        name = subName,
-                        amount = subSum.round(2),
-                        percentageOfParent = if (catSum > 0) (subSum / catSum).toFloat() else 0f
+                val categoryStats = categoryMap.map { (cat, catSum) ->
+                    val subStats = subCategoryMap[cat]?.map { (subName, subSum) ->
+                        SubCategoryStat(
+                            name = subName,
+                            amount = subSum.round(2),
+                            percentageOfParent = if (catSum > 0) (subSum / catSum).toFloat() else 0f
+                        )
+                    }?.sortedByDescending { it.amount } ?: emptyList()
+
+                    CategoryStat(
+                        category = cat,
+                        amount = catSum.round(2),
+                        percentage = if (totalForPercentage > 0) (catSum / totalForPercentage).toFloat() else 0f,
+                        subCategories = subStats
                     )
-                }?.sortedByDescending { it.amount } ?: emptyList()
+                }.sortedByDescending { it.amount }
 
-                CategoryStat(
-                    category = cat,
-                    amount = catSum.round(2),
-                    percentage = if (totalForPercentage > 0) (catSum / totalForPercentage).toFloat() else 0f,
-                    subCategories = subStats
+                CurrencyStats(
+                    currencyCode = code,
+                    startPeriodBalance = calculatedStartBalance.round(2),
+                    endPeriodBalance = endBalance.round(2),
+                    totalIncome = periodIncome.round(2),
+                    totalExpense = periodExpense.round(2),
+                    categories = categoryStats
                 )
-            }.sortedByDescending { it.amount }
+            }.sortedByDescending { it.currencyCode == 980 }
 
-            CurrencyStats(
-                code,
-                startBalance,
-                endBalance,
-                periodIncome,
-                periodExpense,
-                categoryStats
-            )
-        }.filter { it.totalIncome > 0 || it.totalExpense > 0 || it.endPeriodBalance > 0 }
-            .sortedByDescending { it.currencyCode == 980 }
-
-        return StatsUiState(currencyData = currencyData, dateRange = range)
+        return StatsUiState(currencyData, range)
     }
+
 
     fun setPeriod(period: StatsPeriod) {
         _selectedPeriod.value = period

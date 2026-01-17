@@ -21,8 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.ui.components.FinCentraTopBar
 import com.denisshulika.fincentra.ui.components.dream.DreamForm
-import com.denisshulika.fincentra.ui.components.dream.DreamProgressView
 import com.denisshulika.fincentra.ui.components.dream.DreamInfoCard
+import com.denisshulika.fincentra.ui.components.dream.DreamProgressView
 import com.denisshulika.fincentra.viewmodels.DreamViewModel
 
 @Composable

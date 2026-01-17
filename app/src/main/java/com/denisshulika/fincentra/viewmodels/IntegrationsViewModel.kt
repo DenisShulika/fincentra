@@ -121,7 +121,8 @@ class IntegrationsViewModel : ViewModel() {
                         _syncStatus.value = "Синхронізація: ${account.name}..."
 
                         val lastSync = settingsRepository.getLastSyncTimestamp(account.id)
-                        val fromTime = if (lastSync == 0L) (System.currentTimeMillis() / 1000) - 2682000L else (lastSync / 1000 + 1)
+                        val fromTime =
+                            if (lastSync == 0L) (System.currentTimeMillis() / 1000) - 2682000L else (lastSync / 1000 + 1)
 
                         monobankService.fetchTransactionsForAccount(
                             token = token,
