@@ -2,7 +2,6 @@ package com.denisshulika.fincentra.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.denisshulika.fincentra.data.models.domain.BankAccount
 import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.models.domain.TransactionCategory
 import com.denisshulika.fincentra.data.network.common.MccDirectory
@@ -23,15 +22,11 @@ import java.util.UUID
 
 class TransactionsViewModel : ViewModel() {
     private val financeRepository = DependencyProvider.financeRepository
+    private val settingsRepository = DependencyProvider.settingsRepository
 
     private val allTransactions: StateFlow<List<Transaction>> = financeRepository.transactions
-
     private val accounts = financeRepository.getAccountsFlow()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = emptyList()
-        )
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     private val _isSearchActive = MutableStateFlow(false)
     val isSearchActive = _isSearchActive.asStateFlow()
@@ -53,6 +48,16 @@ class TransactionsViewModel : ViewModel() {
 
     private val _selectedCurrency = MutableStateFlow(980)
     val selectedCurrency = _selectedCurrency.asStateFlow()
+
+    private val _selectedIds = MutableStateFlow<List<String>>(emptyList())
+
+    init {
+        viewModelScope.launch {
+            settingsRepository.getSelectedAccountIdsFlow().collect { ids ->
+                _selectedIds.value = ids
+            }
+        }
+    }
 
     fun onCurrencyChange(code: Int) {
         _selectedCurrency.value = code
@@ -116,20 +121,19 @@ class TransactionsViewModel : ViewModel() {
         _searchQuery,
         _selectedCategories,
         _selectedBankFilter,
-        _selectedTypeFilter
+        _selectedTypeFilter,
+        _selectedIds
     ) { args ->
         val txList = args[0] as List<Transaction>
-        val accountList = args[1] as List<BankAccount>
         val query = args[2] as String
         val selectedCats = args[3] as Set<String>
         val bankFilter = args[4] as String
         val typeFilter = args[5] as String
-
-        val selectedIds = accountList.filter { it.selected }.map { it.id }
+        val activeIds = args[6] as List<String>
 
         TransactionFilterEngine.filter(
             transactions = txList,
-            selectedAccountIds = selectedIds,
+            selectedAccountIds = activeIds,
             query = query,
             bankFilter = bankFilter,
             typeFilter = typeFilter,

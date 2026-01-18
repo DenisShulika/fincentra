@@ -10,6 +10,7 @@ import com.denisshulika.fincentra.data.models.state.CurrencyStats
 import com.denisshulika.fincentra.data.models.state.StatsPeriod
 import com.denisshulika.fincentra.data.models.state.StatsUiState
 import com.denisshulika.fincentra.data.models.state.SubCategoryStat
+import com.denisshulika.fincentra.data.models.state.TransactionQuery
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,7 +23,8 @@ import java.util.Calendar
 import kotlin.math.round
 
 class StatsViewModel : ViewModel() {
-    private val repository = DependencyProvider.financeRepository
+    private val financeRepository = DependencyProvider.financeRepository
+    private val settingsRepository = DependencyProvider.settingsRepository
 
     private val _selectedDateRange = MutableStateFlow<LongRange?>(null)
     val selectedDateRange = _selectedDateRange.asStateFlow()
@@ -42,11 +44,13 @@ class StatsViewModel : ViewModel() {
     private val _selectedCurrencyIndex = MutableStateFlow(0)
     val selectedCurrencyIndex = _selectedCurrencyIndex.asStateFlow()
 
-    val availableAccounts = repository.getAccountsFlow()
+    private val _selectedIds = MutableStateFlow<List<String>>(emptyList())
+
+    val availableAccounts = financeRepository.getAccountsFlow()
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     val uiState: StateFlow<StatsUiState> = combine(
-        repository.statsTransactions,
+        financeRepository.statsTransactions,
         availableAccounts,
         _selectedDateRange,
         _selectedBank,
@@ -67,13 +71,16 @@ class StatsViewModel : ViewModel() {
         setPeriod(StatsPeriod.MONTH)
 
         viewModelScope.launch {
+            settingsRepository.getSelectedAccountIdsFlow().collect { ids ->
+                _selectedIds.value = ids
+            }
+        }
+
+        viewModelScope.launch {
             combine(_selectedDateRange, _selectedBank) { range, bank ->
-                com.denisshulika.fincentra.data.models.state.TransactionQuery(
-                    bank = bank,
-                    dateRange = range
-                )
+                TransactionQuery(bank = bank, dateRange = range)
             }.collect { query ->
-                repository.observeTransactionsForStats(query)
+                financeRepository.observeTransactionsForStats(query)
             }
         }
     }
@@ -88,15 +95,15 @@ class StatsViewModel : ViewModel() {
     ): StatsUiState {
         if (accounts.isEmpty()) return StatsUiState()
 
-        val userSelected = accounts.filter { it.selected }
-        val baseAccounts = if (userSelected.isEmpty()) accounts else userSelected
+        val activeIds = _selectedIds.value
+        val baseAccounts = accounts.filter { activeIds.contains(it.id) }
+
+        if (baseAccounts.isEmpty()) return StatsUiState()
 
         val filteredAccounts = baseAccounts.filter { acc ->
             (bankFilter == "Всі" || acc.provider == bankFilter) &&
                     (accountIdFilter == null || acc.id == accountIdFilter)
         }
-
-        if (filteredAccounts.isEmpty()) return StatsUiState()
 
         val currencyData =
             filteredAccounts.groupBy { it.currencyCode }.map { (code, accsInCurrency) ->

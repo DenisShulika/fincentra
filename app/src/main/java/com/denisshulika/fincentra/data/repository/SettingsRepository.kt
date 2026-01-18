@@ -32,6 +32,17 @@ class SettingsRepository(
         }
     }
 
+    fun getSelectedAccountIdsFlow(): Flow<List<String>> {
+        val ref = getSettingsRef() ?: return flowOf(emptyList())
+        return callbackFlow {
+            val subscription = ref.addSnapshotListener { snapshot, _ ->
+                val ids = snapshot?.get("selectedIds") as? List<String> ?: emptyList()
+                trySend(ids)
+            }
+            awaitClose { subscription.remove() }
+        }
+    }
+
     suspend fun saveMonobankApiToken(token: String?) {
         getSettingsRef()?.set(mapOf("monobankToken" to token), SetOptions.merge())?.await()
     }
