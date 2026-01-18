@@ -63,18 +63,25 @@ class IntegrationsViewModel : ViewModel() {
         refreshConnectionStatus()
     }
 
+    private suspend fun getMappedAccounts(): List<BankAccount> {
+        val savedAccounts = financeRepository.getAccountsOnce()
+        val selectedIds = settingsRepository.getSelectedAccountIds()
+        return savedAccounts.map { acc ->
+            acc.copy(selected = selectedIds.contains(acc.id))
+        }.sortedBy { it.id }
+    }
+
     fun refreshConnectionStatus() {
         viewModelScope.launch {
             val token = settingsRepository.getMonobankApiToken()
             _isBankConnected.value = !token.isNullOrBlank()
+
             if (_isBankConnected.value) {
-                val saved = financeRepository.getAccountsOnce()
-                _availableAccounts.value = saved.sortedBy { it.id }
-            } else {
-                _availableAccounts.value = emptyList()
+                _availableAccounts.value = getMappedAccounts()
             }
         }
     }
+
 
     fun selectBank(bank: BankProviderInfo) {
         _selectedBank.value = bank
@@ -89,7 +96,7 @@ class IntegrationsViewModel : ViewModel() {
 
     fun syncMonobankData() {
         viewModelScope.launch {
-            if (_isLoading.value) return@launch
+            if (_isLoading.value && _syncStatus.value.isNotEmpty()) return@launch
             _isLoading.value = true
             _syncProgress.value = 0f
             var needsCooldown = false
@@ -169,7 +176,7 @@ class IntegrationsViewModel : ViewModel() {
 
     fun refreshMonobankAccounts() {
         viewModelScope.launch {
-            if (_isLoading.value) return@launch
+            if (_isLoading.value && _syncStatus.value.isNotEmpty()) return@launch
             _isLoading.value = true
             try {
                 val token = settingsRepository.getMonobankApiToken() ?: return@launch
@@ -194,17 +201,17 @@ class IntegrationsViewModel : ViewModel() {
 
     fun confirmAccountSelection() {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
-                financeRepository.saveAccounts(_availableAccounts.value, updateSelection = true)
+                val currentList = _availableAccounts.value
+                val selectedIds = currentList.filter { it.selected }.map { it.id }
 
-                val selectedIds = _availableAccounts.value.filter { it.selected }.map { it.id }
                 settingsRepository.saveSelectedAccountIds(selectedIds)
+                financeRepository.saveAccounts(currentList, updateSelection = true)
 
-                _showAccountSelection.value = false
-                refreshConnectionStatus()
-                delay(500)
                 syncMonobankData()
             } catch (e: Exception) {
+                _isLoading.value = false
                 _events.emit(IntegrationsUiEvent.ShowToast("Помилка"))
             }
         }
@@ -214,38 +221,43 @@ class IntegrationsViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val accounts = financeRepository.getAccountsOnce()
-                if (accounts.isNotEmpty()) {
-                    _availableAccounts.value = accounts.sortedBy { it.id }
-                }
+                _availableAccounts.value = getMappedAccounts()
             } finally {
-                _isLoading.value = false
+                if (_syncStatus.value.isEmpty()) {
+                    _isLoading.value = false
+                }
             }
         }
     }
 
     fun connectMonobankAccount() {
         viewModelScope.launch {
-            if (_isLoading.value) return@launch
+            if (_isLoading.value && _syncStatus.value.isNotEmpty()) return@launch
             _isLoading.value = true
             try {
                 val token = _monobankToken.value.trim()
                 val apiAccounts = monobankService.fetchAccounts(token)
                 if (apiAccounts.isNotEmpty()) {
+                    val selectedIds = settingsRepository.getSelectedAccountIds()
+
                     settingsRepository.saveMonobankApiToken(token)
-                    financeRepository.saveAccounts(apiAccounts, updateSelection = false)
+
+                    val markedAccounts = apiAccounts.map { acc ->
+                        acc.copy(selected = selectedIds.contains(acc.id))
+                    }
+
+                    financeRepository.saveAccounts(markedAccounts, updateSelection = false)
+                    _availableAccounts.value = markedAccounts.sortedBy { it.id }
 
                     _isBankConnected.value = true
                     _isMonobankInputVisible.value = false
                     _monobankToken.value = ""
-                    _availableAccounts.value = apiAccounts.sortedBy { it.id }
                     _showAccountSelection.value = true
                 }
             } catch (e: Exception) {
                 _events.emit(IntegrationsUiEvent.ShowToast("Помилка токена"))
             } finally {
                 _isLoading.value = false
-                _syncStatus.value = ""
             }
         }
     }

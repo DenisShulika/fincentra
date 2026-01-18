@@ -120,8 +120,16 @@ fun MainScreen() {
         }
     }
 
-    val isAuthScreen =
-        currentRoute in listOf(Screen.Login.route, Screen.Register.route, Screen.Onboarding.route)
+    val isMainScreen =
+        currentRoute in listOf(
+            Screen.Login.route,
+            Screen.Register.route,
+            Screen.Onboarding.route,
+            Screen.Profile.route,
+            Screen.Integrations.route,
+            Screen.Budgets.route,
+            Screen.Dream.route
+        )
     val isTopLevelScreen =
         currentRoute in listOf(Screen.Home.route, Screen.Transactions.route, Screen.Stats.route)
 
@@ -143,7 +151,7 @@ fun MainScreen() {
         drawerState = drawerState,
         gesturesEnabled = isTopLevelScreen,
         drawerContent = {
-            if (!isAuthScreen) {
+            if (!isMainScreen) {
                 ModalDrawerSheet(
                     drawerContainerColor = MaterialTheme.colorScheme.background,
                     drawerTonalElevation = 0.dp
@@ -194,7 +202,7 @@ fun MainScreen() {
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
             bottomBar = {
-                if (!isAuthScreen) {
+                if (!isMainScreen) {
                     NavigationBar(
                         containerColor = MaterialTheme.colorScheme.background,
                         tonalElevation = 0.dp
@@ -226,7 +234,7 @@ fun MainScreen() {
                 navController = navController,
                 startDestination = startDestination,
                 modifier = Modifier.padding(
-                    bottom = if (!isAuthScreen) innerPadding.calculateBottomPadding() else 0.dp
+                    bottom = if (!isMainScreen) innerPadding.calculateBottomPadding() else 0.dp
                 )
             ) {
                 composable(Screen.Onboarding.route) {

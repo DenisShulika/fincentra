@@ -1,6 +1,5 @@
 package com.denisshulika.fincentra.data.repository
 
-import android.util.Log
 import com.denisshulika.fincentra.data.models.domain.BankAccount
 import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.util.BankProviders

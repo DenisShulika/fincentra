@@ -83,7 +83,7 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
                 modifier = Modifier.weight(1f)
             )
             IconButton(
-                onClick = { if (!isLoading) viewModel.closeBankDetails() },
+                onClick = { viewModel.closeBankDetails() },
                 modifier = Modifier.background(
                     MaterialTheme.colorScheme.surfaceVariant,
                     CircleShape
@@ -112,7 +112,7 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
             )
         }
 
-        if (isLoading) {
+        if (isLoading && syncStatus.isNotEmpty()) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 LinearProgressIndicator(
                     progress = { syncProgress },
@@ -176,13 +176,18 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(12.dp))
-                            .clickable { viewModel.toggleAccountSelection(account.id) }
+                            .clickable(enabled = !isLoading) {
+                                viewModel.toggleAccountSelection(
+                                    account.id
+                                )
+                            }
                             .padding(vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Checkbox(
                             checked = account.selected,
-                            onCheckedChange = { viewModel.toggleAccountSelection(account.id) }
+                            onCheckedChange = { viewModel.toggleAccountSelection(account.id) },
+                            enabled = !isLoading
                         )
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
@@ -212,7 +217,7 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
                         .fillMaxWidth()
                         .height(52.dp),
                     shape = RoundedCornerShape(12.dp),
-                    enabled = !isLoading
+                    enabled = !isLoading,
                 ) { Text("Оновити список рахунків") }
 
                 Button(
@@ -221,13 +226,13 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
                         .fillMaxWidth()
                         .height(56.dp),
                     shape = RoundedCornerShape(12.dp),
-                    enabled = !isLoading
+                    enabled = !isLoading,
                 ) { Text("Зберегти та синхронізувати", fontWeight = FontWeight.Bold) }
 
                 TextButton(
                     onClick = { viewModel.askDeleteConfirmation() },
                     modifier = Modifier.align(Alignment.CenterHorizontally),
-                    enabled = !isLoading
+                    enabled = !isLoading,
                 ) {
                     Text(
                         "Відключити банк",

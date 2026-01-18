@@ -10,13 +10,30 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ProfileViewModel : ViewModel() {
-    private val repository = DependencyProvider.financeRepository
+    private val financeRepository = DependencyProvider.financeRepository
+    private val authRepository = DependencyProvider.authRepository
+
+    private val _user = MutableStateFlow<User?>(null)
+    val user = _user.asStateFlow()
+
     private val _currencySummaries = MutableStateFlow<List<CurrencySummary>>(emptyList())
     val currencySummaries = _currencySummaries.asStateFlow()
 
+    private val _totalTransactionsCount = MutableStateFlow(0)
+    val totalTransactionsCount = _totalTransactionsCount.asStateFlow()
+
+    private val _provider = MutableStateFlow("")
+    val provider = _provider.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+
     init {
+        loadUserData()
+        observeStats()
+
         viewModelScope.launch {
-            repository.accounts.collect { accounts ->
+            financeRepository.accounts.collect { accounts ->
                 val summaries = accounts
                     .filter { it.selected }
                     .groupBy { it.currencyCode }
@@ -29,19 +46,19 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    private val authRepository = DependencyProvider.authRepository
+    private fun loadUserData() {
+        val currentUser = authRepository.getCurrentUser()
+        _user.value = currentUser
+        _provider.value = authRepository.getSignInProvider()
+    }
 
-    private val _user = MutableStateFlow<User?>(null)
-    val user = _user.asStateFlow()
-
-    private val _totalTransactionsCount = MutableStateFlow(0)
-    val totalTransactionsCount = _totalTransactionsCount.asStateFlow()
-
-    private val _provider = MutableStateFlow("")
-    val provider = _provider.asStateFlow()
-
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
+    private fun observeStats() {
+        viewModelScope.launch {
+            financeRepository.transactions.collect { list ->
+                _totalTransactionsCount.value = list.size
+            }
+        }
+    }
 
     fun changePassword(newPass: String, onComplete: (String) -> Unit) {
         viewModelScope.launch {
@@ -57,7 +74,7 @@ class ProfileViewModel : ViewModel() {
     fun deleteAccount(onDeleted: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             _isLoading.value = true
-            repository.clearAllData()
+            financeRepository.clearAllData()
 
             val result = authRepository.deleteUserAccount()
             _isLoading.value = false
@@ -72,18 +89,6 @@ class ProfileViewModel : ViewModel() {
             authRepository.signOut()
             DependencyProvider.financeRepository.clearAllData()
             onSuccess()
-        }
-    }
-
-    private fun loadUserData() {
-        _user.value = authRepository.getCurrentUser()
-    }
-
-    private fun observeStats() {
-        viewModelScope.launch {
-            repository.transactions.collect { list ->
-                _totalTransactionsCount.value = list.size
-            }
         }
     }
 

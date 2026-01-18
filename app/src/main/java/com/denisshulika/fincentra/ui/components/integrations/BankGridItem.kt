@@ -46,7 +46,7 @@ fun BankGridItem(
             .fillMaxWidth()
             .aspectRatio(1f)
             .clip(RoundedCornerShape(28.dp))
-            .clickable(enabled = !isLoading) { onClick() }
+            .clickable { onClick() }
             .border(
                 width = 2.dp,
                 color = if (isConnected) MaterialTheme.colorScheme.primary else Color.Transparent,
