@@ -1,5 +1,7 @@
 package com.denisshulika.fincentra.data.repository
 
+import android.util.Log
+import com.denisshulika.fincentra.data.models.domain.Dream
 import com.denisshulika.fincentra.data.util.FirestoreCollections
 import com.denisshulika.fincentra.data.util.FirestoreDocuments
 import com.google.firebase.auth.FirebaseAuth
@@ -84,12 +86,12 @@ class SettingsRepository(
         }
     }
 
-    fun getDreamFlow(): Flow<com.denisshulika.fincentra.data.models.domain.Dream?> {
+    fun getDreamFlow(): Flow<Dream?> {
         val ref = getSettingsRef()?.parent?.document("user_dream") ?: return flowOf(null)
         return callbackFlow {
             val subscription = ref.addSnapshotListener { snapshot, _ ->
                 if (snapshot != null && snapshot.exists()) {
-                    trySend(snapshot.toObject(com.denisshulika.fincentra.data.models.domain.Dream::class.java))
+                    trySend(snapshot.toObject(Dream::class.java))
                 } else {
                     trySend(null)
                 }
@@ -98,7 +100,7 @@ class SettingsRepository(
         }
     }
 
-    suspend fun saveDream(dream: com.denisshulika.fincentra.data.models.domain.Dream) {
+    suspend fun saveDream(dream: Dream) {
         getSettingsRef()?.parent?.document("user_dream")?.set(dream)?.await()
     }
 

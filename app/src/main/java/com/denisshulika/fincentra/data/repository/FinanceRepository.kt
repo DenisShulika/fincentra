@@ -1,5 +1,6 @@
 package com.denisshulika.fincentra.data.repository
 
+import android.util.Log
 import com.denisshulika.fincentra.data.models.domain.BankAccount
 import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.util.BankProviders
@@ -145,10 +146,20 @@ class FinanceRepository(private val db: FirebaseFirestore, private val auth: Fir
 
     fun clearAllData() {
         transactionsListener?.remove()
+        statsListener?.remove()
         accountsListener?.remove()
+
+        transactionsListener = null
+        statsListener = null
+        accountsListener = null
+
         _transactions.value = emptyList()
+        _statsTransactions.value = emptyList()
         _accounts.value = emptyList()
+
         _isInitialLoadComplete.value = false
+
+        Log.d("REPO", "FinanceRepository: Дані та слухачі повністю очищені")
     }
 
     private fun getTransactionsRef() = auth.currentUser?.uid?.let {
