@@ -55,7 +55,8 @@ class StatsViewModel : ViewModel() {
         _selectedDateRange,
         _selectedBank,
         _selectedAccountId,
-        _isExpenseMode
+        _isExpenseMode,
+        _selectedIds
     ) { args ->
         val transactions = args[0] as List<Transaction>
         val accounts = args[1] as List<BankAccount>
@@ -63,8 +64,9 @@ class StatsViewModel : ViewModel() {
         val bank = args[3] as String
         val accId = args[4] as String?
         val isExpMode = args[5] as Boolean
+        val activeIds = args[6] as List<String>
 
-        calculateOptimizedStats(transactions, accounts, range, bank, accId, isExpMode)
+        calculateOptimizedStats(transactions, accounts, range, bank, accId, isExpMode, activeIds)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), StatsUiState())
 
     init {
@@ -91,11 +93,11 @@ class StatsViewModel : ViewModel() {
         range: LongRange?,
         bankFilter: String,
         accountIdFilter: String?,
-        isExpenseMode: Boolean
+        isExpenseMode: Boolean,
+        activeIds: List<String>
     ): StatsUiState {
         if (accounts.isEmpty()) return StatsUiState()
 
-        val activeIds = _selectedIds.value
         val baseAccounts = accounts.filter { activeIds.contains(it.id) }
 
         if (baseAccounts.isEmpty()) return StatsUiState()
