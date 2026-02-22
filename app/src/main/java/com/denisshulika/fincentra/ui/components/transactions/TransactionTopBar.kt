@@ -25,9 +25,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 
 @Composable
@@ -53,11 +55,11 @@ fun TransactionsTopBar(
         ) {
             if (!isSearchActive) {
                 IconButton(onClick = onOpenDrawer) {
-                    Icon(imageVector = Icons.Default.Menu, contentDescription = "Відкрити меню")
+                    Icon(imageVector = Icons.Default.Menu, contentDescription = null)
                 }
 
                 Text(
-                    text = "Операції",
+                    text = stringResource(R.string.transactions_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
@@ -65,7 +67,7 @@ fun TransactionsTopBar(
                         .padding(start = 8.dp)
                 )
                 IconButton(onClick = { viewModel.toggleSearch(true) }) {
-                    Icon(Icons.Default.Search, contentDescription = "Пошук")
+                    Icon(Icons.Default.Search, contentDescription = null)
                 }
             } else {
                 Row(
@@ -73,19 +75,19 @@ fun TransactionsTopBar(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = onFilterCategoryClick) {
-                        Icon(Icons.Default.FilterList, contentDescription = "Категорії")
+                        Icon(Icons.Default.FilterList, contentDescription = null)
                     }
                     IconButton(onClick = onFilterTypeClick) {
-                        Icon(Icons.Default.Tune, contentDescription = "Банк/Тип")
+                        Icon(Icons.Default.Tune, contentDescription = null)
                     }
                     IconButton(onClick = onFilterDateClick) {
-                        Icon(Icons.Default.DateRange, contentDescription = "Дати")
+                        Icon(Icons.Default.DateRange, contentDescription = null)
                     }
 
                     TextField(
                         value = searchQuery,
                         onValueChange = { viewModel.onSearchQueryChange(it) },
-                        placeholder = { Text("Пошук...") },
+                        placeholder = { Text(stringResource(R.string.tx_search_placeholder)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         colors = TextFieldDefaults.colors(
@@ -96,10 +98,8 @@ fun TransactionsTopBar(
                         )
                     )
                 }
-                IconButton(
-                    onClick = { viewModel.toggleSearch(false) }
-                ) {
-                    Icon(Icons.Default.Close, contentDescription = "Закрити")
+                IconButton(onClick = { viewModel.toggleSearch(false) }) {
+                    Icon(Icons.Default.Close, contentDescription = null)
                 }
             }
         }

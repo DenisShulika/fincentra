@@ -32,9 +32,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.R
+import com.denisshulika.fincentra.data.util.BankProviders
+import com.denisshulika.fincentra.data.util.FilterConstants
+import com.denisshulika.fincentra.data.util.TransactionConstants
 import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 
 @Composable
@@ -52,7 +57,7 @@ fun CategoryFilterContent(
             .padding(bottom = 32.dp)
     ) {
         Text(
-            text = "Фільтр категорій",
+            text = stringResource(R.string.filter_categories_title),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Black,
             color = MaterialTheme.colorScheme.onSurface,
@@ -80,11 +85,11 @@ fun CategoryFilterContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Checkbox(
-                            checked = selectedCats.contains(mainCat.displayName),
-                            onCheckedChange = { viewModel.toggleCategoryFilter(mainCat.displayName) }
+                            checked = selectedCats.contains(mainCat.name),
+                            onCheckedChange = { viewModel.toggleCategoryFilter(mainCat.name) }
                         )
                         Text(
-                            text = mainCat.displayName,
+                            text = stringResource(mainCat.displayNameRes),
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.weight(1f)
@@ -101,21 +106,21 @@ fun CategoryFilterContent(
                     }
 
                     if (isExpanded) {
-                        subCategories.forEach { subName ->
+                        subCategories.forEach { subResId ->
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(start = 44.dp)
-                                    .clickable { viewModel.toggleCategoryFilter(subName) }
+                                    .clickable { viewModel.toggleCategoryFilter(subResId.toString()) }
                                     .padding(vertical = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Checkbox(
-                                    checked = selectedCats.contains(subName),
-                                    onCheckedChange = { viewModel.toggleCategoryFilter(subName) }
+                                    checked = selectedCats.contains(subResId.toString()),
+                                    onCheckedChange = { viewModel.toggleCategoryFilter(subResId.toString()) }
                                 )
                                 Text(
-                                    text = subName,
+                                    text = stringResource(subResId),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
@@ -134,7 +139,7 @@ fun CategoryFilterContent(
                 .height(56.dp),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Text("Застосувати", fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.filter_btn_apply), fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -155,7 +160,7 @@ fun TypeBankFilterContent(
             .padding(bottom = 32.dp)
     ) {
         Text(
-            text = "Налаштування вигляду",
+            text = stringResource(R.string.filter_appearance_title),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Black
         )
@@ -163,7 +168,7 @@ fun TypeBankFilterContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            "Сортування за",
+            stringResource(R.string.filter_sort_by),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.primary
         )
@@ -175,7 +180,7 @@ fun TypeBankFilterContent(
                 FilterChip(
                     selected = (selectedSort == order),
                     onClick = { viewModel.onSortOrderChange(order) },
-                    label = { Text(order.displayName) },
+                    label = { Text(stringResource(order.displayNameRes)) },
                     shape = CircleShape
                 )
             }
@@ -184,16 +189,21 @@ fun TypeBankFilterContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            "Тип операції",
+            stringResource(R.string.filter_type),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.primary
         )
         Row(modifier = Modifier.padding(top = 8.dp)) {
-            listOf("Всі", "Витрати", "Доходи").forEach { type ->
+            val types = listOf(
+                FilterConstants.ALL to R.string.filter_all,
+                FilterConstants.EXPENSES to R.string.stats_expenses,
+                FilterConstants.INCOME to R.string.stats_income
+            )
+            types.forEach { (tech, res) ->
                 FilterChip(
-                    selected = (selectedType == type),
-                    onClick = { viewModel.onTypeFilterChange(type) },
-                    label = { Text(type) },
+                    selected = (selectedType == tech),
+                    onClick = { viewModel.onTypeFilterChange(tech) },
+                    label = { Text(stringResource(res)) },
                     modifier = Modifier.padding(end = 8.dp),
                     shape = CircleShape
                 )
@@ -203,16 +213,21 @@ fun TypeBankFilterContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            "Джерело",
+            stringResource(R.string.filter_source),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.primary
         )
         Row(modifier = Modifier.padding(top = 8.dp)) {
-            listOf("Всі", "Monobank", "Готівка").forEach { bank ->
+            val sources = listOf(
+                FilterConstants.ALL to R.string.filter_all,
+                BankProviders.MONOBANK to R.string.filter_monobank,
+                TransactionConstants.SOURCE_CASH to R.string.filter_cash
+            )
+            sources.forEach { (tech, res) ->
                 FilterChip(
-                    selected = (selectedBank == bank),
-                    onClick = { viewModel.onBankFilterChange(bank) },
-                    label = { Text(bank) },
+                    selected = (selectedBank == tech),
+                    onClick = { viewModel.onBankFilterChange(tech) },
+                    label = { Text(stringResource(res)) },
                     modifier = Modifier.padding(end = 8.dp),
                     shape = CircleShape
                 )
@@ -227,7 +242,7 @@ fun TypeBankFilterContent(
                 .height(56.dp),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Text("Готово", fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.filter_btn_done), fontWeight = FontWeight.Bold)
         }
     }
 }

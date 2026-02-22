@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.denisshulika.fincentra.data.models.state.StatsPeriod
@@ -42,17 +43,13 @@ fun PeriodSelector(
             StatsPeriod.ALL
         )
 
-        items(
-            items = periods
-        ) { period ->
+        items(periods) { period ->
             FilterChip(
                 selected = (selectedPeriod == period),
-                onClick = {
-                    onPeriodSelected(period)
-                },
+                onClick = { onPeriodSelected(period) },
                 label = {
                     Text(
-                        text = period.displayName,
+                        text = stringResource(period.displayNameRes),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = if (selectedPeriod == period) FontWeight.Black else FontWeight.Medium,
                         modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp)

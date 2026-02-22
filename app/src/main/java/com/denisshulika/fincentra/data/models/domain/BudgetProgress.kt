@@ -15,10 +15,10 @@ data class BudgetProgress(
             else -> R.drawable.img_tree_dead
         }
 
-    val statusMessage: String
+    val statusMessageRes: Int
         get() = when {
-            progress <= 0.5f -> "Запас безпечний"
-            progress < 1.0f -> "Витрачаєте ліміт"
-            else -> "Ліміт порушено!"
+            progress <= 0.5f -> R.string.budget_status_safe
+            progress < 1.0f -> R.string.budget_status_warning
+            else -> R.string.budget_status_broken
         }
 }

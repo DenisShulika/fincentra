@@ -21,8 +21,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.denisshulika.fincentra.R
 
 @Composable
 fun DreamInfoCard() {
@@ -44,7 +46,7 @@ fun DreamInfoCard() {
                 )
                 Spacer(Modifier.width(12.dp))
                 Text(
-                    text = "Що таке поріг безпеки?",
+                    text = stringResource(R.string.dream_info_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.primary
@@ -54,7 +56,7 @@ fun DreamInfoCard() {
             Spacer(Modifier.height(12.dp))
 
             Text(
-                text = "Це сума, яка завжди має залишатися на твоїх рахунках для комфортного життя (оренда, їжа, резерв).",
+                text = stringResource(R.string.dream_info_desc),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -62,7 +64,7 @@ fun DreamInfoCard() {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Прогрес мрії рахується тільки з коштів, що перевищують цей поріг. Так ти впевнений, що накопичення не залишать тебе з порожнім гаманцем.",
+                text = stringResource(R.string.dream_info_detail),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

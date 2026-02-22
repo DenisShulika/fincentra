@@ -2,6 +2,7 @@ package com.denisshulika.fincentra.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,11 +28,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.events.IntegrationsUiEvent
 import com.denisshulika.fincentra.data.models.ui.SupportedBanks
 import com.denisshulika.fincentra.ui.components.FinCentraTopBar
@@ -60,11 +63,8 @@ fun IntegrationsScreen(
                 }
 
                 is IntegrationsUiEvent.ShowToast -> {
-                    android.widget.Toast.makeText(
-                        context,
-                        event.message,
-                        android.widget.Toast.LENGTH_SHORT
-                    ).show()
+                    val message = context.resources.getString(event.messageRes)
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -75,7 +75,7 @@ fun IntegrationsScreen(
             containerColor = MaterialTheme.colorScheme.background,
             topBar = {
                 FinCentraTopBar(
-                    title = "Банки та рахунки",
+                    title = stringResource(R.string.bank_title),
                     isTopLevelScreen = false,
                     onNavigationClick = onBack
                 )
@@ -88,10 +88,9 @@ fun IntegrationsScreen(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Підключення",
+                    text = stringResource(R.string.bank_connection_header),
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Black,
-                    color = MaterialTheme.colorScheme.onSurface
+                    fontWeight = FontWeight.Black
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -141,13 +140,17 @@ fun IntegrationsScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.dismissDeleteConfirmation() },
-            containerColor = MaterialTheme.colorScheme.surface,
-            title = { Text("Відключити банк?", fontWeight = FontWeight.Bold) },
-            text = { Text("Нові транзакції не будуть завантажуватись. Налаштування рахунків видаляться.") },
+            title = {
+                Text(
+                    stringResource(R.string.bank_delete_title),
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = { Text(stringResource(R.string.bank_delete_desc)) },
             confirmButton = {
                 TextButton(onClick = { viewModel.removeMonobankIntegration() }) {
                     Text(
-                        "Так, відключити",
+                        stringResource(R.string.bank_delete_confirm),
                         color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.Bold
                     )
@@ -155,7 +158,7 @@ fun IntegrationsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.dismissDeleteConfirmation() }) {
-                    Text("Скасувати")
+                    Text(stringResource(R.string.btn_cancel))
                 }
             }
         )

@@ -11,7 +11,12 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.denisshulika.fincentra.R
+import com.denisshulika.fincentra.data.util.BankProviders
+import com.denisshulika.fincentra.data.util.FilterConstants
+import com.denisshulika.fincentra.data.util.TransactionConstants
 
 @Composable
 fun FilterRow(
@@ -27,12 +32,17 @@ fun FilterRow(
             .padding(vertical = 4.dp)
     ) {
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            val banks = listOf("Всі", "Monobank", "Готівка")
-            items(banks) { bank ->
+            val banks = listOf(
+                FilterConstants.ALL to R.string.filter_all,
+                BankProviders.MONOBANK to R.string.filter_monobank,
+                TransactionConstants.SOURCE_CASH to R.string.filter_cash
+            )
+
+            items(banks) { (technicalName, labelRes) ->
                 FilterChip(
-                    selected = selectedBank == bank,
-                    onClick = { onBankChange(bank) },
-                    label = { Text(bank) },
+                    selected = selectedBank == technicalName,
+                    onClick = { onBankChange(technicalName) },
+                    label = { Text(stringResource(labelRes)) },
                     shape = CircleShape
                 )
             }

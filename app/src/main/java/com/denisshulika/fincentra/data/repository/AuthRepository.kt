@@ -45,7 +45,7 @@ class AuthRepository {
         return try {
             val result = auth.signInWithEmailAndPassword(email, pass).await()
             val user = result.user?.let { User(uid = it.uid, email = it.email ?: "") }
-            if (user != null) Result.success(user) else Result.failure(Exception("Користувача не знайдено"))
+            if (user != null) Result.success(user) else Result.failure(Exception("USER_NOT_FOUND"))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -62,7 +62,7 @@ class AuthRepository {
                     photoUrl = it.photoUrl?.toString() ?: ""
                 )
             }
-            if (user != null) Result.success(user) else Result.failure(Exception("Google Auth Failed"))
+            if (user != null) Result.success(user) else Result.failure(Exception("GOOGLE_AUTH_FAILED"))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -82,7 +82,7 @@ class AuthRepository {
     }
 
     suspend fun deleteUserAccount(): Result<Unit> {
-        val user = auth.currentUser ?: return Result.failure(Exception("Користувач не в мережі"))
+        val user = auth.currentUser ?: return Result.failure(Exception("USER_OFFLINE"))
         return try {
             user.delete().await()
             Result.success(Unit)

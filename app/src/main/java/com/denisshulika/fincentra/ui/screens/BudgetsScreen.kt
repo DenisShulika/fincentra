@@ -23,14 +23,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.ui.components.BudgetProgressItem
 import com.denisshulika.fincentra.ui.components.FinCentraTopBar
 import com.denisshulika.fincentra.ui.components.budgets.AddBudgetSheet
-import com.denisshulika.fincentra.ui.components.dream.BudgetsInfoCard
+import com.denisshulika.fincentra.ui.components.budgets.BudgetsInfoCard
 import com.denisshulika.fincentra.viewmodels.BudgetsViewModel
 
 @Composable
@@ -49,7 +51,7 @@ fun BudgetsScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             FinCentraTopBar(
-                title = "Ліміти витрат",
+                title = stringResource(R.string.nav_budgets),
                 isTopLevelScreen = false,
                 onNavigationClick = onBack
             )
@@ -93,17 +95,15 @@ fun BudgetsScreen(
                         )
                         Spacer(modifier = Modifier.height(20.dp))
                         Text(
-                            text = "Твій ліс поки порожній",
+                            text = stringResource(R.string.budgets_empty_title),
                             style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
+                            fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Встанови ліміт на категорію, щоб почати вирощувати своє фінансове дерево.",
+                            text = stringResource(R.string.budgets_empty_desc),
                             style = MaterialTheme.typography.bodyLarge,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            textAlign = TextAlign.Center
                         )
                     }
                 }

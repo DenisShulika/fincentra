@@ -41,27 +41,29 @@ object TransactionFilterEngine {
                 if (trimmed.startsWith(">")) tx.amount > amountFilter else tx.amount < amountFilter
             } else {
                 tx.description.lowercase().contains(trimmed) ||
-                        tx.category.displayName.lowercase().contains(trimmed) ||
-                        tx.subCategoryName.lowercase().contains(trimmed)
+                        tx.category.name.lowercase().contains(trimmed)
             }
         }
     }
 
     private fun List<Transaction>.filterByBank(bank: String) = filter {
-        if (bank == "Всі") true else it.bankName == bank
+        if (bank == FilterConstants.ALL) true else it.bankName == bank
     }
 
     private fun List<Transaction>.filterByType(type: String) = filter {
         when (type) {
-            "Витрати" -> it.isExpense
-            "Доходи" -> !it.isExpense
+            FilterConstants.EXPENSES -> it.isExpense
+            FilterConstants.INCOME -> !it.isExpense
             else -> true
         }
     }
 
     private fun List<Transaction>.filterByCategories(selectedCats: Set<String>) = filter {
-        if (selectedCats.isEmpty()) true
-        else selectedCats.contains(it.category.displayName) || selectedCats.contains(it.subCategoryName)
+        if (selectedCats.isEmpty()) {
+            true
+        } else {
+            selectedCats.contains(it.category.name)
+        }
     }
 
     private fun List<Transaction>.filterByDate(range: LongRange?) = filter {

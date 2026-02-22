@@ -35,7 +35,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SuggestionChip
-import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -47,27 +46,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.ui.components.FinCentraTopBar
 import com.denisshulika.fincentra.ui.components.profile.BalanceCard
 import com.denisshulika.fincentra.viewmodels.ProfileViewModel
 
 @Composable
-fun ProfileScreen(
-    viewModel: ProfileViewModel,
-    onBack: () -> Unit,
-    onLogout: () -> Unit
-) {
+fun ProfileScreen(viewModel: ProfileViewModel, onBack: () -> Unit, onLogout: () -> Unit) {
     val summaries by viewModel.currencySummaries.collectAsStateWithLifecycle()
     val user by viewModel.user.collectAsStateWithLifecycle()
     val txCount by viewModel.totalTransactionsCount.collectAsStateWithLifecycle()
     val provider by viewModel.provider.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
-
     var showPasswordDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var newPassword by remember { mutableStateOf("") }
@@ -78,7 +73,7 @@ fun ProfileScreen(
             containerColor = MaterialTheme.colorScheme.surface,
             title = {
                 Text(
-                    text = "Новий пароль",
+                    text = stringResource(R.string.profile_new_password_title),
                     fontWeight = FontWeight.Bold
                 )
             },
@@ -86,24 +81,37 @@ fun ProfileScreen(
                 OutlinedTextField(
                     value = newPassword,
                     onValueChange = { newPassword = it },
-                    label = { Text("Введіть пароль") },
+                    label = { Text(stringResource(R.string.profile_enter_password_hint)) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 )
             },
             confirmButton = {
-                Button(
+                TextButton(
                     onClick = {
-                        viewModel.changePassword(newPassword) { msg ->
-                            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-                        }
-                        showPasswordDialog = false
-                        newPassword = ""
+                        viewModel.deleteAccount(
+                            onDeleted = onLogout,
+                            onError = { key ->
+                                val res = context.resources
+                                val msg = if (key == "ERROR_REAUTH")
+                                    res.getString(R.string.error_relogin_required)
+                                else res.getString(R.string.error_unknown)
+                                Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                            }
+                        )
                     }
-                ) { Text("Оновити") }
+                ) {
+                    Text(
+                        text = stringResource(R.string.btn_delete),
+                        color = MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             },
             dismissButton = {
-                TextButton(onClick = { showPasswordDialog = false }) { Text("Скасувати") }
+                TextButton(onClick = {
+                    showPasswordDialog = false
+                }) { Text(stringResource(R.string.btn_cancel)) }
             }
         )
     }
@@ -114,42 +122,46 @@ fun ProfileScreen(
             containerColor = MaterialTheme.colorScheme.surface,
             title = {
                 Text(
-                    text = "Видалити акаунт?",
+                    text = stringResource(R.string.profile_delete_acc_title),
                     fontWeight = FontWeight.Bold
                 )
             },
-            text = {
-                Text("Всі ваші дані в хмарі будуть безповоротно втрачені.")
-            },
+            text = { Text(stringResource(R.string.profile_delete_acc_desc)) },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        viewModel.deleteAccount(
-                            onDeleted = onLogout,
-                            onError = { msg ->
-                                Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                        viewModel.changePassword(newPassword) { key ->
+                            val res = context.resources
+                            val msg = when (key) {
+                                "SUCCESS_PASSWORD" -> res.getString(R.string.success_password_changed)
+                                "ERROR_REAUTH" -> res.getString(R.string.error_relogin_required)
+                                else -> res.getString(R.string.error_unknown)
                             }
-                        )
+                            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 ) {
                     Text(
-                        text = "Видалити",
+                        text = stringResource(R.string.btn_delete),
                         color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.Bold
                     )
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Скасувати") }
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                }) { Text(stringResource(R.string.btn_cancel)) }
             }
         )
     }
+
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             FinCentraTopBar(
-                title = "Мій профіль",
+                title = stringResource(R.string.profile_title_screen),
                 isTopLevelScreen = false,
                 onNavigationClick = onBack
             )
@@ -159,11 +171,9 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = innerPadding.calculateTopPadding())
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(horizontal = 24.dp), horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(32.dp))
-
             Surface(
                 modifier = Modifier.size(100.dp),
                 shape = CircleShape,
@@ -179,52 +189,33 @@ fun ProfileScreen(
                     )
                 }
             }
-
             Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = user?.displayName?.ifBlank { "Користувач" } ?: "Завантаження...",
+            Text(text = user?.displayName?.ifBlank { stringResource(R.string.profile_user_placeholder) }
+                ?: stringResource(R.string.profile_loading),
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Black,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
+                fontWeight = FontWeight.Black)
             Text(
                 text = user?.email ?: "",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-
             Spacer(modifier = Modifier.height(4.dp))
-
             SuggestionChip(
-                onClick = { },
+                onClick = {},
                 label = {
                     Text(
-                        text = "$txCount транзакцій",
+                        stringResource(R.string.profile_transactions_count, txCount),
                         fontWeight = FontWeight.Bold
                     )
                 },
-                icon = {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ReceiptLong,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                },
-                shape = CircleShape,
-                colors = SuggestionChipDefaults.suggestionChipColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                    labelColor = MaterialTheme.colorScheme.primary
-                )
+                icon = { Icon(Icons.AutoMirrored.Filled.ReceiptLong, null, Modifier.size(20.dp)) },
+                shape = CircleShape
             )
-
             Spacer(modifier = Modifier.height(16.dp))
             HorizontalDivider(
                 thickness = 2.dp,
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
             )
-
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
@@ -233,22 +224,17 @@ fun ProfileScreen(
                 contentPadding = PaddingValues(vertical = 24.dp)
             ) {
                 if (summaries.isNotEmpty()) {
-                    items(summaries) { summary ->
-                        BalanceCard(summary)
-                    }
+                    items(summaries) { BalanceCard(it) }
                 } else {
                     item {
                         Text(
-                            text = "Рахунки не підключені",
+                            stringResource(R.string.profile_no_accounts),
                             modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.bodyMedium
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
                     }
                 }
             }
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -260,26 +246,20 @@ fun ProfileScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Email,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(Modifier.width(12.dp))
-                    Text(
-                        text = "Зв'язатися з розробником",
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "Дії з акаунтом",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                        Icons.Default.Email,
+                        null,
+                        Modifier.size(20.dp)
+                    ); Spacer(Modifier.width(12.dp)); Text(
+                    stringResource(R.string.profile_contact_dev),
+                    fontWeight = FontWeight.Bold
                 )
-
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    stringResource(R.string.profile_account_actions),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(
@@ -292,11 +272,8 @@ fun ProfileScreen(
                             onClick = { showPasswordDialog = true },
                             modifier = Modifier.size(56.dp),
                             shape = RoundedCornerShape(16.dp)
-                        ) {
-                            Icon(Icons.Default.Lock, null)
-                        }
+                        ) { Icon(Icons.Default.Lock, null) }
                     }
-
                     FilledTonalIconButton(
                         onClick = { showDeleteDialog = true },
                         modifier = Modifier.size(56.dp),
@@ -305,21 +282,20 @@ fun ProfileScreen(
                             containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.4f),
                             contentColor = MaterialTheme.colorScheme.error
                         )
-                    ) {
-                        Icon(Icons.Default.DeleteForever, null)
-                    }
-
+                    ) { Icon(Icons.Default.DeleteForever, null) }
                     Button(
                         onClick = { viewModel.logout(onLogout) },
                         modifier = Modifier.height(56.dp),
                         shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error
-                        )
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.Logout, null)
-                        Spacer(Modifier.width(8.dp))
-                        Text("Вийти", fontWeight = FontWeight.Bold)
+                        Icon(
+                            Icons.AutoMirrored.Filled.Logout,
+                            null
+                        ); Spacer(Modifier.width(8.dp)); Text(
+                        stringResource(R.string.btn_logout),
+                        fontWeight = FontWeight.Bold
+                    )
                     }
                 }
             }

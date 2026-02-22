@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -22,9 +21,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.data.util.DateFormatter
@@ -43,7 +44,6 @@ fun TransactionDetailSheet(transaction: Transaction, onDismiss: () -> Unit) {
                 .padding(bottom = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // HERO SECTION
             Surface(
                 shape = CircleShape,
                 color = transaction.category.color.copy(alpha = 0.1f),
@@ -75,7 +75,7 @@ fun TransactionDetailSheet(transaction: Transaction, onDismiss: () -> Unit) {
             )
 
             Text(
-                text = transaction.description.ifBlank { "Операція без назви" },
+                text = transaction.description.ifBlank { stringResource(R.string.tx_detail_no_name) },
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
@@ -84,23 +84,23 @@ fun TransactionDetailSheet(transaction: Transaction, onDismiss: () -> Unit) {
             Spacer(modifier = Modifier.height(32.dp))
 
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                DetailRow("Категорія", transaction.category.displayName)
-                DetailRow("Підкатегорія", transaction.subCategoryName)
-                DetailRow("Джерело", transaction.bankName)
                 DetailRow(
-                    "Час операції",
+                    stringResource(R.string.tx_detail_category),
+                    stringResource(transaction.category.displayNameRes)
+                )
+                DetailRow(
+                    stringResource(R.string.tx_detail_subcategory),
+                    stringResource(transaction.subCategoryRes)
+                )
+                DetailRow(stringResource(R.string.tx_detail_source), transaction.bankName)
+                DetailRow(
+                    stringResource(R.string.tx_detail_time),
                     DateFormatter.formatDateTime(transaction.timestamp)
                 )
 
                 if (transaction.comment != null) {
-                    HorizontalDivider(
-                        Modifier.padding(vertical = 8.dp),
-                        thickness = 0.5.dp,
-                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
-                    )
                     Text(
-                        "Коментар банку",
-                        style = MaterialTheme.typography.labelLarge,
+                        stringResource(R.string.tx_detail_bank_comment),
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(transaction.comment, style = MaterialTheme.typography.bodyLarge)
@@ -115,7 +115,7 @@ fun TransactionDetailSheet(transaction: Transaction, onDismiss: () -> Unit) {
                     .height(56.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text("Закрити", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.btn_close), fontWeight = FontWeight.Bold)
             }
         }
     }

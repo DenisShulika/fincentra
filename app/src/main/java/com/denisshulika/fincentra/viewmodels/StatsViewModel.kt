@@ -10,17 +10,16 @@ import com.denisshulika.fincentra.data.models.state.CurrencyStats
 import com.denisshulika.fincentra.data.models.state.StatsPeriod
 import com.denisshulika.fincentra.data.models.state.StatsUiState
 import com.denisshulika.fincentra.data.models.state.SubCategoryStat
-import com.denisshulika.fincentra.data.models.state.TransactionQuery
 import com.denisshulika.fincentra.di.DependencyProvider
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
-import kotlin.math.round
 
 class StatsViewModel : ViewModel() {
     private val financeRepository = DependencyProvider.financeRepository
@@ -44,47 +43,37 @@ class StatsViewModel : ViewModel() {
     private val _selectedCurrencyIndex = MutableStateFlow(0)
     val selectedCurrencyIndex = _selectedCurrencyIndex.asStateFlow()
 
-    private val _selectedIds = MutableStateFlow<List<String>>(emptyList())
-
-    val availableAccounts = financeRepository.getAccountsFlow()
+    val availableAccounts = financeRepository.accounts
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     val uiState: StateFlow<StatsUiState> = combine(
-        financeRepository.statsTransactions,
+        financeRepository.transactions,
         availableAccounts,
+        settingsRepository.getSelectedAccountIdsFlow(),
         _selectedDateRange,
         _selectedBank,
         _selectedAccountId,
-        _isExpenseMode,
-        _selectedIds
+        _isExpenseMode
     ) { args ->
-        val transactions = args[0] as List<Transaction>
-        val accounts = args[1] as List<BankAccount>
-        val range = args[2] as LongRange?
-        val bank = args[3] as String
-        val accId = args[4] as String?
-        val isExpMode = args[5] as Boolean
-        val activeIds = args[6] as List<String>
+        val txs = args[0] as List<Transaction>
+        val accs = args[1] as List<BankAccount>
+        val activeIds = args[2] as List<String>
+        val range = args[3] as LongRange?
+        val bank = args[4] as String
+        val accId = args[5] as String?
+        val mode = args[6] as Boolean
 
-        calculateOptimizedStats(transactions, accounts, range, bank, accId, isExpMode, activeIds)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), StatsUiState())
+        withContext(Dispatchers.Default) {
+            calculateOptimizedStats(txs, accs, range, bank, accId, mode, activeIds)
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = StatsUiState()
+    )
 
     init {
         setPeriod(StatsPeriod.MONTH)
-
-        viewModelScope.launch {
-            settingsRepository.getSelectedAccountIdsFlow().collect { ids ->
-                _selectedIds.value = ids
-            }
-        }
-
-        viewModelScope.launch {
-            combine(_selectedDateRange, _selectedBank) { range, bank ->
-                TransactionQuery(bank = bank, dateRange = range)
-            }.collect { query ->
-                financeRepository.observeTransactionsForStats(query)
-            }
-        }
     }
 
     private fun calculateOptimizedStats(
@@ -98,18 +87,21 @@ class StatsViewModel : ViewModel() {
     ): StatsUiState {
         if (accounts.isEmpty()) return StatsUiState()
 
-        val baseAccounts = accounts.filter { activeIds.contains(it.id) }
+        val baseAccounts = if (activeIds.isNotEmpty()) {
+            accounts.filter { activeIds.contains(it.id) }
+        } else {
+            accounts.filter { it.selected }
+        }
 
         if (baseAccounts.isEmpty()) return StatsUiState()
 
         val filteredAccounts = baseAccounts.filter { acc ->
-            (bankFilter == "Всі" || acc.provider == bankFilter) &&
+            (bankFilter == com.denisshulika.fincentra.data.util.FilterConstants.ALL || acc.provider == bankFilter) &&
                     (accountIdFilter == null || acc.id == accountIdFilter)
         }
 
         val currencyData =
             filteredAccounts.groupBy { it.currencyCode }.map { (code, accsInCurrency) ->
-
                 val txsInPeriod = allTx.filter { tx ->
                     tx.currencyCode == code &&
                             accsInCurrency.any { it.id == tx.accountId } &&
@@ -117,18 +109,14 @@ class StatsViewModel : ViewModel() {
                 }
 
                 val endBalance = accsInCurrency.sumOf { it.balance }
-
                 var calculatedStartBalance = 0.0
+
                 accsInCurrency.forEach { acc ->
                     val oldestTx =
                         txsInPeriod.filter { it.accountId == acc.id }.minByOrNull { it.timestamp }
-
                     if (oldestTx != null && oldestTx.balance != null) {
-                        calculatedStartBalance += if (oldestTx.isExpense) {
-                            oldestTx.balance + oldestTx.amount
-                        } else {
-                            oldestTx.balance - oldestTx.amount
-                        }
+                        calculatedStartBalance += if (oldestTx.isExpense) oldestTx.balance + oldestTx.amount
+                        else oldestTx.balance - oldestTx.amount
                     } else {
                         val periodInc =
                             txsInPeriod.filter { it.accountId == acc.id && !it.isExpense }
@@ -144,76 +132,77 @@ class StatsViewModel : ViewModel() {
                 val periodExpense = txsInPeriod.filter { it.isExpense }.sumOf { it.amount }
 
                 val categoryMap = mutableMapOf<TransactionCategory, Double>()
-                val subCategoryMap = mutableMapOf<TransactionCategory, MutableMap<String, Double>>()
+
+                val subCategoryMap = mutableMapOf<TransactionCategory, MutableMap<Int, Double>>()
 
                 txsInPeriod.filter { it.isExpense == isExpenseMode }.forEach { tx ->
                     categoryMap[tx.category] = (categoryMap[tx.category] ?: 0.0) + tx.amount
                     val subs = subCategoryMap.getOrPut(tx.category) { mutableMapOf() }
-                    val subName = tx.subCategoryName.ifBlank { "Інше" }
-                    subs[subName] = (subs[subName] ?: 0.0) + tx.amount
+
+                    val subRes = tx.subCategoryRes
+                    subs[subRes] = (subs[subRes] ?: 0.0) + tx.amount
                 }
 
                 val totalForPercentage = if (isExpenseMode) periodExpense else periodIncome
-
                 val categoryStats = categoryMap.map { (cat, catSum) ->
-                    val subStats = subCategoryMap[cat]?.map { (subName, subSum) ->
+                    val subStats = subCategoryMap[cat]?.map { (subRes, subSum) ->
                         SubCategoryStat(
-                            name = subName,
+                            nameRes = subRes,
                             amount = subSum.round(2),
                             percentageOfParent = if (catSum > 0) (subSum / catSum).toFloat() else 0f
                         )
                     }?.sortedByDescending { it.amount } ?: emptyList()
 
                     CategoryStat(
-                        category = cat,
-                        amount = catSum.round(2),
-                        percentage = if (totalForPercentage > 0) (catSum / totalForPercentage).toFloat() else 0f,
-                        subCategories = subStats
+                        cat,
+                        catSum.round(2),
+                        if (totalForPercentage > 0) (catSum / totalForPercentage).toFloat() else 0f,
+                        subStats
                     )
                 }.sortedByDescending { it.amount }
 
                 CurrencyStats(
-                    currencyCode = code,
-                    startPeriodBalance = calculatedStartBalance.round(2),
-                    endPeriodBalance = endBalance.round(2),
-                    totalIncome = periodIncome.round(2),
-                    totalExpense = periodExpense.round(2),
-                    categories = categoryStats
+                    code,
+                    calculatedStartBalance.round(2),
+                    endBalance.round(2),
+                    periodIncome.round(2),
+                    periodExpense.round(2),
+                    categoryStats
                 )
             }.sortedByDescending { it.currencyCode == 980 }
 
         return StatsUiState(currencyData, range)
     }
 
-
     fun setPeriod(period: StatsPeriod) {
         _selectedPeriod.value = period
         if (period == StatsPeriod.CUSTOM) return
-
         val calendar = Calendar.getInstance()
-        calendar.set(Calendar.HOUR_OF_DAY, 23)
-        calendar.set(Calendar.MINUTE, 59)
-        calendar.set(Calendar.SECOND, 59)
-        calendar.set(Calendar.MILLISECOND, 999)
+        calendar.set(Calendar.HOUR_OF_DAY, 23); calendar.set(Calendar.MINUTE, 59); calendar.set(
+            Calendar.SECOND,
+            59
+        ); calendar.set(Calendar.MILLISECOND, 999)
         val endTs = calendar.timeInMillis
-
         val range = when (period) {
             StatsPeriod.WEEK -> {
-                calendar.add(Calendar.DAY_OF_YEAR, -6)
-                calendar.setToStartOfDay()
-                calendar.timeInMillis..endTs
+                calendar.add(
+                    Calendar.DAY_OF_YEAR,
+                    -6
+                ); calendar.setToStartOfDay(); calendar.timeInMillis..endTs
             }
 
             StatsPeriod.MONTH -> {
-                calendar.set(Calendar.DAY_OF_MONTH, 1)
-                calendar.setToStartOfDay()
-                calendar.timeInMillis..endTs
+                calendar.set(
+                    Calendar.DAY_OF_MONTH,
+                    1
+                ); calendar.setToStartOfDay(); calendar.timeInMillis..endTs
             }
 
             StatsPeriod.QUARTER -> {
-                calendar.add(Calendar.MONTH, -3)
-                calendar.setToStartOfDay()
-                calendar.timeInMillis..endTs
+                calendar.add(
+                    Calendar.MONTH,
+                    -3
+                ); calendar.setToStartOfDay(); calendar.timeInMillis..endTs
             }
 
             StatsPeriod.ALL -> null
@@ -223,50 +212,40 @@ class StatsViewModel : ViewModel() {
     }
 
     fun setCustomDateRange(range: LongRange?) {
-        if (range == null) {
-            _selectedDateRange.value = null
-            return
-        }
+        if (range == null) return
         val calendar = Calendar.getInstance()
-        calendar.timeInMillis = range.first
-        calendar.setToStartOfDay()
+        calendar.timeInMillis = range.first; calendar.setToStartOfDay()
         val start = calendar.timeInMillis
-
-        calendar.timeInMillis = range.last
-        calendar.set(Calendar.HOUR_OF_DAY, 23)
-        calendar.set(Calendar.MINUTE, 59)
-        calendar.set(Calendar.SECOND, 59)
-        calendar.set(Calendar.MILLISECOND, 999)
-        val end = calendar.timeInMillis
-
+        calendar.timeInMillis = range.last; calendar.set(Calendar.HOUR_OF_DAY, 23); calendar.set(
+            Calendar.MINUTE,
+            59
+        ); calendar.set(Calendar.SECOND, 59); calendar.set(Calendar.MILLISECOND, 999)
         _selectedPeriod.value = StatsPeriod.CUSTOM
-        _selectedDateRange.value = start..end
+        _selectedDateRange.value = start..calendar.timeInMillis
     }
 
     private fun Calendar.setToStartOfDay() {
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
+        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(
+            Calendar.SECOND,
+            0
+        ); set(Calendar.MILLISECOND, 0)
     }
 
     private fun Double.round(decimals: Int): Double {
-        var multiplier = 1.0
-        repeat(decimals) { multiplier *= 10 }
-        return round(this * multiplier) / multiplier
+        var multiplier =
+            1.0; repeat(decimals) { multiplier *= 10 }; return kotlin.math.round(this * multiplier) / multiplier
     }
 
     fun selectCurrency(index: Int) {
         _selectedCurrencyIndex.value = index
     }
 
-    fun toggleMode(isExpense: Boolean) {
-        _isExpenseMode.value = isExpense
+    fun toggleMode(isExp: Boolean) {
+        _isExpenseMode.value = isExp
     }
 
     fun onBankFilterChange(bank: String) {
-        _selectedBank.value = bank
-        _selectedAccountId.value = null
+        _selectedBank.value = bank; _selectedAccountId.value = null
     }
 
     fun onAccountFilterChange(id: String?) {

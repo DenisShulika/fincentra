@@ -123,7 +123,7 @@ class MonobankService : BankProvider {
             bankName = BankProviders.MONOBANK,
             isExpense = this.amount < 0,
             category = mccInfo.category,
-            subCategoryName = mccInfo.subCategoryName,
+            subCategoryRes = mccInfo.subCategoryRes,
             mcc = this.mcc,
             balance = this.balance / 100.0,
             comment = this.comment

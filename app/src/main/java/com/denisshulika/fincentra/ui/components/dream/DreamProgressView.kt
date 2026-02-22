@@ -25,14 +25,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.DreamProgress
+import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 
 @Composable
 fun DreamProgressView(progressData: DreamProgress, onEditClick: () -> Unit) {
-    val symbol = "₴"
+    val symbol = CurrencyMapper.getSymbol(progressData.dream.currencyCode)
 
     val animatedProgress by animateFloatAsState(
         targetValue = progressData.progress,
@@ -83,11 +86,11 @@ fun DreamProgressView(progressData: DreamProgress, onEditClick: () -> Unit) {
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
                 DetailRow(
-                    label = "Ціль накопичення",
+                    label = stringResource(R.string.dream_view_target),
                     value = "${String.format("%.2f", progressData.dream.targetAmount)} $symbol"
                 )
                 DetailRow(
-                    label = "Ваш поріг безпеки",
+                    label = stringResource(R.string.dream_view_buffer),
                     value = "-${String.format("%.2f", progressData.dream.safetyBuffer)} $symbol"
                 )
 
@@ -98,7 +101,7 @@ fun DreamProgressView(progressData: DreamProgress, onEditClick: () -> Unit) {
                 )
 
                 DetailRow(
-                    label = "Доступно на мрію",
+                    label = stringResource(R.string.dream_view_available),
                     value = "${String.format("%.2f", progressData.currentAvailable)} $symbol",
                     isHighlight = true
                 )
@@ -118,7 +121,7 @@ fun DreamProgressView(progressData: DreamProgress, onEditClick: () -> Unit) {
                 contentColor = MaterialTheme.colorScheme.primary
             )
         ) {
-            Text("Редагувати ціль", fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.dream_btn_edit), fontWeight = FontWeight.Bold)
         }
     }
 }

@@ -14,8 +14,13 @@ object FirestoreDocuments {
 
 object TransactionConstants {
     const val ACCOUNT_ID_MANUAL = "manual"
-    const val SOURCE_CASH = "Готівка"
-    const val DEFAULT_SUB_CATEGORY = "Різне"
+    const val SOURCE_CASH = "Cash"
+}
+
+object FilterConstants {
+    const val ALL = "ALL"
+    const val EXPENSES = "EXPENSES"
+    const val INCOME = "INCOME"
 }
 
 object BankProviders {

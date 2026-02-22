@@ -1,4 +1,4 @@
-package com.denisshulika.fincentra.ui.components.dream
+package com.denisshulika.fincentra.ui.components.budgets // Виправив пакет (був dream)
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
@@ -20,7 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.denisshulika.fincentra.R
 
 @Composable
 fun BudgetsInfoCard() {
@@ -31,7 +33,7 @@ fun BudgetsInfoCard() {
         shape = RoundedCornerShape(24.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
         modifier = Modifier
-            .padding(horizontal = 20.dp)
+            .padding(horizontal = 20.dp, vertical = 8.dp)
             .fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
@@ -47,7 +49,7 @@ fun BudgetsInfoCard() {
             Spacer(Modifier.height(12.dp))
 
             Text(
-                text = "Це сума, яка завжди має залишатися на твоїх рахунках для комфортного життя (оренда, їжа, резерв).",
+                text = stringResource(R.string.budget_info_text),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )

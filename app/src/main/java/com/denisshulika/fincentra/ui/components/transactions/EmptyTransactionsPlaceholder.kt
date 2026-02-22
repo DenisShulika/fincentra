@@ -16,9 +16,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.denisshulika.fincentra.R
 
 @Composable
 fun EmptyTransactionsPlaceholder(
@@ -42,7 +44,7 @@ fun EmptyTransactionsPlaceholder(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Нічого не знайдено",
+                text = stringResource(R.string.transactions_empty_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Black,
                 color = MaterialTheme.colorScheme.onSurface
@@ -51,7 +53,7 @@ fun EmptyTransactionsPlaceholder(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Спробуй змінити період або скинути фільтри, щоб побачити транзакції.",
+                text = stringResource(R.string.transactions_empty_desc),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -65,7 +67,7 @@ fun EmptyTransactionsPlaceholder(
                 modifier = Modifier.height(52.dp)
             ) {
                 Text(
-                    text = "Скинути всі фільтри",
+                    text = stringResource(R.string.transactions_btn_reset),
                     fontWeight = FontWeight.Bold
                 )
             }

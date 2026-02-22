@@ -11,7 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.util.DateFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,7 +29,7 @@ fun DateRangePickerDialog(
             TextButton(onClick = onConfirm) { Text("OK") }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Скасувати") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.btn_cancel)) }
         }
     ) {
         DateRangePicker(
@@ -38,7 +40,7 @@ fun DateRangePickerDialog(
             showModeToggle = true,
             title = {
                 Text(
-                    text = "Виберіть період",
+                    text = stringResource(R.string.date_picker_select_period),
                     modifier = Modifier.padding(start = 24.dp, top = 16.dp),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.secondary
@@ -47,10 +49,10 @@ fun DateRangePickerDialog(
             headline = {
                 val start = state.selectedStartDateMillis?.let {
                     DateFormatter.formatFullDate(it)
-                } ?: "Початок"
+                } ?: stringResource(R.string.date_start)
                 val end = state.selectedEndDateMillis?.let {
                     DateFormatter.formatFullDate(it)
-                } ?: "Завершення"
+                } ?: stringResource(R.string.date_end)
 
                 Text(
                     text = "$start — $end",

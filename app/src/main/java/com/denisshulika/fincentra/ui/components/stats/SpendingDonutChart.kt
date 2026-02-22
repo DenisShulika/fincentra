@@ -16,8 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.state.CategoryStat
 import com.denisshulika.fincentra.ui.components.AnimatedAmount
 
@@ -59,7 +61,10 @@ fun SpendingDonutChart(categories: List<CategoryStat>, symbol: String, isExpense
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                if (isExpenseMode) "Витрати" else "Доходи",
+                text = if (isExpenseMode)
+                    stringResource(R.string.stats_expenses)
+                else
+                    stringResource(R.string.stats_income),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

@@ -15,9 +15,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.denisshulika.fincentra.R
 
 @Composable
 fun DreamForm(
@@ -39,7 +41,9 @@ fun DreamForm(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
-            text = if (isExistingDream) "Оновити параметри" else "Налаштувати мрію",
+            text = if (isExistingDream) stringResource(R.string.dream_form_edit_title) else stringResource(
+                R.string.dream_form_new_title
+            ),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 8.dp)
@@ -48,8 +52,8 @@ fun DreamForm(
         OutlinedTextField(
             value = title,
             onValueChange = onTitleChange,
-            label = { Text("На що збираємо?") },
-            placeholder = { Text("Наприклад: Автомобіль") },
+            label = { Text(stringResource(R.string.dream_label_title)) },
+            placeholder = { Text(stringResource(R.string.dream_placeholder_title)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             shape = RoundedCornerShape(16.dp)
@@ -58,7 +62,7 @@ fun DreamForm(
         OutlinedTextField(
             value = target,
             onValueChange = onTargetChange,
-            label = { Text("Сума цілі") },
+            label = { Text(stringResource(R.string.dream_label_target)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
@@ -68,7 +72,7 @@ fun DreamForm(
         OutlinedTextField(
             value = buffer,
             onValueChange = onBufferChange,
-            label = { Text("Поріг безпеки (на життя)") },
+            label = { Text(stringResource(R.string.dream_label_buffer)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
@@ -86,7 +90,9 @@ fun DreamForm(
             shape = RoundedCornerShape(16.dp)
         ) {
             Text(
-                text = if (isExistingDream) "Оновити мрію" else "Зберегти мрію",
+                text = if (isExistingDream) stringResource(R.string.dream_btn_update) else stringResource(
+                    R.string.dream_btn_save
+                ),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -97,7 +103,10 @@ fun DreamForm(
                 onClick = onCancel,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Скасувати", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    stringResource(R.string.btn_cancel),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }

@@ -19,11 +19,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.denisshulika.fincentra.R
@@ -62,7 +62,7 @@ fun OnboardingPageContent(
                 Spacer(modifier = Modifier.height(48.dp))
 
                 Text(
-                    "Розумна аналітика",
+                    text = stringResource(R.string.onboarding_1_title),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Black,
                     color = MaterialTheme.colorScheme.onSurface
@@ -72,28 +72,24 @@ fun OnboardingPageContent(
 
                 Text(
                     text = buildAnnotatedString {
-                        append("FinCentra ")
-                        withStyle(
-                            SpanStyle(
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
+                        val fullText = stringResource(R.string.onboarding_1_desc)
+                        val highlight = stringResource(R.string.onboarding_1_highlight)
+                        val startIndex = fullText.indexOf(highlight)
+
+                        append(fullText)
+                        if (startIndex != -1) {
+                            addStyle(
+                                style = SpanStyle(
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                ),
+                                start = startIndex,
+                                end = startIndex + highlight.length
                             )
-                        ) {
-                            append("автоматично")
-                        }
-                        append(" збирає дані з твоїх банків. Більше ніяких блокнотів — просто спостерігай за ")
-                        withStyle(
-                            SpanStyle(
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        ) {
-                            append("результатом.")
                         }
                     },
                     style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    textAlign = TextAlign.Center
                 )
             }
 
@@ -103,7 +99,7 @@ fun OnboardingPageContent(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    "Твоя екосистема",
+                    stringResource(R.string.onboarding_2_title),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Black,
                     color = MaterialTheme.colorScheme.onSurface
@@ -113,28 +109,22 @@ fun OnboardingPageContent(
 
                 Text(
                     text = buildAnnotatedString {
-                        append("Твій ліміт — це ")
-                        withStyle(
-                            SpanStyle(
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
+                        val fullText = stringResource(R.string.onboarding_2_desc)
+                        val highlight = stringResource(R.string.onboarding_2_highlight)
+                        val startIndex = fullText.indexOf(highlight)
+                        append(fullText)
+                        if (startIndex != -1) {
+                            addStyle(
+                                style = SpanStyle(
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                ),
+                                start = startIndex, end = startIndex + highlight.length
                             )
-                        ) {
-                            append("живе дерево")
-                        }
-                        append(". Контролюй витрати, щоб твоє фінансове дерево завжли зростало та залишалось ")
-                        withStyle(
-                            SpanStyle(
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        ) {
-                            append("зеленим та квітучим.")
                         }
                     },
                     style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    textAlign = TextAlign.Center
                 )
             }
 
@@ -160,7 +150,7 @@ fun OnboardingPageContent(
                 Spacer(modifier = Modifier.height(48.dp))
 
                 Text(
-                    "Мрій без ризику",
+                    stringResource(R.string.onboarding_3_title),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Black,
                     color = MaterialTheme.colorScheme.onSurface
@@ -170,28 +160,22 @@ fun OnboardingPageContent(
 
                 Text(
                     text = buildAnnotatedString {
-                        append("Ти автоматично ")
-                        withStyle(
-                            SpanStyle(
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
+                        val fullText = stringResource(R.string.onboarding_3_desc)
+                        val highlight = stringResource(R.string.onboarding_3_highlight)
+                        val startIndex = fullText.indexOf(highlight)
+                        append(fullText)
+                        if (startIndex != -1) {
+                            addStyle(
+                                style = SpanStyle(
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                ),
+                                start = startIndex, end = startIndex + highlight.length
                             )
-                        ) {
-                            append("захищаєш гроші на життя")
-                        }
-                        append(", а надлишок буде спрямований. Досягай мрій, зберігаючи ")
-                        withStyle(
-                            SpanStyle(
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        ) {
-                            append("фінансовий спокій.")
                         }
                     },
                     style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    textAlign = TextAlign.Center
                 )
             }
         }

@@ -12,7 +12,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.denisshulika.fincentra.R
 
 @Composable
 fun EmptyStatsPlaceholder() {
@@ -25,7 +27,7 @@ fun EmptyStatsPlaceholder() {
                 tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
             )
             Text(
-                "Даних не знайдено",
+                text = stringResource(R.string.stats_no_data),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

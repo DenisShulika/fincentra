@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -36,7 +37,6 @@ import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.data.util.BankProviders
 import com.denisshulika.fincentra.data.util.DateFormatter
-import com.denisshulika.fincentra.data.util.TransactionConstants
 
 @Composable
 fun TransactionItem(
@@ -120,7 +120,7 @@ fun TransactionItem(
                     .padding(end = 12.dp)
             ) {
                 Text(
-                    text = transaction.description.ifBlank { transaction.category.displayName },
+                    text = transaction.description.ifBlank { stringResource(transaction.category.displayNameRes) },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -128,8 +128,7 @@ fun TransactionItem(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = if (transaction.subCategoryName == TransactionConstants.DEFAULT_SUB_CATEGORY)
-                        transaction.category.displayName else transaction.subCategoryName,
+                    text = stringResource(transaction.subCategoryRes),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

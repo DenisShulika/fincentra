@@ -16,8 +16,8 @@ import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class BudgetsViewModel : ViewModel() {
+    private val financeRepository = DependencyProvider.financeRepository
     private val budgetRepository = DependencyProvider.budgetRepository
-    private val repository = DependencyProvider.financeRepository
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
@@ -37,17 +37,10 @@ class BudgetsViewModel : ViewModel() {
     private val _editingBudgetId = MutableStateFlow<String?>(null)
     val editingBudgetId = _editingBudgetId.asStateFlow()
 
-    private val currentMonthYear: String
-        get() {
-            val cal = Calendar.getInstance()
-            return "${cal.get(Calendar.MONTH) + 1}-${cal.get(Calendar.YEAR)}"
-        }
-
     val budgetProgressList: StateFlow<List<BudgetProgress>> = combine(
-        budgetRepository.getBudgetsFlow(currentMonthYear), // ТУТ ЗМІНА
-        repository.transactions
+        financeRepository.budgets,
+        financeRepository.transactions
     ) { budgets, transactions ->
-
         val cal = Calendar.getInstance()
         val currentMonth = cal.get(Calendar.MONTH)
         val currentYear = cal.get(Calendar.YEAR)
@@ -56,7 +49,7 @@ class BudgetsViewModel : ViewModel() {
             val spent = transactions.filter { tx ->
                 val txCal = Calendar.getInstance().apply { timeInMillis = tx.timestamp }
                 tx.isExpense &&
-                        tx.category.displayName == budget.categoryName &&
+                        tx.category.name == budget.categoryName &&
                         txCal.get(Calendar.MONTH) == currentMonth &&
                         txCal.get(Calendar.YEAR) == currentYear &&
                         tx.currencyCode == budget.currencyCode
@@ -102,7 +95,7 @@ class BudgetsViewModel : ViewModel() {
     fun prepareForEdit(budget: Budget) {
         _amount.value = budget.limitAmount.toInt().toString()
         _selectedCategory.value = TransactionCategory.entries.find {
-            it.displayName == budget.categoryName
+            it.name == budget.categoryName
         } ?: TransactionCategory.OTHERS
         _selectedCurrency.value = budget.currencyCode
         _editingBudgetId.value = budget.id
@@ -111,17 +104,17 @@ class BudgetsViewModel : ViewModel() {
 
     fun saveNewBudget() {
         val amt = _amount.value.toDoubleOrNull() ?: return
-
         viewModelScope.launch {
             _isLoading.value = true
             try {
+                val cal = Calendar.getInstance()
+                val monthYear = "${cal.get(Calendar.MONTH) + 1}-${cal.get(Calendar.YEAR)}"
                 val budget = Budget(
-                    id = _editingBudgetId.value
-                        ?: "${_selectedCategory.value.name}_$currentMonthYear",
-                    categoryName = _selectedCategory.value.displayName,
+                    id = _editingBudgetId.value ?: "${_selectedCategory.value.name}_$monthYear",
+                    categoryName = _selectedCategory.value.name,
                     limitAmount = amt,
                     currencyCode = _selectedCurrency.value,
-                    monthYear = currentMonthYear
+                    monthYear = monthYear
                 )
                 budgetRepository.saveBudget(budget)
                 toggleAddSheet(false)

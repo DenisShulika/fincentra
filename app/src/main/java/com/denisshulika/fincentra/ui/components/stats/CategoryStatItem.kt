@@ -26,8 +26,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.state.CategoryStat
 import com.denisshulika.fincentra.ui.components.AnimatedAmount
 
@@ -36,7 +38,8 @@ fun CategoryStatItem(stat: CategoryStat, symbol: String) {
     var isExpanded by remember { mutableStateOf(false) }
     val animatedProgress by animateFloatAsState(
         targetValue = stat.percentage,
-        animationSpec = tween(1200)
+        animationSpec = tween(1200),
+        label = "CategoryProgress"
     )
 
     Column(modifier = Modifier
@@ -59,13 +62,16 @@ fun CategoryStatItem(stat: CategoryStat, symbol: String) {
             Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = stat.category.displayName,
+                    text = stringResource(stat.category.displayNameRes),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 if (stat.subCategories.isNotEmpty()) {
                     Text(
-                        "${stat.subCategories.size} підкатегорій",
+                        text = stringResource(
+                            R.string.stats_subcategories_count,
+                            stat.subCategories.size
+                        ),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -99,8 +105,9 @@ fun CategoryStatItem(stat: CategoryStat, symbol: String) {
             ) {
                 stat.subCategories.forEach { sub ->
                     val subProgress by animateFloatAsState(
-                        targetValue = sub.percentageOfParent, animationSpec = tween(1000),
-                        label = ""
+                        targetValue = sub.percentageOfParent,
+                        animationSpec = tween(1000),
+                        label = "SubCategoryProgress"
                     )
                     Column {
                         Row(
@@ -108,7 +115,7 @@ fun CategoryStatItem(stat: CategoryStat, symbol: String) {
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                sub.name,
+                                text = stringResource(sub.nameRes),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )

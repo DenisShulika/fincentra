@@ -36,12 +36,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.events.AuthUiEvent
 import com.denisshulika.fincentra.viewmodels.AuthViewModel
 
@@ -52,7 +53,6 @@ fun RegisterScreen(
     onBackToLogin: () -> Unit
 ) {
     val context = LocalContext.current
-
     val name by viewModel.name.collectAsStateWithLifecycle()
     val email by viewModel.email.collectAsStateWithLifecycle()
     val password by viewModel.password.collectAsStateWithLifecycle()
@@ -75,16 +75,14 @@ fun RegisterScreen(
                 }
 
                 is AuthUiEvent.ShowError -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
+                    val message = context.resources.getString(event.messageRes)
+                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                 }
             }
         }
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -94,18 +92,16 @@ fun RegisterScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Створити акаунт",
+                text = stringResource(R.string.register_header),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Black,
                 color = MaterialTheme.colorScheme.primary
             )
 
             Text(
-                text = "Приєднуйся до FinCentra та візьми фінанси під контроль",
+                text = stringResource(R.string.register_desc),
                 style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp)
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
 
             Spacer(modifier = Modifier.height(40.dp))
@@ -113,17 +109,17 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = name,
                 onValueChange = { viewModel.onNameChange(it) },
-                label = { Text("Як вас звати?") },
+                label = { Text(stringResource(R.string.auth_name_hint)) },
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null,
+                        Icons.Default.Person,
+                        null,
                         tint = MaterialTheme.colorScheme.primary
                     )
                 },
                 isError = nameError != null,
                 supportingText = {
-                    nameError?.let { Text(it) }
+                    nameError?.let { Text(text = stringResource(it)) }
                 },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
@@ -135,17 +131,17 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = email,
                 onValueChange = { viewModel.onEmailChange(it) },
-                label = { Text("Електронна пошта") },
+                label = { Text(stringResource(R.string.auth_email_hint)) },
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.Default.Email,
-                        contentDescription = null,
+                        Icons.Default.Email,
+                        null,
                         tint = MaterialTheme.colorScheme.primary
                     )
                 },
                 isError = emailError != null,
                 supportingText = {
-                    emailError?.let { Text(it) }
+                    emailError?.let { Text(text = stringResource(it)) }
                 },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
@@ -157,37 +153,29 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { viewModel.onPasswordChange(it) },
-                label = { Text("Пароль") },
+                label = { Text(stringResource(R.string.auth_password_hint)) },
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.Default.Lock,
-                        contentDescription = null,
+                        Icons.Default.Lock,
+                        null,
                         tint = MaterialTheme.colorScheme.primary
                     )
                 },
                 isError = passwordError != null,
                 supportingText = {
-                    passwordError?.let { Text(it) }
+                    passwordError?.let { Text(text = stringResource(it)) }
                 },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                visualTransformation = if (passwordVisible) {
-                    VisualTransformation.None
-                } else {
-                    PasswordVisualTransformation()
-                },
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
-                            imageVector = if (passwordVisible) {
-                                Icons.Default.Visibility
-                            } else {
-                                Icons.Default.VisibilityOff
-                            },
-                            contentDescription = null
+                            if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            null
                         )
                     }
                 },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
                 shape = RoundedCornerShape(16.dp)
             )
 
@@ -196,39 +184,29 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { viewModel.onConfirmPasswordChange(it) },
-                label = { Text("Підтвердіть пароль") },
+                label = { Text(stringResource(R.string.auth_confirm_password_hint)) },
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.Default.Lock,
-                        contentDescription = null,
+                        Icons.Default.Lock,
+                        null,
                         tint = MaterialTheme.colorScheme.primary
                     )
                 },
                 isError = confirmError != null,
                 supportingText = {
-                    confirmError?.let { Text(it) }
+                    confirmError?.let { Text(text = stringResource(it)) }
                 },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                visualTransformation = if (confirmPasswordVisible) {
-                    VisualTransformation.None
-                } else {
-                    PasswordVisualTransformation()
-                },
+                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
-                    IconButton(
-                        onClick = { confirmPasswordVisible = !confirmPasswordVisible }
-                    ) {
+                    IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
                         Icon(
-                            imageVector = if (confirmPasswordVisible) {
-                                Icons.Default.Visibility
-                            } else {
-                                Icons.Default.VisibilityOff
-                            },
-                            contentDescription = null
+                            if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            null
                         )
                     }
                 },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
                 shape = RoundedCornerShape(16.dp)
             )
 
@@ -245,12 +223,11 @@ fun RegisterScreen(
                 if (isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        strokeWidth = 3.dp
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 } else {
                     Text(
-                        text = "Зареєструватися",
+                        text = stringResource(R.string.register_btn),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -259,11 +236,9 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            TextButton(
-                onClick = onBackToLogin
-            ) {
+            TextButton(onClick = onBackToLogin) {
                 Text(
-                    text = "Вже є акаунт? Увійти",
+                    text = stringResource(R.string.register_already_have),
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.SemiBold
                 )

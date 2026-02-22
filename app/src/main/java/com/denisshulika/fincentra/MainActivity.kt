@@ -30,6 +30,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -38,6 +39,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.denisshulika.fincentra.data.util.LanguageManager
 import com.denisshulika.fincentra.data.util.PrefConstants
 import com.denisshulika.fincentra.di.DependencyProvider
 import com.denisshulika.fincentra.navigation.Screen
@@ -65,14 +67,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         enableEdgeToEdge()
-        super.onCreate(savedInstanceState)
 
-        val repository = DependencyProvider.financeRepository
+        LanguageManager.initLocale()
+
+        super.onCreate(savedInstanceState)
 
         splashScreen.setKeepOnScreenCondition {
             val user = DependencyProvider.authRepository.getCurrentUser()
             if (user != null) {
-                repository.transactions.value.isEmpty()
+                val repository = DependencyProvider.financeRepository
+                !repository.isInitialLoadComplete.value
             } else {
                 false
             }
@@ -175,7 +179,7 @@ fun MainScreen() {
                     drawerItems.forEach { screen ->
                         NavigationDrawerItem(
                             icon = { Icon(screen.icon, null) },
-                            label = { Text(screen.title) },
+                            label = { Text(stringResource(screen.titleRes)) },
                             selected = currentRoute == screen.route,
                             onClick = {
                                 scope.launch { drawerState.close() }
@@ -213,7 +217,7 @@ fun MainScreen() {
                                 selected = currentRoute == screen.route,
                                 label = {
                                     Text(
-                                        text = screen.title,
+                                        text = stringResource(screen.titleRes),
                                         fontWeight = if (currentRoute == screen.route) FontWeight.Bold else FontWeight.Normal
                                     )
                                 },

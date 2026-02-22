@@ -26,10 +26,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.ui.components.TransactionDetailSheet
 import com.denisshulika.fincentra.ui.components.transactions.CategoryFilterContent
@@ -47,7 +49,6 @@ fun TransactionsScreen(viewModel: TransactionsViewModel, onOpenDrawer: () -> Uni
     val list by viewModel.transactions.collectAsStateWithLifecycle()
     val showBottomSheet by viewModel.showBottomSheet.collectAsStateWithLifecycle()
     val groupedList by viewModel.groupedTransactions.collectAsStateWithLifecycle()
-
     val viewingTx by viewModel.viewingTransaction.collectAsStateWithLifecycle()
 
     var showFilterSheet by remember { mutableStateOf(false) }
@@ -55,59 +56,58 @@ fun TransactionsScreen(viewModel: TransactionsViewModel, onOpenDrawer: () -> Uni
     var showDatePicker by remember { mutableStateOf(false) }
     var transactionToDelete by remember { mutableStateOf<Transaction?>(null) }
 
-    viewingTx?.let { tx ->
-        TransactionDetailSheet(transaction = tx) {
-            viewModel.closeTransactionDetails()
-        }
-    }
+    viewingTx?.let { tx -> TransactionDetailSheet(transaction = tx) { viewModel.closeTransactionDetails() } }
 
     if (transactionToDelete != null) {
         AlertDialog(
             onDismissRequest = { transactionToDelete = null },
-            containerColor = MaterialTheme.colorScheme.surface,
-            title = { Text("Видалити транзакцію?", fontWeight = FontWeight.Bold) },
-            text = { Text("Ви впевнені? Цю дію не можна скасувати.") },
+            title = {
+                Text(
+                    stringResource(R.string.tx_delete_confirm_title),
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = { Text(stringResource(R.string.tx_delete_confirm_desc)) },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.deleteTransaction(transactionToDelete!!)
-                    transactionToDelete = null
+                    viewModel.deleteTransaction(transactionToDelete!!); transactionToDelete = null
                 }) {
                     Text(
-                        "Видалити",
+                        stringResource(R.string.btn_delete),
                         color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.Bold
                     )
                 }
             },
             dismissButton = {
-                TextButton(onClick = { transactionToDelete = null }) { Text("Скасувати") }
+                TextButton(onClick = { transactionToDelete = null }) {
+                    Text(
+                        stringResource(R.string.btn_cancel)
+                    )
+                }
             }
         )
     }
 
     if (showBottomSheet) {
         ModalBottomSheet(onDismissRequest = { viewModel.toggleBottomSheet(false) }) {
-            TransactionFormContent(viewModel)
+            TransactionFormContent(
+                viewModel
+            )
         }
     }
-
     if (showFilterSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { showFilterSheet = false }
-        ) {
-            CategoryFilterContent(viewModel) {
-                showFilterSheet = false
-            }
+        ModalBottomSheet(onDismissRequest = { showFilterSheet = false }) {
+            CategoryFilterContent(
+                viewModel
+            ) { showFilterSheet = false }
         }
     }
-
     if (showTypeBankSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { showTypeBankSheet = false }
-        ) {
-            TypeBankFilterContent(viewModel) {
-                showTypeBankSheet = false
-            }
+        ModalBottomSheet(onDismissRequest = { showTypeBankSheet = false }) {
+            TypeBankFilterContent(
+                viewModel
+            ) { showTypeBankSheet = false }
         }
     }
 
@@ -115,30 +115,24 @@ fun TransactionsScreen(viewModel: TransactionsViewModel, onOpenDrawer: () -> Uni
         val dateRangePickerState = rememberDateRangePickerState()
         DateRangePickerDialog(
             state = dateRangePickerState,
-            onDismiss = {
-                showDatePicker = false
-            },
+            onDismiss = { showDatePicker = false },
             onConfirm = {
                 val start = dateRangePickerState.selectedStartDateMillis
                 val end = dateRangePickerState.selectedEndDateMillis
-                if (start != null && end != null) {
-                    viewModel.setDateRange(start..end)
-                }
+                if (start != null && end != null) viewModel.setDateRange(start..end)
                 showDatePicker = false
-            }
-        )
+            })
     }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TransactionsTopBar(
-                viewModel = viewModel,
-                onOpenDrawer = onOpenDrawer,
+                viewModel,
                 onFilterCategoryClick = { showFilterSheet = true },
+                onOpenDrawer = onOpenDrawer,
                 onFilterTypeClick = { showTypeBankSheet = true },
-                onFilterDateClick = { showDatePicker = true }
-            )
+                onFilterDateClick = { showDatePicker = true })
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -146,15 +140,13 @@ fun TransactionsScreen(viewModel: TransactionsViewModel, onOpenDrawer: () -> Uni
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
-                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(28.dp))
+                Icon(Icons.Default.Add, null, Modifier.size(28.dp))
             }
         }
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = innerPadding.calculateTopPadding())
-        ) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(top = innerPadding.calculateTopPadding())) {
             if (list.isEmpty()) {
                 EmptyTransactionsPlaceholder { viewModel.toggleSearch(false) }
             } else {
@@ -165,8 +157,13 @@ fun TransactionsScreen(viewModel: TransactionsViewModel, onOpenDrawer: () -> Uni
                                 modifier = Modifier.fillMaxWidth(),
                                 color = MaterialTheme.colorScheme.background.copy(alpha = 0.95f)
                             ) {
+                                val displayDate = when (dateHeader) {
+                                    "DATE_TODAY" -> stringResource(R.string.date_today)
+                                    "DATE_YESTERDAY" -> stringResource(R.string.date_yesterday)
+                                    else -> dateHeader
+                                }
                                 Text(
-                                    text = dateHeader.uppercase(),
+                                    text = displayDate.uppercase(),
                                     modifier = Modifier.padding(
                                         horizontal = 20.dp,
                                         vertical = 12.dp
@@ -178,13 +175,11 @@ fun TransactionsScreen(viewModel: TransactionsViewModel, onOpenDrawer: () -> Uni
                                 )
                             }
                         }
-
                         items(transactions, key = { it.id + it.timestamp }) { tx ->
                             TransactionSwipeWrapper(
                                 transaction = tx,
                                 viewModel = viewModel,
-                                onDeleteRequest = { transactionToDelete = tx }
-                            )
+                                onDeleteRequest = { transactionToDelete = tx })
                         }
                     }
                 }

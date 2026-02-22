@@ -2,6 +2,7 @@ package com.denisshulika.fincentra.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.BankAccount
 import com.denisshulika.fincentra.data.models.events.IntegrationsUiEvent
 import com.denisshulika.fincentra.data.models.ui.BankProviderInfo
@@ -104,7 +105,7 @@ class IntegrationsViewModel : ViewModel() {
             try {
                 val token = settingsRepository.getMonobankApiToken() ?: return@launch
 
-                _syncStatus.value = "Оновлення балансів..."
+                _syncStatus.value = "UPDATING_BALANCES"
                 val actualAccounts = monobankService.fetchAccounts(token)
                 needsCooldown = true
 
@@ -116,16 +117,15 @@ class IntegrationsViewModel : ViewModel() {
                 val accountsToSync = actualAccounts.filter { selectedIds.contains(it.id) }
 
                 if (accountsToSync.isEmpty()) {
-                    _syncStatus.value = "Рахунки не вибрані"
-                    _events.emit(IntegrationsUiEvent.ShowToast("Будь ласка, виберіть рахунки в налаштуваннях"))
+                    _events.emit(IntegrationsUiEvent.ShowToast(R.string.error_no_accounts_selected))
                     delay(2000)
                 } else {
                     for ((index, account) in accountsToSync.withIndex()) {
                         if (index > 0) {
-                            waitForApiCooldown(60, "Наступна карта через")
+                            waitForApiCooldown(60)
                         }
 
-                        _syncStatus.value = "Синхронізація: ${account.name}..."
+                        _syncStatus.value = "SYNCING_ACC:${account.name}"
 
                         val lastSync = settingsRepository.getLastSyncTimestamp(account.id)
                         val fromTime =
@@ -136,7 +136,14 @@ class IntegrationsViewModel : ViewModel() {
                             accountId = account.id,
                             accountCurrency = account.currencyCode,
                             fromTimeSeconds = fromTime,
-                            onProgress = { status -> _syncStatus.value = status },
+                            onProgress = { status ->
+                                if (status.contains("Ліміт перевищено")) _syncStatus.value =
+                                    "LIMIT_EXCEEDED"
+                                else if (status.contains("Пауза")) {
+                                    val sec = status.filter { it.isDigit() }
+                                    _syncStatus.value = "PAUSE:$sec"
+                                }
+                            },
                             onBatchLoaded = { batch ->
                                 financeRepository.addTransactionsBatch(batch)
                                 settingsRepository.saveLastSyncTimestamp(
@@ -149,17 +156,16 @@ class IntegrationsViewModel : ViewModel() {
                     }
 
                     settingsRepository.saveLastGlobalSyncTime(System.currentTimeMillis())
-                    _syncStatus.value = "Готово!"
-                    _syncProgress.value = 1f
+                    _syncStatus.value = "DONE"
                     delay(2000)
                 }
             } catch (e: Exception) {
-                _syncStatus.value = "Помилка API"
+                _syncStatus.value = "API_ERROR"
                 delay(2000)
             } finally {
                 if (needsCooldown) {
                     _syncProgress.value = 0f
-                    waitForApiCooldown(60, "Відпочинок API")
+                    waitForApiCooldown(60)
                 }
                 _syncStatus.value = ""
                 _isLoading.value = false
@@ -167,9 +173,9 @@ class IntegrationsViewModel : ViewModel() {
         }
     }
 
-    private suspend fun waitForApiCooldown(seconds: Int, statusPrefix: String) {
+    private suspend fun waitForApiCooldown(seconds: Int) {
         for (i in seconds downTo 1) {
-            _syncStatus.value = "$statusPrefix: $i с..."
+            _syncStatus.value = "COOLDOWN:$i"
             delay(1000)
         }
     }
@@ -189,9 +195,9 @@ class IntegrationsViewModel : ViewModel() {
 
                     financeRepository.saveAccounts(mergedAccounts, updateSelection = false)
                     _availableAccounts.value = mergedAccounts
-                    _events.emit(IntegrationsUiEvent.ShowToast("Оновлено"))
+                    _events.emit(IntegrationsUiEvent.ShowToast(R.string.success_updated))
                 }
-                waitForApiCooldown(60, "Кулдаун")
+                waitForApiCooldown(60)
             } finally {
                 _isLoading.value = false
                 _syncStatus.value = ""
@@ -212,7 +218,7 @@ class IntegrationsViewModel : ViewModel() {
                 syncMonobankData()
             } catch (e: Exception) {
                 _isLoading.value = false
-                _events.emit(IntegrationsUiEvent.ShowToast("Помилка"))
+                _events.emit(IntegrationsUiEvent.ShowToast(R.string.error_unknown))
             }
         }
     }
@@ -255,7 +261,7 @@ class IntegrationsViewModel : ViewModel() {
                     _showAccountSelection.value = true
                 }
             } catch (e: Exception) {
-                _events.emit(IntegrationsUiEvent.ShowToast("Помилка токена"))
+                _events.emit(IntegrationsUiEvent.ShowToast(R.string.error_token_invalid))
             } finally {
                 _isLoading.value = false
             }
@@ -302,7 +308,7 @@ class IntegrationsViewModel : ViewModel() {
                 _isBankConnected.value = false
                 _availableAccounts.value = emptyList()
                 _selectedBank.value = null
-                _events.emit(IntegrationsUiEvent.ShowToast("Банк відключено"))
+                _events.emit(IntegrationsUiEvent.ShowToast(R.string.success_updated))
             } finally {
                 _isLoading.value = false
                 _showDeleteConfirmation.value = false

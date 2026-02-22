@@ -23,20 +23,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.ui.components.onboarding.OnboardingPageContent
 import kotlinx.coroutines.launch
 
 @Composable
-fun OnboardingScreen(
-    onFinish: () -> Unit
-) {
-    val pagerState = rememberPagerState(
-        pageCount = {
-            3
-        }
-    )
+fun OnboardingScreen(onFinish: () -> Unit) {
+    val pagerState = rememberPagerState(pageCount = { 3 })
     val scope = rememberCoroutineScope()
 
     Scaffold(
@@ -49,19 +45,15 @@ fun OnboardingScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(
-                    onClick = onFinish
-                ) {
+                TextButton(onClick = onFinish) {
                     Text(
-                        text = "Пропустити",
+                        text = stringResource(R.string.btn_skip),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
                 }
 
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     repeat(3) { index ->
                         val isSelected = pagerState.currentPage == index
                         Box(
@@ -79,9 +71,7 @@ fun OnboardingScreen(
                 Button(
                     onClick = {
                         if (pagerState.currentPage < 2) {
-                            scope.launch {
-                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                            }
+                            scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
                         } else {
                             onFinish()
                         }
@@ -90,7 +80,9 @@ fun OnboardingScreen(
                     contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
                 ) {
                     Text(
-                        text = if (pagerState.currentPage == 2) "Почати" else "Далі",
+                        text = if (pagerState.currentPage == 2) stringResource(R.string.btn_start) else stringResource(
+                            R.string.btn_next
+                        ),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -104,10 +96,7 @@ fun OnboardingScreen(
                 .fillMaxSize()
                 .padding(bottom = innerPadding.calculateBottomPadding())
         ) { page ->
-            OnboardingPageContent(
-                page = page,
-                isCurrentPage = pagerState.currentPage == page
-            )
+            OnboardingPageContent(page = page, isCurrentPage = pagerState.currentPage == page)
         }
     }
 }

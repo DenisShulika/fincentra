@@ -35,9 +35,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.ui.components.BalanceFlowCard
 import com.denisshulika.fincentra.ui.components.FinCentraTopBar
@@ -71,19 +73,16 @@ fun StatsScreen(viewModel: StatsViewModel, onOpenDrawer: () -> Unit) {
             onConfirm = {
                 val start = dateRangePickerState.selectedStartDateMillis
                 val end = dateRangePickerState.selectedEndDateMillis
-                if (start != null && end != null) {
-                    viewModel.setCustomDateRange(start..end)
-                }
+                if (start != null && end != null) viewModel.setCustomDateRange(start..end)
                 showDatePicker = false
-            }
-        )
+            })
     }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             FinCentraTopBar(
-                title = "Аналітика",
+                title = stringResource(R.string.nav_stats),
                 isTopLevelScreen = true,
                 onNavigationClick = onOpenDrawer
             )
@@ -104,27 +103,27 @@ fun StatsScreen(viewModel: StatsViewModel, onOpenDrawer: () -> Unit) {
                     FilterChip(
                         selected = isExpenseMode,
                         onClick = { viewModel.toggleMode(true) },
-                        label = { Text("Витрати", style = MaterialTheme.typography.labelSmall) },
+                        label = { Text(stringResource(R.string.stats_expenses)) },
                         shape = CircleShape
                     )
                     Spacer(Modifier.width(8.dp))
                     FilterChip(
                         selected = !isExpenseMode,
                         onClick = { viewModel.toggleMode(false) },
-                        label = { Text("Доходи", style = MaterialTheme.typography.labelSmall) },
+                        label = { Text(stringResource(R.string.stats_income)) },
                         shape = CircleShape
                     )
                 }
-
-                IconButton(onClick = { isFiltersExpanded = !isFiltersExpanded }) {
+                IconButton(onClick = {
+                    isFiltersExpanded = !isFiltersExpanded
+                }) {
                     Icon(
-                        imageVector = if (isFiltersExpanded) Icons.Default.ExpandLess else Icons.Default.Tune,
-                        contentDescription = null,
+                        if (isFiltersExpanded) Icons.Default.ExpandLess else Icons.Default.Tune,
+                        null,
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
             }
-
             AnimatedVisibility(visible = isFiltersExpanded) {
                 Column {
                     if (uiState.currencyData.size > 1) {
@@ -132,38 +131,30 @@ fun StatsScreen(viewModel: StatsViewModel, onOpenDrawer: () -> Unit) {
                             selectedTabIndex = selectedIndex,
                             edgePadding = 0.dp,
                             containerColor = Color.Transparent,
-                            divider = {}
-                        ) {
+                            divider = {}) {
                             uiState.currencyData.forEachIndexed { index, data ->
                                 Tab(
                                     selected = selectedIndex == index,
                                     onClick = { viewModel.selectCurrency(index) },
-                                    text = { Text(CurrencyMapper.getCodeName(data.currencyCode)) }
-                                )
+                                    text = { Text(CurrencyMapper.getCodeName(data.currencyCode)) })
                             }
                         }
                     }
-
                     PeriodSelector(
                         selectedPeriod = selectedPeriod,
                         onPeriodSelected = { viewModel.setPeriod(it) },
-                        onCalendarClick = { showDatePicker = true }
-                    )
-
+                        onCalendarClick = { showDatePicker = true })
                     FilterRow(
                         selectedBank = selectedBank,
                         selectedAccountId = selectedAccountId,
                         availableAccounts = availableAccounts,
                         onBankChange = { viewModel.onBankFilterChange(it) },
-                        onAccountChange = { viewModel.onAccountFilterChange(it) }
-                    )
+                        onAccountChange = { viewModel.onAccountFilterChange(it) })
                 }
             }
-
             val currentStats = uiState.currencyData.getOrNull(selectedIndex)
             if (currentStats != null) {
                 val symbol = CurrencyMapper.getSymbol(currentStats.currencyCode)
-
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -176,19 +167,22 @@ fun StatsScreen(viewModel: StatsViewModel, onOpenDrawer: () -> Unit) {
                                 .fillMaxWidth()
                                 .padding(vertical = 16.dp),
                             contentAlignment = Alignment.Center
-                        ) {
-                            SpendingDonutChart(currentStats.categories, symbol, isExpenseMode)
-                        }
+                        ) { SpendingDonutChart(currentStats.categories, symbol, isExpenseMode) }
                     }
                     item {
                         Text(
-                            text = if (isExpenseMode) "Розподіл витрат" else "Джерела доходів",
+                            text = if (isExpenseMode) stringResource(R.string.stats_expense_distribution) else stringResource(
+                                R.string.stats_income_sources
+                            ),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Black
                         )
                     }
                     items(currentStats.categories) { stat ->
-                        CategoryStatItem(stat = stat, symbol = symbol)
+                        CategoryStatItem(
+                            stat = stat,
+                            symbol = symbol
+                        )
                     }
                 }
             } else {

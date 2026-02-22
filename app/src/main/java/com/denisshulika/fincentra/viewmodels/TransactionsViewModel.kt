@@ -1,11 +1,15 @@
 package com.denisshulika.fincentra.viewmodels
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.denisshulika.fincentra.R
+import com.denisshulika.fincentra.data.models.domain.BankAccount
 import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.models.domain.TransactionCategory
 import com.denisshulika.fincentra.data.network.common.MccDirectory
 import com.denisshulika.fincentra.data.util.DateFormatter
+import com.denisshulika.fincentra.data.util.FilterConstants
 import com.denisshulika.fincentra.data.util.TransactionConstants
 import com.denisshulika.fincentra.data.util.TransactionFilterEngine
 import com.denisshulika.fincentra.di.DependencyProvider
@@ -64,30 +68,28 @@ class TransactionsViewModel : ViewModel() {
     }
 
     fun saveTransaction() {
-        val amountDouble = _amount.value.toDoubleOrNull() ?: return
+        val amt = _amount.value.toDoubleOrNull() ?: return
         viewModelScope.launch {
-            val transaction = Transaction(
+            val tx = Transaction(
                 id = _editingTransactionId.value ?: UUID.randomUUID().toString(),
-                amount = amountDouble,
-                description = _description.value,
-                bankName = "Готівка",
-                category = _category.value,
-                isExpense = _isExpense.value,
+                amount = amt, description = _description.value,
+                bankName = TransactionConstants.SOURCE_CASH,
+                category = _category.value, isExpense = _isExpense.value,
                 timestamp = editingTimestamp ?: System.currentTimeMillis(),
                 accountId = TransactionConstants.ACCOUNT_ID_MANUAL,
                 currencyCode = _selectedCurrency.value,
-                subCategoryName = "Ручне введення"
+                subCategoryRes = R.string.mcc_others
             )
-            financeRepository.addTransaction(transaction)
+            financeRepository.addTransaction(tx)
             toggleBottomSheet(false)
         }
     }
 
-    enum class SortOrder(val displayName: String) {
-        DATE_DESC("Спочатку нові"),
-        DATE_ASC("Спочатку старі"),
-        AMOUNT_DESC("Найдорожчі"),
-        AMOUNT_ASC("Найдешевші")
+    enum class SortOrder(@StringRes val displayNameRes: Int) {
+        DATE_DESC(R.string.sort_date_desc),
+        DATE_ASC(R.string.sort_date_asc),
+        AMOUNT_DESC(R.string.sort_amount_desc),
+        AMOUNT_ASC(R.string.sort_amount_asc)
     }
 
     private val _selectedSortOrder = MutableStateFlow(SortOrder.DATE_DESC)
@@ -109,7 +111,7 @@ class TransactionsViewModel : ViewModel() {
     val category = _category.asStateFlow()
 
     val categories = TransactionCategory.entries
-    val expenseOptions = listOf("Витрата", "Дохід")
+    val expenseOptions = listOf(R.string.tx_type_expense, R.string.tx_type_income)
 
     private val _editingTransactionId = MutableStateFlow<String?>(null)
     val editingTransactionId = _editingTransactionId.asStateFlow()
@@ -122,14 +124,17 @@ class TransactionsViewModel : ViewModel() {
         _selectedCategories,
         _selectedBankFilter,
         _selectedTypeFilter,
-        _selectedIds
+        _selectedIds,
+        _selectedSortOrder
     ) { args ->
         val txList = args[0] as List<Transaction>
+        val accountList = args[1] as List<BankAccount>
         val query = args[2] as String
         val selectedCats = args[3] as Set<String>
         val bankFilter = args[4] as String
         val typeFilter = args[5] as String
         val activeIds = args[6] as List<String>
+        val sortOrder = args[7] as SortOrder
 
         TransactionFilterEngine.filter(
             transactions = txList,
@@ -139,7 +144,14 @@ class TransactionsViewModel : ViewModel() {
             typeFilter = typeFilter,
             selectedCats = selectedCats,
             dateRange = null
-        )
+        ).let { filtered ->
+            when (sortOrder) {
+                SortOrder.DATE_DESC -> filtered.sortedByDescending { it.timestamp }
+                SortOrder.DATE_ASC -> filtered.sortedBy { it.timestamp }
+                SortOrder.AMOUNT_DESC -> filtered.sortedByDescending { it.amount }
+                SortOrder.AMOUNT_ASC -> filtered.sortedBy { it.amount }
+            }
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val groupedTransactions: StateFlow<Map<String, List<Transaction>>> = transactions
@@ -147,7 +159,6 @@ class TransactionsViewModel : ViewModel() {
             list.groupBy { tx ->
                 val calendar = Calendar.getInstance()
                 val now = Calendar.getInstance()
-
                 calendar.timeInMillis = tx.timestamp
 
                 val isToday = calendar.get(Calendar.YEAR) == now.get(Calendar.YEAR) &&
@@ -158,20 +169,18 @@ class TransactionsViewModel : ViewModel() {
                         calendar.get(Calendar.DAY_OF_YEAR) == yesterday.get(Calendar.DAY_OF_YEAR)
 
                 when {
-                    isToday -> "Сьогодні"
-                    isYesterday -> "Вчора"
+                    isToday -> "DATE_TODAY"
+                    isYesterday -> "DATE_YESTERDAY"
                     else -> DateFormatter.formatDayMonth(tx.timestamp)
                 }
             }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
-    val categoriesWithSubs: StateFlow<Map<TransactionCategory, List<String>>> = allTransactions
+    val categoriesWithSubs: StateFlow<Map<TransactionCategory, List<Int>>> = allTransactions
         .map { _ ->
             TransactionCategory.entries.associateWith { mainCat ->
-                MccDirectory.getSubcategoriesFor(
-                    mainCat
-                )
+                MccDirectory.getSubcategoriesFor(mainCat)
             }
         }.stateIn(viewModelScope, SharingStarted.Lazily, emptyMap())
 
@@ -212,36 +221,20 @@ class TransactionsViewModel : ViewModel() {
         _isSearchActive.value = active
         if (!active) {
             _searchQuery.value = ""
-            _selectedBankFilter.value = "Всі"
+            _selectedBankFilter.value = FilterConstants.ALL
+            _selectedTypeFilter.value = FilterConstants.ALL
             _selectedCategories.value = emptySet()
             _selectedDateRange.value = null
-            _selectedTypeFilter.value = "Всі"
             _selectedSortOrder.value = SortOrder.DATE_DESC
         }
     }
 
     fun toggleCategoryFilter(name: String) {
         val current = _selectedCategories.value.toMutableSet()
-        val mainCat = categories.find { it.displayName == name }
-
-        if (mainCat != null) {
-            val subs =
-                MccDirectory.getSubcategoriesFor(
-                    mainCat
-                )
-            if (current.contains(name)) {
-                current.remove(name)
-                subs.forEach { current.remove(it) }
-            } else {
-                current.add(name)
-                subs.forEach { current.add(it) }
-            }
+        if (current.contains(name)) {
+            current.remove(name)
         } else {
-            if (current.contains(name)) {
-                current.remove(name)
-            } else {
-                current.add(name)
-            }
+            current.add(name)
         }
         _selectedCategories.value = current
     }

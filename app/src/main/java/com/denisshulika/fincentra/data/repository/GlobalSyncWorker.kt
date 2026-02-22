@@ -11,6 +11,8 @@ import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.denisshulika.fincentra.R
+import com.denisshulika.fincentra.data.models.domain.TransactionCategory
+import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
@@ -59,7 +61,7 @@ class GlobalSyncWorker(
                     }
                 )
             } catch (e: Exception) {
-                Log.e("SYNC_WORKER", "Помилка карти $id: ${e.message}")
+                Log.e("SYNC_WORKER", "Card sync error $id: ${e.message}")
             }
 
             if (id != selectedIds.last()) {
@@ -83,8 +85,7 @@ class GlobalSyncWorker(
 
     private suspend fun checkBudgetsAndNotify() {
         val cal = Calendar.getInstance()
-        val monthYear =
-            "${cal.get(Calendar.MONTH) + 1}-${cal.get(Calendar.YEAR)}"
+        val monthYear = "${cal.get(Calendar.MONTH) + 1}-${cal.get(Calendar.YEAR)}"
 
         val budgets = budgetRepository.getBudgetsFlow(monthYear).firstOrNull() ?: return
         val transactions = financeRepository.transactions.value
@@ -93,28 +94,41 @@ class GlobalSyncWorker(
             val spent = transactions.filter { tx ->
                 val txCal = Calendar.getInstance().apply { timeInMillis = tx.timestamp }
                 tx.isExpense &&
-                        tx.category.displayName == budget.categoryName &&
+                        tx.category.name == budget.categoryName &&
                         txCal.get(Calendar.MONTH) == cal.get(Calendar.MONTH) &&
                         tx.currencyCode == budget.currencyCode
             }.sumOf { it.amount }
 
             if (spent > budget.limitAmount) {
+                val category = TransactionCategory.entries.find { it.name == budget.categoryName }
+                val categoryDisplayName =
+                    category?.let { applicationContext.getString(it.displayNameRes) }
+                        ?: budget.categoryName
+                val currencySymbol = CurrencyMapper.getSymbol(budget.currencyCode)
+
                 sendNotification(
-                    title = "Перевищено ліміт: ${budget.categoryName}",
-                    message = "Ви витратили ${spent.toInt()} з запланованих ${budget.limitAmount.toInt()} грн"
+                    title = applicationContext.getString(
+                        R.string.notif_limit_exceeded,
+                        categoryDisplayName
+                    ),
+                    message = applicationContext.getString(
+                        R.string.notif_limit_message,
+                        spent.toInt(),
+                        budget.limitAmount.toInt(),
+                        currencySymbol
+                    )
                 )
             }
         }
     }
 
     private fun sendNotification(title: String, message: String) {
-        val builder =
-            NotificationCompat.Builder(applicationContext, "BUDGET_ALERTS")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle(title)
-                .setContentText(message)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setAutoCancel(true)
+        val builder = NotificationCompat.Builder(applicationContext, "BUDGET_ALERTS")
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
 
         val notificationManager =
             applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

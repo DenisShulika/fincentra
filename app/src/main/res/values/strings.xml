@@ -1,3 +1,352 @@
 <resources>
+    <!-- General -->
     <string name="app_name">FinCentra</string>
+
+    <!-- Navigation -->
+    <string name="nav_onboarding">Intro</string>
+    <string name="nav_home">Overview</string>
+    <string name="nav_transactions">Transactions</string>
+    <string name="nav_stats">Analytics</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_integrations">Banks</string>
+    <string name="nav_budgets">Limits</string>
+    <string name="nav_dream">Dream</string>
+    <string name="nav_login">Login</string>
+    <string name="nav_register">Register</string>
+
+    <!-- Common Buttons -->
+    <string name="btn_save">Save</string>
+    <string name="btn_update">Update</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_close">Close</string>
+    <string name="btn_edit">Edit</string>
+    <string name="btn_done">Done</string>
+    <string name="btn_apply">Apply</string>
+    <string name="btn_delete">Delete</string>
+    <string name="btn_skip">Skip</string>
+    <string name="btn_next">Next</string>
+    <string name="btn_start">Start</string>
+    <string name="btn_logout">Logout</string>
+
+    <!-- Authentication (Login & Register) -->
+    <string name="login_title">FinCentra</string>
+    <string name="login_subtitle">Your faithful financial hub and assistant!</string>
+    <string name="login_email_label">Email</string>
+    <string name="login_password_label">Password</string>
+    <string name="login_btn_enter">Login</string>
+    <string name="login_no_account">No account yet? Register</string>
+    <string name="login_or_with">or with</string>
+    <string name="register_title">Create account</string>
+    <string name="register_subtitle">Join FinCentra and take control of your finances</string>
+    <string name="register_header">Create account</string>
+    <string name="register_desc">Join FinCentra and take control of your finances</string>
+    <string name="register_name_label">What is your name?</string>
+    <string name="register_confirm_password">Confirm password</string>
+    <string name="register_btn_signup">Sign Up</string>
+    <string name="register_btn">Sign Up</string>
+    <string name="register_already_have">Already have an account? Login</string>
+    <string name="auth_email_hint">Email address</string>
+    <string name="auth_password_hint">Password</string>
+    <string name="auth_name_hint">What is your name?</string>
+    <string name="auth_confirm_password_hint">Confirm password</string>
+    <string name="auth_email_label">Email</string>
+    <string name="auth_password_label">Password</string>
+    <string name="auth_or_with">or with</string>
+
+    <!-- Home Screen -->
+    <string name="home_greeting">Hello, %s!</string>
+    <string name="home_status_title">Your financial status today</string>
+    <string name="home_ai_title">AI Advice</string>
+    <string name="home_ai_desc">Analyzing your spending… Tips coming soon.</string>
+    <string name="home_recent_tx">Recent transactions</string>
+    <string name="home_view_all">View all</string>
+    <string name="home_no_tx">No transactions yet</string>
+    <string name="home_no_transactions">No transactions yet</string>
+    <string name="home_dream_title">Savings target</string>
+    <string name="home_dream_goal">Savings target</string>
+    <string name="home_dream_collected">Collected %d%%</string>
+    <string name="home_critical_limits">Limit Alerts</string>
+    <string name="home_all_limits">All limits</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title_screen">My Profile</string>
+    <string name="profile_total_balance">Total balance (%s)</string>
+    <string name="profile_no_accounts">No accounts connected</string>
+    <string name="profile_contact_dev">Contact developer</string>
+    <string name="profile_account_actions">Account actions</string>
+    <string name="profile_transactions_count">%d transactions</string>
+    <string name="profile_new_password_title">New Password</string>
+    <string name="profile_enter_password_hint">Enter password</string>
+    <string name="profile_delete_acc_title">Delete account?</string>
+    <string name="profile_delete_acc_desc">All your cloud data will be permanently lost.</string>
+    <string name="profile_user_placeholder">User</string>
+    <string name="profile_loading">Loading…</string>
+
+    <!-- Budgets & Limits -->
+    <string name="budget_new_title">New Limit</string>
+    <string name="budget_edit_title">Edit Limit</string>
+    <string name="budget_amount_label">Monthly amount</string>
+    <string name="budget_select_category">Select category</string>
+    <string name="budget_btn_set">Set limit</string>
+    <string name="budget_btn_update">Update limit</string>
+    <string name="budget_info_text">This is the amount that should always remain in your accounts for a comfortable life (rent, food, reserve).</string>
+    <string name="budget_status_safe">Safe reserve</string>
+    <string name="budget_status_warning">Spending limit</string>
+    <string name="budget_status_broken">Limit broken!</string>
+    <string name="budget_remaining">%s left</string>
+    <string name="budgets_empty_title">Your forest is still empty</string>
+    <string name="budgets_empty_desc">Set a limit on a category to start growing your financial tree.</string>
+
+    <!-- Dream -->
+    <string name="dream_title_screen">My Dream</string>
+    <string name="dream_form_edit_title">Update parameters</string>
+    <string name="dream_form_new_title">Setup your dream</string>
+    <string name="dream_label_title">What are we saving for?</string>
+    <string name="dream_placeholder_title">Example: Car</string>
+    <string name="dream_label_target">Target amount</string>
+    <string name="dream_label_buffer">Safety buffer (for living)</string>
+    <string name="dream_btn_update">Update dream</string>
+    <string name="dream_btn_save">Save dream</string>
+    <string name="dream_info_title">What is a safety buffer?</string>
+    <string name="dream_info_desc">This is the amount that should always remain on your accounts for a comfortable life (rent, food, reserve).</string>
+    <string name="dream_info_detail">Dream progress is only calculated from funds exceeding this buffer. This way you\'re sure that savings won\'t leave you with an empty wallet.</string>
+    <string name="dream_view_target">Savings target</string>
+    <string name="dream_view_buffer">Your safety buffer</string>
+    <string name="dream_view_available">Available for dream</string>
+    <string name="dream_btn_edit">Edit target</string>
+
+    <!-- Analytics & Stats -->
+    <string name="stats_no_data">No data found</string>
+    <string name="stats_expenses">Expenses</string>
+    <string name="stats_income">Income</string>
+    <string name="stats_expense_distribution">Expense distribution</string>
+    <string name="stats_income_sources">Income sources</string>
+    <string name="stats_subcategories_count">%d subcategories</string>
+    <string name="stats_other_subcategory">Other</string>
+    <string name="stats_balance_start">At start of period</string>
+    <string name="stats_net_flow">Net Flow</string>
+    <string name="stats_balance_current">Current balance</string>
+
+    <!-- Filters -->
+    <string name="filter_all">All</string>
+    <string name="filter_monobank">Monobank</string>
+    <string name="filter_cash">Cash</string>
+    <string name="filter_all_cards">All cards</string>
+    <string name="filter_categories_title">Category filter</string>
+    <string name="filter_appearance_title">Appearance settings</string>
+    <string name="filter_sort_by">Sort by</string>
+    <string name="filter_type">Operation type</string>
+    <string name="filter_source">Source</string>
+
+    <!-- Transactions -->
+    <string name="transactions_title">Operations</string>
+    <string name="transactions_search_hint">Search…</string>
+    <string name="transactions_empty_title">Nothing found</string>
+    <string name="transactions_empty_desc">Try changing the period or resetting filters to see transactions.</string>
+    <string name="transactions_btn_reset">Reset all filters</string>
+    <string name="transaction_new_title">New operation</string>
+    <string name="transaction_edit_title">Editing</string>
+    <string name="transaction_label_amount">Amount</string>
+    <string name="transaction_label_desc">Description or name</string>
+    <string name="transaction_label_category">Category</string>
+    <string name="transaction_btn_save">Save</string>
+    <string name="transaction_btn_update">Update</string>
+    <string name="tx_detail_no_name">Unnamed operation</string>
+    <string name="tx_detail_bank_comment">Bank comment</string>
+    <string name="tx_detail_category">Category</string>
+    <string name="tx_detail_subcategory">Subcategory</string>
+    <string name="tx_detail_source">Source</string>
+    <string name="tx_detail_time">Operation time</string>
+    <string name="tx_type_expense">Expense</string>
+    <string name="tx_type_income">Income</string>
+    <string name="tx_search_placeholder">Search…</string>
+    <string name="tx_category_label">Category</string>
+    <string name="tx_delete_confirm_title">Delete transaction?</string>
+    <string name="tx_delete_confirm_desc">Are you sure? This action cannot be undone.</string>
+
+    <!-- Integrations -->
+    <string name="bank_title">Banks &amp; Accounts</string>
+    <string name="bank_connection_header">Connection</string>
+    <string name="bank_sync_warning">Statement requests are allowed once every 60 seconds. Please do not close the app.</string>
+    <string name="bank_accounts_title">Accounts to track</string>
+    <string name="bank_btn_refresh">Update account list</string>
+    <string name="bank_btn_save_sync">Save &amp; Synchronize</string>
+    <string name="bank_btn_disconnect">Disconnect bank</string>
+    <string name="bank_get_access_text">Get access in </string>
+    <string name="bank_personal_cabinet">Personal Cabinet</string>
+    <string name="bank_token_label">Enter bank token</string>
+    <string name="bank_btn_connect">Connect bank</string>
+    <string name="bank_delete_title">Disconnect bank?</string>
+    <string name="bank_delete_desc">New transactions will not be downloaded. Account settings will be removed.</string>
+    <string name="bank_delete_confirm">Yes, disconnect</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_1_title">Smart Analytics</string>
+    <string name="onboarding_1_desc">FinCentra automatically collects data from your banks. No more notebooks — just watch the result.</string>
+    <string name="onboarding_1_highlight">automatically</string>
+    <string name="onboarding_2_title">Your Ecosystem</string>
+    <string name="onboarding_2_desc">Your limit is a living tree. Control expenses so your financial tree always grows and remains green and flourishing.</string>
+    <string name="onboarding_2_highlight">living tree</string>
+    <string name="onboarding_3_title">Dream Without Risk</string>
+    <string name="onboarding_3_desc">You automatically protect money for living, and the surplus will be directed. Reach dreams while maintaining financial peace.</string>
+    <string name="onboarding_3_highlight">protect money for living</string>
+
+    <!-- Categories -->
+    <string name="cat_food">Food</string>
+    <string name="cat_transport">Transport</string>
+    <string name="cat_housing">Housing</string>
+    <string name="cat_health">Health</string>
+    <string name="cat_entertainment">Entertainment</string>
+    <string name="cat_salary">Salary &amp; Cash</string>
+    <string name="cat_subscriptions">Subscriptions</string>
+    <string name="cat_transfers">Transfers</string>
+    <string name="cat_services">Services</string>
+    <string name="cat_shopping">Shopping</string>
+    <string name="cat_travel">Travel</string>
+    <string name="cat_government">Government</string>
+    <string name="cat_education">Education</string>
+    <string name="cat_others">Others</string>
+
+    <!-- MCC Subcategories -->
+    <string name="mcc_vet">Veterinary Services</string>
+    <string name="mcc_agro">Agro-cooperatives</string>
+    <string name="mcc_landscaping">Landscaping Services</string>
+    <string name="mcc_contractors">General Contractors</string>
+    <string name="mcc_plumbing">Heating &amp; Plumbing</string>
+    <string name="mcc_electrical">Electrical Works</string>
+    <string name="mcc_construction">Construction Works</string>
+    <string name="mcc_special_contractors">Special Contractors</string>
+    <string name="mcc_printing">Printing Services</string>
+    <string name="mcc_cleaning">Cleaning Services</string>
+    <string name="mcc_railway_cargo">Railway (Cargo)</string>
+    <string name="mcc_public_transport">Public Transport</string>
+    <string name="mcc_railway_passenger">Passenger Railway</string>
+    <string name="mcc_taxi">Taxi &amp; Limousines</string>
+    <string name="mcc_bus">Bus Lines</string>
+    <string name="mcc_courier">Courier Services</string>
+    <string name="mcc_cruises">Cruise Lines</string>
+    <string name="mcc_airlines">Airlines</string>
+    <string name="mcc_airports">Airports</string>
+    <string name="mcc_travel_agencies">Travel Agencies</string>
+    <string name="mcc_tolls">Tolls &amp; Bridges</string>
+    <string name="mcc_comm_equipment">Communication Equipment</string>
+    <string name="mcc_mobile">Mobile Services</string>
+    <string name="mcc_it_services">IT Services</string>
+    <string name="mcc_wire_transfers">Money Transfers</string>
+    <string name="mcc_tv_radio">TV &amp; Radio Services</string>
+    <string name="mcc_utilities">Utilities</string>
+    <string name="mcc_auto_goods">Auto Goods</string>
+    <string name="mcc_computers_sw">Computers &amp; Software</string>
+    <string name="mcc_jewelry">Jewelry</string>
+    <string name="mcc_pharmacy_goods">Pharmacy Goods</string>
+    <string name="mcc_books_news">Books &amp; Newspapers</string>
+    <string name="mcc_building_materials">Building Materials</string>
+    <string name="mcc_garden">Garden &amp; Plants</string>
+    <string name="mcc_discount_stores">Discount Stores</string>
+    <string name="mcc_department_stores">Department Stores</string>
+    <string name="mcc_low_price_stores">Low Price Stores</string>
+    <string name="mcc_supermarkets">Supermarkets</string>
+    <string name="mcc_confectionery">Confectionery</string>
+    <string name="mcc_bakeries">Bakeries</string>
+    <string name="mcc_groceries">Groceries</string>
+    <string name="mcc_car_sales">Car Sales</string>
+    <string name="mcc_auto_parts">Auto Parts</string>
+    <string name="mcc_gas_station">Gas Station</string>
+    <string name="mcc_gas_automated">Gas Station (Automated)</string>
+    <string name="mcc_mens_clothing">Men\'s Clothing</string>
+    <string name="mcc_womens_clothing">Women\'s Clothing</string>
+    <string name="mcc_kids_clothing">Children\'s Clothing</string>
+    <string name="mcc_family_clothing">Family Clothing</string>
+    <string name="mcc_shoes">Footwear</string>
+    <string name="mcc_furniture">Furniture</string>
+    <string name="mcc_appliances">Home Appliances</string>
+    <string name="mcc_electronics">Electronics</string>
+    <string name="mcc_catering">Catering</string>
+    <string name="mcc_restaurants">Restaurants</string>
+    <string name="mcc_bars_clubs">Bars &amp; Clubs</string>
+    <string name="mcc_fastfood">Fast Food</string>
+    <string name="mcc_pharmacy">Pharmacies</string>
+    <string name="mcc_liquor_stores">Liquor Stores</string>
+    <string name="mcc_sporting_goods">Sporting Goods</string>
+    <string name="mcc_book_stores">Bookstores</string>
+    <string name="mcc_toys_hobby">Toys &amp; Hobbies</string>
+    <string name="mcc_cosmetics">Cosmetics</string>
+    <string name="mcc_pet_shops">Pet Shops</string>
+    <string name="mcc_cash_desk">Cash (Desk)</string>
+    <string name="mcc_atm">Cash (ATM)</string>
+    <string name="mcc_card_topup">Card Top-up</string>
+    <string name="mcc_hotels">Hotels &amp; Motels</string>
+    <string name="mcc_barber">Barbershops</string>
+    <string name="mcc_spa">SPA Salons</string>
+    <string name="mcc_car_rental">Car Rental</string>
+    <string name="mcc_car_wash">Car Wash</string>
+    <string name="mcc_cinema">Cinemas</string>
+    <string name="mcc_fitness">Fitness Clubs</string>
+    <string name="mcc_doctors">Doctors</string>
+    <string name="mcc_dentists">Dentists</string>
+    <string name="mcc_schools">Schools</string>
+    <string name="mcc_universities">Universities</string>
+    <string name="mcc_charity">Charity</string>
+    <string name="mcc_fines">Fines</string>
+    <string name="mcc_taxes">Taxes</string>
+    <string name="mcc_gov_services">Government Services</string>
+    <string name="mcc_post_services">Postal Services</string>
+    <string name="mcc_others">Other</string>
+
+    <!-- Errors & Status -->
+    <string name="error_user_not_found">User not found</string>
+    <string name="error_google_auth_failed">Google Auth Failed</string>
+    <string name="error_user_offline">User is offline</string>
+    <string name="error_reauth_required">To delete account, please log in again for security</string>
+    <string name="error_relogin_required">Please log in again to perform this action</string>
+    <string name="error_passwords_dont_match">Passwords do not match</string>
+    <string name="error_invalid_email">Invalid email format</string>
+    <string name="error_short_password">Minimum 6 characters</string>
+    <string name="error_invalid_credentials">Invalid email or password</string>
+    <string name="error_google_failed">Google login failed</string>
+    <string name="error_unknown">An error occurred. Please try again.</string>
+    <string name="error_api_limit">Bank: Limit exceeded!</string>
+    <string name="error_api_general">Bank API error</string>
+    <string name="error_no_accounts_selected">Please select accounts in settings</string>
+    <string name="error_token_invalid">Invalid API token</string>
+    <string name="success_password_changed">Password successfully changed</string>
+    <string name="success_updated">Updated</string>
+
+    <string name="status_api_cooldown">API Cooldown: %d s…</string>
+    <string name="status_updating_balances">Updating balances…</string>
+    <string name="status_syncing_account">Syncing: %s…</string>
+    <string name="status_done">Done!</string>
+    <string name="status_api_error">Bank API Error</string>
+    <string name="status_pause">Large history… Pause %s s</string>
+
+    <!-- Periods & Dates -->
+    <string name="period_week">Week</string>
+    <string name="period_month">Month</string>
+    <string name="period_quarter">3 months</string>
+    <string name="period_all">All time</string>
+    <string name="period_custom">Calendar</string>
+    <string name="date_start">Start</string>
+    <string name="date_end">End</string>
+    <string name="date_today">Today</string>
+    <string name="date_yesterday">Yesterday</string>
+    <string name="date_picker_select_period">Select period</string>
+
+    <!-- Notifications -->
+    <string name="notif_limit_exceeded">Limit exceeded: %1$s</string>
+    <string name="notif_limit_message">You spent %1$d out of planned %2$d %3$s</string>
+
+    <!-- Buttons -->
+    <string name="filter_btn_apply">Apply</string>
+    <string name="filter_btn_done">Done</string>
+
+    <!-- Validation Errors -->
+    <string name="error_name_required">Name is required</string>
+    <string name="error_email_required">Email is required</string>
+    <string name="error_password_required">Password is required</string>
+
+    <!-- Sorting -->
+    <string name="sort_date_desc">Newest first</string>
+    <string name="sort_date_asc">Oldest first</string>
+    <string name="sort_amount_desc">Most expensive</string>
+    <string name="sort_amount_asc">Cheapest</string>
 </resources>

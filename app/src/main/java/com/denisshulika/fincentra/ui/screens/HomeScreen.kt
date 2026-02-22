@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -48,6 +49,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.di.DependencyProvider
 import com.denisshulika.fincentra.navigation.Screen
@@ -78,11 +80,7 @@ fun HomeScreen(
     val dreamState by dreamViewModel.dreamProgress.collectAsStateWithLifecycle()
     val user = DependencyProvider.authRepository.auth.currentUser
 
-    val pagerState = rememberPagerState(
-        pageCount = {
-            uiState.currencyData.size
-        }
-    )
+    val pagerState = rememberPagerState(pageCount = { uiState.currencyData.size })
 
     LaunchedEffect(pagerState.currentPage) {
         statsViewModel.selectCurrency(pagerState.currentPage)
@@ -113,17 +111,16 @@ fun HomeScreen(
             contentPadding = PaddingValues(bottom = 32.dp)
         ) {
             item {
-                Column(
-                    modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)
-                ) {
+                Column(modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)) {
+                    val name = user?.displayName?.substringBefore(" ") ?: "User"
                     Text(
-                        text = "Привіт, ${user?.displayName?.substringBefore(" ") ?: "користувачу"}!",
+                        text = stringResource(R.string.home_greeting, name),
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Black,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "Твій фінансовий стан на сьогодні",
+                        text = stringResource(R.string.home_status_title),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -131,9 +128,7 @@ fun HomeScreen(
             }
 
             item {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     HorizontalPager(
                         state = pagerState,
                         contentPadding = PaddingValues(horizontal = 32.dp),
@@ -145,16 +140,13 @@ fun HomeScreen(
 
                         Box(
                             modifier = Modifier.graphicsLayer {
-                                val pageOffset = (
-                                        (pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction
-                                        ).absoluteValue
-
+                                val pageOffset =
+                                    ((pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction).absoluteValue
                                 alpha = lerp(
                                     start = 0.5f,
                                     stop = 1f,
                                     fraction = 1f - pageOffset.coerceIn(0f, 1f)
                                 )
-
                                 scaleY = lerp(
                                     start = 0.9f,
                                     stop = 1f,
@@ -162,25 +154,18 @@ fun HomeScreen(
                                 )
                             }
                         ) {
-                            BalanceFlowCard(
-                                stats = currencyStats,
-                                symbol = symbol
-                            )
+                            BalanceFlowCard(stats = currencyStats, symbol = symbol)
                         }
                     }
 
                     if (uiState.currencyData.size > 1) {
                         Spacer(modifier = Modifier.height(12.dp))
-                        Row(
-                            Modifier.height(8.dp),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
+                        Row(Modifier.height(8.dp), horizontalArrangement = Arrangement.Center) {
                             repeat(uiState.currencyData.size) { iteration ->
                                 val color = if (pagerState.currentPage == iteration)
                                     MaterialTheme.colorScheme.primary
                                 else
                                     MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-
                                 Box(
                                     modifier = Modifier
                                         .padding(horizontal = 4.dp)
@@ -221,24 +206,22 @@ fun HomeScreen(
                                 color = Color.White.copy(alpha = 0.2f)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.AutoAwesome,
-                                    contentDescription = null,
+                                    Icons.Default.AutoAwesome,
+                                    null,
                                     tint = Color.White,
                                     modifier = Modifier.padding(10.dp)
                                 )
                             }
-
                             Spacer(modifier = Modifier.width(16.dp))
-
                             Column {
                                 Text(
-                                    text = "Порада від ШІ",
+                                    text = stringResource(R.string.home_ai_title),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.ExtraBold,
                                     color = Color.White
                                 )
                                 Text(
-                                    text = "Аналізую твої витрати... Поради з'являться скоро.",
+                                    text = stringResource(R.string.home_ai_desc),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = Color.White.copy(alpha = 0.8f)
                                 )
@@ -252,10 +235,9 @@ fun HomeScreen(
                 item {
                     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                         Text(
-                            text = "Ціль накопичення",
+                            text = stringResource(R.string.home_dream_goal),
                             style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
+                            fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         Card(
@@ -264,11 +246,13 @@ fun HomeScreen(
                                 .clickable { navController.navigate(Screen.Dream.route) },
                             shape = RoundedCornerShape(28.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
+                                    alpha = 0.4f
+                                )
                             ),
                             border = BorderStroke(
-                                width = 1.dp,
-                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                1.dp,
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
                             )
                         ) {
                             Row(
@@ -284,10 +268,7 @@ fun HomeScreen(
                                         color = MaterialTheme.colorScheme.primary,
                                         trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                                     )
-                                    Text(
-                                        text = progressData.dream.iconEmoji,
-                                        fontSize = 28.sp
-                                    )
+                                    Text(text = progressData.dream.iconEmoji, fontSize = 28.sp)
                                 }
                                 Spacer(modifier = Modifier.width(20.dp))
                                 Column(modifier = Modifier.weight(1f)) {
@@ -297,15 +278,18 @@ fun HomeScreen(
                                         fontWeight = FontWeight.ExtraBold
                                     )
                                     Text(
-                                        text = "Зібрано ${(progressData.progress * 100).toInt()}%",
+                                        text = stringResource(
+                                            R.string.home_dream_collected,
+                                            (progressData.progress * 100).toInt()
+                                        ),
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.primary,
                                         fontWeight = FontWeight.Bold
                                     )
                                 }
                                 Icon(
-                                    imageVector = Icons.Default.ChevronRight,
-                                    contentDescription = null,
+                                    Icons.Default.ChevronRight,
+                                    null,
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -324,12 +308,12 @@ fun HomeScreen(
                             verticalAlignment = Alignment.Bottom
                         ) {
                             Text(
-                                text = "Увага до лімітів",
+                                text = stringResource(R.string.home_critical_limits),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "Всі ліміти",
+                                text = stringResource(R.string.home_all_limits),
                                 modifier = Modifier.clickable { onNavigateToBudgets() },
                                 color = MaterialTheme.colorScheme.primary,
                                 style = MaterialTheme.typography.labelLarge
@@ -352,15 +336,13 @@ fun HomeScreen(
                         verticalAlignment = Alignment.Bottom
                     ) {
                         Text(
-                            text = "Останні операції",
+                            text = stringResource(R.string.home_recent_tx),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Дивитись всі",
-                            modifier = Modifier.clickable {
-                                navController.navigate(Screen.Transactions.route)
-                            },
+                            text = stringResource(R.string.home_view_all),
+                            modifier = Modifier.clickable { navController.navigate(Screen.Transactions.route) },
                             color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.labelLarge
                         )
@@ -370,7 +352,7 @@ fun HomeScreen(
                     val lastThree = transactions.take(3)
                     if (lastThree.isEmpty()) {
                         Text(
-                            text = "Операцій поки немає",
+                            text = stringResource(R.string.home_no_transactions),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 16.dp),
@@ -382,8 +364,7 @@ fun HomeScreen(
                             TransactionItem(
                                 transaction = tx,
                                 onClick = { transactionsViewModel.showTransactionDetails(tx) },
-                                onLongClick = {}
-                            )
+                                onLongClick = {})
                             Spacer(Modifier.height(8.dp))
                         }
                     }

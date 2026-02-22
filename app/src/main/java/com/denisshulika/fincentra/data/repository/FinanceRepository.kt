@@ -2,8 +2,9 @@ package com.denisshulika.fincentra.data.repository
 
 import android.util.Log
 import com.denisshulika.fincentra.data.models.domain.BankAccount
+import com.denisshulika.fincentra.data.models.domain.Budget
+import com.denisshulika.fincentra.data.models.domain.Dream
 import com.denisshulika.fincentra.data.models.domain.Transaction
-import com.denisshulika.fincentra.data.models.state.TransactionQuery
 import com.denisshulika.fincentra.data.util.BankProviders
 import com.denisshulika.fincentra.data.util.FirestoreCollections
 import com.google.firebase.auth.FirebaseAuth
@@ -28,134 +29,130 @@ class FinanceRepository(private val db: FirebaseFirestore, private val auth: Fir
     private val _transactions = MutableStateFlow<List<Transaction>>(emptyList())
     val transactions: StateFlow<List<Transaction>> = _transactions.asStateFlow()
 
-    private val _statsTransactions = MutableStateFlow<List<Transaction>>(emptyList())
-    val statsTransactions: StateFlow<List<Transaction>> = _statsTransactions.asStateFlow()
-
     private val _accounts = MutableStateFlow<List<BankAccount>>(emptyList())
     val accounts: StateFlow<List<BankAccount>> = _accounts.asStateFlow()
 
-    private var transactionsListener: ListenerRegistration? = null
-    private var statsListener: ListenerRegistration? = null
-    private var accountsListener: ListenerRegistration? = null
+    private val _budgets = MutableStateFlow<List<Budget>>(emptyList())
+    val budgets: StateFlow<List<Budget>> = _budgets.asStateFlow()
+
+    private val _dream = MutableStateFlow<Dream?>(null)
+    val dream: StateFlow<Dream?> = _dream.asStateFlow()
+
+    private var txL: ListenerRegistration? = null
+    private var acL: ListenerRegistration? = null
+    private var buL: ListenerRegistration? = null
+    private var drL: ListenerRegistration? = null
 
     private val _isTransactionsLoaded = MutableStateFlow(false)
     private val _isAccountsLoaded = MutableStateFlow(false)
-    private val _isStatsLoaded = MutableStateFlow(false)
+    private val _isBudgetsLoaded = MutableStateFlow(false)
+    private val _isDreamLoaded = MutableStateFlow(false)
 
-    val isInitialLoadComplete: StateFlow<Boolean> = combine(
-        _isTransactionsLoaded,
-        _isAccountsLoaded,
-        _isStatsLoaded
-    ) { tx, acc, stats ->
-        tx && acc && stats
-    }.stateIn(
-        scope = repositoryScope,
-        started = SharingStarted.Eagerly,
-        initialValue = false
-    )
+    val isInitialLoadComplete = combine(
+        _isTransactionsLoaded, _isAccountsLoaded, _isBudgetsLoaded, _isDreamLoaded
+    ) { tx, acc, budg, dr -> tx && acc && budg && dr }
+        .stateIn(repositoryScope, SharingStarted.Eagerly, false)
 
     init {
         auth.addAuthStateListener { firebaseAuth ->
-            val user = firebaseAuth.currentUser
-            if (user != null) {
-                observeUserAccounts(user.uid)
-                observeUserTransactions(user.uid)
+            val uid = firebaseAuth.currentUser?.uid
+            if (uid != null) {
+                startAllListeners(uid)
             } else {
                 clearAllData()
             }
         }
     }
 
-    private fun observeUserAccounts(uid: String) {
-        accountsListener?.remove()
-        accountsListener = db.collection(FirestoreCollections.USERS).document(uid)
-            .collection(FirestoreCollections.ACCOUNTS)
-            .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    _isAccountsLoaded.value = true
-                    return@addSnapshotListener
-                }
-                val list = snapshot?.toObjects(BankAccount::class.java) ?: emptyList()
-                _accounts.value = list
+    private fun startAllListeners(uid: String) {
+        val userDoc = db.collection(FirestoreCollections.USERS).document(uid)
+
+        acL?.remove()
+        acL = userDoc.collection(FirestoreCollections.ACCOUNTS)
+            .addSnapshotListener { s, _ ->
+                if (s != null) _accounts.value = s.toObjects(BankAccount::class.java)
                 _isAccountsLoaded.value = true
             }
-    }
 
-    fun observeUserTransactions(uid: String = auth.currentUser?.uid ?: "") {
-        if (uid.isBlank()) return
-        transactionsListener?.remove()
-        transactionsListener = db.collection(FirestoreCollections.USERS).document(uid)
-            .collection(FirestoreCollections.TRANSACTIONS)
+        txL?.remove()
+        txL = userDoc.collection(FirestoreCollections.TRANSACTIONS)
             .orderBy("timestamp", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    _isTransactionsLoaded.value = true
-                    return@addSnapshotListener
+            .addSnapshotListener { s, _ ->
+                if (s != null) {
+                    val list = s.toObjects(Transaction::class.java).distinctBy { it.id }
+                    _transactions.value = list
                 }
-                if (snapshot != null) {
-                    val list = snapshot.toObjects(Transaction::class.java)
-                    _transactions.value = list.distinctBy { it.id }
-                    _isTransactionsLoaded.value = true
-                }
+                _isTransactionsLoaded.value = true
+            }
+
+        val cal = java.util.Calendar.getInstance()
+        val monthYear =
+            "${cal.get(java.util.Calendar.MONTH) + 1}-${cal.get(java.util.Calendar.YEAR)}"
+        buL?.remove()
+        buL = userDoc.collection("budgets").whereEqualTo("monthYear", monthYear)
+            .addSnapshotListener { s, _ ->
+                if (s != null) _budgets.value = s.toObjects(Budget::class.java)
+                _isBudgetsLoaded.value = true
+            }
+
+        drL?.remove()
+        drL = userDoc.collection(FirestoreCollections.SETTINGS).document("user_dream")
+            .addSnapshotListener { s, _ ->
+                if (s != null) _dream.value = s.toObject(Dream::class.java)
+                _isDreamLoaded.value = true
             }
     }
 
-    fun observeTransactionsForStats(query: TransactionQuery) {
-        val uid = auth.currentUser?.uid ?: return
-        val ref = db.collection(FirestoreCollections.USERS).document(uid)
+    fun clearAllData() {
+        txL?.remove(); acL?.remove(); buL?.remove(); drL?.remove()
+        _transactions.value = emptyList(); _accounts.value = emptyList()
+        _budgets.value = emptyList(); _dream.value = null
+        _isTransactionsLoaded.value = false; _isAccountsLoaded.value = false
+        _isBudgetsLoaded.value = false; _isDreamLoaded.value = false
+    }
+
+    private fun getTransactionsRef() = auth.currentUser?.uid?.let {
+        db.collection(FirestoreCollections.USERS).document(it)
             .collection(FirestoreCollections.TRANSACTIONS)
-
-        var firestoreQuery: Query = ref.orderBy("timestamp", Query.Direction.ASCENDING)
-
-        if (query.bank != "Всі") {
-            firestoreQuery = firestoreQuery.whereEqualTo("bankName", query.bank)
-        }
-
-        query.dateRange?.let {
-            firestoreQuery = firestoreQuery
-                .whereGreaterThanOrEqualTo("timestamp", it.first)
-                .whereLessThanOrEqualTo("timestamp", it.last)
-        }
-
-        statsListener?.remove()
-        statsListener = firestoreQuery.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                _isStatsLoaded.value = true
-                return@addSnapshotListener
-            }
-            if (snapshot != null) {
-                _statsTransactions.value = snapshot.toObjects(Transaction::class.java)
-                _isStatsLoaded.value = true
-            }
-        }
     }
 
-    suspend fun getAccountsOnce(): List<BankAccount> {
-        val uid = auth.currentUser?.uid ?: return emptyList()
-        return try {
-            db.collection(FirestoreCollections.USERS).document(uid)
-                .collection(FirestoreCollections.ACCOUNTS)
-                .get()
-                .await()
-                .toObjects(BankAccount::class.java)
-        } catch (e: Exception) {
-            emptyList()
-        }
+    suspend fun addTransaction(tx: Transaction) {
+        getTransactionsRef()?.document(tx.id)?.set(tx)
     }
+
+    suspend fun addTransactionsBatch(list: List<Transaction>) {
+        val ref = getTransactionsRef() ?: return
+        val batch = db.batch()
+        list.forEach { batch.set(ref.document(it.id), it) }
+        batch.commit()
+    }
+
+    suspend fun deleteTransaction(id: String) {
+        getTransactionsRef()?.document(id)?.delete()
+    }
+
+    suspend fun getAccountsOnce() = auth.currentUser?.uid?.let {
+        db.collection(FirestoreCollections.USERS).document(it)
+            .collection(FirestoreCollections.ACCOUNTS).get().await()
+            .toObjects(BankAccount::class.java)
+    } ?: emptyList()
 
     suspend fun saveAccounts(accounts: List<BankAccount>, updateSelection: Boolean = false) {
         val uid = auth.currentUser?.uid ?: return
-        val ref = db.collection(FirestoreCollections.USERS).document(uid).collection(FirestoreCollections.ACCOUNTS)
+        val ref = db.collection(FirestoreCollections.USERS).document(uid)
+            .collection(FirestoreCollections.ACCOUNTS)
         val batch = db.batch()
-        accounts.forEach { acc ->
-            batch.set(ref.document(acc.id), acc, SetOptions.merge())
-        }
+        accounts.forEach { batch.set(ref.document(it.id), it, SetOptions.merge()) }
         batch.commit().await()
     }
 
+    fun getAccountsFlow() = accounts
+
     suspend fun deleteMonobankAccounts() {
         val uid = auth.currentUser?.uid ?: return
-        val ref = db.collection(FirestoreCollections.USERS).document(uid).collection(FirestoreCollections.ACCOUNTS)
+        val ref = db.collection(FirestoreCollections.USERS).document(uid)
+            .collection(FirestoreCollections.ACCOUNTS)
+
         try {
             val snapshot = ref.whereEqualTo("provider", BankProviders.MONOBANK).get().await()
             val batch = db.batch()
@@ -163,45 +160,9 @@ class FinanceRepository(private val db: FirebaseFirestore, private val auth: Fir
                 batch.delete(document.reference)
             }
             batch.commit().await()
-        } catch (e: Exception) { }
+            Log.d("REPO", "Monobank accounts deleted from DB")
+        } catch (e: Exception) {
+            Log.e("REPO", "Error deleting accounts: ${e.message}")
+        }
     }
-
-    fun clearAllData() {
-        transactionsListener?.remove()
-        statsListener?.remove()
-        accountsListener?.remove()
-
-        transactionsListener = null
-        statsListener = null
-        accountsListener = null
-
-        _transactions.value = emptyList()
-        _statsTransactions.value = emptyList()
-        _accounts.value = emptyList()
-
-        _isTransactionsLoaded.value = false
-        _isAccountsLoaded.value = false
-        _isStatsLoaded.value = false
-    }
-
-    private fun getTransactionsRef() = auth.currentUser?.uid?.let {
-        db.collection(FirestoreCollections.USERS).document(it).collection(FirestoreCollections.TRANSACTIONS)
-    }
-
-    fun addTransaction(tx: Transaction) {
-        getTransactionsRef()?.document(tx.id)?.set(tx)
-    }
-
-    fun addTransactionsBatch(list: List<Transaction>) {
-        val ref = getTransactionsRef() ?: return
-        val batch = db.batch()
-        list.forEach { batch.set(ref.document(it.id), it) }
-        batch.commit()
-    }
-
-    fun deleteTransaction(id: String) {
-        getTransactionsRef()?.document(id)?.delete()
-    }
-
-    fun getAccountsFlow() = accounts
 }

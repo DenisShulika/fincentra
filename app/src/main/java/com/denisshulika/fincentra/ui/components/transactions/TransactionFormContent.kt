@@ -23,10 +23,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 
@@ -47,7 +49,9 @@ fun TransactionFormContent(viewModel: TransactionsViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = if (editingId == null) "Нова операція" else "Редагування",
+            text = if (editingId == null) stringResource(R.string.transaction_new_title) else stringResource(
+                R.string.transaction_edit_title
+            ),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Black,
             color = MaterialTheme.colorScheme.onSurface
@@ -58,7 +62,7 @@ fun TransactionFormContent(viewModel: TransactionsViewModel) {
         OutlinedTextField(
             value = amount,
             onValueChange = { viewModel.onAmountChange(it) },
-            label = { Text("Сума") },
+            label = { Text(stringResource(R.string.transaction_label_amount)) },
             suffix = {
                 Text(
                     text = CurrencyMapper.getSymbol(selectedCurrency),
@@ -84,7 +88,7 @@ fun TransactionFormContent(viewModel: TransactionsViewModel) {
         OutlinedTextField(
             value = description,
             onValueChange = { viewModel.onDescriptionChange(it) },
-            label = { Text("Опис або назва") },
+            label = { Text(stringResource(R.string.transaction_label_desc)) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             singleLine = true
@@ -93,7 +97,7 @@ fun TransactionFormContent(viewModel: TransactionsViewModel) {
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Категорія",
+            text = stringResource(R.string.tx_category_label),
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.align(Alignment.Start),
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -112,7 +116,7 @@ fun TransactionFormContent(viewModel: TransactionsViewModel) {
                     onClick = { viewModel.onCategoryChange(cat) },
                     label = {
                         Text(
-                            text = cat.displayName,
+                            text = stringResource(cat.displayNameRes),
                             style = MaterialTheme.typography.bodyMedium
                         )
                     },
@@ -126,7 +130,7 @@ fun TransactionFormContent(viewModel: TransactionsViewModel) {
         SingleChoiceSegmentedButtonRow(
             modifier = Modifier.fillMaxWidth()
         ) {
-            viewModel.expenseOptions.forEachIndexed { index, label ->
+            viewModel.expenseOptions.forEachIndexed { index, resId ->
                 SegmentedButton(
                     shape = SegmentedButtonDefaults.itemShape(
                         index = index,
@@ -136,7 +140,7 @@ fun TransactionFormContent(viewModel: TransactionsViewModel) {
                     selected = if (index == 0) isExpense else !isExpense,
                     label = {
                         Text(
-                            text = label,
+                            text = stringResource(resId),
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -155,7 +159,9 @@ fun TransactionFormContent(viewModel: TransactionsViewModel) {
             enabled = amount.isNotBlank()
         ) {
             Text(
-                text = if (editingId == null) "Зберегти" else "Оновити",
+                text = if (editingId == null) stringResource(R.string.transaction_btn_save) else stringResource(
+                    R.string.transaction_btn_update
+                ),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )

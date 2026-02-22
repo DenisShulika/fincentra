@@ -24,10 +24,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.TransactionCategory
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.viewmodels.BudgetsViewModel
@@ -53,9 +55,12 @@ fun AddBudgetSheet(viewModel: BudgetsViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = if (editingId == null) "Новий ліміт" else "Редагування",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.ExtraBold,
+                text = if (editingId == null)
+                    stringResource(R.string.budget_new_title)
+                else
+                    stringResource(R.string.budget_edit_title),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Black,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
@@ -64,7 +69,7 @@ fun AddBudgetSheet(viewModel: BudgetsViewModel) {
             OutlinedTextField(
                 value = amount,
                 onValueChange = { viewModel.onAmountChange(it) },
-                label = { Text("Сума") },
+                label = { Text(stringResource(R.string.transaction_label_amount)) },
                 suffix = {
                     Text(
                         text = CurrencyMapper.getSymbol(selectedCurrency),
@@ -90,10 +95,10 @@ fun AddBudgetSheet(viewModel: BudgetsViewModel) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Виберіть категорію",
+                text = stringResource(R.string.budget_select_category),
                 modifier = Modifier.align(Alignment.Start),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Black,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
@@ -110,7 +115,7 @@ fun AddBudgetSheet(viewModel: BudgetsViewModel) {
                         onClick = { viewModel.onCategoryChange(cat) },
                         label = {
                             Text(
-                                text = cat.displayName,
+                                text = stringResource(cat.displayNameRes),
                                 modifier = Modifier.padding(vertical = 4.dp),
                                 style = MaterialTheme.typography.bodyLarge
                             )
@@ -143,7 +148,10 @@ fun AddBudgetSheet(viewModel: BudgetsViewModel) {
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Text(
-                    text = if (editingId == null) "Встановити ліміт" else "Оновити ліміт",
+                    text = if (editingId == null)
+                        stringResource(R.string.budget_btn_set)
+                    else
+                        stringResource(R.string.budget_btn_update),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )

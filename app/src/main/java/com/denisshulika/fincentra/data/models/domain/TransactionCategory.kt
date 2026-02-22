@@ -1,5 +1,6 @@
 package com.denisshulika.fincentra.data.models.domain
 
+import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.AccountBalance
@@ -17,25 +18,25 @@ import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.SyncAlt
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.denisshulika.fincentra.R
 
 enum class TransactionCategory(
-    val displayName: String,
+    @StringRes val displayNameRes: Int,
     val color: Color,
     val materialIcon: ImageVector
 ) {
-    FOOD("Їжа", Color(0xFF4CAF50), materialIcon = Icons.Default.ShoppingCart),
-    TRANSPORT("Транспорт", Color(0xFF2196F3), materialIcon = Icons.Default.DirectionsBus),
-    HOUSING("Житло", Color(0xFFFF9800), materialIcon = Icons.Default.Home),
-    HEALTH("Здоров'я", Color(0xFFE91E63), materialIcon = Icons.Default.Favorite),
-    ENTERTAINMENT("Розваги", Color(0xFF9C27B0), materialIcon = Icons.Default.PlayArrow),
-    SALARY("Зарплата та Готівка", Color(0xFFFFEB3B), materialIcon = Icons.Default.Star),
-    SUBSCRIPTIONS("Підписки", Color(0xFF3F51B5), materialIcon = Icons.Default.Refresh),
-    TRANSFERS("Перекази", Color(0xFF90A4AE), materialIcon = Icons.Default.SyncAlt),
-    SERVICES("Послуги та Сервіс", Color(0xFF00BCD4), materialIcon = Icons.Default.Build),
-    SHOPPING("Покупки (непрод)", Color(0xFFFF5722), materialIcon = Icons.Default.Store),
-    TRAVEL("Подорожі", Color(0xFF3F51B5), materialIcon = Icons.Default.Flight),
-    GOVERNMENT("Держпослуги", Color(0xFF607D8B), materialIcon = Icons.Default.AccountBalance),
-    EDUCATION("Освіта", Color(0xFF795548), materialIcon = Icons.Default.School),
-
-    OTHERS("Різне", Color(0xFF9E9E9E), materialIcon = Icons.AutoMirrored.Filled.List)
+    FOOD(R.string.cat_food, Color(0xFF4CAF50), Icons.Default.ShoppingCart),
+    TRANSPORT(R.string.cat_transport, Color(0xFF2196F3), Icons.Default.DirectionsBus),
+    HOUSING(R.string.cat_housing, Color(0xFFFF9800), Icons.Default.Home),
+    HEALTH(R.string.cat_health, Color(0xFFE91E63), Icons.Default.Favorite),
+    ENTERTAINMENT(R.string.cat_entertainment, Color(0xFF9C27B0), Icons.Default.PlayArrow),
+    SALARY(R.string.cat_salary, Color(0xFFFFEB3B), Icons.Default.Star),
+    SUBSCRIPTIONS(R.string.cat_subscriptions, Color(0xFF3F51B5), Icons.Default.Refresh),
+    TRANSFERS(R.string.cat_transfers, Color(0xFF90A4AE), Icons.Default.SyncAlt),
+    SERVICES(R.string.cat_services, Color(0xFF00BCD4), Icons.Default.Build),
+    SHOPPING(R.string.cat_shopping, Color(0xFFFF5722), Icons.Default.Store),
+    TRAVEL(R.string.cat_travel, Color(0xFF3F51B5), Icons.Default.Flight),
+    GOVERNMENT(R.string.cat_government, Color(0xFF607D8B), Icons.Default.AccountBalance),
+    EDUCATION(R.string.cat_education, Color(0xFF795548), Icons.Default.School),
+    OTHERS(R.string.cat_others, Color(0xFF9E9E9E), Icons.AutoMirrored.Filled.List)
 }

@@ -17,8 +17,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.ui.components.FinCentraTopBar
 import com.denisshulika.fincentra.ui.components.dream.DreamForm
 import com.denisshulika.fincentra.ui.components.dream.DreamInfoCard
@@ -50,7 +52,7 @@ fun DreamScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             FinCentraTopBar(
-                title = "Моя мрія",
+                title = stringResource(R.string.dream_title_screen),
                 isTopLevelScreen = false,
                 onNavigationClick = onBack
             )

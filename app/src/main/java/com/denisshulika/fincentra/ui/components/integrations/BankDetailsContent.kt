@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -49,6 +50,7 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.ui.BankProviderInfo
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.viewmodels.IntegrationsViewModel
@@ -91,7 +93,7 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
             ) {
                 Icon(
                     Icons.Default.Close,
-                    contentDescription = "Close",
+                    contentDescription = stringResource(R.string.btn_close),
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -100,8 +102,31 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
         Spacer(Modifier.height(24.dp))
 
         if (syncStatus.isNotBlank()) {
+            val displayStatus = when {
+                syncStatus == "UPDATING_BALANCES" -> stringResource(R.string.status_updating_balances)
+                syncStatus == "DONE" -> stringResource(R.string.status_done)
+                syncStatus == "API_ERROR" -> stringResource(R.string.status_api_error)
+                syncStatus == "LIMIT_EXCEEDED" -> stringResource(R.string.error_api_limit)
+                syncStatus.startsWith("SYNCING_ACC:") -> {
+                    val accName = syncStatus.removePrefix("SYNCING_ACC:")
+                    stringResource(R.string.status_syncing_account, accName)
+                }
+
+                syncStatus.startsWith("COOLDOWN:") -> {
+                    val sec = syncStatus.removePrefix("COOLDOWN:")
+                    stringResource(R.string.status_api_cooldown, sec.toIntOrNull() ?: 0)
+                }
+
+                syncStatus.startsWith("PAUSE:") -> {
+                    val sec = syncStatus.removePrefix("PAUSE:")
+                    stringResource(R.string.status_pause, sec)
+                }
+
+                else -> syncStatus
+            }
+
             Text(
-                text = syncStatus,
+                text = displayStatus,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,
@@ -151,7 +176,7 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
                 )
                 Spacer(Modifier.width(12.dp))
                 Text(
-                    text = "Запит виписки дозволено 1 раз на 60 секунд. Будь ласка, не закривайте додаток.",
+                    text = stringResource(R.string.bank_sync_warning),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -160,7 +185,7 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
 
         if (isConnected) {
             Text(
-                text = "Рахунки для відстеження",
+                text = stringResource(R.string.bank_accounts_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -177,9 +202,7 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(12.dp))
                             .clickable(enabled = !isLoading) {
-                                viewModel.toggleAccountSelection(
-                                    account.id
-                                )
+                                viewModel.toggleAccountSelection(account.id)
                             }
                             .padding(vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -218,7 +241,7 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
                         .height(52.dp),
                     shape = RoundedCornerShape(12.dp),
                     enabled = !isLoading,
-                ) { Text("Оновити список рахунків") }
+                ) { Text(stringResource(R.string.bank_btn_refresh)) }
 
                 Button(
                     onClick = { viewModel.confirmAccountSelection() },
@@ -227,7 +250,12 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
                         .height(56.dp),
                     shape = RoundedCornerShape(12.dp),
                     enabled = !isLoading,
-                ) { Text("Зберегти та синхронізувати", fontWeight = FontWeight.Bold) }
+                ) {
+                    Text(
+                        stringResource(R.string.bank_btn_save_sync),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
 
                 TextButton(
                     onClick = { viewModel.askDeleteConfirmation() },
@@ -235,7 +263,7 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
                     enabled = !isLoading,
                 ) {
                     Text(
-                        "Відключити банк",
+                        stringResource(R.string.bank_btn_disconnect),
                         color = if (isLoading) Color.Gray else MaterialTheme.colorScheme.error
                     )
                 }
@@ -243,7 +271,7 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
         } else {
             Spacer(Modifier.height(16.dp))
             val annotatedString = buildAnnotatedString {
-                append("Отримайте доступ в ")
+                append(stringResource(R.string.bank_get_access_text))
                 withLink(LinkAnnotation.Url("https://api.monobank.ua/")) {
                     withStyle(
                         SpanStyle(
@@ -252,7 +280,7 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
                             textDecoration = TextDecoration.Underline
                         )
                     ) {
-                        append("Особистому кабінеті")
+                        append(stringResource(R.string.bank_personal_cabinet))
                     }
                 }
             }
@@ -263,7 +291,7 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
             OutlinedTextField(
                 value = monoToken,
                 onValueChange = { viewModel.onMonobankTokenChange(it) },
-                label = { Text("Введіть токен банку") },
+                label = { Text(stringResource(R.string.bank_token_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 enabled = !isLoading
@@ -281,7 +309,7 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
                 if (isLoading) CircularProgressIndicator(
                     modifier = Modifier.size(20.dp),
                     color = Color.White
-                ) else Text("Підключити банк", fontWeight = FontWeight.Bold)
+                ) else Text(stringResource(R.string.bank_btn_connect), fontWeight = FontWeight.Bold)
             }
         }
     }

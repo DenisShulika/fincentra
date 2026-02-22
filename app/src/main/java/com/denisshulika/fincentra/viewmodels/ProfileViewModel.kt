@@ -84,8 +84,10 @@ class ProfileViewModel : ViewModel() {
             val result = authRepository.updatePassword(newPass)
             _isLoading.value = false
 
-            result.onSuccess { onComplete("Пароль змінено") }
-                .onFailure { onComplete("Помилка: ${it.message}. Можливо, потрібно перелогінитись.") }
+            result.onSuccess {
+                onComplete("SUCCESS_PASSWORD")
+            }
+                .onFailure { onComplete("ERROR_REAUTH") }
         }
     }
 
@@ -98,7 +100,7 @@ class ProfileViewModel : ViewModel() {
             _isLoading.value = false
 
             result.onSuccess { onDeleted() }
-                .onFailure { onError("Для видалення потрібно заново увійти в акаунт (вимоги безпеки)") }
+                .onFailure { onError("ERROR_REAUTH") }
         }
     }
 

@@ -28,9 +28,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.BudgetProgress
+import com.denisshulika.fincentra.data.models.domain.TransactionCategory
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 
 @Composable
@@ -73,17 +76,18 @@ fun BudgetProgressItem(
                 Spacer(modifier = Modifier.width(20.dp))
 
                 Column(modifier = Modifier.weight(1f)) {
+                    val category =
+                        TransactionCategory.entries.find { it.name == item.budget.categoryName }
                     Text(
-                        text = item.budget.categoryName,
+                        text = category?.let { stringResource(it.displayNameRes) }
+                            ?: item.budget.categoryName,
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        fontWeight = FontWeight.ExtraBold
                     )
                     Text(
-                        text = item.statusMessage,
+                        text = stringResource(item.statusMessageRes),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = statusColor,
-                        fontWeight = FontWeight.Medium
+                        color = statusColor
                     )
                 }
 
@@ -95,9 +99,8 @@ fun BudgetProgressItem(
                         color = if (item.progress >= 1f) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "залишилось",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = stringResource(R.string.budget_remaining, ""),
+                        style = MaterialTheme.typography.labelMedium
                     )
                 }
             }

@@ -1,6 +1,5 @@
 package com.denisshulika.fincentra.data.repository
 
-import android.util.Log
 import com.denisshulika.fincentra.data.models.domain.Dream
 import com.denisshulika.fincentra.data.util.FirestoreCollections
 import com.denisshulika.fincentra.data.util.FirestoreDocuments
