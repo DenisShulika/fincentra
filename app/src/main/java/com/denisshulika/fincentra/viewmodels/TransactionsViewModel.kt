@@ -38,10 +38,10 @@ class TransactionsViewModel : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
 
-    private val _selectedTypeFilter = MutableStateFlow("Всі")
+    private val _selectedTypeFilter = MutableStateFlow(FilterConstants.ALL)
     val selectedTypeFilter = _selectedTypeFilter.asStateFlow()
 
-    private val _selectedBankFilter = MutableStateFlow("Всі")
+    private val _selectedBankFilter = MutableStateFlow(FilterConstants.ALL)
     val selectedBankFilter = _selectedBankFilter.asStateFlow()
 
     private val _selectedCategories = MutableStateFlow<Set<String>>(emptySet())

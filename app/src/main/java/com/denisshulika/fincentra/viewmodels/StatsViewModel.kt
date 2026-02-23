@@ -10,6 +10,7 @@ import com.denisshulika.fincentra.data.models.state.CurrencyStats
 import com.denisshulika.fincentra.data.models.state.StatsPeriod
 import com.denisshulika.fincentra.data.models.state.StatsUiState
 import com.denisshulika.fincentra.data.models.state.SubCategoryStat
+import com.denisshulika.fincentra.data.util.FilterConstants
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,7 +32,7 @@ class StatsViewModel : ViewModel() {
     private val _selectedPeriod = MutableStateFlow(StatsPeriod.MONTH)
     val selectedPeriod = _selectedPeriod.asStateFlow()
 
-    private val _selectedBank = MutableStateFlow("Всі")
+    private val _selectedBank = MutableStateFlow(FilterConstants.ALL)
     val selectedBank = _selectedBank.asStateFlow()
 
     private val _selectedAccountId = MutableStateFlow<String?>(null)

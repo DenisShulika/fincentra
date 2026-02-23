@@ -1,0 +1,353 @@
+<resources>
+    <!-- General -->
+    <string name="app_name">FinCentra</string>
+
+    <!-- Navigation -->
+    <string name="nav_onboarding">Wstęp</string>
+    <string name="nav_home">Przegląd</string>
+    <string name="nav_transactions">Transakcje</string>
+    <string name="nav_stats">Analityka</string>
+    <string name="nav_profile">Profil</string>
+    <string name="nav_integrations">Banki</string>
+    <string name="nav_budgets">Limity</string>
+    <string name="nav_dream">Marzenie</string>
+    <string name="nav_login">Logowanie</string>
+    <string name="nav_register">Rejestracja</string>
+    <string name="nav_settings">Einstellungen</string>
+
+    <!-- Common Buttons -->
+    <string name="btn_save">Zapisz</string>
+    <string name="btn_update">Aktualizuj</string>
+    <string name="btn_cancel">Anuluj</string>
+    <string name="btn_close">Zamknij</string>
+    <string name="btn_edit">Edytuj</string>
+    <string name="btn_done">Gotowe</string>
+    <string name="btn_apply">Zastosuj</string>
+    <string name="btn_delete">Usuń</string>
+    <string name="btn_skip">Pomiń</string>
+    <string name="btn_next">Dalej</string>
+    <string name="btn_start">Start</string>
+    <string name="btn_logout">Wyloguj</string>
+
+    <!-- Authentication (Login & Register) -->
+    <string name="login_title">FinCentra</string>
+    <string name="login_subtitle">Twój wierny hub i asystent finansowy!</string>
+    <string name="login_email_label">E-mail</string>
+    <string name="login_password_label">Hasło</string>
+    <string name="login_btn_enter">Zaloguj</string>
+    <string name="login_no_account">Nie masz konta? Zarejestruj się</string>
+    <string name="login_or_with">lub przez</string>
+    <string name="register_title">Utwórz konto</string>
+    <string name="register_subtitle">Dołącz do FinCentra i przejmij kontrolę nad finansami</string>
+    <string name="register_header">Utwórz konto</string>
+    <string name="register_desc">Dołącz do FinCentra i przejmij kontrolę nad finansami</string>
+    <string name="register_name_label">Jak masz na imię?</string>
+    <string name="register_confirm_password">Potwierdź hasło</string>
+    <string name="register_btn_signup">Zarejestruj się</string>
+    <string name="register_btn">Zarejestruj się</string>
+    <string name="register_already_have">Masz już konto? Zaloguj się</string>
+    <string name="auth_email_hint">Adres e-mail</string>
+    <string name="auth_password_hint">Hasło</string>
+    <string name="auth_name_hint">Jak masz na imię?</string>
+    <string name="auth_confirm_password_hint">Potwierdź hasło</string>
+    <string name="auth_email_label">E-mail</string>
+    <string name="auth_password_label">Hasło</string>
+    <string name="auth_or_with">lub przez</string>
+
+    <!-- Home Screen -->
+    <string name="home_greeting">Cześć, %s!</string>
+    <string name="home_status_title">Twój stan finansowy na dziś</string>
+    <string name="home_ai_title">Porada AI</string>
+    <string name="home_ai_desc">Analizuję Twoje wydatki… Porady pojawią się wkrótce.</string>
+    <string name="home_recent_tx">Ostatnie transakcje</string>
+    <string name="home_view_all">Zobacz wszystko</string>
+    <string name="home_no_tx">Brak transakcji</string>
+    <string name="home_no_transactions">Brak transakcji</string>
+    <string name="home_dream_title">Cel oszczędnościowy</string>
+    <string name="home_dream_goal">Cel oszczędnościowy</string>
+    <string name="home_dream_collected">Zebrano %d%%</string>
+    <string name="home_critical_limits">Uwaga na limity</string>
+    <string name="home_all_limits">Wszystkie limity</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title_screen">Mój profil</string>
+    <string name="profile_total_balance">Całkowite saldo (%s)</string>
+    <string name="profile_no_accounts">Brak połączonych kont</string>
+    <string name="profile_contact_dev">Kontakt z deweloperem</string>
+    <string name="profile_account_actions">Działania na koncie</string>
+    <string name="profile_transactions_count">%d transakcji</string>
+    <string name="profile_new_password_title">Nowe hasło</string>
+    <string name="profile_enter_password_hint">Wpisz hasło</string>
+    <string name="profile_delete_acc_title">Usunąć konto?</string>
+    <string name="profile_delete_acc_desc">Wszystkie dane w chmurze zostaną bezpowrotnie utracone.</string>
+    <string name="profile_user_placeholder">Użytkownik</string>
+    <string name="profile_loading">Ładowanie…</string>
+
+    <!-- Budgets & Limits -->
+    <string name="budget_new_title">Nowy limit</string>
+    <string name="budget_edit_title">Edytuj limit</string>
+    <string name="budget_amount_label">Kwota miesięczna</string>
+    <string name="budget_select_category">Wybierz kategorię</string>
+    <string name="budget_btn_set">Ustaw limit</string>
+    <string name="budget_btn_update">Aktualizuj limit</string>
+    <string name="budget_info_text">Jest to kwota, która zawsze powinna pozostać na Twoich kontach na komfortowe życie (czynsz, jedzenie, rezerwa).</string>
+    <string name="budget_status_safe">Bezpieczny zapas</string>
+    <string name="budget_status_warning">Wykorzystujesz limit</string>
+    <string name="budget_status_broken">Limit przekroczony!</string>
+    <string name="budget_remaining">Pozostało %s</string>
+    <string name="budgets_empty_title">Twój las jest pusty</string>
+    <string name="budgets_empty_desc">Ustaw limit dla kategorii, aby zacząć hodować swoje drzewo finansowe.</string>
+
+    <!-- Dream -->
+    <string name="dream_title_screen">Moje marzenie</string>
+    <string name="dream_form_edit_title">Zmień parametry</string>
+    <string name="dream_form_new_title">Skonfiguruj marzenie</string>
+    <string name="dream_label_title">Na co oszczędzamy?</string>
+    <string name="dream_placeholder_title">Np. Samochód</string>
+    <string name="dream_label_target">Kwota docelowa</string>
+    <string name="dream_label_buffer">Bufor bezpieczeństwa (na życie)</string>
+    <string name="dream_btn_update">Aktualizuj marzenie</string>
+    <string name="dream_btn_save">Zapisz marzenie</string>
+    <string name="dream_info_title">Co to jest bufor bezpieczeństwa?</string>
+    <string name="dream_info_desc">Jest to kwota, która zawsze powinna pozostać na Twoich kontach na komfortowe życie (czynsz, jedzenie, rezerwa).</string>
+    <string name="dream_info_detail">Postęp marzenia jest liczony tylko z funduszy przekraczających ten bufor. Dzięki temu masz pewność, że oszczędności nie zostawią Cię z pustym portfelem.</string>
+    <string name="dream_view_target">Cel oszczędnościowy</string>
+    <string name="dream_view_buffer">Twój bufor bezpieczeństwa</string>
+    <string name="dream_view_available">Dostępne na marzenie</string>
+    <string name="dream_btn_edit">Edytuj cel</string>
+
+    <!-- Analytics & Stats -->
+    <string name="stats_no_data">Nie znaleziono danych</string>
+    <string name="stats_expenses">Wydatki</string>
+    <string name="stats_income">Przychody</string>
+    <string name="stats_expense_distribution">Rozkład wydatków</string>
+    <string name="stats_income_sources">Źródła przychodów</string>
+    <string name="stats_subcategories_count">%d podkategorii</string>
+    <string name="stats_other_subcategory">Inne</string>
+    <string name="stats_balance_start">Na początku okresu</string>
+    <string name="stats_net_flow">Przepływ netto</string>
+    <string name="stats_balance_current">Aktualne saldo</string>
+
+    <!-- Filters -->
+    <string name="filter_all">Wszystkie</string>
+    <string name="filter_monobank">Monobank</string>
+    <string name="filter_cash">Gotówka</string>
+    <string name="filter_all_cards">Wszystkie karty</string>
+    <string name="filter_categories_title">Filtr kategorii</string>
+    <string name="filter_appearance_title">Ustawienia wyglądu</string>
+    <string name="filter_sort_by">Sortuj według</string>
+    <string name="filter_type">Typ operacji</string>
+    <string name="filter_source">Źródło</string>
+
+    <!-- Transactions -->
+    <string name="transactions_title">Operacje</string>
+    <string name="transactions_search_hint">Szukaj…</string>
+    <string name="transactions_empty_title">Nic nie znaleziono</string>
+    <string name="transactions_empty_desc">Spróbuj zmienić okres lub zresetować filtry, aby zobaczyć transakcje.</string>
+    <string name="transactions_btn_reset">Resetuj filtry</string>
+    <string name="transaction_new_title">Nowa operacja</string>
+    <string name="transaction_edit_title">Edycja</string>
+    <string name="transaction_label_amount">Kwota</string>
+    <string name="transaction_label_desc">Opis lub nazwa</string>
+    <string name="transaction_label_category">Kategoria</string>
+    <string name="transaction_btn_save">Zapisz</string>
+    <string name="transaction_btn_update">Aktualizuj</string>
+    <string name="tx_detail_no_name">Operacja bez nazwy</string>
+    <string name="tx_detail_bank_comment">Komentarz banku</string>
+    <string name="tx_detail_category">Kategoria</string>
+    <string name="tx_detail_subcategory">Podkategoria</string>
+    <string name="tx_detail_source">Źródło</string>
+    <string name="tx_detail_time">Czas operacji</string>
+    <string name="tx_type_expense">Wydatek</string>
+    <string name="tx_type_income">Przychód</string>
+    <string name="tx_search_placeholder">Szukaj…</string>
+    <string name="tx_category_label">Kategoria</string>
+    <string name="tx_delete_confirm_title">Usunąć transakcję?</string>
+    <string name="tx_delete_confirm_desc">Czy na pewno? Tej operacji nie można cofnąć.</string>
+
+    <!-- Integrations -->
+    <string name="bank_title">Banki i konta</string>
+    <string name="bank_connection_header">Połączenie</string>
+    <string name="bank_sync_warning">Zapytania o wyciąg są dozwolone raz na 60 sekund. Proszę nie zamykać aplikacji.</string>
+    <string name="bank_accounts_title">Konta do śledzenia</string>
+    <string name="bank_btn_refresh">Odśwież listę kont</string>
+    <string name="bank_btn_save_sync">Zapisz i synchronizuj</string>
+    <string name="bank_btn_disconnect">Odłącz bank</string>
+    <string name="bank_get_access_text">Uzyskaj dostęp w </string>
+    <string name="bank_personal_cabinet">Panelu klienta</string>
+    <string name="bank_token_label">Wpisz token banku</string>
+    <string name="bank_btn_connect">Połącz bank</string>
+    <string name="bank_delete_title">Odłączyć bank?</string>
+    <string name="bank_delete_desc">Nowe transakcje nie będą pobierane. Ustawienia kont zostaną usunięte.</string>
+    <string name="bank_delete_confirm">Tak, odłącz</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_1_title">Inteligentna analityka</string>
+    <string name="onboarding_1_desc">FinCentra automatycznie pobiera dane z Twoich banków. Koniec z notatnikami — po prostu obserwuj wyniki.</string>
+    <string name="onboarding_1_highlight">automatycznie</string>
+    <string name="onboarding_2_title">Twój ekosystem</string>
+    <string name="onboarding_2_desc">Twój limit to żywe drzewo. Kontroluj wydatki, aby Twoje finansowe drzewo zawsze rosło i pozostawało zielone.</string>
+    <string name="onboarding_2_highlight">żywe drzewo</string>
+    <string name="onboarding_3_title">Marz bez ryzyka</string>
+    <string name="onboarding_3_desc">Automatycznie chronisz pieniądze na życie, a nadwyżka zostanie przekazana na marzenia. Osiągaj cele, zachowując spokój.</string>
+    <string name="onboarding_3_highlight">chronisz pieniądze na życie</string>
+
+    <!-- Categories -->
+    <string name="cat_food">Jedzenie</string>
+    <string name="cat_transport">Transport</string>
+    <string name="cat_housing">Dom</string>
+    <string name="cat_health">Zdrowie</string>
+    <string name="cat_entertainment">Rozrywka</string>
+    <string name="cat_salary">Wynagrodzenie i gotówka</string>
+    <string name="cat_subscriptions">Subskrypcje</string>
+    <string name="cat_transfers">Przelewy</string>
+    <string name="cat_services">Usługi</string>
+    <string name="cat_shopping">Zakupy</string>
+    <string name="cat_travel">Podróże</string>
+    <string name="cat_government">Usługi publiczne</string>
+    <string name="cat_education">Edukacja</string>
+    <string name="cat_others">Inne</string>
+
+    <!-- MCC Subcategories -->
+    <string name="mcc_vet">Weterynarz</string>
+    <string name="mcc_agro">Rolnictwo</string>
+    <string name="mcc_landscaping">Architektura krajobrazu</string>
+    <string name="mcc_contractors">Wykonawcy ogólni</string>
+    <string name="mcc_plumbing">Hydraulika i ogrzewanie</string>
+    <string name="mcc_electrical">Prace elektryczne</string>
+    <string name="mcc_construction">Budowlanka</string>
+    <string name="mcc_special_contractors">Wykonawcy specjalistyczni</string>
+    <string name="mcc_printing">Usługi drukarskie</string>
+    <string name="mcc_cleaning">Sprzątanie</string>
+    <string name="mcc_railway_cargo">Kolej (Towarowa)</string>
+    <string name="mcc_public_transport">Transport publiczny</string>
+    <string name="mcc_railway_passenger">Kolej pasażerska</string>
+    <string name="mcc_taxi">Taksówki i limuzyny</string>
+    <string name="mcc_bus">Linie autobusowe</string>
+    <string name="mcc_courier">Usługi kurierskie</string>
+    <string name="mcc_cruises">Linie rejsowe</string>
+    <string name="mcc_airlines">Linie lotnicze</string>
+    <string name="mcc_airports">Lotniska</string>
+    <string name="mcc_travel_agencies">Biura podróży</string>
+    <string name="mcc_tolls">Opłaty drogowe</string>
+    <string name="mcc_comm_equipment">Sprzęt komunikacyjny</string>
+    <string name="mcc_mobile">Usługi mobilne</string>
+    <string name="mcc_it_services">Usługi IT</string>
+    <string name="mcc_wire_transfers">Przelewy pieniężne</string>
+    <string name="mcc_tv_radio">Usługi TV i radiowe</string>
+    <string name="mcc_utilities">Media (Prąd, Woda)</string>
+    <string name="mcc_auto_goods">Artykuły motoryzacyjne</string>
+    <string name="mcc_computers_sw">Komputery i software</string>
+    <string name="mcc_jewelry">Biżuteria</string>
+    <string name="mcc_pharmacy_goods">Artykuły apteczne</string>
+    <string name="mcc_books_news">Książki i prasa</string>
+    <string name="mcc_building_materials">Materiały budowlane</string>
+    <string name="mcc_garden">Ogród i rośliny</string>
+    <string name="mcc_discount_stores">Sklepy dyskontowe</string>
+    <string name="mcc_department_stores">Domy towarowe</string>
+    <string name="mcc_low_price_stores">Tanie sklepy</string>
+    <string name="mcc_supermarkets">Supermarkety</string>
+    <string name="mcc_confectionery">Cukiernie</string>
+    <string name="mcc_bakeries">Piekarnie</string>
+    <string name="mcc_groceries">Produkty spożywcze</string>
+    <string name="mcc_car_sales">Sprzedaż aut</string>
+    <string name="mcc_auto_parts">Części samochodowe</string>
+    <string name="mcc_gas_station">Stacja paliw</string>
+    <string name="mcc_gas_automated">Stacja paliw (automat)</string>
+    <string name="mcc_mens_clothing">Odzież męska</string>
+    <string name="mcc_womens_clothing">Odzież damska</string>
+    <string name="mcc_kids_clothing">Odzież dziecięca</string>
+    <string name="mcc_family_clothing">Odzież rodzinna</string>
+    <string name="mcc_shoes">Obuwie</string>
+    <string name="mcc_furniture">Meble</string>
+    <string name="mcc_appliances">AGD</string>
+    <string name="mcc_electronics">Elektronika</string>
+    <string name="mcc_catering">Catering</string>
+    <string name="mcc_restaurants">Restauracje</string>
+    <string name="mcc_bars_clubs">Bary i kluby</string>
+    <string name="mcc_fastfood">Fast Food</string>
+    <string name="mcc_pharmacy">Apteki</string>
+    <string name="mcc_liquor_stores">Sklepy monopolowe</string>
+    <string name="mcc_sporting_goods">Artykuły sportowe</string>
+    <string name="mcc_book_stores">Księgarnie</string>
+    <string name="mcc_toys_hobby">Zabawki i hobby</string>
+    <string name="mcc_cosmetics">Kosmetyki</string>
+    <string name="mcc_pet_shops">Sklepy zoologiczne</string>
+    <string name="mcc_cash_desk">Gotówka (kasa)</string>
+    <string name="mcc_atm">Gotówka (bankomat)</string>
+    <string name="mcc_card_topup">Doładowanie karty</string>
+    <string name="mcc_hotels">Hotele i motele</string>
+    <string name="mcc_barber">Fryzjerzy</string>
+    <string name="mcc_spa">Salony SPA</string>
+    <string name="mcc_car_rental">Wynajem aut</string>
+    <string name="mcc_car_wash">Myjnie</string>
+    <string name="mcc_cinema">Kina</string>
+    <string name="mcc_fitness">Kluby fitness</string>
+    <string name="mcc_doctors">Lekarze</string>
+    <string name="mcc_dentists">Dentyści</string>
+    <string name="mcc_schools">Szkoły</string>
+    <string name="mcc_universities">Uniwersytety</string>
+    <string name="mcc_charity">Organizacje charytatywne</string>
+    <string name="mcc_fines">Mandaty</string>
+    <string name="mcc_taxes">Podatki</string>
+    <string name="mcc_gov_services">Usługi rządowe</string>
+    <string name="mcc_post_services">Usługi pocztowe</string>
+    <string name="mcc_others">Inne</string>
+
+    <!-- Errors & Status -->
+    <string name="error_user_not_found">Nie znaleziono użytkownika</string>
+    <string name="error_google_auth_failed">Błąd logowania Google</string>
+    <string name="error_user_offline">Użytkownik jest offline</string>
+    <string name="error_reauth_required">Zaloguj się ponownie ze względów bezpieczeństwa</string>
+    <string name="error_relogin_required">Zaloguj się ponownie, aby wykonać tę akcję</string>
+    <string name="error_passwords_dont_match">Hasła nie są identyczne</string>
+    <string name="error_invalid_email">Błędny format e-mail</string>
+    <string name="error_short_password">Minimum 6 znaków</string>
+    <string name="error_invalid_credentials">Błędny e-mail lub hasło</string>
+    <string name="error_google_failed">Logowanie Google nieudane</string>
+    <string name="error_unknown">Wystąpił błąd. Spróbuj ponownie.</string>
+    <string name="error_api_limit">Bank: Limit przekroczony!</string>
+    <string name="error_api_general">Błąd API banku</string>
+    <string name="error_no_accounts_selected">Wybierz konta w ustawieniach</string>
+    <string name="error_token_invalid">Nieprawidłowy token API</string>
+    <string name="success_password_changed">Hasło zostało zmienione</string>
+    <string name="success_updated">Zaktualizowano</string>
+
+    <string name="status_api_cooldown">Oczekiwanie API: %d s…</string>
+    <string name="status_updating_balances">Aktualizacja sald…</string>
+    <string name="status_syncing_account">Synchronizacja: %s…</string>
+    <string name="status_done">Gotowe!</string>
+    <string name="status_api_error">Błąd API banku</string>
+    <string name="status_pause">Długa historia… Przerwa %s s</string>
+
+    <!-- Periods & Dates -->
+    <string name="period_week">Tydzień</string>
+    <string name="period_month">Miesiąc</string>
+    <string name="period_quarter">3 miesiące</string>
+    <string name="period_all">Cały czas</string>
+    <string name="period_custom">Kalendarz</string>
+    <string name="date_start">Początek</string>
+    <string name="date_end">Koniec</string>
+    <string name="date_today">Dzisiaj</string>
+    <string name="date_yesterday">Wczoraj</string>
+    <string name="date_picker_select_period">Wybierz okres</string>
+
+    <!-- Notifications -->
+    <string name="notif_limit_exceeded">Limit przekroczony: %1$s</string>
+    <string name="notif_limit_message">Wydałeś %1$d z zaplanowanych %2$d %3$s</string>
+
+    <!-- Buttons -->
+    <string name="filter_btn_apply">Zastosuj</string>
+    <string name="filter_btn_done">Gotowe</string>
+
+    <!-- Validation Errors -->
+    <string name="error_name_required">Imię jest wymagane</string>
+    <string name="error_email_required">E-mail jest wymagany</string>
+    <string name="error_password_required">Hasło jest wymagane</string>
+
+    <!-- Sorting -->
+    <string name="sort_date_desc">Najpierw najnowsze</string>
+    <string name="sort_date_asc">Najpierw najstarsze</string>
+    <string name="sort_amount_desc">Najdroższe</string>
+    <string name="sort_amount_asc">Najtańsze</string>
+</resources>

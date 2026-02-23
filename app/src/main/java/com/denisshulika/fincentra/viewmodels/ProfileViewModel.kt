@@ -25,12 +25,6 @@ class ProfileViewModel : ViewModel() {
     private val _totalTransactionsCount = MutableStateFlow(0)
     val totalTransactionsCount = _totalTransactionsCount.asStateFlow()
 
-    private val _provider = MutableStateFlow("")
-    val provider = _provider.asStateFlow()
-
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
-
     private val _selectedIds = MutableStateFlow<List<String>>(emptyList())
 
     init {
@@ -60,9 +54,7 @@ class ProfileViewModel : ViewModel() {
     }
 
     private fun loadUserData() {
-        val currentUser = authRepository.getCurrentUser()
-        _user.value = currentUser
-        _provider.value = authRepository.getSignInProvider()
+        _user.value = authRepository.getCurrentUser()
     }
 
     private fun observeStats() {
@@ -75,40 +67,6 @@ class ProfileViewModel : ViewModel() {
             }.collect { count ->
                 _totalTransactionsCount.value = count
             }
-        }
-    }
-
-    fun changePassword(newPass: String, onComplete: (String) -> Unit) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            val result = authRepository.updatePassword(newPass)
-            _isLoading.value = false
-
-            result.onSuccess {
-                onComplete("SUCCESS_PASSWORD")
-            }
-                .onFailure { onComplete("ERROR_REAUTH") }
-        }
-    }
-
-    fun deleteAccount(onDeleted: () -> Unit, onError: (String) -> Unit) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            financeRepository.clearAllData()
-
-            val result = authRepository.deleteUserAccount()
-            _isLoading.value = false
-
-            result.onSuccess { onDeleted() }
-                .onFailure { onError("ERROR_REAUTH") }
-        }
-    }
-
-    fun logout(onSuccess: () -> Unit) {
-        viewModelScope.launch {
-            authRepository.signOut()
-            DependencyProvider.financeRepository.clearAllData()
-            onSuccess()
         }
     }
 

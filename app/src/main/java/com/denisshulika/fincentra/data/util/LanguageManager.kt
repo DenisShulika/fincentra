@@ -5,13 +5,13 @@ import androidx.core.os.LocaleListCompat
 import java.util.Locale
 
 object LanguageManager {
+    private val supportedLanguages = listOf("uk", "en", "pl", "de")
 
     fun initLocale() {
         val currentLocales = AppCompatDelegate.getApplicationLocales()
-
         if (currentLocales.isEmpty) {
             val systemLang = Locale.getDefault().language
-            val targetLang = if (systemLang == "uk") "uk" else "en"
+            val targetLang = if (systemLang in supportedLanguages) systemLang else "en"
             setLanguage(targetLang)
         }
     }
@@ -19,9 +19,5 @@ object LanguageManager {
     fun setLanguage(langCode: String) {
         val appLocale = LocaleListCompat.forLanguageTags(langCode)
         AppCompatDelegate.setApplicationLocales(appLocale)
-    }
-
-    fun getCurrentLanguage(): String {
-        return AppCompatDelegate.getApplicationLocales()[0]?.language ?: "en"
     }
 }

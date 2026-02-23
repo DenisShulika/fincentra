@@ -71,6 +71,7 @@ fun HomeScreen(
     budgetsViewModel: BudgetsViewModel,
     dreamViewModel: DreamViewModel,
     navController: NavController,
+    onNavigateToTransactions: () -> Unit,
     onOpenDrawer: () -> Unit,
     onNavigateToBudgets: () -> Unit
 ) {
@@ -128,51 +129,51 @@ fun HomeScreen(
             }
 
             item {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    HorizontalPager(
-                        state = pagerState,
-                        contentPadding = PaddingValues(horizontal = 32.dp),
-                        pageSpacing = 16.dp,
-                        modifier = Modifier.fillMaxWidth()
-                    ) { pageIndex ->
-                        val currencyStats = uiState.currencyData[pageIndex]
-                        val symbol = CurrencyMapper.getSymbol(currencyStats.currencyCode)
-
-                        Box(
-                            modifier = Modifier.graphicsLayer {
-                                val pageOffset =
-                                    ((pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction).absoluteValue
-                                alpha = lerp(
-                                    start = 0.5f,
-                                    stop = 1f,
-                                    fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                )
-                                scaleY = lerp(
-                                    start = 0.9f,
-                                    stop = 1f,
-                                    fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                )
-                            }
-                        ) {
-                            BalanceFlowCard(stats = currencyStats, symbol = symbol)
-                        }
-                    }
-
-                    if (uiState.currencyData.size > 1) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Row(Modifier.height(8.dp), horizontalArrangement = Arrangement.Center) {
-                            repeat(uiState.currencyData.size) { iteration ->
-                                val color = if (pagerState.currentPage == iteration)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (uiState.currencyData.isNotEmpty()) {
+                        HorizontalPager(
+                            state = pagerState,
+                            contentPadding = PaddingValues(horizontal = 32.dp),
+                            pageSpacing = 16.dp,
+                            modifier = Modifier.fillMaxWidth()
+                        ) { pageIndex ->
+                            val currencyStats = uiState.currencyData.getOrNull(pageIndex)
+                            if (currencyStats != null) {
+                                val symbol = CurrencyMapper.getSymbol(currencyStats.currencyCode)
                                 Box(
-                                    modifier = Modifier
-                                        .padding(horizontal = 4.dp)
-                                        .clip(CircleShape)
-                                        .background(color)
-                                        .size(8.dp)
-                                )
+                                    modifier = Modifier.graphicsLayer {
+                                        val pageOffset = ((pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction).absoluteValue
+                                        alpha = lerp(start = 0.5f, stop = 1f, fraction = 1f - pageOffset.coerceIn(0f, 1f))
+                                        scaleY = lerp(start = 0.9f, stop = 1f, fraction = 1f - pageOffset.coerceIn(0f, 1f))
+                                    }
+                                ) {
+                                    BalanceFlowCard(stats = currencyStats, symbol = symbol)
+                                }
+                            }
+                        }
+
+                        if (uiState.currencyData.size > 1) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Row(
+                                Modifier.height(8.dp),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                repeat(uiState.currencyData.size) { iteration ->
+                                    val color = if (pagerState.currentPage == iteration)
+                                        MaterialTheme.colorScheme.primary
+                                    else
+                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                    Box(
+                                        modifier = Modifier
+                                            .padding(horizontal = 4.dp)
+                                            .clip(CircleShape)
+                                            .background(color)
+                                            .size(8.dp)
+                                    )
+                                }
                             }
                         }
                     }
@@ -335,14 +336,10 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.Bottom
                     ) {
-                        Text(
-                            text = stringResource(R.string.home_recent_tx),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Text(text = stringResource(R.string.home_recent_tx), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                         Text(
                             text = stringResource(R.string.home_view_all),
-                            modifier = Modifier.clickable { navController.navigate(Screen.Transactions.route) },
+                            modifier = Modifier.clickable { onNavigateToTransactions() },
                             color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.labelLarge
                         )

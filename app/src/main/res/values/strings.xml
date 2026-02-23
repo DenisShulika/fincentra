@@ -13,6 +13,7 @@
     <string name="nav_dream">Dream</string>
     <string name="nav_login">Login</string>
     <string name="nav_register">Register</string>
+    <string name="nav_settings">Settings</string>
 
     <!-- Common Buttons -->
     <string name="btn_save">Save</string>

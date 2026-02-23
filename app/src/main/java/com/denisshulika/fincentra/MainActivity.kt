@@ -5,7 +5,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
@@ -20,20 +22,27 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.SideEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -47,10 +56,12 @@ import com.denisshulika.fincentra.ui.screens.BudgetsScreen
 import com.denisshulika.fincentra.ui.screens.DreamScreen
 import com.denisshulika.fincentra.ui.screens.HomeScreen
 import com.denisshulika.fincentra.ui.screens.IntegrationsScreen
+import com.denisshulika.fincentra.ui.screens.LoadingScreen
 import com.denisshulika.fincentra.ui.screens.LoginScreen
 import com.denisshulika.fincentra.ui.screens.OnboardingScreen
 import com.denisshulika.fincentra.ui.screens.ProfileScreen
 import com.denisshulika.fincentra.ui.screens.RegisterScreen
+import com.denisshulika.fincentra.ui.screens.SettingsScreen
 import com.denisshulika.fincentra.ui.screens.StatsScreen
 import com.denisshulika.fincentra.ui.screens.TransactionsScreen
 import com.denisshulika.fincentra.ui.theme.FinCentraTheme
@@ -59,39 +70,44 @@ import com.denisshulika.fincentra.viewmodels.BudgetsViewModel
 import com.denisshulika.fincentra.viewmodels.DreamViewModel
 import com.denisshulika.fincentra.viewmodels.IntegrationsViewModel
 import com.denisshulika.fincentra.viewmodels.ProfileViewModel
+import com.denisshulika.fincentra.viewmodels.SettingsViewModel
 import com.denisshulika.fincentra.viewmodels.StatsViewModel
 import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         enableEdgeToEdge()
-
         LanguageManager.initLocale()
-
         super.onCreate(savedInstanceState)
 
-        splashScreen.setKeepOnScreenCondition {
-            val user = DependencyProvider.authRepository.getCurrentUser()
-            if (user != null) {
-                val repository = DependencyProvider.financeRepository
-                !repository.isInitialLoadComplete.value
-            } else {
-                false
-            }
-        }
-
         setContent {
-            FinCentraTheme {
-                MainScreen()
+            val settingsViewModel: SettingsViewModel = viewModel()
+            val isDarkTheme by settingsViewModel.isDarkMode.collectAsStateWithLifecycle()
+
+            val isDataReady by DependencyProvider.financeRepository.isInitialLoadComplete.collectAsStateWithLifecycle()
+            val user = DependencyProvider.authRepository.getCurrentUser()
+
+            FinCentraTheme(darkTheme = isDarkTheme) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                    tonalElevation = 0.dp
+                ) {
+                    if (user != null && !isDataReady) {
+                        LoadingScreen()
+                    } else {
+                        MainScreen(settingsViewModel)
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun MainScreen() {
+fun MainScreen(settingsViewModel: SettingsViewModel) {
     val context = LocalContext.current
     val prefs = remember {
         context.getSharedPreferences(PrefConstants.PREFS_NAME, Context.MODE_PRIVATE)
@@ -132,7 +148,8 @@ fun MainScreen() {
             Screen.Profile.route,
             Screen.Integrations.route,
             Screen.Budgets.route,
-            Screen.Dream.route
+            Screen.Dream.route,
+            Screen.Settings.route
         )
     val isTopLevelScreen =
         currentRoute in listOf(Screen.Home.route, Screen.Transactions.route, Screen.Stats.route)
@@ -175,7 +192,7 @@ fun MainScreen() {
                     )
 
                     val drawerItems =
-                        listOf(Screen.Profile, Screen.Integrations, Screen.Budgets, Screen.Dream)
+                        listOf(Screen.Profile, Screen.Integrations, Screen.Budgets, Screen.Dream, Screen.Settings)
                     drawerItems.forEach { screen ->
                         NavigationDrawerItem(
                             icon = { Icon(screen.icon, null) },
@@ -281,6 +298,7 @@ fun MainScreen() {
                         budgetsViewModel = budgetsViewModel,
                         dreamViewModel = dreamViewModel,
                         navController = navController,
+                        onNavigateToTransactions = { navigateWithClearStack(Screen.Transactions.route) },
                         onOpenDrawer = { scope.launch { drawerState.open() } },
                         onNavigateToBudgets = { navController.navigate(Screen.Budgets.route) }
                     )
@@ -300,17 +318,22 @@ fun MainScreen() {
                 composable(Screen.Dream.route) {
                     DreamScreen(dreamViewModel) { navController.popBackStack() }
                 }
+                composable(Screen.Settings.route) {
+                    SettingsScreen(
+                        viewModel = settingsViewModel,
+                        onBack = { navController.popBackStack() },
+                        onLogout = {
+                            navController.navigate(Screen.Login.route) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
+                    )
+                }
                 composable(Screen.Profile.route) {
                     ProfileScreen(
                         viewModel = profileViewModel,
                         onBack = { navController.popBackStack() },
-                        onLogout = {
-                            navController.navigate(Screen.Login.route) {
-                                popUpTo(0) {
-                                    inclusive = true
-                                }
-                            }
-                        }
+                        onNavigateToSettings = { navController.navigate(Screen.Settings.route) }
                     )
                 }
             }

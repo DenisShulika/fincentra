@@ -13,6 +13,7 @@
     <string name="nav_dream">Мрія</string>
     <string name="nav_login">Вхід</string>
     <string name="nav_register">Реєстрація</string>
+    <string name="nav_settings">Налаштування</string>
 
     <!-- Спільні кнопки -->
     <string name="btn_save">Зберегти</string>
