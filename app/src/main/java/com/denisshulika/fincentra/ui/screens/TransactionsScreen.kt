@@ -144,9 +144,11 @@ fun TransactionsScreen(viewModel: TransactionsViewModel, onOpenDrawer: () -> Uni
             }
         }
     ) { innerPadding ->
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(top = innerPadding.calculateTopPadding())) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = innerPadding.calculateTopPadding())
+        ) {
             if (list.isEmpty()) {
                 EmptyTransactionsPlaceholder { viewModel.toggleSearch(false) }
             } else {

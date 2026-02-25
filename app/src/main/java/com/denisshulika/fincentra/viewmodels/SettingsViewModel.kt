@@ -30,6 +30,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun setLanguage(langCode: String) {
         LanguageManager.setLanguage(langCode)
     }
+
     fun changePassword(newPass: String, onComplete: (String) -> Unit) {
         viewModelScope.launch {
             _isLoading.value = true

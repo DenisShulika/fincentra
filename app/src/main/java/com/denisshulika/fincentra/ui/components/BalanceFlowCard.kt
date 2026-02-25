@@ -1,8 +1,16 @@
 package com.denisshulika.fincentra.ui.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,10 +50,13 @@ fun BalanceFlowCard(stats: CurrencyStats, symbol: String) {
             }
 
             val netChange = stats.totalIncome - stats.totalExpense
-            val changeColor = if (netChange >= 0) MaterialTheme.colorScheme.primary else Color(0xFFF44336)
+            val changeColor =
+                if (netChange >= 0) MaterialTheme.colorScheme.primary else Color(0xFFF44336)
 
             Row(
-                modifier = Modifier.padding(vertical = 12.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(vertical = 12.dp)
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -69,7 +80,9 @@ fun BalanceFlowCard(stats: CurrencyStats, symbol: String) {
             )
 
             Row(
-                modifier = Modifier.padding(top = 12.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(

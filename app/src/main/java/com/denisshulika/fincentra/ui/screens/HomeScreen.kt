@@ -1,12 +1,27 @@
 package com.denisshulika.fincentra.ui.screens
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -14,11 +29,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -35,8 +58,16 @@ import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.di.DependencyProvider
 import com.denisshulika.fincentra.navigation.Screen
-import com.denisshulika.fincentra.ui.components.*
-import com.denisshulika.fincentra.viewmodels.*
+import com.denisshulika.fincentra.ui.components.BalanceFlowCard
+import com.denisshulika.fincentra.ui.components.BudgetProgressItem
+import com.denisshulika.fincentra.ui.components.FinCentraTopBar
+import com.denisshulika.fincentra.ui.components.TransactionDetailSheet
+import com.denisshulika.fincentra.ui.components.TransactionItem
+import com.denisshulika.fincentra.viewmodels.AiViewModel
+import com.denisshulika.fincentra.viewmodels.BudgetsViewModel
+import com.denisshulika.fincentra.viewmodels.DreamViewModel
+import com.denisshulika.fincentra.viewmodels.StatsViewModel
+import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 import kotlin.math.absoluteValue
 
 @Composable
@@ -130,9 +161,18 @@ fun HomeScreen(
                                 val symbol = CurrencyMapper.getSymbol(currencyStats.currencyCode)
                                 Box(
                                     modifier = Modifier.graphicsLayer {
-                                        val pageOffset = ((pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction).absoluteValue
-                                        alpha = lerp(start = 0.5f, stop = 1f, fraction = 1f - pageOffset.coerceIn(0f, 1f))
-                                        scaleY = lerp(start = 0.9f, stop = 1f, fraction = 1f - pageOffset.coerceIn(0f, 1f))
+                                        val pageOffset =
+                                            ((pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction).absoluteValue
+                                        alpha = lerp(
+                                            start = 0.5f,
+                                            stop = 1f,
+                                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                        )
+                                        scaleY = lerp(
+                                            start = 0.9f,
+                                            stop = 1f,
+                                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                        )
                                     }
                                 ) {
                                     BalanceFlowCard(stats = currencyStats, symbol = symbol)
@@ -148,18 +188,38 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
-                        .clickable(enabled = !isAiLoading) { aiViewModel.fetchAdvice(currentUserName) },
+                        .clickable(enabled = !isAiLoading) {
+                            aiViewModel.fetchAdvice(
+                                currentUserName,
+                                budgets
+                            )
+                        },
                     shape = RoundedCornerShape(24.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.Transparent)
                 ) {
                     Box(
                         modifier = Modifier
-                            .background(brush = Brush.linearGradient(colors = listOf(Color(0xFF16A34A), Color(0xFF065F46))))
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        Color(
+                                            0xFF16A34A
+                                        ), Color(0xFF065F46)
+                                    )
+                                )
+                            )
                             .padding(20.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(modifier = Modifier.size(44.dp), contentAlignment = Alignment.Center) {
-                                Surface(modifier = Modifier.size(44.dp), shape = CircleShape, color = Color.White.copy(alpha = if (isAiLoading) 0.1f else 0.2f)) {
+                            Box(
+                                modifier = Modifier.size(44.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Surface(
+                                    modifier = Modifier.size(44.dp),
+                                    shape = CircleShape,
+                                    color = Color.White.copy(alpha = if (isAiLoading) 0.1f else 0.2f)
+                                ) {
                                     Icon(
                                         imageVector = Icons.Default.AutoAwesome,
                                         contentDescription = null,
@@ -178,6 +238,8 @@ fun HomeScreen(
                                     fontWeight = FontWeight.ExtraBold,
                                     color = Color.White
                                 )
+
+                                Spacer(modifier = Modifier.height(4.dp))
 
                                 val displayMessage = when {
                                     isAiLoading && aiAdvice.isEmpty() -> stringResource(R.string.ai_loading)
@@ -201,25 +263,60 @@ fun HomeScreen(
             dreamState?.let { progressData ->
                 item {
                     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        Text(text = stringResource(R.string.home_dream_goal), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = stringResource(R.string.home_dream_goal),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
                         Spacer(modifier = Modifier.height(12.dp))
                         Card(
-                            modifier = Modifier.fillMaxWidth().clickable { navController.navigate(Screen.Dream.route) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { navController.navigate(Screen.Dream.route) },
                             shape = RoundedCornerShape(28.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
+                                    alpha = 0.4f
+                                )
+                            ),
+                            border = BorderStroke(
+                                1.dp,
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                            )
                         ) {
-                            Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Row(
+                                modifier = Modifier.padding(20.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    CircularProgressIndicator(progress = { progressData.progress }, modifier = Modifier.size(64.dp), strokeCap = StrokeCap.Round, color = MaterialTheme.colorScheme.primary, trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                                    CircularProgressIndicator(
+                                        progress = { progressData.progress },
+                                        modifier = Modifier.size(64.dp),
+                                        strokeCap = StrokeCap.Round,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                    )
                                     Text(text = progressData.dream.iconEmoji, fontSize = 28.sp)
                                 }
                                 Spacer(modifier = Modifier.width(20.dp))
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(text = progressData.dream.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
-                                    Text(text = "Зібрано ${(progressData.progress * 100).toInt()}%", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                                    Text(
+                                        text = progressData.dream.title,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.ExtraBold
+                                    )
+                                    Text(
+                                        text = "Зібрано ${(progressData.progress * 100).toInt()}%",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 }
-                                Icon(Icons.Default.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Icon(
+                                    Icons.Default.ChevronRight,
+                                    null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
                         }
                     }
@@ -230,9 +327,22 @@ fun HomeScreen(
             if (critical.isNotEmpty()) {
                 item {
                     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
-                            Text(text = stringResource(R.string.home_critical_limits), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                            Text(text = stringResource(R.string.home_all_limits), modifier = Modifier.clickable { onNavigateToBudgets() }, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Bottom
+                        ) {
+                            Text(
+                                text = stringResource(R.string.home_critical_limits),
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = stringResource(R.string.home_all_limits),
+                                modifier = Modifier.clickable { onNavigateToBudgets() },
+                                color = MaterialTheme.colorScheme.primary,
+                                style = MaterialTheme.typography.labelLarge
+                            )
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         critical.take(2).forEach { item ->
@@ -245,16 +355,40 @@ fun HomeScreen(
 
             item {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
-                        Text(text = stringResource(R.string.home_recent_tx), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                        Text(text = stringResource(R.string.home_view_all), modifier = Modifier.clickable { onNavigateToTransactions() }, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        Text(
+                            text = stringResource(R.string.home_recent_tx),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = stringResource(R.string.home_view_all),
+                            modifier = Modifier.clickable { onNavigateToTransactions() },
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.labelLarge
+                        )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     val lastThree = transactions.take(3)
                     if (lastThree.isEmpty()) {
-                        Text(text = stringResource(R.string.home_no_transactions), modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp), textAlign = TextAlign.Center)
+                        Text(
+                            text = stringResource(R.string.home_no_transactions),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                            textAlign = TextAlign.Center
+                        )
                     } else {
-                        lastThree.forEach { tx -> TransactionItem(transaction = tx, onClick = { transactionsViewModel.showTransactionDetails(tx) }, onLongClick = {}) }
+                        lastThree.forEach { tx ->
+                            TransactionItem(
+                                transaction = tx,
+                                onClick = { transactionsViewModel.showTransactionDetails(tx) },
+                                onLongClick = {})
+                        }
                     }
                 }
             }

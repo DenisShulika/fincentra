@@ -1,4 +1,4 @@
-package com.denisshulika.fincentra.ui.components.budgets // Виправив пакет (був dream)
+package com.denisshulika.fincentra.ui.components.budgets
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column

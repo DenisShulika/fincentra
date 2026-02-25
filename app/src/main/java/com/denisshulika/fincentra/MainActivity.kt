@@ -2,7 +2,6 @@ package com.denisshulika.fincentra
 
 import android.content.Context
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -26,22 +25,16 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.SideEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -191,7 +184,13 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
                     )
 
                     val drawerItems =
-                        listOf(Screen.Profile, Screen.Integrations, Screen.Budgets, Screen.Dream, Screen.Settings)
+                        listOf(
+                            Screen.Profile,
+                            Screen.Integrations,
+                            Screen.Budgets,
+                            Screen.Dream,
+                            Screen.Settings
+                        )
                     drawerItems.forEach { screen ->
                         NavigationDrawerItem(
                             icon = { Icon(screen.icon, null) },
