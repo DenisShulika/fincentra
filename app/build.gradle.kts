@@ -1,3 +1,12 @@
+import java.util.Properties
+import java.io.FileInputStream
+
+val secrets = Properties()
+val secretsFile = rootProject.file("local.properties")
+if (secretsFile.exists()) {
+    secrets.load(FileInputStream(secretsFile))
+}
+
 plugins {
     id("com.google.gms.google-services")
     alias(libs.plugins.android.application)
@@ -17,6 +26,9 @@ android {
         versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val apiKey = secrets.getProperty("GEMINI_API_KEY") ?: ""
+        buildConfigField("String", "GEMINI_API_KEY", "\"$apiKey\"")
     }
 
     buildTypes {
@@ -37,6 +49,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -68,6 +81,7 @@ dependencies {
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.androidx.foundation)
     implementation(libs.androidx.appcompat)
+    implementation(libs.google.firebase.ai)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

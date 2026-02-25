@@ -5,6 +5,9 @@ coreSplashscreen = "1.2.0"
 credentialsPlayServicesAuth = "1.5.0"
 firebaseBomVersion = "34.7.0"
 foundation = "1.10.0"
+generativeaiVersion = "0.12.0"
+googleFirebaseBom = "33.1.2"
+googleGenerativeai = "0.12.2"
 googleid = "1.1.1"
 kotlin = "2.0.0"
 coreKtx = "1.15.0"
@@ -21,6 +24,7 @@ playServicesAuth = "21.4.0"
 uiTextGoogleFonts = "1.10.0"
 workRuntimeKtx = "2.11.0"
 appcompat = "1.7.1"
+firebaseAi = "17.9.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -33,10 +37,10 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 androidx-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+firebase-ai = { module = "com.google.firebase:firebase-ai" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
-firebase-bom-v3470 = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBomVersion" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx" }
 googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
@@ -57,6 +61,7 @@ logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", ver
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "converterGson" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+google-firebase-ai = { group = "com.google.firebase", name = "firebase-ai", version.ref = "firebaseAi" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

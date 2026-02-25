@@ -77,7 +77,6 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen = installSplashScreen()
         enableEdgeToEdge()
         LanguageManager.initLocale()
         super.onCreate(savedInstanceState)

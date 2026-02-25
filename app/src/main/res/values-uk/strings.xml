@@ -1,12 +1,12 @@
 <resources>
-    <!-- Загальне -->
+    <!-- General -->
     <string name="app_name">FinCentra</string>
 
-    <!-- Навігація -->
+    <!-- Navigation -->
     <string name="nav_onboarding">Вступ</string>
     <string name="nav_home">Огляд</string>
     <string name="nav_transactions">Транзакції</string>
-    <string name="nav_stats">Статистика</string>
+    <string name="nav_stats">Аналітика</string>
     <string name="nav_profile">Профіль</string>
     <string name="nav_integrations">Банки</string>
     <string name="nav_budgets">Ліміти</string>
@@ -15,7 +15,7 @@
     <string name="nav_register">Реєстрація</string>
     <string name="nav_settings">Налаштування</string>
 
-    <!-- Спільні кнопки -->
+    <!-- Common Buttons -->
     <string name="btn_save">Зберегти</string>
     <string name="btn_update">Оновити</string>
     <string name="btn_cancel">Скасувати</string>
@@ -29,7 +29,7 @@
     <string name="btn_start">Почати</string>
     <string name="btn_logout">Вийти</string>
 
-    <!-- Автентифікація -->
+    <!-- Authentication (Login & Register) -->
     <string name="login_title">FinCentra</string>
     <string name="login_subtitle">Твій вірний фінансовий хаб та помічник!</string>
     <string name="login_email_label">Електронна пошта</string>
@@ -54,7 +54,7 @@
     <string name="auth_password_label">Пароль</string>
     <string name="auth_or_with">або через</string>
 
-    <!-- Головний екран -->
+    <!-- Home Screen -->
     <string name="home_greeting">Привіт, %s!</string>
     <string name="home_status_title">Твій фінансовий стан на сьогодні</string>
     <string name="home_ai_title">Порада від ШІ</string>
@@ -69,7 +69,7 @@
     <string name="home_critical_limits">Увага до лімітів</string>
     <string name="home_all_limits">Всі ліміти</string>
 
-    <!-- Екран профілю -->
+    <!-- Profile Screen -->
     <string name="profile_title_screen">Мій профіль</string>
     <string name="profile_total_balance">Загальний баланс (%s)</string>
     <string name="profile_no_accounts">Рахунки не підключені</string>
@@ -83,7 +83,7 @@
     <string name="profile_user_placeholder">Користувач</string>
     <string name="profile_loading">Завантаження…</string>
 
-    <!-- Бюджети та ліміти -->
+    <!-- Budgets & Limits -->
     <string name="budget_new_title">Новий ліміт</string>
     <string name="budget_edit_title">Редагування</string>
     <string name="budget_amount_label">Сума на місяць</string>
@@ -98,7 +98,7 @@
     <string name="budgets_empty_title">Твій ліс поки порожній</string>
     <string name="budgets_empty_desc">Встанови ліміт на категорію, щоб почати вирощувати своє фінансове дерево.</string>
 
-    <!-- Мрія -->
+    <!-- Dream -->
     <string name="dream_title_screen">Моя мрія</string>
     <string name="dream_form_edit_title">Оновити параметри</string>
     <string name="dream_form_new_title">Налаштувати мрію</string>
@@ -116,7 +116,7 @@
     <string name="dream_view_available">Доступно на мрію</string>
     <string name="dream_btn_edit">Редагувати ціль</string>
 
-    <!-- Аналітика -->
+    <!-- Analytics & Stats -->
     <string name="stats_no_data">Даних не знайдено</string>
     <string name="stats_expenses">Витрати</string>
     <string name="stats_income">Доходи</string>
@@ -128,18 +128,20 @@
     <string name="stats_net_flow">Рух коштів (Net)</string>
     <string name="stats_balance_current">Поточний баланс</string>
 
-    <!-- Фільтри -->
+    <!-- Filters -->
     <string name="filter_all">Всі</string>
     <string name="filter_monobank">Monobank</string>
     <string name="filter_cash">Готівка</string>
     <string name="filter_all_cards">Всі карти</string>
     <string name="filter_categories_title">Фільтр категорій</string>
     <string name="filter_appearance_title">Налаштування вигляду</string>
-    <string name="filter_sort_by">Сортування за</string>
+    <string name="filter_sort_by">Сортувати за</string>
     <string name="filter_type">Тип операції</string>
     <string name="filter_source">Джерело</string>
+    <string name="filter_btn_apply">Застосувати</string>
+    <string name="filter_btn_done">Готово</string>
 
-    <!-- Транзакції -->
+    <!-- Transactions -->
     <string name="transactions_title">Операції</string>
     <string name="transactions_search_hint">Пошук…</string>
     <string name="transactions_empty_title">Нічого не знайдено</string>
@@ -165,7 +167,7 @@
     <string name="tx_delete_confirm_title">Видалити транзакцію?</string>
     <string name="tx_delete_confirm_desc">Ви впевнені? Цю дію не можна скасувати.</string>
 
-    <!-- Інтеграції -->
+    <!-- Integrations -->
     <string name="bank_title">Банки та рахунки</string>
     <string name="bank_connection_header">Підключення</string>
     <string name="bank_sync_warning">Запит виписки дозволено 1 раз на 60 секунд. Будь ласка, не закривайте додаток.</string>
@@ -181,7 +183,7 @@
     <string name="bank_delete_desc">Нові транзакції не будуть завантажуватись. Налаштування рахунків видаляться.</string>
     <string name="bank_delete_confirm">Так, відключити</string>
 
-    <!-- Онбординг -->
+    <!-- Onboarding -->
     <string name="onboarding_1_title">Розумна аналітика</string>
     <string name="onboarding_1_desc">FinCentra автоматично збирає дані з твоїх банків. Більше ніяких блокнотів — просто спостерігай за результатом.</string>
     <string name="onboarding_1_highlight">автоматично</string>
@@ -192,7 +194,7 @@
     <string name="onboarding_3_desc">Ти автоматично захищаєш гроші на життя, а надлишок буде спрямований. Досягай мрій, зберігаючи фінансовий спокій.</string>
     <string name="onboarding_3_highlight">захищаєш гроші на життя</string>
 
-    <!-- Категорії -->
+    <!-- Categories -->
     <string name="cat_food">Їжа</string>
     <string name="cat_transport">Транспорт</string>
     <string name="cat_housing">Житло</string>
@@ -208,7 +210,7 @@
     <string name="cat_education">Освіта</string>
     <string name="cat_others">Різне</string>
 
-    <!-- MCC Підкатегорії -->
+    <!-- MCC Subcategories -->
     <string name="mcc_vet">Ветеринарні послуги</string>
     <string name="mcc_agro">Агро-кооперативи</string>
     <string name="mcc_landscaping">Ландшафтні послуги</string>
@@ -234,7 +236,7 @@
     <string name="mcc_mobile">Мобільний зв\'язок</string>
     <string name="mcc_it_services">IT послуги</string>
     <string name="mcc_wire_transfers">Грошові перекази</string>
-    <string name="mcc_tv_radio">ТБ/Радіо сервіси</string>
+    <string name="mcc_tv_radio">ТВ/Радіо сервіси</string>
     <string name="mcc_utilities">Комунальні послуги</string>
     <string name="mcc_auto_goods">Автотовари</string>
     <string name="mcc_computers_sw">Комп\'ютери та ПЗ</string>
@@ -294,12 +296,12 @@
     <string name="mcc_post_services">Поштові послуги</string>
     <string name="mcc_others">Різне</string>
 
-    <!-- Помилки та Статуси -->
+    <!-- Auth & Logic Errors -->
     <string name="error_user_not_found">Користувача не знайдено</string>
     <string name="error_google_auth_failed">Помилка авторизації Google</string>
     <string name="error_user_offline">Користувач не в мережі</string>
-    <string name="error_reauth_required">Для видалення потрібно заново увійти в акаунт (вимоги безпеки)</string>
-    <string name="error_relogin_required">Для цієї дії потрібно перелогінитись</string>
+    <string name="error_reauth_required">Потрібно перезайти в акаунт з міркувань безпеки</string>
+    <string name="error_relogin_required">Будь ласка, увійдіть знову для цієї дії</string>
     <string name="error_passwords_dont_match">Паролі не збігаються</string>
     <string name="error_invalid_email">Невірний формат пошти</string>
     <string name="error_short_password">Мінімум 6 символів</string>
@@ -310,9 +312,12 @@
     <string name="error_api_general">Помилка API банку</string>
     <string name="error_no_accounts_selected">Будь ласка, виберіть рахунки в налаштуваннях</string>
     <string name="error_token_invalid">Помилка токена</string>
+
+    <!-- Success Messages -->
     <string name="success_password_changed">Пароль успішно змінено</string>
     <string name="success_updated">Оновлено</string>
 
+    <!-- Status Messages -->
     <string name="status_api_cooldown">Відпочинок API: %d с…</string>
     <string name="status_updating_balances">Оновлення балансів…</string>
     <string name="status_syncing_account">Синхронізація: %s…</string>
@@ -320,34 +325,36 @@
     <string name="status_api_error">Помилка API банку</string>
     <string name="status_pause">Велика історія… Пауза %s с</string>
 
-    <!-- Періоди та Дати -->
+    <!-- Periods & Dates -->
     <string name="period_week">Тиждень</string>
     <string name="period_month">Місяць</string>
     <string name="period_quarter">3 місяці</string>
     <string name="period_all">Весь час</string>
     <string name="period_custom">Календар</string>
-    <string name="date_start">Початок</string>
-    <string name="date_end">Завершення</string>
     <string name="date_today">Сьогодні</string>
     <string name="date_yesterday">Вчора</string>
-    <string name="date_picker_select_period">Виберіть період</string>
 
-    <!-- Сповіщення -->
+    <!-- Notifications -->
     <string name="notif_limit_exceeded">Перевищено ліміт: %1$s</string>
     <string name="notif_limit_message">Ви витратили %1$d з запланованих %2$d %3$s</string>
 
-    <!-- Кнопки -->
-    <string name="filter_btn_apply">Застосувати</string>
-    <string name="filter_btn_done">Готово</string>
-
-    <!-- Помилки валідації -->
-    <string name="error_name_required">Як вас звати?</string>
-    <string name="error_email_required">Введіть Email</string>
-    <string name="error_password_required">Введіть пароль</string>
-
-    <!-- Сортування -->
+    <!-- Sorting -->
     <string name="sort_date_desc">Спочатку нові</string>
     <string name="sort_date_asc">Спочатку старі</string>
     <string name="sort_amount_desc">Найдорожчі</string>
     <string name="sort_amount_asc">Найдешевші</string>
+
+    <!-- Settings -->
+    <string name="settings_appearance_section">Вигляд та мова</string>
+    <string name="settings_dark_mode">Темна тема</string>
+    <string name="settings_app_language">Мова додатку</string>
+    <string name="settings_security_section">Безпека акаунта</string>
+    <string name="settings_change_password">Змінити пароль</string>
+    <string name="settings_delete_account">Видалити мій акаунт</string>
+    <string name="settings_btn_logout_system">Вийти із системи</string>
+
+    <!-- AI -->
+    <string name="ai_loading">Аналізую твій фінансовий ліс…</string>
+    <string name="ai_error_internet">Не вдалося підключитися до ШІ. Перевір інтернет.</string>
+    <string name="ai_click_prompt">Натисни, щоб отримати пораду від ШІ</string>
 </resources>

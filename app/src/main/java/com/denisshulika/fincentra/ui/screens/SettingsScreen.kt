@@ -15,9 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.ui.components.FinCentraTopBar
 import com.denisshulika.fincentra.viewmodels.SettingsViewModel
 
@@ -91,34 +93,22 @@ fun SettingsScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            FinCentraTopBar(title = "Налаштування", isTopLevelScreen = false, onNavigationClick = onBack)
+            FinCentraTopBar(title = stringResource(R.string.nav_settings), isTopLevelScreen = false, onNavigationClick = onBack)
         }
     ) { innerPadding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(20.dp),
+            modifier = Modifier.fillMaxSize().padding(innerPadding).verticalScroll(rememberScrollState()).padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            SettingsSection(title = "Вигляд та мова") {
+            SettingsSection(title = stringResource(R.string.settings_appearance_section)) {
                 SettingsRow(
-                    title = "Темна тема",
+                    title = stringResource(R.string.settings_dark_mode),
                     icon = Icons.Default.DarkMode,
-                    action = {
-                        Switch(
-                            checked = isDarkMode,
-                            onCheckedChange = { viewModel.toggleTheme(it) },
-                            enabled = !isLoading
-                        )
-                    }
+                    action = { Switch(checked = isDarkMode, onCheckedChange = { viewModel.toggleTheme(it) }, enabled = !isLoading) }
                 )
-
                 HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
-
                 SettingsRow(
-                    title = "Мова додатку",
+                    title = stringResource(R.string.settings_app_language),
                     icon = Icons.Default.Language,
                     action = {
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -127,8 +117,7 @@ fun SettingsScreen(
                                     text = lang.uppercase(),
                                     modifier = Modifier.clickable { viewModel.setLanguage(lang) }.padding(4.dp),
                                     color = MaterialTheme.colorScheme.primary,
-                                    fontWeight = FontWeight.Bold,
-                                    style = MaterialTheme.typography.labelLarge
+                                    fontWeight = FontWeight.Bold
                                 )
                             }
                         }
@@ -136,17 +125,15 @@ fun SettingsScreen(
                 )
             }
 
-            SettingsSection(title = "Безпека акаунта") {
+            SettingsSection(title = stringResource(R.string.settings_security_section)) {
                 SettingsRow(
-                    title = "Змінити пароль",
+                    title = stringResource(R.string.settings_change_password),
                     icon = Icons.Default.Lock,
                     onClick = { if (!isLoading) showPassDialog = true }
                 )
-
                 HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
-
                 SettingsRow(
-                    title = "Видалити мій акаунт",
+                    title = stringResource(R.string.settings_delete_account),
                     icon = Icons.Default.DeleteForever,
                     titleColor = MaterialTheme.colorScheme.error,
                     onClick = { if (!isLoading) showDeleteDialog = true }
@@ -162,7 +149,7 @@ fun SettingsScreen(
                 shape = RoundedCornerShape(16.dp),
                 enabled = !isLoading
             ) {
-                Text("Вийти із системи", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.settings_btn_logout_system), color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
             }
 
             if (isLoading) {

@@ -1,21 +1,12 @@
 package com.denisshulika.fincentra.ui.screens
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -23,17 +14,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,15 +35,8 @@ import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.di.DependencyProvider
 import com.denisshulika.fincentra.navigation.Screen
-import com.denisshulika.fincentra.ui.components.BalanceFlowCard
-import com.denisshulika.fincentra.ui.components.BudgetProgressItem
-import com.denisshulika.fincentra.ui.components.FinCentraTopBar
-import com.denisshulika.fincentra.ui.components.TransactionDetailSheet
-import com.denisshulika.fincentra.ui.components.TransactionItem
-import com.denisshulika.fincentra.viewmodels.BudgetsViewModel
-import com.denisshulika.fincentra.viewmodels.DreamViewModel
-import com.denisshulika.fincentra.viewmodels.StatsViewModel
-import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
+import com.denisshulika.fincentra.ui.components.*
+import com.denisshulika.fincentra.viewmodels.*
 import kotlin.math.absoluteValue
 
 @Composable
@@ -70,6 +45,7 @@ fun HomeScreen(
     transactionsViewModel: TransactionsViewModel,
     budgetsViewModel: BudgetsViewModel,
     dreamViewModel: DreamViewModel,
+    aiViewModel: AiViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     navController: NavController,
     onNavigateToTransactions: () -> Unit,
     onOpenDrawer: () -> Unit,
@@ -79,9 +55,24 @@ fun HomeScreen(
     val budgets by budgetsViewModel.budgetProgressList.collectAsStateWithLifecycle()
     val transactions by transactionsViewModel.transactions.collectAsStateWithLifecycle()
     val dreamState by dreamViewModel.dreamProgress.collectAsStateWithLifecycle()
-    val user = DependencyProvider.authRepository.auth.currentUser
 
+    val aiAdvice by aiViewModel.adviceText.collectAsStateWithLifecycle()
+    val isAiLoading by aiViewModel.isLoading.collectAsStateWithLifecycle()
+
+    val user = DependencyProvider.authRepository.auth.currentUser
+    val currentUserName = user?.displayName?.substringBefore(" ") ?: "User"
     val pagerState = rememberPagerState(pageCount = { uiState.currencyData.size })
+
+    val infiniteTransition = rememberInfiniteTransition(label = "pulsing")
+    val iconAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.4f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(800, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "alpha"
+    )
 
     LaunchedEffect(pagerState.currentPage) {
         statsViewModel.selectCurrency(pagerState.currentPage)
@@ -113,26 +104,20 @@ fun HomeScreen(
         ) {
             item {
                 Column(modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)) {
-                    val name = user?.displayName?.substringBefore(" ") ?: "User"
                     Text(
-                        text = stringResource(R.string.home_greeting, name),
+                        text = stringResource(R.string.home_greeting, currentUserName),
                         style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Black,
-                        color = MaterialTheme.colorScheme.onSurface
+                        fontWeight = FontWeight.Black
                     )
                     Text(
                         text = stringResource(R.string.home_status_title),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MaterialTheme.typography.bodyLarge
                     )
                 }
             }
 
             item {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     if (uiState.currencyData.isNotEmpty()) {
                         HorizontalPager(
                             state = pagerState,
@@ -154,28 +139,6 @@ fun HomeScreen(
                                 }
                             }
                         }
-
-                        if (uiState.currencyData.size > 1) {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Row(
-                                Modifier.height(8.dp),
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                repeat(uiState.currencyData.size) { iteration ->
-                                    val color = if (pagerState.currentPage == iteration)
-                                        MaterialTheme.colorScheme.primary
-                                    else
-                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                                    Box(
-                                        modifier = Modifier
-                                            .padding(horizontal = 4.dp)
-                                            .clip(CircleShape)
-                                            .background(color)
-                                            .size(8.dp)
-                                    )
-                                }
-                            }
-                        }
                     }
                 }
             }
@@ -184,47 +147,50 @@ fun HomeScreen(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
+                        .padding(horizontal = 16.dp)
+                        .clickable(enabled = !isAiLoading) { aiViewModel.fetchAdvice(currentUserName) },
                     shape = RoundedCornerShape(24.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.Transparent)
                 ) {
                     Box(
                         modifier = Modifier
-                            .background(
-                                brush = Brush.linearGradient(
-                                    colors = listOf(
-                                        Color(0xFF16A34A),
-                                        Color(0xFF065F46)
-                                    )
-                                )
-                            )
+                            .background(brush = Brush.linearGradient(colors = listOf(Color(0xFF16A34A), Color(0xFF065F46))))
                             .padding(20.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Surface(
-                                modifier = Modifier.size(44.dp),
-                                shape = CircleShape,
-                                color = Color.White.copy(alpha = 0.2f)
-                            ) {
-                                Icon(
-                                    Icons.Default.AutoAwesome,
-                                    null,
-                                    tint = Color.White,
-                                    modifier = Modifier.padding(10.dp)
-                                )
+                            Box(modifier = Modifier.size(44.dp), contentAlignment = Alignment.Center) {
+                                Surface(modifier = Modifier.size(44.dp), shape = CircleShape, color = Color.White.copy(alpha = if (isAiLoading) 0.1f else 0.2f)) {
+                                    Icon(
+                                        imageVector = Icons.Default.AutoAwesome,
+                                        contentDescription = null,
+                                        tint = Color.White.copy(alpha = if (isAiLoading) iconAlpha else 1f),
+                                        modifier = Modifier.padding(10.dp)
+                                    )
+                                }
                             }
+
                             Spacer(modifier = Modifier.width(16.dp))
-                            Column {
+
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = stringResource(R.string.home_ai_title),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.ExtraBold,
                                     color = Color.White
                                 )
+
+                                val displayMessage = when {
+                                    isAiLoading && aiAdvice.isEmpty() -> stringResource(R.string.ai_loading)
+                                    aiAdvice == "ERROR_STATE" -> stringResource(R.string.ai_error_internet)
+                                    aiAdvice.isEmpty() -> stringResource(R.string.ai_click_prompt)
+                                    else -> aiAdvice
+                                }
+
                                 Text(
-                                    text = stringResource(R.string.home_ai_desc),
+                                    text = displayMessage,
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = Color.White.copy(alpha = 0.8f)
+                                    color = Color.White.copy(alpha = 0.9f),
+                                    lineHeight = 18.sp
                                 )
                             }
                         }
@@ -235,64 +201,25 @@ fun HomeScreen(
             dreamState?.let { progressData ->
                 item {
                     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        Text(
-                            text = stringResource(R.string.home_dream_goal),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Text(text = stringResource(R.string.home_dream_goal), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(12.dp))
                         Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { navController.navigate(Screen.Dream.route) },
+                            modifier = Modifier.fillMaxWidth().clickable { navController.navigate(Screen.Dream.route) },
                             shape = RoundedCornerShape(28.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
-                                    alpha = 0.4f
-                                )
-                            ),
-                            border = BorderStroke(
-                                1.dp,
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                            )
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
                         ) {
-                            Row(
-                                modifier = Modifier.padding(20.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
+                            Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    CircularProgressIndicator(
-                                        progress = { progressData.progress },
-                                        modifier = Modifier.size(64.dp),
-                                        strokeWidth = 6.dp,
-                                        strokeCap = StrokeCap.Round,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                                    )
+                                    CircularProgressIndicator(progress = { progressData.progress }, modifier = Modifier.size(64.dp), strokeCap = StrokeCap.Round, color = MaterialTheme.colorScheme.primary, trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
                                     Text(text = progressData.dream.iconEmoji, fontSize = 28.sp)
                                 }
                                 Spacer(modifier = Modifier.width(20.dp))
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = progressData.dream.title,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.ExtraBold
-                                    )
-                                    Text(
-                                        text = stringResource(
-                                            R.string.home_dream_collected,
-                                            (progressData.progress * 100).toInt()
-                                        ),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        fontWeight = FontWeight.Bold
-                                    )
+                                    Text(text = progressData.dream.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
+                                    Text(text = "Зібрано ${(progressData.progress * 100).toInt()}%", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                                 }
-                                Icon(
-                                    Icons.Default.ChevronRight,
-                                    null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                Icon(Icons.Default.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -303,22 +230,9 @@ fun HomeScreen(
             if (critical.isNotEmpty()) {
                 item {
                     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.Bottom
-                        ) {
-                            Text(
-                                text = stringResource(R.string.home_critical_limits),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = stringResource(R.string.home_all_limits),
-                                modifier = Modifier.clickable { onNavigateToBudgets() },
-                                color = MaterialTheme.colorScheme.primary,
-                                style = MaterialTheme.typography.labelLarge
-                            )
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
+                            Text(text = stringResource(R.string.home_critical_limits), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                            Text(text = stringResource(R.string.home_all_limits), modifier = Modifier.clickable { onNavigateToBudgets() }, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         critical.take(2).forEach { item ->
@@ -331,39 +245,16 @@ fun HomeScreen(
 
             item {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Bottom
-                    ) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
                         Text(text = stringResource(R.string.home_recent_tx), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                        Text(
-                            text = stringResource(R.string.home_view_all),
-                            modifier = Modifier.clickable { onNavigateToTransactions() },
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.labelLarge
-                        )
+                        Text(text = stringResource(R.string.home_view_all), modifier = Modifier.clickable { onNavigateToTransactions() }, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
                     }
                     Spacer(modifier = Modifier.height(12.dp))
-
                     val lastThree = transactions.take(3)
                     if (lastThree.isEmpty()) {
-                        Text(
-                            text = stringResource(R.string.home_no_transactions),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 16.dp),
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Text(text = stringResource(R.string.home_no_transactions), modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp), textAlign = TextAlign.Center)
                     } else {
-                        lastThree.forEach { tx ->
-                            TransactionItem(
-                                transaction = tx,
-                                onClick = { transactionsViewModel.showTransactionDetails(tx) },
-                                onLongClick = {})
-                            Spacer(Modifier.height(8.dp))
-                        }
+                        lastThree.forEach { tx -> TransactionItem(transaction = tx, onClick = { transactionsViewModel.showTransactionDetails(tx) }, onLongClick = {}) }
                     }
                 }
             }

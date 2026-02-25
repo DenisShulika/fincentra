@@ -350,4 +350,17 @@
     <string name="sort_date_asc">Oldest first</string>
     <string name="sort_amount_desc">Most expensive</string>
     <string name="sort_amount_asc">Cheapest</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_appearance_section">Appearance &amp; Language</string>
+    <string name="settings_dark_mode">Dark Mode</string>
+    <string name="settings_app_language">App Language</string>
+    <string name="settings_security_section">Account Security</string>
+    <string name="settings_change_password">Change Password</string>
+    <string name="settings_delete_account">Delete My Account</string>
+    <string name="settings_btn_logout_system">Logout from System</string>
+
+    <string name="ai_loading">Analyzing your financial forest…</string>
+    <string name="ai_error_internet">AI is unavailable. Check your connection.</string>
+    <string name="ai_click_prompt">Tap to get financial advice from AI</string>
 </resources>

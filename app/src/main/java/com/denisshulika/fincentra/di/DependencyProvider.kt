@@ -3,6 +3,7 @@ package com.denisshulika.fincentra.di
 import com.denisshulika.fincentra.data.network.common.BankProvider
 import com.denisshulika.fincentra.data.network.monobank.MonobankApi
 import com.denisshulika.fincentra.data.network.monobank.MonobankService
+import com.denisshulika.fincentra.data.repository.AiRepository
 import com.denisshulika.fincentra.data.repository.AuthRepository
 import com.denisshulika.fincentra.data.repository.BudgetRepository
 import com.denisshulika.fincentra.data.repository.FinanceRepository
@@ -48,6 +49,8 @@ object DependencyProvider {
     val monobankProvider: BankProvider by lazy {
         MonobankService()
     }
+
+    val aiRepository by lazy { AiRepository() }
 
     val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
