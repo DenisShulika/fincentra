@@ -82,8 +82,9 @@ class FinanceRepository(private val db: FirebaseFirestore, private val auth: Fir
         txL = userDoc.collection(FirestoreCollections.TRANSACTIONS)
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { s, _ ->
-                if (s != null) _transactions.value =
-                    s.toObjects(Transaction::class.java).distinctBy { it.id }
+                if (s != null) {
+                    _transactions.value = s.toObjects(Transaction::class.java)
+                }
                 _isTransactionsLoaded.value = true
             }
 

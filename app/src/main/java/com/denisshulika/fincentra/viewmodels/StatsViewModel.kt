@@ -91,15 +91,16 @@ class StatsViewModel : ViewModel() {
         val baseAccounts = if (activeIds.isNotEmpty()) {
             accounts.filter { activeIds.contains(it.id) }
         } else {
-            accounts.filter { it.selected }
+            accounts
         }
 
         if (baseAccounts.isEmpty()) return StatsUiState()
 
         val filteredAccounts = baseAccounts.filter { acc ->
-            (bankFilter == com.denisshulika.fincentra.data.util.FilterConstants.ALL || acc.provider == bankFilter) &&
+            (bankFilter == FilterConstants.ALL || acc.provider == bankFilter) &&
                     (accountIdFilter == null || acc.id == accountIdFilter)
         }
+
 
         val currencyData =
             filteredAccounts.groupBy { it.currencyCode }.map { (code, accsInCurrency) ->
