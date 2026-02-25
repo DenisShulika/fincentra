@@ -84,9 +84,10 @@ fun DreamScreen(
                     isExistingDream = progressState != null,
                     onSave = {
                         viewModel.updateDream(
-                            title,
-                            target.toDoubleOrNull() ?: 0.0,
-                            buffer.toDoubleOrNull() ?: 0.0
+                            title = title,
+                            target = target.toDoubleOrNull() ?: 0.0,
+                            buffer = buffer.toDoubleOrNull() ?: 0.0,
+                            currencyCode = progressState?.dream?.currencyCode ?: 980
                         )
                         isEditMode = false
                     },

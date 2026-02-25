@@ -22,12 +22,13 @@ class DreamViewModel : ViewModel() {
 
     val dreamProgress: StateFlow<DreamProgress?> = combine(
         financeRepository.dream,
-        financeRepository.accounts
-    ) { dream, accounts ->
+        financeRepository.accounts,
+        settingsRepository.getSelectedAccountIdsFlow()
+    ) { dream, accounts, selectedIds ->
         if (dream == null) return@combine null
 
         val totalBalance = accounts
-            .filter { it.currencyCode == dream.currencyCode && it.selected }
+            .filter { acc -> selectedIds.contains(acc.id) && acc.currencyCode == dream.currencyCode }
             .sumOf { it.balance }
 
         val available = (totalBalance - dream.safetyBuffer).coerceAtLeast(0.0)
@@ -38,13 +39,14 @@ class DreamViewModel : ViewModel() {
         DreamProgress(dream, available, progress)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    fun updateDream(title: String, target: Double, buffer: Double) {
+    fun updateDream(title: String, target: Double, buffer: Double, currencyCode: Int) {
         viewModelScope.launch {
             _isLoading.value = true
             val newDream = Dream(
                 title = title,
                 targetAmount = target,
-                safetyBuffer = buffer
+                safetyBuffer = buffer,
+                currencyCode = currencyCode
             )
             settingsRepository.saveDream(newDream)
             _isLoading.value = false
