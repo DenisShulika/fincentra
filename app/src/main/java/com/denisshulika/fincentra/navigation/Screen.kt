@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.AppRegistration
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.TrackChanges
@@ -34,6 +35,7 @@ sealed class Screen(
 
     data object Budgets : Screen("budgets_manage", R.string.nav_budgets, Icons.Default.TrackChanges)
     data object Dream : Screen("dream", R.string.nav_dream, Icons.Default.AutoAwesome)
+    data object About : Screen("about", R.string.nav_about, Icons.Default.Info)
     data object Settings : Screen("settings", R.string.nav_settings, Icons.Default.Settings)
     data object Login : Screen("login", R.string.nav_login, Icons.AutoMirrored.Filled.Login)
     data object Register : Screen("register", R.string.nav_register, Icons.Default.AppRegistration)

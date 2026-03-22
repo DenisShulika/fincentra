@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -119,6 +120,13 @@ fun FinCentraDrawer(
                     icon = Screen.Settings.icon,
                     selected = currentRoute == Screen.Settings.route,
                     onClick = { onNavigate(Screen.Settings.route) }
+                )
+
+                DrawerItem(
+                    label = "About App",
+                    icon = Icons.Default.Info,
+                    selected = currentRoute == Screen.About.route,
+                    onClick = { onNavigate(Screen.About.route) }
                 )
 
                 DrawerItem(
