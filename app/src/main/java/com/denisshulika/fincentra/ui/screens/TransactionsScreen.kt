@@ -39,13 +39,16 @@ import com.denisshulika.fincentra.ui.components.transactions.DateRangePickerDial
 import com.denisshulika.fincentra.ui.components.transactions.EmptyTransactionsPlaceholder
 import com.denisshulika.fincentra.ui.components.transactions.TransactionFormContent
 import com.denisshulika.fincentra.ui.components.transactions.TransactionSwipeWrapper
-import com.denisshulika.fincentra.ui.components.transactions.TransactionsTopBar
 import com.denisshulika.fincentra.ui.components.transactions.TypeBankFilterContent
 import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransactionsScreen(viewModel: TransactionsViewModel, onOpenDrawer: () -> Unit) {
+fun TransactionsScreen(
+    viewModel: TransactionsViewModel,
+    onOpenDrawer: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val list by viewModel.transactions.collectAsStateWithLifecycle()
     val showBottomSheet by viewModel.showBottomSheet.collectAsStateWithLifecycle()
     val groupedList by viewModel.groupedTransactions.collectAsStateWithLifecycle()
@@ -125,15 +128,8 @@ fun TransactionsScreen(viewModel: TransactionsViewModel, onOpenDrawer: () -> Uni
     }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        topBar = {
-            TransactionsTopBar(
-                viewModel,
-                onFilterCategoryClick = { showFilterSheet = true },
-                onOpenDrawer = onOpenDrawer,
-                onFilterTypeClick = { showTypeBankSheet = true },
-                onFilterDateClick = { showDatePicker = true })
-        },
+        modifier = modifier,
+        topBar = {},
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { viewModel.toggleBottomSheet(true) },

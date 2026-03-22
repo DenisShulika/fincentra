@@ -28,7 +28,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun setLanguage(langCode: String) {
-        LanguageManager.setLanguage(langCode)
+        LanguageManager.setLanguage("en")
     }
 
     fun changePassword(newPass: String, onComplete: (String) -> Unit) {

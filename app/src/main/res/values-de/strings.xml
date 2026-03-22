@@ -111,6 +111,7 @@
     <string name="dream_view_buffer">Dein Sicherheitspuffer</string>
     <string name="dream_view_available">Verfügbar für Traum</string>
     <string name="dream_btn_edit">Ziel bearbeiten</string>
+    <string name="dream_collected_percentage">Gesammelt %1$d%%</string>
 
     <!-- Stats -->
     <string name="stats_no_data">Keine Daten gefunden</string>

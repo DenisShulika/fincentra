@@ -34,7 +34,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
@@ -60,7 +60,6 @@ import com.denisshulika.fincentra.di.DependencyProvider
 import com.denisshulika.fincentra.navigation.Screen
 import com.denisshulika.fincentra.ui.components.BalanceFlowCard
 import com.denisshulika.fincentra.ui.components.BudgetProgressItem
-import com.denisshulika.fincentra.ui.components.FinCentraTopBar
 import com.denisshulika.fincentra.ui.components.TransactionDetailSheet
 import com.denisshulika.fincentra.ui.components.TransactionItem
 import com.denisshulika.fincentra.viewmodels.AiViewModel
@@ -76,11 +75,12 @@ fun HomeScreen(
     transactionsViewModel: TransactionsViewModel,
     budgetsViewModel: BudgetsViewModel,
     dreamViewModel: DreamViewModel,
-    aiViewModel: AiViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    aiViewModel: AiViewModel = viewModel(),
     navController: NavController,
     onNavigateToTransactions: () -> Unit,
     onOpenDrawer: () -> Unit,
-    onNavigateToBudgets: () -> Unit
+    onNavigateToBudgets: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val uiState by statsViewModel.uiState.collectAsStateWithLifecycle()
     val budgets by budgetsViewModel.budgetProgressList.collectAsStateWithLifecycle()
@@ -116,243 +116,206 @@ fun HomeScreen(
         }
     }
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        topBar = {
-            FinCentraTopBar(
-                title = "FinCentra",
-                isTopLevelScreen = true,
-                onNavigationClick = onOpenDrawer
-            )
-        }
-    ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = innerPadding.calculateTopPadding()),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            contentPadding = PaddingValues(bottom = 32.dp)
-        ) {
-            item {
-                Column(modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)) {
-                    Text(
-                        text = stringResource(R.string.home_greeting, currentUserName),
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Black
-                    )
-                    Text(
-                        text = stringResource(R.string.home_status_title),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(24.dp),
+        contentPadding = PaddingValues(bottom = 32.dp)
+    ) {
+        item {
+            Column(modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)) {
+                Text(
+                    text = stringResource(R.string.home_greeting, currentUserName),
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Black
+                )
+                Text(
+                    text = stringResource(R.string.home_status_title),
+                    style = MaterialTheme.typography.bodyLarge
+                )
             }
+        }
 
-            item {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    if (uiState.currencyData.isNotEmpty()) {
-                        HorizontalPager(
-                            state = pagerState,
-                            contentPadding = PaddingValues(horizontal = 32.dp),
-                            pageSpacing = 16.dp,
-                            modifier = Modifier.fillMaxWidth()
-                        ) { pageIndex ->
-                            val currencyStats = uiState.currencyData.getOrNull(pageIndex)
-                            if (currencyStats != null) {
-                                val symbol = CurrencyMapper.getSymbol(currencyStats.currencyCode)
-                                Box(
-                                    modifier = Modifier.graphicsLayer {
-                                        val pageOffset =
-                                            ((pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction).absoluteValue
-                                        alpha = lerp(
-                                            start = 0.5f,
-                                            stop = 1f,
-                                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                        )
-                                        scaleY = lerp(
-                                            start = 0.9f,
-                                            stop = 1f,
-                                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                        )
-                                    }
-                                ) {
-                                    BalanceFlowCard(stats = currencyStats, symbol = symbol)
+        item {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                if (uiState.currencyData.isNotEmpty()) {
+                    HorizontalPager(
+                        state = pagerState,
+                        contentPadding = PaddingValues(horizontal = 32.dp),
+                        pageSpacing = 16.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    ) { pageIndex ->
+                        val currencyStats = uiState.currencyData.getOrNull(pageIndex)
+                        if (currencyStats != null) {
+                            val symbol = CurrencyMapper.getSymbol(currencyStats.currencyCode)
+                            Box(
+                                modifier = Modifier.graphicsLayer {
+                                    val pageOffset =
+                                        ((pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction).absoluteValue
+                                    alpha = lerp(
+                                        start = 0.5f,
+                                        stop = 1f,
+                                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                    )
+                                    scaleY = lerp(
+                                        start = 0.9f,
+                                        stop = 1f,
+                                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                    )
                                 }
+                            ) {
+                                BalanceFlowCard(stats = currencyStats, symbol = symbol)
                             }
                         }
                     }
                 }
             }
+        }
 
-            item {
-                Card(
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .clickable(enabled = !isAiLoading) {
+                        aiViewModel.fetchAdvice(
+                            currentUserName,
+                            budgets
+                        )
+                    },
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+            ) {
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .clickable(enabled = !isAiLoading) {
-                            aiViewModel.fetchAdvice(
-                                currentUserName,
-                                budgets
-                            )
-                        },
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.Transparent)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                brush = Brush.linearGradient(
-                                    colors = listOf(
-                                        Color(
-                                            0xFF16A34A
-                                        ), Color(0xFF065F46)
-                                    )
+                        .background(
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    Color(
+                                        0xFF16A34A
+                                    ), Color(0xFF065F46)
                                 )
                             )
-                            .padding(20.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
+                        )
+                        .padding(20.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier.size(44.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Surface(
                                 modifier = Modifier.size(44.dp),
-                                contentAlignment = Alignment.Center
+                                shape = CircleShape,
+                                color = Color.White.copy(alpha = if (isAiLoading) 0.1f else 0.2f)
                             ) {
-                                Surface(
-                                    modifier = Modifier.size(44.dp),
-                                    shape = CircleShape,
-                                    color = Color.White.copy(alpha = if (isAiLoading) 0.1f else 0.2f)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.AutoAwesome,
-                                        contentDescription = null,
-                                        tint = Color.White.copy(alpha = if (isAiLoading) iconAlpha else 1f),
-                                        modifier = Modifier.padding(10.dp)
-                                    )
-                                }
+                                Icon(
+                                    imageVector = Icons.Default.AutoAwesome,
+                                    contentDescription = null,
+                                    tint = Color.White.copy(alpha = if (isAiLoading) iconAlpha else 1f),
+                                    modifier = Modifier.padding(10.dp)
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.width(16.dp))
+
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.home_ai_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = Color.White
+                            )
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            val displayMessage = when {
+                                isAiLoading && aiAdvice.isEmpty() -> stringResource(R.string.ai_loading)
+                                aiAdvice == "ERROR_STATE" -> stringResource(R.string.ai_error_internet)
+                                aiAdvice.isEmpty() -> stringResource(R.string.ai_click_prompt)
+                                else -> aiAdvice
                             }
 
-                            Spacer(modifier = Modifier.width(16.dp))
+                            Text(
+                                text = displayMessage,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White.copy(alpha = 0.9f),
+                                lineHeight = 18.sp
+                            )
+                        }
+                    }
+                }
+            }
+        }
 
+        dreamState?.let { progressData ->
+            item {
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.home_dream_goal),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { navController.navigate(Screen.Dream.route) },
+                        shape = RoundedCornerShape(28.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
+                                alpha = 0.4f
+                            )
+                        ),
+                        border = BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(20.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                CircularProgressIndicator(
+                                    progress = { progressData.progress },
+                                    modifier = Modifier.size(64.dp),
+                                    strokeCap = StrokeCap.Round,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                )
+                                Text(text = progressData.dream.iconEmoji, fontSize = 28.sp)
+                            }
+                            Spacer(modifier = Modifier.width(20.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = stringResource(R.string.home_ai_title),
+                                    text = progressData.dream.title,
                                     style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.ExtraBold,
-                                    color = Color.White
+                                    fontWeight = FontWeight.ExtraBold
                                 )
-
-                                Spacer(modifier = Modifier.height(4.dp))
-
-                                val displayMessage = when {
-                                    isAiLoading && aiAdvice.isEmpty() -> stringResource(R.string.ai_loading)
-                                    aiAdvice == "ERROR_STATE" -> stringResource(R.string.ai_error_internet)
-                                    aiAdvice.isEmpty() -> stringResource(R.string.ai_click_prompt)
-                                    else -> aiAdvice
-                                }
-
                                 Text(
-                                    text = displayMessage,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = Color.White.copy(alpha = 0.9f),
-                                    lineHeight = 18.sp
+                                    text = stringResource(
+                                        R.string.dream_collected_percentage,
+                                        (progressData.progress * 100).toInt()
+                                    ),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Bold
                                 )
                             }
+                            Icon(
+                                Icons.Default.ChevronRight,
+                                null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
                 }
             }
+        }
 
-            dreamState?.let { progressData ->
-                item {
-                    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        Text(
-                            text = stringResource(R.string.home_dream_goal),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { navController.navigate(Screen.Dream.route) },
-                            shape = RoundedCornerShape(28.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
-                                    alpha = 0.4f
-                                )
-                            ),
-                            border = BorderStroke(
-                                1.dp,
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                            )
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(20.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    CircularProgressIndicator(
-                                        progress = { progressData.progress },
-                                        modifier = Modifier.size(64.dp),
-                                        strokeCap = StrokeCap.Round,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                                    )
-                                    Text(text = progressData.dream.iconEmoji, fontSize = 28.sp)
-                                }
-                                Spacer(modifier = Modifier.width(20.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = progressData.dream.title,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.ExtraBold
-                                    )
-                                    Text(
-                                        text = "Зібрано ${(progressData.progress * 100).toInt()}%",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                                Icon(
-                                    Icons.Default.ChevronRight,
-                                    null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            val critical = budgets.filter { it.progress > 0.6f }.sortedByDescending { it.progress }
-            if (critical.isNotEmpty()) {
-                item {
-                    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.Bottom
-                        ) {
-                            Text(
-                                text = stringResource(R.string.home_critical_limits),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = stringResource(R.string.home_all_limits),
-                                modifier = Modifier.clickable { onNavigateToBudgets() },
-                                color = MaterialTheme.colorScheme.primary,
-                                style = MaterialTheme.typography.labelLarge
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(12.dp))
-                        critical.take(2).forEach { item ->
-                            BudgetProgressItem(item = item, onClick = onNavigateToBudgets)
-                            Spacer(modifier = Modifier.height(12.dp))
-                        }
-                    }
-                }
-            }
-
+        val critical = budgets.filter { it.progress > 0.6f }.sortedByDescending { it.progress }
+        if (critical.isNotEmpty()) {
             item {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     Row(
@@ -361,34 +324,61 @@ fun HomeScreen(
                         verticalAlignment = Alignment.Bottom
                     ) {
                         Text(
-                            text = stringResource(R.string.home_recent_tx),
+                            text = stringResource(R.string.home_critical_limits),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = stringResource(R.string.home_view_all),
-                            modifier = Modifier.clickable { onNavigateToTransactions() },
+                            text = stringResource(R.string.home_all_limits),
+                            modifier = Modifier.clickable { onNavigateToBudgets() },
                             color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.labelLarge
                         )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
-                    val lastThree = transactions.take(3)
-                    if (lastThree.isEmpty()) {
-                        Text(
-                            text = stringResource(R.string.home_no_transactions),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 16.dp),
-                            textAlign = TextAlign.Center
-                        )
-                    } else {
-                        lastThree.forEach { tx ->
-                            TransactionItem(
-                                transaction = tx,
-                                onClick = { transactionsViewModel.showTransactionDetails(tx) },
-                                onLongClick = {})
-                        }
+                    critical.take(2).forEach { item ->
+                        BudgetProgressItem(item = item, onClick = onNavigateToBudgets)
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                }
+            }
+        }
+
+        item {
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    Text(
+                        text = stringResource(R.string.home_recent_tx),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = stringResource(R.string.home_view_all),
+                        modifier = Modifier.clickable { onNavigateToTransactions() },
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                val lastThree = transactions.take(3)
+                if (lastThree.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.home_no_transactions),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        textAlign = TextAlign.Center
+                    )
+                } else {
+                    lastThree.forEach { tx ->
+                        TransactionItem(
+                            transaction = tx,
+                            onClick = { transactionsViewModel.showTransactionDetails(tx) },
+                            onLongClick = {})
                     }
                 }
             }

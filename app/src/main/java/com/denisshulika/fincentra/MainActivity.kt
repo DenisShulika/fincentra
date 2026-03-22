@@ -5,32 +5,19 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.NavigationDrawerItemDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,6 +32,9 @@ import com.denisshulika.fincentra.data.util.LanguageManager
 import com.denisshulika.fincentra.data.util.PrefConstants
 import com.denisshulika.fincentra.di.DependencyProvider
 import com.denisshulika.fincentra.navigation.Screen
+import com.denisshulika.fincentra.ui.components.FinCentraScaffold
+import com.denisshulika.fincentra.ui.components.FinCentraTopBar
+import com.denisshulika.fincentra.ui.components.transactions.TransactionsTopBar
 import com.denisshulika.fincentra.ui.screens.BudgetsScreen
 import com.denisshulika.fincentra.ui.screens.DreamScreen
 import com.denisshulika.fincentra.ui.screens.HomeScreen
@@ -66,7 +56,6 @@ import com.denisshulika.fincentra.viewmodels.ProfileViewModel
 import com.denisshulika.fincentra.viewmodels.SettingsViewModel
 import com.denisshulika.fincentra.viewmodels.StatsViewModel
 import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
-import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,19 +67,18 @@ class MainActivity : AppCompatActivity() {
             val settingsViewModel: SettingsViewModel = viewModel()
             val isDarkTheme by settingsViewModel.isDarkMode.collectAsStateWithLifecycle()
 
-            val isDataReady by DependencyProvider.financeRepository.isInitialLoadComplete.collectAsStateWithLifecycle()
-            val user = DependencyProvider.authRepository.getCurrentUser()
-
             FinCentraTheme(darkTheme = isDarkTheme) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background,
-                    tonalElevation = 0.dp
+                    color = MaterialTheme.colorScheme.background
                 ) {
-                    if (user != null && !isDataReady) {
-                        LoadingScreen()
-                    } else {
-                        MainScreen(settingsViewModel)
+                    val isDataReady by DependencyProvider.financeRepository.isInitialLoadComplete.collectAsStateWithLifecycle()
+                    val user = DependencyProvider.authRepository.getCurrentUser()
+
+                    when {
+                        user == null -> MainScreen(settingsViewModel)
+                        !isDataReady -> LoadingScreen()
+                        else -> MainScreen(settingsViewModel)
                     }
                 }
             }
@@ -101,17 +89,12 @@ class MainActivity : AppCompatActivity() {
 @Composable
 fun MainScreen(settingsViewModel: SettingsViewModel) {
     val context = LocalContext.current
-    val prefs = remember {
-        context.getSharedPreferences(PrefConstants.PREFS_NAME, Context.MODE_PRIVATE)
-    }
-    val isOnboardingCompleted = remember {
-        prefs.getBoolean(PrefConstants.KEY_IS_ONBOARDING_COMPLETED, false)
-    }
+    val prefs =
+        remember { context.getSharedPreferences(PrefConstants.PREFS_NAME, Context.MODE_PRIVATE) }
+    val isOnboardingCompleted =
+        remember { prefs.getBoolean(PrefConstants.KEY_IS_ONBOARDING_COMPLETED, false) }
 
     val navController = rememberNavController()
-    val scope = rememberCoroutineScope()
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -125,31 +108,9 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
 
     val currentUser = DependencyProvider.authRepository.getCurrentUser()
     val startDestination = remember(currentUser, isOnboardingCompleted) {
-        when {
-            !isOnboardingCompleted -> Screen.Onboarding.route
-            currentUser != null -> Screen.Home.route
-            else -> Screen.Login.route
-        }
-    }
-
-    val isMainScreen =
-        currentRoute in listOf(
-            Screen.Login.route,
-            Screen.Register.route,
-            Screen.Onboarding.route,
-            Screen.Profile.route,
-            Screen.Integrations.route,
-            Screen.Budgets.route,
-            Screen.Dream.route,
-            Screen.Settings.route
-        )
-    val isTopLevelScreen =
-        currentRoute in listOf(Screen.Home.route, Screen.Transactions.route, Screen.Stats.route)
-
-    LaunchedEffect(currentRoute) {
-        if (drawerState.isOpen) {
-            scope.launch { drawerState.snapTo(DrawerValue.Closed) }
-        }
+        if (!isOnboardingCompleted) Screen.Onboarding.route
+        else if (currentUser != null) Screen.Home.route
+        else Screen.Login.route
     }
 
     val navigateWithClearStack: (String) -> Unit = { route ->
@@ -160,181 +121,135 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
         }
     }
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        gesturesEnabled = isTopLevelScreen,
-        drawerContent = {
-            if (!isMainScreen) {
-                ModalDrawerSheet(
-                    drawerContainerColor = MaterialTheme.colorScheme.background,
-                    drawerTonalElevation = 0.dp
-                ) {
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Text(
-                        text = "FinCentra",
-                        modifier = Modifier.padding(horizontal = 28.dp, vertical = 16.dp),
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 28.dp, vertical = 8.dp),
-                        thickness = 0.5.dp,
-                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
-                    )
-
-                    val drawerItems =
-                        listOf(
-                            Screen.Profile,
-                            Screen.Integrations,
-                            Screen.Budgets,
-                            Screen.Dream,
-                            Screen.Settings
+    val globalBottomBar: @Composable () -> Unit = {
+        NavigationBar(
+            containerColor = MaterialTheme.colorScheme.background,
+            tonalElevation = 0.dp
+        ) {
+            val bottomItems = listOf(Screen.Home, Screen.Transactions, Screen.Stats)
+            bottomItems.forEach { screen ->
+                NavigationBarItem(
+                    selected = currentRoute == screen.route,
+                    label = {
+                        Text(
+                            stringResource(screen.titleRes),
+                            fontWeight = if (currentRoute == screen.route) FontWeight.Bold else FontWeight.Normal
                         )
-                    drawerItems.forEach { screen ->
-                        NavigationDrawerItem(
-                            icon = { Icon(screen.icon, null) },
-                            label = { Text(stringResource(screen.titleRes)) },
-                            selected = currentRoute == screen.route,
-                            onClick = {
-                                scope.launch { drawerState.close() }
-                                navController.navigate(screen.route) {
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
-                            colors = NavigationDrawerItemDefaults.colors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer.copy(
-                                    alpha = 0.5f
-                                ),
-                                selectedIconColor = MaterialTheme.colorScheme.primary,
-                                selectedTextColor = MaterialTheme.colorScheme.primary,
-                                unselectedContainerColor = Color.Transparent
-                            ),
-                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    },
+                    icon = { Icon(screen.icon, null) },
+                    onClick = { navigateWithClearStack(screen.route) },
+                    colors = NavigationBarItemDefaults.colors(
+                        indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(
+                            alpha = 0.6f
                         )
-                    }
-                }
+                    )
+                )
             }
         }
+    }
+
+    NavHost(
+        navController = navController,
+        startDestination = startDestination
     ) {
-        Scaffold(
-            containerColor = MaterialTheme.colorScheme.background,
-            bottomBar = {
-                if (!isMainScreen) {
-                    NavigationBar(
-                        containerColor = MaterialTheme.colorScheme.background,
-                        tonalElevation = 0.dp
-                    ) {
-                        val bottomItems = listOf(Screen.Home, Screen.Transactions, Screen.Stats)
-                        bottomItems.forEach { screen ->
-                            NavigationBarItem(
-                                selected = currentRoute == screen.route,
-                                label = {
-                                    Text(
-                                        text = stringResource(screen.titleRes),
-                                        fontWeight = if (currentRoute == screen.route) FontWeight.Bold else FontWeight.Normal
-                                    )
-                                },
-                                icon = { Icon(screen.icon, null) },
-                                onClick = { navigateWithClearStack(screen.route) },
-                                colors = NavigationBarItemDefaults.colors(
-                                    indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(
-                                        alpha = 0.6f
-                                    )
-                                )
-                            )
-                        }
-                    }
-                }
+        composable(Screen.Onboarding.route) {
+            OnboardingScreen {
+                prefs.edit().putBoolean(PrefConstants.KEY_IS_ONBOARDING_COMPLETED, true).apply()
+                navController.navigate(Screen.Login.route) { popUpTo(0) }
             }
-        ) { innerPadding ->
-            NavHost(
-                navController = navController,
-                startDestination = startDestination,
-                modifier = Modifier.padding(
-                    bottom = if (!isMainScreen) innerPadding.calculateBottomPadding() else 0.dp
+        }
+
+        composable(Screen.Login.route) {
+            LoginScreen(
+                authViewModel,
+                onNavigateToMain = { navController.navigate(Screen.Home.route) { popUpTo(0) } },
+                onNavigateToRegister = { navController.navigate(Screen.Register.route) })
+        }
+
+        composable(Screen.Register.route) {
+            RegisterScreen(
+                authViewModel,
+                onNavigateToMain = { navController.navigate(Screen.Home.route) { popUpTo(0) } },
+                onBackToLogin = { navController.popBackStack() })
+        }
+
+        composable(Screen.Home.route) {
+            FinCentraScaffold(currentRoute,
+                { navController.navigate(it) },
+                { settingsViewModel.logout { navController.navigate(Screen.Login.route) { popUpTo(0) } } },
+                globalBottomBar,
+                topBar = { onOpen -> FinCentraTopBar("FinCentra", true, onOpen) }
+            ) { innerPadding ->
+                HomeScreen(
+                    statsViewModel,
+                    transactionsViewModel,
+                    budgetsViewModel,
+                    dreamViewModel,
+                    navController = navController,
+                    onNavigateToTransactions = { navigateWithClearStack(Screen.Transactions.route) },
+                    onOpenDrawer = {},
+                    onNavigateToBudgets = { navController.navigate(Screen.Budgets.route) },
+                    modifier = Modifier.padding(innerPadding)
                 )
-            ) {
-                composable(Screen.Onboarding.route) {
-                    OnboardingScreen {
-                        prefs.edit().putBoolean(PrefConstants.KEY_IS_ONBOARDING_COMPLETED, true)
-                            .apply()
-                        navController.navigate(Screen.Login.route) { popUpTo(0) }
-                    }
-                }
-                composable(Screen.Login.route) {
-                    LoginScreen(
-                        viewModel = authViewModel,
-                        onNavigateToMain = {
-                            navController.navigate(Screen.Home.route) {
-                                popUpTo(0) {
-                                    inclusive = true
-                                }
-                            }
-                        },
-                        onNavigateToRegister = { navController.navigate(Screen.Register.route) }
-                    )
-                }
-                composable(Screen.Register.route) {
-                    RegisterScreen(
-                        viewModel = authViewModel,
-                        onNavigateToMain = {
-                            navController.navigate(Screen.Home.route) {
-                                popUpTo(0) {
-                                    inclusive = true
-                                }
-                            }
-                        },
-                        onBackToLogin = { navController.popBackStack() }
-                    )
-                }
-                composable(Screen.Home.route) {
-                    HomeScreen(
-                        statsViewModel = statsViewModel,
-                        transactionsViewModel = transactionsViewModel,
-                        budgetsViewModel = budgetsViewModel,
-                        dreamViewModel = dreamViewModel,
-                        navController = navController,
-                        onNavigateToTransactions = { navigateWithClearStack(Screen.Transactions.route) },
-                        onOpenDrawer = { scope.launch { drawerState.open() } },
-                        onNavigateToBudgets = { navController.navigate(Screen.Budgets.route) }
-                    )
-                }
-                composable(Screen.Transactions.route) {
-                    TransactionsScreen(transactionsViewModel) { scope.launch { drawerState.open() } }
-                }
-                composable(Screen.Stats.route) {
-                    StatsScreen(statsViewModel) { scope.launch { drawerState.open() } }
-                }
-                composable(Screen.Integrations.route) {
-                    IntegrationsScreen(integrationsViewModel) { navController.popBackStack() }
-                }
-                composable(Screen.Budgets.route) {
-                    BudgetsScreen(budgetsViewModel) { navController.popBackStack() }
-                }
-                composable(Screen.Dream.route) {
-                    DreamScreen(dreamViewModel) { navController.popBackStack() }
-                }
-                composable(Screen.Settings.route) {
-                    SettingsScreen(
-                        viewModel = settingsViewModel,
-                        onBack = { navController.popBackStack() },
-                        onLogout = {
-                            navController.navigate(Screen.Login.route) {
-                                popUpTo(0) { inclusive = true }
-                            }
-                        }
-                    )
-                }
-                composable(Screen.Profile.route) {
-                    ProfileScreen(
-                        viewModel = profileViewModel,
-                        onBack = { navController.popBackStack() },
-                        onNavigateToSettings = { navController.navigate(Screen.Settings.route) }
-                    )
-                }
             }
+        }
+
+        composable(Screen.Transactions.route) {
+            FinCentraScaffold(currentRoute,
+                { navController.navigate(it) },
+                { settingsViewModel.logout { navController.navigate(Screen.Login.route) { popUpTo(0) } } },
+                globalBottomBar,
+                topBar = { onOpen -> TransactionsTopBar(transactionsViewModel, {}, onOpen, {}, {}) }
+            ) { innerPadding ->
+                TransactionsScreen(
+                    transactionsViewModel,
+                    onOpenDrawer = {},
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
+        }
+
+        composable(Screen.Stats.route) {
+            FinCentraScaffold(currentRoute,
+                { navController.navigate(it) },
+                { settingsViewModel.logout { navController.navigate(Screen.Login.route) { popUpTo(0) } } },
+                globalBottomBar,
+                topBar = { onOpen ->
+                    FinCentraTopBar(
+                        stringResource(R.string.nav_stats),
+                        true,
+                        onOpen
+                    )
+                }
+            ) { innerPadding ->
+                StatsScreen(
+                    statsViewModel,
+                    onOpenDrawer = {},
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
+        }
+
+        composable(Screen.Profile.route) {
+            ProfileScreen(
+                profileViewModel,
+                onBack = { navController.popBackStack() },
+                onNavigateToSettings = { navController.navigate(Screen.Settings.route) })
+        }
+        composable(Screen.Integrations.route) {
+            IntegrationsScreen(integrationsViewModel, onBack = { navController.popBackStack() })
+        }
+        composable(Screen.Budgets.route) {
+            BudgetsScreen(budgetsViewModel, onBack = { navController.popBackStack() })
+        }
+        composable(Screen.Dream.route) {
+            DreamScreen(dreamViewModel, onBack = { navController.popBackStack() })
+        }
+        composable(Screen.Settings.route) {
+            SettingsScreen(
+                settingsViewModel,
+                onBack = { navController.popBackStack() },
+                onLogout = { navController.navigate(Screen.Login.route) { popUpTo(0) } })
         }
     }
 }

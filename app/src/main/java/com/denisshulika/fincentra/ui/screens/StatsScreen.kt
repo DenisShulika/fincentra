@@ -22,7 +22,6 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -42,7 +41,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.ui.components.BalanceFlowCard
-import com.denisshulika.fincentra.ui.components.FinCentraTopBar
 import com.denisshulika.fincentra.ui.components.stats.CategoryStatItem
 import com.denisshulika.fincentra.ui.components.stats.EmptyStatsPlaceholder
 import com.denisshulika.fincentra.ui.components.stats.FilterRow
@@ -53,7 +51,11 @@ import com.denisshulika.fincentra.viewmodels.StatsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StatsScreen(viewModel: StatsViewModel, onOpenDrawer: () -> Unit) {
+fun StatsScreen(
+    viewModel: StatsViewModel,
+    onOpenDrawer: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedIndex by viewModel.selectedCurrencyIndex.collectAsStateWithLifecycle()
     val selectedPeriod by viewModel.selectedPeriod.collectAsStateWithLifecycle()
@@ -78,116 +80,104 @@ fun StatsScreen(viewModel: StatsViewModel, onOpenDrawer: () -> Unit) {
             })
     }
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        topBar = {
-            FinCentraTopBar(
-                title = stringResource(R.string.nav_stats),
-                isTopLevelScreen = true,
-                onNavigationClick = onOpenDrawer
-            )
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = innerPadding.calculateTopPadding())
-                .padding(horizontal = 16.dp)
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(modifier = Modifier.weight(1f)) {
-                    FilterChip(
-                        selected = isExpenseMode,
-                        onClick = { viewModel.toggleMode(true) },
-                        label = { Text(stringResource(R.string.stats_expenses)) },
-                        shape = CircleShape
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    FilterChip(
-                        selected = !isExpenseMode,
-                        onClick = { viewModel.toggleMode(false) },
-                        label = { Text(stringResource(R.string.stats_income)) },
-                        shape = CircleShape
-                    )
-                }
-                IconButton(onClick = {
-                    isFiltersExpanded = !isFiltersExpanded
-                }) {
-                    Icon(
-                        if (isFiltersExpanded) Icons.Default.ExpandLess else Icons.Default.Tune,
-                        null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
+            Row(modifier = Modifier.weight(1f)) {
+                FilterChip(
+                    selected = isExpenseMode,
+                    onClick = { viewModel.toggleMode(true) },
+                    label = { Text(stringResource(R.string.stats_expenses)) },
+                    shape = CircleShape
+                )
+                Spacer(Modifier.width(8.dp))
+                FilterChip(
+                    selected = !isExpenseMode,
+                    onClick = { viewModel.toggleMode(false) },
+                    label = { Text(stringResource(R.string.stats_income)) },
+                    shape = CircleShape
+                )
             }
-            AnimatedVisibility(visible = isFiltersExpanded) {
-                Column {
-                    if (uiState.currencyData.size > 1) {
-                        ScrollableTabRow(
-                            selectedTabIndex = selectedIndex,
-                            edgePadding = 0.dp,
-                            containerColor = Color.Transparent,
-                            divider = {}) {
-                            uiState.currencyData.forEachIndexed { index, data ->
-                                Tab(
-                                    selected = selectedIndex == index,
-                                    onClick = { viewModel.selectCurrency(index) },
-                                    text = { Text(CurrencyMapper.getCodeName(data.currencyCode)) })
-                            }
+            IconButton(onClick = {
+                isFiltersExpanded = !isFiltersExpanded
+            }) {
+                Icon(
+                    if (isFiltersExpanded) Icons.Default.ExpandLess else Icons.Default.Tune,
+                    null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+        AnimatedVisibility(visible = isFiltersExpanded) {
+            Column {
+                if (uiState.currencyData.size > 1) {
+                    ScrollableTabRow(
+                        selectedTabIndex = selectedIndex,
+                        edgePadding = 0.dp,
+                        containerColor = Color.Transparent,
+                        divider = {}) {
+                        uiState.currencyData.forEachIndexed { index, data ->
+                            Tab(
+                                selected = selectedIndex == index,
+                                onClick = { viewModel.selectCurrency(index) },
+                                text = { Text(CurrencyMapper.getCodeName(data.currencyCode)) })
                         }
                     }
-                    PeriodSelector(
-                        selectedPeriod = selectedPeriod,
-                        onPeriodSelected = { viewModel.setPeriod(it) },
-                        onCalendarClick = { showDatePicker = true })
-                    FilterRow(
-                        selectedBank = selectedBank,
-                        selectedAccountId = selectedAccountId,
-                        availableAccounts = availableAccounts,
-                        onBankChange = { viewModel.onBankFilterChange(it) },
-                        onAccountChange = { viewModel.onAccountFilterChange(it) })
+                }
+                PeriodSelector(
+                    selectedPeriod = selectedPeriod,
+                    onPeriodSelected = { viewModel.setPeriod(it) },
+                    onCalendarClick = { showDatePicker = true })
+                FilterRow(
+                    selectedBank = selectedBank,
+                    selectedAccountId = selectedAccountId,
+                    availableAccounts = availableAccounts,
+                    onBankChange = { viewModel.onBankFilterChange(it) },
+                    onAccountChange = { viewModel.onAccountFilterChange(it) })
+            }
+        }
+        val currentStats = uiState.currencyData.getOrNull(selectedIndex)
+        if (currentStats != null) {
+            val symbol = CurrencyMapper.getSymbol(currentStats.currencyCode)
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(top = 8.dp, bottom = 32.dp)
+            ) {
+                item { BalanceFlowCard(currentStats, symbol) }
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) { SpendingDonutChart(currentStats.categories, symbol, isExpenseMode) }
+                }
+                item {
+                    Text(
+                        text = if (isExpenseMode) stringResource(R.string.stats_expense_distribution) else stringResource(
+                            R.string.stats_income_sources
+                        ),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Black
+                    )
+                }
+                items(currentStats.categories) { stat ->
+                    CategoryStatItem(
+                        stat = stat,
+                        symbol = symbol
+                    )
                 }
             }
-            val currentStats = uiState.currencyData.getOrNull(selectedIndex)
-            if (currentStats != null) {
-                val symbol = CurrencyMapper.getSymbol(currentStats.currencyCode)
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(top = 8.dp, bottom = 32.dp)
-                ) {
-                    item { BalanceFlowCard(currentStats, symbol) }
-                    item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 16.dp),
-                            contentAlignment = Alignment.Center
-                        ) { SpendingDonutChart(currentStats.categories, symbol, isExpenseMode) }
-                    }
-                    item {
-                        Text(
-                            text = if (isExpenseMode) stringResource(R.string.stats_expense_distribution) else stringResource(
-                                R.string.stats_income_sources
-                            ),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Black
-                        )
-                    }
-                    items(currentStats.categories) { stat ->
-                        CategoryStatItem(
-                            stat = stat,
-                            symbol = symbol
-                        )
-                    }
-                }
-            } else {
-                EmptyStatsPlaceholder()
-            }
+        } else {
+            EmptyStatsPlaceholder()
         }
     }
 }

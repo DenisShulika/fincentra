@@ -102,6 +102,7 @@
     <string name="dream_view_buffer">Twój bufor</string>
     <string name="dream_view_available">Dostępne na marzenie</string>
     <string name="dream_btn_edit">Edytuj cel</string>
+    <string name="dream_collected_percentage">Zebrano %1$d%%</string>
 
     <!-- Analytics -->
     <string name="stats_no_data">Brak danych</string>

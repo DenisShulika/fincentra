@@ -33,6 +33,8 @@ class AiRepository {
                     - NO markdown, NO asterisks, NO lists.
                     - Max 3 short sentences.
                     - Final sentence: A clear personal finance command.
+                    
+                    LANGUAGE RULE: Always respond in the language requested at the end of the prompt.
                 """.trimIndent()
                 )
             }

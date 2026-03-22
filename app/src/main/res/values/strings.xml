@@ -115,6 +115,7 @@
     <string name="dream_view_buffer">Your safety buffer</string>
     <string name="dream_view_available">Available for dream</string>
     <string name="dream_btn_edit">Edit target</string>
+    <string name="dream_collected_percentage">Collected %1$d%%</string>
 
     <!-- Analytics & Stats -->
     <string name="stats_no_data">No data found</string>

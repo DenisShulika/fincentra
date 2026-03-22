@@ -1,5 +1,5 @@
-import java.util.Properties
 import java.io.FileInputStream
+import java.util.Properties
 
 val secrets = Properties()
 val secretsFile = rootProject.file("local.properties")

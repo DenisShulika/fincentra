@@ -115,6 +115,7 @@
     <string name="dream_view_buffer">Ваш поріг безпеки</string>
     <string name="dream_view_available">Доступно на мрію</string>
     <string name="dream_btn_edit">Редагувати ціль</string>
+    <string name="dream_collected_percentage">Зібрано %1$d%%</string>
 
     <!-- Analytics & Stats -->
     <string name="stats_no_data">Даних не знайдено</string>

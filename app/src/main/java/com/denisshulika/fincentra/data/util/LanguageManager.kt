@@ -23,10 +23,6 @@ object LanguageManager {
 
     fun getCurrentLanguage(): String {
         val locales = AppCompatDelegate.getApplicationLocales()
-        return if (locales.isEmpty) {
-            Locale.getDefault().language
-        } else {
-            locales[0]?.language ?: "en"
-        }
+        return if (locales.isEmpty) Locale.getDefault().language else locales[0]?.language ?: "en"
     }
 }

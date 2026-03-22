@@ -108,11 +108,20 @@ class FinanceRepository(private val db: FirebaseFirestore, private val auth: Fir
     }
 
     fun clearAllData() {
-        txL?.remove(); acL?.remove(); buL?.remove(); drL?.remove()
-        _transactions.value = emptyList(); _accounts.value = emptyList()
-        _budgets.value = emptyList(); _dream.value = null
-        _isTransactionsLoaded.value = false; _isAccountsLoaded.value = false
-        _isBudgetsLoaded.value = false; _isDreamLoaded.value = false
+        txL?.remove()
+        acL?.remove()
+        buL?.remove()
+        drL?.remove()
+
+        _transactions.value = emptyList()
+        _accounts.value = emptyList()
+        _budgets.value = emptyList()
+        _dream.value = null
+
+        _isTransactionsLoaded.value = false
+        _isAccountsLoaded.value = false
+        _isBudgetsLoaded.value = false
+        _isDreamLoaded.value = false
     }
 
     private fun getTransactionsRef() = auth.currentUser?.uid?.let {
