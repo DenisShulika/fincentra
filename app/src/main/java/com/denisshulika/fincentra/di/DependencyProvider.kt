@@ -8,12 +8,20 @@ import com.denisshulika.fincentra.data.repository.AuthRepository
 import com.denisshulika.fincentra.data.repository.BudgetRepository
 import com.denisshulika.fincentra.data.repository.FinanceRepository
 import com.denisshulika.fincentra.data.repository.SettingsRepository
+import com.denisshulika.fincentra.data.util.WidgetDataManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object DependencyProvider {
+
+    private lateinit var applicationContext: android.content.Context
+
+    fun init(context: android.content.Context) {
+        applicationContext = context.applicationContext
+    }
+
     val financeRepository by lazy {
         FinanceRepository(
             db = getInstance(),
@@ -55,6 +63,8 @@ object DependencyProvider {
     val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
     val authRepository: AuthRepository by lazy { AuthRepository() }
+
+    val widgetDataManager by lazy { WidgetDataManager(applicationContext) }
 
     fun getInstance(): FirebaseFirestore {
         return FirebaseFirestore.getInstance()

@@ -62,7 +62,13 @@ class DreamViewModel : ViewModel() {
             (available / dream.targetAmount).toFloat().coerceIn(0f, 1f)
         } else 0f
 
+        val progressData = DreamProgress(dream, available, progress)
+
         DreamProgress(dream, available, progress)
+
+        DependencyProvider.widgetDataManager.saveDreamData(progressData)
+
+        progressData
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     fun onTitleChange(v: String) {

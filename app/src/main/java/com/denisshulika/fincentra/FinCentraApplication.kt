@@ -1,18 +1,23 @@
 package com.denisshulika.fincentra
 
 import android.app.Application
+import android.app.NotificationManager
+import android.content.Context
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.denisshulika.fincentra.data.repository.GlobalSyncWorker
+import com.denisshulika.fincentra.di.DependencyProvider
 import java.util.concurrent.TimeUnit
 
 class FinCentraApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        DependencyProvider.init(this)
+
         createNotificationChannel()
         setupBackgroundSync()
     }
@@ -20,12 +25,12 @@ class FinCentraApplication : Application() {
     private fun createNotificationChannel() {
         val name = "Фінансові ліміти"
         val descriptionText = "Сповіщення про перевищення місячного бюджету"
-        val importance = android.app.NotificationManager.IMPORTANCE_DEFAULT
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
         val channel = android.app.NotificationChannel("BUDGET_ALERTS", name, importance).apply {
             description = descriptionText
         }
         val notificationManager =
-            getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
 

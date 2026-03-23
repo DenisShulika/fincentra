@@ -45,7 +45,7 @@ class BudgetsViewModel : ViewModel() {
         val currentMonth = cal.get(Calendar.MONTH)
         val currentYear = cal.get(Calendar.YEAR)
 
-        budgets.map { budget ->
+        val list = budgets.map { budget ->
             val spent = transactions.filter { tx ->
                 val txCal = Calendar.getInstance().apply { timeInMillis = tx.timestamp }
                 tx.isExpense &&
@@ -66,6 +66,11 @@ class BudgetsViewModel : ViewModel() {
                 }
             )
         }
+
+        val mostCritical = list.maxByOrNull { it.progress }
+        DependencyProvider.widgetDataManager.saveAllBudgets(list)
+
+        list
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
