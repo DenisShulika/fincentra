@@ -19,12 +19,6 @@ class BudgetsViewModel : ViewModel() {
     private val financeRepository = DependencyProvider.financeRepository
     private val budgetRepository = DependencyProvider.budgetRepository
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
-
-    private val _showAddSheet = MutableStateFlow(false)
-    val showAddSheet = _showAddSheet.asStateFlow()
-
     private val _amount = MutableStateFlow("")
     val amount = _amount.asStateFlow()
 
@@ -36,6 +30,12 @@ class BudgetsViewModel : ViewModel() {
 
     private val _editingBudgetId = MutableStateFlow<String?>(null)
     val editingBudgetId = _editingBudgetId.asStateFlow()
+
+    private val _showAddSheet = MutableStateFlow(false)
+    val showAddSheet = _showAddSheet.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
 
     val budgetProgressList: StateFlow<List<BudgetProgress>> = combine(
         financeRepository.budgets,
@@ -74,14 +74,11 @@ class BudgetsViewModel : ViewModel() {
 
     fun toggleAddSheet(show: Boolean) {
         _showAddSheet.value = show
-        if (!show) {
-            _amount.value = ""
-            _editingBudgetId.value = null
-        }
+        if (!show) resetForm()
     }
 
-    fun onAmountChange(newAmount: String) {
-        _amount.value = newAmount.filter { it.isDigit() }
+    fun onAmountChange(v: String) {
+        _amount.value = v.filter { it.isDigit() || it == '.' }
     }
 
     fun onCategoryChange(cat: TransactionCategory) {
@@ -94,39 +91,49 @@ class BudgetsViewModel : ViewModel() {
 
     fun prepareForEdit(budget: Budget) {
         _amount.value = budget.limitAmount.toInt().toString()
-        _selectedCategory.value = TransactionCategory.entries.find {
-            it.name == budget.categoryName
-        } ?: TransactionCategory.OTHERS
+        _selectedCategory.value =
+            TransactionCategory.entries.find { it.name == budget.categoryName }
+                ?: TransactionCategory.OTHERS
         _selectedCurrency.value = budget.currencyCode
         _editingBudgetId.value = budget.id
         _showAddSheet.value = true
     }
 
-    fun saveNewBudget() {
+    fun saveBudget() {
         val amt = _amount.value.toDoubleOrNull() ?: return
         viewModelScope.launch {
             _isLoading.value = true
-            try {
-                val cal = Calendar.getInstance()
-                val monthYear = "${cal.get(Calendar.MONTH) + 1}-${cal.get(Calendar.YEAR)}"
-                val budget = Budget(
-                    id = _editingBudgetId.value ?: "${_selectedCategory.value.name}_$monthYear",
-                    categoryName = _selectedCategory.value.name,
-                    limitAmount = amt,
-                    currencyCode = _selectedCurrency.value,
-                    monthYear = monthYear
-                )
-                budgetRepository.saveBudget(budget)
-                toggleAddSheet(false)
-            } finally {
-                _isLoading.value = false
-            }
+            val cal = Calendar.getInstance()
+            val monthYear = "${cal.get(Calendar.MONTH) + 1}-${cal.get(Calendar.YEAR)}"
+
+            val budget = Budget(
+                id = _editingBudgetId.value
+                    ?: "${_selectedCategory.value.name}_${System.currentTimeMillis()}",
+                categoryName = _selectedCategory.value.name,
+                limitAmount = amt,
+                currencyCode = _selectedCurrency.value,
+                monthYear = monthYear
+            )
+            budgetRepository.saveBudget(budget)
+            toggleAddSheet(false)
+            _isLoading.value = false
         }
     }
 
-    fun deleteBudget(budgetId: String) {
+    fun resetForm() {
+        _amount.value = ""
+        _selectedCategory.value = TransactionCategory.FOOD
+        _selectedCurrency.value = 980
+        _editingBudgetId.value = null
+    }
+
+    fun deleteBudget() {
+        val id = _editingBudgetId.value ?: return
         viewModelScope.launch {
-            budgetRepository.deleteBudget(budgetId)
+            _isLoading.value = true
+            budgetRepository.deleteBudget(id)
+            toggleAddSheet(false)
+            _isLoading.value = false
         }
     }
 }

@@ -18,6 +18,18 @@ class DreamViewModel : ViewModel() {
     private val financeRepository = DependencyProvider.financeRepository
     private val settingsRepository = DependencyProvider.settingsRepository
 
+    private val _title = MutableStateFlow("")
+    val title = _title.asStateFlow()
+
+    private val _target = MutableStateFlow("")
+    val target = _target.asStateFlow()
+
+    private val _buffer = MutableStateFlow("")
+    val buffer = _buffer.asStateFlow()
+
+    private val _emoji = MutableStateFlow("🚀")
+    val emoji = _emoji.asStateFlow()
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
@@ -44,7 +56,6 @@ class DreamViewModel : ViewModel() {
             .sumOf { if (it.isExpense) -it.amount else it.amount }
 
         val totalBalance = bankBalance + cashBalance
-
         val available = (totalBalance - dream.safetyBuffer).coerceAtLeast(0.0)
 
         val progress = if (dream.targetAmount > 0) {
@@ -54,14 +65,59 @@ class DreamViewModel : ViewModel() {
         DreamProgress(dream, available, progress)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    fun updateDream(title: String, target: Double, buffer: Double, currencyCode: Int) {
+    fun onTitleChange(v: String) {
+        _title.value = v
+    }
+
+    fun onTargetChange(v: String) {
+        _target.value = v
+    }
+
+    fun onBufferChange(v: String) {
+        _buffer.value = v
+    }
+
+    fun onEmojiChange(v: String) {
+        if (v.length <= 1) _emoji.value = v
+    }
+
+    fun prepareForEdit(dream: Dream) {
+        _title.value = dream.title
+        _target.value = dream.targetAmount.toInt().toString()
+        _buffer.value = dream.safetyBuffer.toInt().toString()
+        _emoji.value = dream.iconEmoji.ifBlank { "🚀" }
+    }
+
+    fun resetForm() {
+        _title.value = ""
+        _target.value = ""
+        _buffer.value = ""
+        _emoji.value = "🚀"
+    }
+
+    fun deleteDream() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            settingsRepository.deleteDream()
+            resetForm()
+            _isLoading.value = false
+        }
+    }
+
+    fun updateDream(currencyCode: Int) {
+        val titleVal = _title.value
+        val targetVal = _target.value.toDoubleOrNull() ?: 0.0
+        val bufferVal = _buffer.value.toDoubleOrNull() ?: 0.0
+        val emojiVal = _emoji.value
+
         viewModelScope.launch {
             _isLoading.value = true
             val newDream = Dream(
-                title = title,
-                targetAmount = target,
-                safetyBuffer = buffer,
-                currencyCode = currencyCode
+                title = titleVal,
+                targetAmount = targetVal,
+                safetyBuffer = bufferVal,
+                currencyCode = currencyCode,
+                iconEmoji = emojiVal
             )
             settingsRepository.saveDream(newDream)
             _isLoading.value = false

@@ -5,5 +5,6 @@ data class Budget(
     val categoryName: String = "",
     val limitAmount: Double = 0.0,
     val currencyCode: Int = 980,
-    val monthYear: String = ""
+    val monthYear: String = "",
+    val customEmoji: String? = null
 )

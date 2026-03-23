@@ -8,17 +8,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -41,6 +45,7 @@ fun AddBudgetSheet(viewModel: BudgetsViewModel) {
     val selectedCat by viewModel.selectedCategory.collectAsStateWithLifecycle()
     val selectedCurrency by viewModel.selectedCurrency.collectAsStateWithLifecycle()
     val editingId by viewModel.editingBudgetId.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
     ModalBottomSheet(
         onDismissRequest = { viewModel.toggleAddSheet(false) },
@@ -55,20 +60,17 @@ fun AddBudgetSheet(viewModel: BudgetsViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = if (editingId == null)
-                    stringResource(R.string.budget_new_title)
-                else
-                    stringResource(R.string.budget_edit_title),
+                text = if (editingId == null) stringResource(R.string.budget_new_title)
+                else stringResource(R.string.budget_edit_title),
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Black,
-                color = MaterialTheme.colorScheme.onSurface
+                fontWeight = FontWeight.Black
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
             OutlinedTextField(
                 value = amount,
-                onValueChange = { viewModel.onAmountChange(it) },
+                onValueChange = viewModel::onAmountChange,
                 label = { Text(stringResource(R.string.transaction_label_amount)) },
                 suffix = {
                     Text(
@@ -85,11 +87,10 @@ fun AddBudgetSheet(viewModel: BudgetsViewModel) {
                         color = MaterialTheme.colorScheme.primary
                     )
                 },
-                textStyle = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                shape = RoundedCornerShape(16.dp)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                shape = RoundedCornerShape(16.dp),
+                singleLine = true
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -97,42 +98,26 @@ fun AddBudgetSheet(viewModel: BudgetsViewModel) {
             Text(
                 text = stringResource(R.string.budget_select_category),
                 modifier = Modifier.align(Alignment.Start),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Black,
-                color = MaterialTheme.colorScheme.onSurface
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 TransactionCategory.entries.forEach { cat ->
                     FilterChip(
                         selected = (selectedCat == cat),
                         onClick = { viewModel.onCategoryChange(cat) },
-                        label = {
-                            Text(
-                                text = stringResource(cat.displayNameRes),
-                                modifier = Modifier.padding(vertical = 4.dp),
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        },
+                        label = { Text(stringResource(cat.displayNameRes)) },
                         shape = CircleShape,
-                        colors = FilterChipDefaults.filterChipColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                        ),
-                        border = FilterChipDefaults.filterChipBorder(
-                            enabled = true,
-                            selected = selectedCat == cat,
-                            borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                            selectedBorderColor = Color.Transparent
-                        )
+                        leadingIcon = {
+                            Icon(cat.materialIcon, null, modifier = Modifier.size(18.dp))
+                        }
                     )
                 }
             }
@@ -140,21 +125,33 @@ fun AddBudgetSheet(viewModel: BudgetsViewModel) {
             Spacer(modifier = Modifier.height(40.dp))
 
             Button(
-                onClick = { viewModel.saveNewBudget() },
+                onClick = { viewModel.saveBudget() },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(64.dp),
-                enabled = amount.isNotBlank(),
+                    .height(60.dp),
+                enabled = amount.isNotBlank() && !isLoading,
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text(
-                    text = if (editingId == null)
-                        stringResource(R.string.budget_btn_set)
-                    else
-                        stringResource(R.string.budget_btn_update),
-                    style = MaterialTheme.typography.titleLarge,
+                if (isLoading) CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = Color.White
+                )
+                else Text(
+                    if (editingId == null) "Set Limit" else "Update Limit",
                     fontWeight = FontWeight.Bold
                 )
+            }
+
+            if (editingId != null) {
+                TextButton(
+                    onClick = { viewModel.deleteBudget() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Delete This Limit", fontWeight = FontWeight.Bold)
+                }
             }
         }
     }
