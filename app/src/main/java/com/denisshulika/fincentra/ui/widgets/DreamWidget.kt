@@ -18,6 +18,7 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
+import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -26,24 +27,32 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
+import androidx.glance.state.GlanceStateDefinition
+import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
-import com.denisshulika.fincentra.data.util.WidgetConstants
+import com.denisshulika.fincentra.data.util.PrefDreamEmoji
+import com.denisshulika.fincentra.data.util.PrefDreamProgress
+import com.denisshulika.fincentra.data.util.PrefDreamTitle
 
 class DreamWidget : GlanceAppWidget() {
 
-    override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val prefs = context.getSharedPreferences(WidgetConstants.PREFS_NAME, Context.MODE_PRIVATE)
-        val title = prefs.getString(WidgetConstants.KEY_DREAM_TITLE, "No Dream") ?: "No Dream"
-        val progress = prefs.getFloat(WidgetConstants.KEY_DREAM_PROGRESS, 0f)
-        val emoji = prefs.getString(WidgetConstants.KEY_DREAM_EMOJI, "🚀") ?: "🚀"
+    override val stateDefinition: GlanceStateDefinition<*> = PreferencesGlanceStateDefinition
 
-        val progressBitmap = createCircularProgressBitmap(context, progress)
+    override suspend fun provideGlance(context: Context, id: GlanceId) {
 
         provideContent {
+            val prefs = currentState<androidx.datastore.preferences.core.Preferences>()
+
+            val title = prefs[PrefDreamTitle] ?: "No Dream"
+            val progress = prefs[PrefDreamProgress] ?: 0f
+            val emoji = prefs[PrefDreamEmoji] ?: "🚀"
+
+            val progressBitmap = createCircularProgressBitmap(context, progress)
+
             GlanceTheme {
                 Box(
                     modifier = GlanceModifier
@@ -68,15 +77,10 @@ class DreamWidget : GlanceAppWidget() {
                             )
                             Text(
                                 text = emoji,
-                                style = TextStyle(
-                                    fontSize = 45.sp,
-                                    color = ColorProvider(Color.White)
-                                )
+                                style = TextStyle(fontSize = 45.sp)
                             )
                         }
-
                         Spacer(GlanceModifier.height(8.dp))
-
                         Text(
                             text = title.uppercase(),
                             style = TextStyle(
@@ -87,14 +91,9 @@ class DreamWidget : GlanceAppWidget() {
                             ),
                             maxLines = 1
                         )
-
                         Text(
                             text = "${(progress * 100).toInt()}%",
-                            style = TextStyle(
-                                color = ColorProvider(Color.White),
-                                fontWeight = FontWeight.Medium,
-                                fontSize = 12.sp
-                            )
+                            style = TextStyle(color = ColorProvider(Color.White), fontSize = 12.sp)
                         )
                     }
                 }
