@@ -6,8 +6,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.denisshulika.fincentra.data.util.LanguageManager
 import com.denisshulika.fincentra.di.DependencyProvider
+import com.denisshulika.fincentra.ui.theme.AppTheme
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
@@ -19,16 +24,26 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
-    private val _isDarkMode = MutableStateFlow(prefs.getBoolean("dark_mode", true))
-    val isDarkMode = _isDarkMode.asStateFlow()
+    private val _appTheme = MutableStateFlow(
+        AppTheme.valueOf(prefs.getString("app_theme", AppTheme.SYSTEM.name) ?: AppTheme.SYSTEM.name)
+    )
+    val appTheme = _appTheme.asStateFlow()
 
-    fun toggleTheme(isDark: Boolean) {
-        _isDarkMode.value = isDark
-        prefs.edit().putBoolean("dark_mode", isDark).apply()
-    }
+    val isDarkMode: StateFlow<Boolean> = _appTheme.map { theme ->
+        when (theme) {
+            AppTheme.DARK -> true
+            AppTheme.LIGHT, AppTheme.NEUTRAL -> false
+            AppTheme.SYSTEM -> false
+        }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, _appTheme.value == AppTheme.DARK)
 
     fun setLanguage(langCode: String) {
-        LanguageManager.setLanguage("en")
+        LanguageManager.setLanguage(langCode)
+    }
+
+    fun setTheme(theme: AppTheme) {
+        _appTheme.value = theme
+        prefs.edit().putString("app_theme", theme.name).apply()
     }
 
     fun changePassword(newPass: String, onComplete: (String) -> Unit) {

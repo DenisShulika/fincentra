@@ -27,19 +27,6 @@ class AiViewModel : ViewModel() {
 
         viewModelScope.launch {
             _isLoading.value = true
-            _adviceText.value = ""
-
-            val thinkingSteps = listOf(
-                "Analyzing burn rate...",
-                "Checking budget health...",
-                "Evaluating goal progress..."
-            )
-
-            for (step in thinkingSteps) {
-                _adviceText.value = step
-                delay(1200)
-            }
-            _adviceText.value = ""
 
             val langName = when (LanguageManager.getCurrentLanguage()) {
                 "uk" -> "Ukrainian"

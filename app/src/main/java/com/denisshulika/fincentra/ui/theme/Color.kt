@@ -59,3 +59,9 @@ val LightOnSurfaceVariant = Color(0xFF424940)
 val LightOutline = Color(0xFF72796F)
 val LightError = Color(0xFFBA1A1A)
 val LightOnError = Color.White
+
+val NeutralBackground = Color(0xFF1E293B)
+val NeutralSurface = Color(0xFF334155)
+val NeutralPrimary = Color(0xFF94A3B8)
+val NeutralOnBackground = Color(0xFFF1F5F9)
+val NeutralOutline = Color(0xFF475569)

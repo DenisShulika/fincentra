@@ -17,7 +17,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
@@ -32,7 +31,9 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -51,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.ui.components.FinCentraTopBar
+import com.denisshulika.fincentra.ui.theme.AppTheme
 import com.denisshulika.fincentra.viewmodels.SettingsViewModel
 
 @Composable
@@ -61,7 +63,7 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
-    val isDarkMode by viewModel.isDarkMode.collectAsStateWithLifecycle()
+    val appTheme by viewModel.appTheme.collectAsStateWithLifecycle()
 
     var showPassDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -143,17 +145,35 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             SettingsSection(title = stringResource(R.string.settings_appearance_section)) {
-                SettingsRow(
-                    title = stringResource(R.string.settings_dark_mode),
-                    icon = Icons.Default.DarkMode,
-                    action = {
-                        Switch(
-                            checked = isDarkMode,
-                            onCheckedChange = { viewModel.toggleTheme(it) },
-                            enabled = !isLoading
+                Text(
+                    text = "App Theme",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                SingleChoiceSegmentedButtonRow(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    AppTheme.entries.forEachIndexed { index, theme ->
+                        SegmentedButton(
+                            shape = SegmentedButtonDefaults.itemShape(
+                                index = index,
+                                count = AppTheme.entries.size
+                            ),
+                            onClick = { viewModel.setTheme(theme) },
+                            selected = appTheme == theme,
+                            label = {
+                                Text(
+                                    text = theme.name.lowercase()
+                                        .replaceFirstChar { it.uppercase() },
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
                         )
                     }
-                )
+                }
                 HorizontalDivider(
                     thickness = 0.5.dp,
                     color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)

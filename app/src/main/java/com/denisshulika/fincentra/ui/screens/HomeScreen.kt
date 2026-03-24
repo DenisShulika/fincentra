@@ -71,6 +71,7 @@ import kotlin.math.absoluteValue
 
 @Composable
 fun HomeScreen(
+    modifier: Modifier = Modifier,
     statsViewModel: StatsViewModel,
     transactionsViewModel: TransactionsViewModel,
     budgetsViewModel: BudgetsViewModel,
@@ -79,8 +80,7 @@ fun HomeScreen(
     navController: NavController,
     onNavigateToTransactions: () -> Unit,
     onOpenDrawer: () -> Unit,
-    onNavigateToBudgets: () -> Unit,
-    modifier: Modifier = Modifier
+    onNavigateToBudgets: () -> Unit
 ) {
     val uiState by statsViewModel.uiState.collectAsStateWithLifecycle()
     val budgets by budgetsViewModel.budgetProgressList.collectAsStateWithLifecycle()
@@ -142,6 +142,7 @@ fun HomeScreen(
                         state = pagerState,
                         contentPadding = PaddingValues(horizontal = 32.dp),
                         pageSpacing = 16.dp,
+                        beyondViewportPageCount = 1,
                         modifier = Modifier.fillMaxWidth()
                     ) { pageIndex ->
                         val currencyStats = uiState.currencyData.getOrNull(pageIndex)
@@ -177,10 +178,7 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .clickable(enabled = !isAiLoading) {
-                        aiViewModel.fetchAdvice(
-                            currentUserName,
-                            budgets
-                        )
+                        aiViewModel.fetchAdvice(currentUserName, budgets)
                     },
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.Transparent)
@@ -190,9 +188,8 @@ fun HomeScreen(
                         .background(
                             brush = Brush.linearGradient(
                                 colors = listOf(
-                                    Color(
-                                        0xFF16A34A
-                                    ), Color(0xFF065F46)
+                                    MaterialTheme.colorScheme.primary,
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
                                 )
                             )
                         )
@@ -206,12 +203,12 @@ fun HomeScreen(
                             Surface(
                                 modifier = Modifier.size(44.dp),
                                 shape = CircleShape,
-                                color = Color.White.copy(alpha = if (isAiLoading) 0.1f else 0.2f)
+                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.AutoAwesome,
                                     contentDescription = null,
-                                    tint = Color.White.copy(alpha = if (isAiLoading) iconAlpha else 1f),
+                                    tint = MaterialTheme.colorScheme.onPrimary,
                                     modifier = Modifier.padding(10.dp)
                                 )
                             }
@@ -224,7 +221,7 @@ fun HomeScreen(
                                 text = stringResource(R.string.home_ai_title),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.ExtraBold,
-                                color = Color.White
+                                color = MaterialTheme.colorScheme.onPrimary
                             )
 
                             Spacer(modifier = Modifier.height(4.dp))
@@ -239,7 +236,7 @@ fun HomeScreen(
                             Text(
                                 text = displayMessage,
                                 style = MaterialTheme.typography.bodySmall,
-                                color = Color.White.copy(alpha = 0.9f),
+                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f),
                                 lineHeight = 18.sp
                             )
                         }

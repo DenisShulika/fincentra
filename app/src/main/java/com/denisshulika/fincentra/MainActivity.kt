@@ -66,9 +66,9 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val settingsViewModel: SettingsViewModel = viewModel()
-            val isDarkTheme by settingsViewModel.isDarkMode.collectAsStateWithLifecycle()
+            val appTheme by settingsViewModel.appTheme.collectAsStateWithLifecycle()
 
-            FinCentraTheme(darkTheme = isDarkTheme) {
+            FinCentraTheme(appTheme = appTheme) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -182,6 +182,7 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
                 topBar = { onOpen -> FinCentraTopBar("FinCentra", true, onOpen) }
             ) { innerPadding ->
                 HomeScreen(
+                    modifier = Modifier.padding(innerPadding),
                     statsViewModel,
                     transactionsViewModel,
                     budgetsViewModel,
@@ -189,8 +190,7 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
                     navController = navController,
                     onNavigateToTransactions = { navigateWithClearStack(Screen.Transactions.route) },
                     onOpenDrawer = {},
-                    onNavigateToBudgets = { navController.navigate(Screen.Budgets.route) },
-                    modifier = Modifier.padding(innerPadding)
+                    onNavigateToBudgets = { navController.navigate(Screen.Budgets.route) }
                 )
             }
         }
