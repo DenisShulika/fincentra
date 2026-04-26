@@ -39,14 +39,28 @@ class ProfileViewModel : ViewModel() {
         observeStats()
 
         viewModelScope.launch {
-            combine(financeRepository.accounts, _selectedIds) { accounts, selectedIds ->
-                accounts
+            combine(
+                financeRepository.accounts,
+                _selectedIds,
+                settingsRepository.getDisplayCurrencyFlow()
+            ) { accounts, selectedIds, displayCurrency ->
+                val rates = DependencyProvider.currencyRepository.getRates()
+
+                val summaries = accounts
                     .filter { selectedIds.contains(it.id) }
                     .groupBy { it.currencyCode }
-                    .map { (code, list) ->
-                        CurrencySummary(code, list.sumOf { it.balance })
-                    }
-                    .sortedByDescending { it.currencyCode == 980 }
+                    .map { (code, list) -> CurrencySummary(code, list.sumOf { it.balance }) }
+
+                val totalBalance = summaries.sumOf {
+                    DependencyProvider.currencyRepository.convert(
+                        it.balance,
+                        it.currencyCode,
+                        displayCurrency,
+                        rates
+                    )
+                }
+
+                listOf(CurrencySummary(displayCurrency, totalBalance)) + summaries
             }.collect { summaries ->
                 _currencySummaries.value = summaries
             }

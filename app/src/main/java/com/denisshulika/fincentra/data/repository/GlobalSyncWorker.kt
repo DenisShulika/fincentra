@@ -72,10 +72,12 @@ class GlobalSyncWorker(
 
     override suspend fun doWork(): Result {
         return try {
+            DependencyProvider.currencyRepository.getRates()
             syncMonobank()
             checkBudgetsAndNotify()
 
             settingsRepository.saveLastGlobalSyncTime(System.currentTimeMillis())
+
             Result.success()
         } catch (e: Exception) {
             Log.e("SYNC_WORKER", "Work failed: ${e.message}")

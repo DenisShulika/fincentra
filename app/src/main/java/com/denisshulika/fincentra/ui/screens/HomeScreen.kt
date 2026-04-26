@@ -148,6 +148,9 @@ fun HomeScreen(
                         val currencyStats = uiState.currencyData.getOrNull(pageIndex)
                         if (currencyStats != null) {
                             val symbol = CurrencyMapper.getSymbol(currencyStats.currencyCode)
+
+                            val isTotalCard = pageIndex == 0
+
                             Box(
                                 modifier = Modifier.graphicsLayer {
                                     val pageOffset =
@@ -164,7 +167,11 @@ fun HomeScreen(
                                     )
                                 }
                             ) {
-                                BalanceFlowCard(stats = currencyStats, symbol = symbol)
+                                BalanceFlowCard(
+                                    stats = currencyStats,
+                                    symbol = symbol,
+                                    isTotal = isTotalCard
+                                )
                             }
                         }
                     }

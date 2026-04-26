@@ -47,10 +47,13 @@ class StatsViewModel : ViewModel() {
     val availableAccounts = financeRepository.accounts
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
+    private val currencyRepository = DependencyProvider.currencyRepository
+
     val uiState: StateFlow<StatsUiState> = combine(
         financeRepository.transactions,
         availableAccounts,
         settingsRepository.getSelectedAccountIdsFlow(),
+        settingsRepository.getDisplayCurrencyFlow(),
         _selectedDateRange,
         _selectedBank,
         _selectedAccountId,
@@ -59,13 +62,22 @@ class StatsViewModel : ViewModel() {
         val txs = args[0] as List<Transaction>
         val accs = args[1] as List<BankAccount>
         val activeIds = args[2] as List<String>
-        val range = args[3] as LongRange?
-        val bank = args[4] as String
-        val accId = args[5] as String?
-        val mode = args[6] as Boolean
+        val displayCurrency = args[3] as Int
+        val range = args[4] as LongRange?
+        val bank = args[5] as String
+        val accId = args[6] as String?
+        val mode = args[7] as Boolean
 
         withContext(Dispatchers.Default) {
-            calculateOptimizedStats(txs, accs, range, bank, accId, mode, activeIds)
+            val rates = DependencyProvider.currencyRepository.getRates()
+            val baseState = calculateOptimizedStats(txs, accs, range, bank, accId, mode, activeIds)
+
+            if (baseState.currencyData.isNotEmpty()) {
+                val totalCard = calculateTotalStats(baseState.currencyData, displayCurrency, rates)
+                StatsUiState(listOf(totalCard) + baseState.currencyData, range)
+            } else {
+                baseState
+            }
         }
     }.stateIn(
         scope = viewModelScope,
@@ -252,5 +264,48 @@ class StatsViewModel : ViewModel() {
 
     fun onAccountFilterChange(id: String?) {
         _selectedAccountId.value = id
+    }
+
+    private fun calculateTotalStats(
+        data: List<CurrencyStats>,
+        target: Int,
+        rates: Map<Int, Double>
+    ): CurrencyStats {
+        return CurrencyStats(
+            currencyCode = target,
+            startPeriodBalance = data.sumOf {
+                DependencyProvider.currencyRepository.convert(
+                    it.startPeriodBalance,
+                    it.currencyCode,
+                    target,
+                    rates
+                )
+            },
+            endPeriodBalance = data.sumOf {
+                DependencyProvider.currencyRepository.convert(
+                    it.endPeriodBalance,
+                    it.currencyCode,
+                    target,
+                    rates
+                )
+            },
+            totalIncome = data.sumOf {
+                DependencyProvider.currencyRepository.convert(
+                    it.totalIncome,
+                    it.currencyCode,
+                    target,
+                    rates
+                )
+            },
+            totalExpense = data.sumOf {
+                DependencyProvider.currencyRepository.convert(
+                    it.totalExpense,
+                    it.currencyCode,
+                    target,
+                    rates
+                )
+            },
+            categories = emptyList()
+        )
     }
 }

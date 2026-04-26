@@ -44,3 +44,8 @@ object PrefConstants {
     const val PREFS_NAME = "fincentra_prefs"
     const val KEY_IS_ONBOARDING_COMPLETED = "is_onboarding_completed"
 }
+
+object CurrencyConstants {
+    const val EXCHANGE_RATE_API_URL = "https://open.er-api.com/v6/latest/"
+    const val DEFAULT_DISPLAY_CURRENCY = 980
+}

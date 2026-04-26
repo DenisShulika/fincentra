@@ -10,5 +10,6 @@ data class BankAccount(
     val balance: Double = 0.0,
     val currencyCode: Int = 980,
     @get:PropertyName("selected")
-    val selected: Boolean = false
+    val selected: Boolean = false,
+    val sourceType: String = "DIRECT"
 )

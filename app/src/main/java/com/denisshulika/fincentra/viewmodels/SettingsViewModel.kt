@@ -20,6 +20,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val prefs = application.getSharedPreferences("settings_prefs", Context.MODE_PRIVATE)
     private val authRepository = DependencyProvider.authRepository
     private val financeRepository = DependencyProvider.financeRepository
+    private val settingsRepository = DependencyProvider.settingsRepository
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
@@ -72,6 +73,19 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             financeRepository.clearAllData()
             authRepository.signOut()
             onSuccess()
+        }
+    }
+
+    val displayCurrency = settingsRepository.getDisplayCurrencyFlow()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = 980
+        )
+
+    fun setDisplayCurrency(code: Int) {
+        viewModelScope.launch {
+            settingsRepository.saveDisplayCurrency(code)
         }
     }
 }

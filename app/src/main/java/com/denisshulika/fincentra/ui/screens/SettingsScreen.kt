@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -25,6 +27,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -68,6 +72,8 @@ fun SettingsScreen(
     var showPassDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var newPassword by remember { mutableStateOf("") }
+
+    val displayCurrency by viewModel.displayCurrency.collectAsStateWithLifecycle()
 
     if (showPassDialog) {
         AlertDialog(
@@ -144,6 +150,57 @@ fun SettingsScreen(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
+
+            SettingsSection(title = "Finance Settings") {
+                Text(
+                    text = "Total Balance Currency",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                val currencies = listOf(
+                    980 to "UAH",
+                    840 to "USD",
+                    978 to "EUR",
+                    946 to "RON",
+                    985 to "PLN"
+                )
+
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(currencies.size) { index ->
+                        val (code, name) = currencies[index]
+                        FilterChip(
+                            selected = displayCurrency == code,
+                            onClick = { viewModel.setDisplayCurrency(code) },
+                            label = {
+                                Text(
+                                    text = name,
+                                    modifier = Modifier.padding(horizontal = 4.dp)
+                                )
+                            },
+                            shape = CircleShape,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "This currency will be used for the 'Total Balance' card on your Home screen.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
             SettingsSection(title = stringResource(R.string.settings_appearance_section)) {
                 Text(
                     text = "App Theme",

@@ -106,4 +106,23 @@ class SettingsRepository(
     suspend fun deleteDream() {
         getSettingsRef()?.parent?.document("user_dream")?.delete()?.await()
     }
+
+    suspend fun saveDisplayCurrency(code: Int) {
+        getSettingsRef()?.set(mapOf("displayCurrency" to code), SetOptions.merge())?.await()
+    }
+
+    suspend fun getDisplayCurrency(): Int {
+        return getSettingsRef()?.get()?.await()?.getLong("displayCurrency")?.toInt() ?: 980
+    }
+
+    fun getDisplayCurrencyFlow(): Flow<Int> {
+        val ref = getSettingsRef() ?: return flowOf(980)
+        return callbackFlow {
+            val sub = ref.addSnapshotListener { s, _ ->
+                trySend(s?.getLong("displayCurrency")?.toInt() ?: 980)
+            }
+            awaitClose { sub.remove() }
+        }
+    }
+
 }

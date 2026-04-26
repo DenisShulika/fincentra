@@ -6,6 +6,7 @@ import com.denisshulika.fincentra.data.network.monobank.MonobankService
 import com.denisshulika.fincentra.data.repository.AiRepository
 import com.denisshulika.fincentra.data.repository.AuthRepository
 import com.denisshulika.fincentra.data.repository.BudgetRepository
+import com.denisshulika.fincentra.data.repository.CurrencyRepository
 import com.denisshulika.fincentra.data.repository.FinanceRepository
 import com.denisshulika.fincentra.data.repository.SettingsRepository
 import com.denisshulika.fincentra.data.util.WidgetDataManager
@@ -65,6 +66,8 @@ object DependencyProvider {
     val authRepository: AuthRepository by lazy { AuthRepository() }
 
     val widgetDataManager by lazy { WidgetDataManager(applicationContext) }
+
+    val currencyRepository by lazy { CurrencyRepository(getInstance()) }
 
     fun getInstance(): FirebaseFirestore {
         return FirebaseFirestore.getInstance()

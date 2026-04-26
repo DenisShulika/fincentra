@@ -15,6 +15,8 @@ object CurrencyMapper {
             376 -> "₪"
             124 -> "C$"
             959 -> "AU"
+            946 -> "L"
+            985 -> "zł"
             else -> "¤ ($code)"
         }
     }
