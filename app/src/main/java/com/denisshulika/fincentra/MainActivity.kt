@@ -217,6 +217,7 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
                     transactionsViewModel,
                     budgetsViewModel,
                     dreamViewModel,
+                    settingsViewModel,
                     navController = navController,
                     onNavigateToTransactions = { navigateWithClearStack(Screen.Transactions.route) },
                     onOpenDrawer = {},

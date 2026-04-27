@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.denisshulika.fincentra.data.util.FinancialPredictions
 import com.denisshulika.fincentra.data.util.LanguageManager
 import com.denisshulika.fincentra.di.DependencyProvider
 import com.denisshulika.fincentra.ui.theme.AppTheme
@@ -24,6 +25,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
+
+    private val _dailyPrediction = MutableStateFlow("")
+    val dailyPrediction = _dailyPrediction.asStateFlow()
+
+    private val _isCoinFlipped = MutableStateFlow(false)
+    val isCoinFlipped = _isCoinFlipped.asStateFlow()
 
     private val _appTheme = MutableStateFlow(
         AppTheme.valueOf(prefs.getString("app_theme", AppTheme.SYSTEM.name) ?: AppTheme.SYSTEM.name)
@@ -87,5 +94,27 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             settingsRepository.saveDisplayCurrency(code)
         }
+    }
+
+    fun checkDailyPrediction() {
+        val lastFlipDate = prefs.getString("last_flip_date", "")
+        val today = java.time.LocalDate.now().toString()
+
+        if (lastFlipDate == today) {
+            _dailyPrediction.value = prefs.getString("last_prediction", "") ?: ""
+            _isCoinFlipped.value = true
+        } else {
+            _isCoinFlipped.value = false
+            _dailyPrediction.value = FinancialPredictions.random()
+        }
+    }
+
+    fun flipCoin() {
+        val today = java.time.LocalDate.now().toString()
+        prefs.edit()
+            .putString("last_flip_date", today)
+            .putString("last_prediction", _dailyPrediction.value)
+            .apply()
+        _isCoinFlipped.value = true
     }
 }

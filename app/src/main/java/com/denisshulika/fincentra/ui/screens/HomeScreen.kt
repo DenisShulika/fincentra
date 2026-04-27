@@ -60,11 +60,13 @@ import com.denisshulika.fincentra.di.DependencyProvider
 import com.denisshulika.fincentra.navigation.Screen
 import com.denisshulika.fincentra.ui.components.BalanceFlowCard
 import com.denisshulika.fincentra.ui.components.BudgetProgressItem
+import com.denisshulika.fincentra.ui.components.PredictionCoin
 import com.denisshulika.fincentra.ui.components.TransactionDetailSheet
 import com.denisshulika.fincentra.ui.components.TransactionItem
 import com.denisshulika.fincentra.viewmodels.AiViewModel
 import com.denisshulika.fincentra.viewmodels.BudgetsViewModel
 import com.denisshulika.fincentra.viewmodels.DreamViewModel
+import com.denisshulika.fincentra.viewmodels.SettingsViewModel
 import com.denisshulika.fincentra.viewmodels.StatsViewModel
 import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 import kotlin.math.absoluteValue
@@ -76,6 +78,7 @@ fun HomeScreen(
     transactionsViewModel: TransactionsViewModel,
     budgetsViewModel: BudgetsViewModel,
     dreamViewModel: DreamViewModel,
+    settingsViewModel: SettingsViewModel,
     aiViewModel: AiViewModel = viewModel(),
     navController: NavController,
     onNavigateToTransactions: () -> Unit,
@@ -104,6 +107,13 @@ fun HomeScreen(
         ),
         label = "alpha"
     )
+
+    LaunchedEffect(Unit) {
+        settingsViewModel.checkDailyPrediction()
+    }
+
+    val prediction by settingsViewModel.dailyPrediction.collectAsStateWithLifecycle()
+    val isFlipped by settingsViewModel.isCoinFlipped.collectAsStateWithLifecycle()
 
     LaunchedEffect(pagerState.currentPage) {
         statsViewModel.selectCurrency(pagerState.currentPage)
@@ -177,6 +187,14 @@ fun HomeScreen(
                     }
                 }
             }
+        }
+
+        item {
+            PredictionCoin(
+                prediction = prediction,
+                isFlipped = isFlipped,
+                onFlip = { settingsViewModel.flipCoin() }
+            )
         }
 
         item {
