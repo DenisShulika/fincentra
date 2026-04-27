@@ -8,7 +8,8 @@ data class BankProviderInfo(
     val id: String,
     val name: String,
     val logo: Int,
-    val brandColor: Color
+    val brandColor: Color,
+    val subtitle: String = ""
 )
 
 val SupportedBanks = listOf(

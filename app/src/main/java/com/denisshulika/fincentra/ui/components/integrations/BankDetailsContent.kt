@@ -1,7 +1,6 @@
 package com.denisshulika.fincentra.ui.components.integrations
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +18,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -29,7 +27,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -52,24 +49,36 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.ui.BankProviderInfo
+import com.denisshulika.fincentra.data.models.ui.EuropeanDemoBanks
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
+import com.denisshulika.fincentra.data.util.BankProviders
 import com.denisshulika.fincentra.viewmodels.IntegrationsViewModel
 
 @Composable
-fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel) {
-    val isConnected by viewModel.isBankConnected.collectAsStateWithLifecycle()
-    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
-    val syncProgress by viewModel.syncProgress.collectAsStateWithLifecycle()
-    val syncStatus by viewModel.syncStatus.collectAsStateWithLifecycle()
-    val monoToken by viewModel.monobankToken.collectAsStateWithLifecycle()
+fun BankDetailsContent(
+    bank: BankProviderInfo,
+    viewModel: IntegrationsViewModel
+) {
     val accounts by viewModel.availableAccounts.collectAsStateWithLifecycle()
+    val monoToken by viewModel.monobankToken.collectAsStateWithLifecycle()
+
+    val isMonobank = bank.id == BankProviders.MONOBANK
+
+    val isLoading by (if (isMonobank) viewModel.isMonoLoading else viewModel.isEuroLoading).collectAsStateWithLifecycle()
+    val syncStatus by (if (isMonobank) viewModel.monoSyncStatus else viewModel.euroSyncStatus).collectAsStateWithLifecycle()
+    val syncProgress by (if (isMonobank) viewModel.monoSyncProgress else viewModel.euroSyncProgress).collectAsStateWithLifecycle()
+
+    val bankAccounts = accounts.filter { it.provider == bank.id }
+    val isAlreadyConnected = bankAccounts.isNotEmpty()
 
     Column(
         modifier = Modifier
             .padding(24.dp)
             .fillMaxSize()
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Image(
                 painter = painterResource(id = bank.logo),
                 contentDescription = null,
@@ -84,43 +93,26 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
                 fontWeight = FontWeight.Black,
                 modifier = Modifier.weight(1f)
             )
-            IconButton(
-                onClick = { viewModel.closeBankDetails() },
-                modifier = Modifier.background(
-                    MaterialTheme.colorScheme.surfaceVariant,
-                    CircleShape
-                )
-            ) {
-                Icon(
-                    Icons.Default.Close,
-                    contentDescription = stringResource(R.string.btn_close),
-                    modifier = Modifier.size(20.dp)
-                )
+            IconButton(onClick = { viewModel.closeBankDetails() }) {
+                Icon(Icons.Default.Close, null)
             }
         }
 
-        Spacer(Modifier.height(24.dp))
-
         if (syncStatus.isNotBlank()) {
+            Spacer(Modifier.height(16.dp))
             val displayStatus = when {
                 syncStatus == "UPDATING_BALANCES" -> stringResource(R.string.status_updating_balances)
+                syncStatus == "SYNCING_ASSETS" -> "Syncing European assets..."
                 syncStatus == "DONE" -> stringResource(R.string.status_done)
-                syncStatus == "API_ERROR" -> stringResource(R.string.status_api_error)
-                syncStatus == "LIMIT_EXCEEDED" -> stringResource(R.string.error_api_limit)
-                syncStatus.startsWith("SYNCING_ACC:") -> {
-                    val accName = syncStatus.removePrefix("SYNCING_ACC:")
-                    stringResource(R.string.status_syncing_account, accName)
-                }
+                syncStatus.startsWith("SYNCING_ACC:") -> stringResource(
+                    R.string.status_syncing_account,
+                    syncStatus.removePrefix("SYNCING_ACC:")
+                )
 
-                syncStatus.startsWith("COOLDOWN:") -> {
-                    val sec = syncStatus.removePrefix("COOLDOWN:")
-                    stringResource(R.string.status_api_cooldown, sec.toIntOrNull() ?: 0)
-                }
-
-                syncStatus.startsWith("PAUSE:") -> {
-                    val sec = syncStatus.removePrefix("PAUSE:")
-                    stringResource(R.string.status_pause, sec)
-                }
+                syncStatus.startsWith("COOLDOWN:") -> stringResource(
+                    R.string.status_api_cooldown,
+                    syncStatus.removePrefix("COOLDOWN:").toIntOrNull() ?: 0
+                )
 
                 else -> syncStatus
             }
@@ -135,89 +127,119 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)
             )
+
+            LinearProgressIndicator(
+                progress = { syncProgress },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .clip(CircleShape),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+            )
         }
 
-        if (isLoading && syncStatus.isNotEmpty()) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                LinearProgressIndicator(
-                    progress = { syncProgress },
+        Spacer(Modifier.height(24.dp))
+
+        if (!isAlreadyConnected) {
+            if (isMonobank) {
+                Spacer(Modifier.height(16.dp))
+                val annotatedString = buildAnnotatedString {
+                    append(stringResource(R.string.bank_get_access_text))
+                    withLink(LinkAnnotation.Url("https://api.monobank.ua/")) {
+                        append(" ")
+                        withStyle(
+                            SpanStyle(
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold,
+                                textDecoration = TextDecoration.Underline
+                            )
+                        ) {
+                            append(stringResource(R.string.bank_personal_cabinet))
+                        }
+                    }
+                }
+                Text(text = annotatedString, style = MaterialTheme.typography.bodyLarge)
+
+                Spacer(Modifier.height(24.dp))
+
+                OutlinedTextField(
+                    value = monoToken,
+                    onValueChange = { viewModel.onMonobankTokenChange(it) },
+                    label = { Text(stringResource(R.string.bank_token_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    enabled = !isLoading
+                )
+
+                Button(
+                    onClick = { viewModel.connectMonobankAccount() },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(10.dp)
-                        .clip(CircleShape),
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                )
-                Text(
-                    text = "${(syncProgress * 100).toInt()}%",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
+                        .padding(top = 24.dp)
+                        .height(56.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    enabled = monoToken.isNotBlank() && !isLoading
+                ) {
+                    if (isLoading) CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = Color.White
+                    ) else Text(
+                        stringResource(R.string.bank_btn_connect),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            } else {
+                Text(text = "Connect your ${bank.name} account securely via Salt Edge gateway.")
+                Button(
+                    onClick = {
+                        val provider = EuropeanDemoBanks.find { it.id == bank.id }
+                        provider?.let { viewModel.connectEuropeanBank(it) }
+                    },
                     modifier = Modifier
-                        .align(Alignment.End)
-                        .padding(top = 4.dp)
-                )
+                        .fillMaxWidth()
+                        .padding(top = 32.dp)
+                        .height(56.dp),
+                    enabled = !isLoading,
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    if (isLoading && syncStatus.isEmpty()) CircularProgressIndicator(
+                        modifier = Modifier.size(
+                            24.dp
+                        ), color = Color.White
+                    )
+                    else Text("Connect via Browser", fontWeight = FontWeight.Bold)
+                }
             }
-        }
-
-        Surface(
-            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.padding(vertical = 16.dp)
-        ) {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    Icons.Default.Info,
-                    null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(Modifier.width(12.dp))
-                Text(
-                    text = stringResource(R.string.bank_sync_warning),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        }
-
-        if (isConnected) {
+        } else {
             Text(
-                text = stringResource(R.string.bank_accounts_title),
+                text = "Select Accounts",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
 
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                items(accounts) { account ->
+            LazyColumn(modifier = Modifier
+                .weight(1f)
+                .padding(vertical = 8.dp)) {
+                items(bankAccounts) { account ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable(enabled = !isLoading) {
-                                viewModel.toggleAccountSelection(account.id)
-                            }
-                            .padding(vertical = 4.dp),
+                            .padding(vertical = 6.dp)
+                            .clickable { if (!isLoading) viewModel.toggleAccountSelection(account.id) },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Checkbox(
                             checked = account.selected,
-                            onCheckedChange = { viewModel.toggleAccountSelection(account.id) },
+                            onCheckedChange = {
+                                if (!isLoading) viewModel.toggleAccountSelection(
+                                    account.id
+                                )
+                            },
                             enabled = !isLoading
                         )
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                account.name,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Bold
-                            )
+                        Column {
+                            Text(account.name, fontWeight = FontWeight.Bold)
                             Text(
                                 text = "${
                                     String.format(
@@ -225,7 +247,6 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
                                         account.balance
                                     )
                                 } ${CurrencyMapper.getSymbol(account.currencyCode)}",
-                                style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.primary
                             )
                         }
@@ -234,82 +255,38 @@ fun BankDetailsContent(bank: BankProviderInfo, viewModel: IntegrationsViewModel)
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(
-                    onClick = { viewModel.refreshMonobankAccounts() },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    enabled = !isLoading,
-                ) { Text(stringResource(R.string.bank_btn_refresh)) }
+                if (isMonobank) {
+                    OutlinedButton(
+                        onClick = { viewModel.refreshMonobankAccounts() },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        enabled = !isLoading,
+                        shape = RoundedCornerShape(12.dp)
+                    ) { Text(stringResource(R.string.bank_btn_refresh)) }
+                }
 
                 Button(
-                    onClick = { viewModel.confirmAccountSelection() },
+                    onClick = {
+                        if (isMonobank) viewModel.confirmMonobankSelection()
+                        else viewModel.confirmEuropeanSelection(bank.id)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
                     enabled = !isLoading,
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(
-                        stringResource(R.string.bank_btn_save_sync),
-                        fontWeight = FontWeight.Bold
-                    )
+                    Text("Save & Sync", fontWeight = FontWeight.Bold)
                 }
 
                 TextButton(
-                    onClick = { viewModel.askDeleteConfirmation() },
+                    onClick = { viewModel.disconnectProvider(bank.id) },
                     modifier = Modifier.align(Alignment.CenterHorizontally),
-                    enabled = !isLoading,
+                    enabled = !isLoading
                 ) {
-                    Text(
-                        stringResource(R.string.bank_btn_disconnect),
-                        color = if (isLoading) Color.Gray else MaterialTheme.colorScheme.error
-                    )
+                    Text("Disconnect Bank", color = MaterialTheme.colorScheme.error)
                 }
-            }
-        } else {
-            Spacer(Modifier.height(16.dp))
-            val annotatedString = buildAnnotatedString {
-                append(stringResource(R.string.bank_get_access_text))
-                withLink(LinkAnnotation.Url("https://api.monobank.ua/")) {
-                    withStyle(
-                        SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold,
-                            textDecoration = TextDecoration.Underline
-                        )
-                    ) {
-                        append(stringResource(R.string.bank_personal_cabinet))
-                    }
-                }
-            }
-            Text(text = annotatedString, style = MaterialTheme.typography.bodyLarge)
-
-            Spacer(Modifier.height(24.dp))
-
-            OutlinedTextField(
-                value = monoToken,
-                onValueChange = { viewModel.onMonobankTokenChange(it) },
-                label = { Text(stringResource(R.string.bank_token_label)) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                enabled = !isLoading
-            )
-
-            Button(
-                onClick = { viewModel.connectMonobankAccount() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp)
-                    .height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                enabled = monoToken.isNotBlank() && !isLoading
-            ) {
-                if (isLoading) CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
-                    color = Color.White
-                ) else Text(stringResource(R.string.bank_btn_connect), fontWeight = FontWeight.Bold)
             }
         }
     }

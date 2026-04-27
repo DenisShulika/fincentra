@@ -1,5 +1,6 @@
 package com.denisshulika.fincentra.data.repository
 
+import android.util.Log
 import com.denisshulika.fincentra.data.models.domain.BankAccount
 import com.denisshulika.fincentra.data.models.domain.Budget
 import com.denisshulika.fincentra.data.models.domain.Dream
@@ -150,13 +151,25 @@ class FinanceRepository(private val db: FirebaseFirestore, private val auth: Fir
             .toObjects(BankAccount::class.java)
     } ?: emptyList()
 
-    suspend fun saveAccounts(accounts: List<BankAccount>, updateSelection: Boolean = false) {
+    suspend fun saveAccounts(newAccounts: List<BankAccount>, updateSelection: Boolean = false) {
         val uid = auth.currentUser?.uid ?: return
         val ref = db.collection(FirestoreCollections.USERS).document(uid)
             .collection(FirestoreCollections.ACCOUNTS)
+
         val batch = db.batch()
-        accounts.forEach { batch.set(ref.document(it.id), it, SetOptions.merge()) }
+        newAccounts.forEach { batch.set(ref.document(it.id), it, SetOptions.merge()) }
         batch.commit().await()
+
+        val currentList = _accounts.value.toMutableList()
+        newAccounts.forEach { newAcc ->
+            val index = currentList.indexOfFirst { it.id == newAcc.id }
+            if (index != -1) {
+                currentList[index] = newAcc
+            } else {
+                currentList.add(newAcc)
+            }
+        }
+        _accounts.value = currentList
     }
 
     fun getAccountsFlow() = accounts
@@ -172,6 +185,22 @@ class FinanceRepository(private val db: FirebaseFirestore, private val auth: Fir
             }
             batch.commit().await()
         } catch (e: Exception) {
+        }
+    }
+
+    suspend fun deleteAccountsByProvider(providerId: String) {
+        val uid = auth.currentUser?.uid ?: return
+        val ref = db.collection(FirestoreCollections.USERS).document(uid)
+            .collection(FirestoreCollections.ACCOUNTS)
+        try {
+            val snapshot = ref.whereEqualTo("provider", providerId).get().await()
+            val batch = db.batch()
+            for (document in snapshot.documents) {
+                batch.delete(document.reference)
+            }
+            batch.commit().await()
+        } catch (e: Exception) {
+            Log.e("FINANCE_REPO", "Error deleting provider accounts: ${e.message}")
         }
     }
 }

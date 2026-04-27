@@ -100,11 +100,7 @@ class StatsViewModel : ViewModel() {
     ): StatsUiState {
         if (accounts.isEmpty()) return StatsUiState()
 
-        val baseAccounts = if (activeIds.isNotEmpty()) {
-            accounts.filter { activeIds.contains(it.id) }
-        } else {
-            accounts
-        }
+        val baseAccounts = accounts.filter { activeIds.contains(it.id) }
 
         if (baseAccounts.isEmpty()) return StatsUiState()
 
@@ -113,77 +109,96 @@ class StatsViewModel : ViewModel() {
                     (accountIdFilter == null || acc.id == accountIdFilter)
         }
 
+        val accountCurrencies = filteredAccounts.map { it.currencyCode }.toSet()
+        val manualCurrencies = allTx
+            .filter { it.accountId == com.denisshulika.fincentra.data.util.TransactionConstants.ACCOUNT_ID_MANUAL }
+            .map { it.currencyCode }
+            .toSet()
 
-        val currencyData =
-            filteredAccounts.groupBy { it.currencyCode }.map { (code, accsInCurrency) ->
-                val txsInPeriod = allTx.filter { tx ->
-                    tx.currencyCode == code &&
-                            accsInCurrency.any { it.id == tx.accountId } &&
-                            (range == null || tx.timestamp in range)
+        val allRelevantCurrencies = (accountCurrencies + manualCurrencies).toList()
+
+        val currencyData = allRelevantCurrencies.map { code ->
+            val txsInPeriod = allTx.filter { tx ->
+                tx.currencyCode == code && (
+                        tx.accountId == com.denisshulika.fincentra.data.util.TransactionConstants.ACCOUNT_ID_MANUAL ||
+                                filteredAccounts.any { it.id == tx.accountId }
+                        ) && (range == null || tx.timestamp in range)
+            }
+
+            val bankEndBalance =
+                filteredAccounts.filter { it.currencyCode == code }.sumOf { it.balance }
+            val manualEndBalance = allTx
+                .filter { it.accountId == com.denisshulika.fincentra.data.util.TransactionConstants.ACCOUNT_ID_MANUAL && it.currencyCode == code }
+                .sumOf { if (it.isExpense) -it.amount else it.amount }
+
+            val endBalance = bankEndBalance + manualEndBalance
+
+            var calculatedStartBalance = 0.0
+
+            filteredAccounts.filter { it.currencyCode == code }.forEach { acc ->
+                val oldestTx =
+                    txsInPeriod.filter { it.accountId == acc.id }.minByOrNull { it.timestamp }
+                if (oldestTx?.balance != null) {
+                    calculatedStartBalance += if (oldestTx.isExpense) oldestTx.balance + oldestTx.amount
+                    else oldestTx.balance - oldestTx.amount
+                } else {
+                    val periodInc = txsInPeriod.filter { it.accountId == acc.id && !it.isExpense }
+                        .sumOf { it.amount }
+                    val periodExp = txsInPeriod.filter { it.accountId == acc.id && it.isExpense }
+                        .sumOf { it.amount }
+                    calculatedStartBalance += (acc.balance - periodInc + periodExp)
                 }
+            }
 
-                val endBalance = accsInCurrency.sumOf { it.balance }
-                var calculatedStartBalance = 0.0
+            if (manualCurrencies.contains(code)) {
+                val periodInc =
+                    txsInPeriod.filter { it.accountId == com.denisshulika.fincentra.data.util.TransactionConstants.ACCOUNT_ID_MANUAL && !it.isExpense }
+                        .sumOf { it.amount }
+                val periodExp =
+                    txsInPeriod.filter { it.accountId == com.denisshulika.fincentra.data.util.TransactionConstants.ACCOUNT_ID_MANUAL && it.isExpense }
+                        .sumOf { it.amount }
+                calculatedStartBalance += (manualEndBalance - periodInc + periodExp)
+            }
 
-                accsInCurrency.forEach { acc ->
-                    val oldestTx =
-                        txsInPeriod.filter { it.accountId == acc.id }.minByOrNull { it.timestamp }
-                    if (oldestTx != null && oldestTx.balance != null) {
-                        calculatedStartBalance += if (oldestTx.isExpense) oldestTx.balance + oldestTx.amount
-                        else oldestTx.balance - oldestTx.amount
-                    } else {
-                        val periodInc =
-                            txsInPeriod.filter { it.accountId == acc.id && !it.isExpense }
-                                .sumOf { it.amount }
-                        val periodExp =
-                            txsInPeriod.filter { it.accountId == acc.id && it.isExpense }
-                                .sumOf { it.amount }
-                        calculatedStartBalance += (acc.balance - periodInc + periodExp)
-                    }
-                }
+            val periodIncome = txsInPeriod.filter { !it.isExpense }.sumOf { it.amount }
+            val periodExpense = txsInPeriod.filter { it.isExpense }.sumOf { it.amount }
 
-                val periodIncome = txsInPeriod.filter { !it.isExpense }.sumOf { it.amount }
-                val periodExpense = txsInPeriod.filter { it.isExpense }.sumOf { it.amount }
+            val categoryMap = mutableMapOf<TransactionCategory, Double>()
+            val subCategoryMap = mutableMapOf<TransactionCategory, MutableMap<Int, Double>>()
 
-                val categoryMap = mutableMapOf<TransactionCategory, Double>()
+            txsInPeriod.filter { it.isExpense == isExpenseMode }.forEach { tx ->
+                categoryMap[tx.category] = (categoryMap[tx.category] ?: 0.0) + tx.amount
+                val subs = subCategoryMap.getOrPut(tx.category) { mutableMapOf() }
+                subs[tx.subCategoryRes] = (subs[tx.subCategoryRes] ?: 0.0) + tx.amount
+            }
 
-                val subCategoryMap = mutableMapOf<TransactionCategory, MutableMap<Int, Double>>()
-
-                txsInPeriod.filter { it.isExpense == isExpenseMode }.forEach { tx ->
-                    categoryMap[tx.category] = (categoryMap[tx.category] ?: 0.0) + tx.amount
-                    val subs = subCategoryMap.getOrPut(tx.category) { mutableMapOf() }
-
-                    val subRes = tx.subCategoryRes
-                    subs[subRes] = (subs[subRes] ?: 0.0) + tx.amount
-                }
-
-                val totalForPercentage = if (isExpenseMode) periodExpense else periodIncome
-                val categoryStats = categoryMap.map { (cat, catSum) ->
-                    val subStats = subCategoryMap[cat]?.map { (subRes, subSum) ->
-                        SubCategoryStat(
-                            nameRes = subRes,
-                            amount = subSum.round(2),
-                            percentageOfParent = if (catSum > 0) (subSum / catSum).toFloat() else 0f
-                        )
-                    }?.sortedByDescending { it.amount } ?: emptyList()
-
-                    CategoryStat(
-                        cat,
-                        catSum.round(2),
-                        if (totalForPercentage > 0) (catSum / totalForPercentage).toFloat() else 0f,
-                        subStats
+            val totalForPercentage = if (isExpenseMode) periodExpense else periodIncome
+            val categoryStats = categoryMap.map { (cat, catSum) ->
+                val subStats = subCategoryMap[cat]?.map { (subRes, subSum) ->
+                    SubCategoryStat(
+                        nameRes = subRes,
+                        amount = subSum.round(2),
+                        percentageOfParent = if (catSum > 0) (subSum / catSum).toFloat() else 0f
                     )
-                }.sortedByDescending { it.amount }
+                }?.sortedByDescending { it.amount } ?: emptyList()
 
-                CurrencyStats(
-                    code,
-                    calculatedStartBalance.round(2),
-                    endBalance.round(2),
-                    periodIncome.round(2),
-                    periodExpense.round(2),
-                    categoryStats
+                CategoryStat(
+                    cat,
+                    catSum.round(2),
+                    if (totalForPercentage > 0) (catSum / totalForPercentage).toFloat() else 0f,
+                    subStats
                 )
-            }.sortedByDescending { it.currencyCode == 980 }
+            }.sortedByDescending { it.amount }
+
+            CurrencyStats(
+                code,
+                calculatedStartBalance.round(2),
+                endBalance.round(2),
+                periodIncome.round(2),
+                periodExpense.round(2),
+                categoryStats
+            )
+        }.sortedByDescending { it.currencyCode == 980 }
 
         return StatsUiState(currencyData, range)
     }
@@ -271,40 +286,23 @@ class StatsViewModel : ViewModel() {
         target: Int,
         rates: Map<Int, Double>
     ): CurrencyStats {
+        fun safeSum(selector: (CurrencyStats) -> Double): Double {
+            return data.sumOf { item ->
+                DependencyProvider.currencyRepository.convert(
+                    amount = selector(item),
+                    from = item.currencyCode,
+                    to = target,
+                    rates = rates
+                ) ?: 0.0
+            }
+        }
+
         return CurrencyStats(
             currencyCode = target,
-            startPeriodBalance = data.sumOf {
-                DependencyProvider.currencyRepository.convert(
-                    it.startPeriodBalance,
-                    it.currencyCode,
-                    target,
-                    rates
-                )
-            },
-            endPeriodBalance = data.sumOf {
-                DependencyProvider.currencyRepository.convert(
-                    it.endPeriodBalance,
-                    it.currencyCode,
-                    target,
-                    rates
-                )
-            },
-            totalIncome = data.sumOf {
-                DependencyProvider.currencyRepository.convert(
-                    it.totalIncome,
-                    it.currencyCode,
-                    target,
-                    rates
-                )
-            },
-            totalExpense = data.sumOf {
-                DependencyProvider.currencyRepository.convert(
-                    it.totalExpense,
-                    it.currencyCode,
-                    target,
-                    rates
-                )
-            },
+            startPeriodBalance = safeSum { it.startPeriodBalance },
+            endPeriodBalance = safeSum { it.endPeriodBalance },
+            totalIncome = safeSum { it.totalIncome },
+            totalExpense = safeSum { it.totalExpense },
             categories = emptyList()
         )
     }

@@ -7,7 +7,6 @@ import com.denisshulika.fincentra.data.network.common.BankProvider
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.data.network.common.MccDirectory
 import com.denisshulika.fincentra.data.network.monobank.models.MonobankTransactionResponse
-import com.denisshulika.fincentra.data.util.BankAccountTypes
 import com.denisshulika.fincentra.data.util.BankProviders
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.delay
@@ -21,10 +20,12 @@ class MonobankService : BankProvider {
         return try {
             val response = api.getClientInfo(token)
             val accounts = mutableListOf<BankAccount>()
+
             response.accounts.forEach { acc ->
                 val symbol = CurrencyMapper.getSymbol(acc.currencyCode)
                 val pan = acc.maskedPan.firstOrNull()
                     ?.let { if (it.length >= 4) "*${it.takeLast(4)}" else "" } ?: ""
+
                 accounts.add(
                     BankAccount(
                         id = acc.id,
@@ -32,25 +33,29 @@ class MonobankService : BankProvider {
                         name = "Картка $symbol $pan".trim(),
                         type = acc.type,
                         balance = acc.balance / 100.0,
-                        currencyCode = acc.currencyCode
+                        currencyCode = acc.currencyCode,
+                        selected = true,
+                        sourceType = "DIRECT"
                     )
                 )
             }
+
             response.jars?.forEach { jar ->
                 accounts.add(
                     BankAccount(
                         id = jar.id,
                         provider = BankProviders.MONOBANK,
                         name = "Банка: ${jar.title}",
-                        type = BankAccountTypes.JAR,
+                        type = "jar",
                         balance = jar.balance / 100.0,
-                        currencyCode = jar.currencyCode
+                        currencyCode = jar.currencyCode,
+                        selected = true,
+                        sourceType = "DIRECT"
                     )
                 )
             }
             accounts
         } catch (e: Exception) {
-            Log.e("MONO_API", "Помилка fetchAccounts: ${e.message}")
             throw e
         }
     }

@@ -57,12 +57,13 @@ class CurrencyRepository(private val db: FirebaseFirestore) {
             }
         }
 
-    fun convert(amount: Double, from: Int, to: Int, rates: Map<Int, Double>): Double {
-        if (from == to || rates.isEmpty()) return amount
-        val rateFrom = rates[from] ?: return amount
-        val rateTo = rates[to] ?: return amount
+    fun convert(amount: Double, from: Int, to: Int, rates: Map<Int, Double>): Double? {
+        if (from == to) return amount
+        if (rates.isEmpty()) return null
 
-        val inUsd = amount / rateFrom
-        return inUsd * rateTo
+        val rateFrom = rates[from] ?: return null
+        val rateTo = rates[to] ?: return null
+
+        return (amount / rateFrom) * rateTo
     }
 }

@@ -21,12 +21,15 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,6 +39,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.events.IntegrationsUiEvent
+import com.denisshulika.fincentra.data.models.ui.BankProviderInfo
 import com.denisshulika.fincentra.data.models.ui.SupportedBanks
 import com.denisshulika.fincentra.ui.components.FinCentraTopBar
 import com.denisshulika.fincentra.ui.components.integrations.BankDetailsContent
@@ -49,8 +53,16 @@ fun IntegrationsScreen(
 ) {
     val selectedBank by viewModel.selectedBank.collectAsStateWithLifecycle()
     val isConnected by viewModel.isBankConnected.collectAsStateWithLifecycle()
-    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val showDeleteDialog by viewModel.showDeleteConfirmation.collectAsStateWithLifecycle()
+
+    val isEuropeanMode by viewModel.isEuropeanMode.collectAsStateWithLifecycle()
+    val europeanBanks by viewModel.europeanBanks.collectAsStateWithLifecycle()
+
+    val isEuroLoading by viewModel.isEuroLoading.collectAsStateWithLifecycle()
+    val loadingBankId by viewModel.loadingBankId.collectAsStateWithLifecycle()
+    val savedAccounts by viewModel.availableAccounts.collectAsStateWithLifecycle()
+
+    val isMonoLoading by viewModel.isMonoLoading.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
 
@@ -93,20 +105,88 @@ fun IntegrationsScreen(
                     fontWeight = FontWeight.Black
                 )
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                TabRow(
+                    selectedTabIndex = if (isEuropeanMode) 1 else 0,
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    divider = {}
+                ) {
+                    Tab(
+                        selected = !isEuropeanMode,
+                        onClick = { viewModel.toggleEuropeanMode(false) }
+                    ) {
+                        Text(
+                            text = "Ukraine (API)",
+                            modifier = Modifier.padding(12.dp),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Tab(
+                        selected = isEuropeanMode,
+                        onClick = { viewModel.toggleEuropeanMode(true) }
+                    ) {
+                        Text(
+                            text = "Europe (PSD2)",
+                            modifier = Modifier.padding(12.dp),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(24.dp))
 
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(SupportedBanks) { bank ->
-                        BankGridItem(
-                            bank = bank,
-                            isConnected = isConnected,
-                            isLoading = isLoading,
-                            onClick = { viewModel.selectBank(bank) }
-                        )
+                if (!isEuropeanMode) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(SupportedBanks) { bank ->
+                            BankGridItem(
+                                bank = bank,
+                                isConnected = isConnected,
+                                isLoading = isMonoLoading,
+                                onClick = { viewModel.selectBank(bank) }
+                            )
+                        }
+                    }
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(europeanBanks) { provider ->
+                            val isThisBankConnected =
+                                savedAccounts.any { it.provider == provider.id }
+
+                            BankGridItem(
+                                bank = BankProviderInfo(
+                                    id = provider.id,
+                                    name = provider.name,
+                                    logo = R.drawable.ic_launcher_foreground,
+                                    brandColor = provider.brandColor,
+                                    subtitle = provider.countryName
+                                ),
+                                isConnected = savedAccounts.any { it.provider == provider.id },
+                                isLoading = isEuroLoading && loadingBankId == provider.id,
+                                onClick = {
+                                    viewModel.selectBank(
+                                        BankProviderInfo(
+                                            id = provider.id,
+                                            name = provider.name,
+                                            logo = R.drawable.ic_launcher_foreground,
+                                            brandColor = provider.brandColor,
+                                            subtitle = provider.countryName
+                                        )
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -142,7 +222,7 @@ fun IntegrationsScreen(
             onDismissRequest = { viewModel.dismissDeleteConfirmation() },
             title = {
                 Text(
-                    stringResource(R.string.bank_delete_title),
+                    text = stringResource(R.string.bank_delete_title),
                     fontWeight = FontWeight.Bold
                 )
             },
@@ -150,7 +230,7 @@ fun IntegrationsScreen(
             confirmButton = {
                 TextButton(onClick = { viewModel.removeMonobankIntegration() }) {
                     Text(
-                        stringResource(R.string.bank_delete_confirm),
+                        text = stringResource(R.string.bank_delete_confirm),
                         color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.Bold
                     )

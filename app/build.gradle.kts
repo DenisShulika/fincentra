@@ -1,10 +1,9 @@
-import java.io.FileInputStream
 import java.util.Properties
 
 val secrets = Properties()
 val secretsFile = rootProject.file("local.properties")
 if (secretsFile.exists()) {
-    secrets.load(FileInputStream(secretsFile))
+    secrets.load(secretsFile.inputStream())
 }
 
 plugins {
@@ -29,6 +28,10 @@ android {
 
         val apiKey = secrets.getProperty("GEMINI_API_KEY") ?: ""
         buildConfigField("String", "GEMINI_API_KEY", "\"$apiKey\"")
+        val saltEdgeAppId = secrets.getProperty("SALT_EDGE_APP_ID") ?: ""
+        buildConfigField("String", "SALT_EDGE_APP_ID", "\"$saltEdgeAppId\"")
+        val saltEdgeSecret = secrets.getProperty("SALT_EDGE_SECRET") ?: ""
+        buildConfigField("String", "SALT_EDGE_SECRET", "\"$saltEdgeSecret\"")
     }
 
     buildTypes {

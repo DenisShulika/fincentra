@@ -46,21 +46,27 @@ class ProfileViewModel : ViewModel() {
             ) { accounts, selectedIds, displayCurrency ->
                 val rates = DependencyProvider.currencyRepository.getRates()
 
-                val summaries = accounts
-                    .filter { selectedIds.contains(it.id) }
-                    .groupBy { it.currencyCode }
-                    .map { (code, list) -> CurrencySummary(code, list.sumOf { it.balance }) }
+                val activeAccounts = accounts.filter { selectedIds.contains(it.id) }
 
-                val totalBalance = summaries.sumOf {
+                if (activeAccounts.isEmpty()) return@combine emptyList<CurrencySummary>()
+
+                val summaries = activeAccounts
+                    .groupBy { it.currencyCode }
+                    .map { (code, list) ->
+                        CurrencySummary(code, list.sumOf { it.balance })
+                    }
+                    .sortedByDescending { it.currencyCode == 980 }
+
+                val totalValue = summaries.sumOf {
                     DependencyProvider.currencyRepository.convert(
                         it.balance,
                         it.currencyCode,
                         displayCurrency,
                         rates
-                    )
+                    ) ?: 0.0
                 }
 
-                listOf(CurrencySummary(displayCurrency, totalBalance)) + summaries
+                listOf(CurrencySummary(displayCurrency, totalValue)) + summaries
             }.collect { summaries ->
                 _currencySummaries.value = summaries
             }

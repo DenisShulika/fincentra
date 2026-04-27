@@ -24,7 +24,6 @@ object TransactionFilterEngine {
 
     private fun List<Transaction>.filterByActiveAccounts(ids: List<String>) = filter {
         if (it.accountId == TransactionConstants.ACCOUNT_ID_MANUAL) return@filter true
-        if (ids.isEmpty()) return@filter true
         ids.contains(it.accountId)
     }
 

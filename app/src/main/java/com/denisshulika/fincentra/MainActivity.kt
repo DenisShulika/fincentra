@@ -15,6 +15,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -23,11 +24,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.denisshulika.fincentra.data.util.DeepLinkHandler
 import com.denisshulika.fincentra.data.util.LanguageManager
 import com.denisshulika.fincentra.data.util.PrefConstants
 import com.denisshulika.fincentra.di.DependencyProvider
@@ -57,12 +60,15 @@ import com.denisshulika.fincentra.viewmodels.ProfileViewModel
 import com.denisshulika.fincentra.viewmodels.SettingsViewModel
 import com.denisshulika.fincentra.viewmodels.StatsViewModel
 import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         LanguageManager.initLocale()
         super.onCreate(savedInstanceState)
+
+        intent.data?.let { handleDeepLink(it) }
 
         setContent {
             val settingsViewModel: SettingsViewModel = viewModel()
@@ -82,6 +88,21 @@ class MainActivity : AppCompatActivity() {
                         else -> MainScreen(settingsViewModel)
                     }
                 }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        intent.data?.let { handleDeepLink(it) }
+    }
+
+    private fun handleDeepLink(data: android.net.Uri?) {
+        if (data != null && data.scheme == "fincentra" && data.host == "callback") {
+            lifecycleScope.launch {
+                DeepLinkHandler.onAuthSuccess()
+                DeepLinkHandler.emitNavigation(Screen.Integrations.route)
             }
         }
     }
@@ -145,6 +166,15 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
                         )
                     )
                 )
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        DeepLinkHandler.navigationEvent.collect { route ->
+            navController.navigate(route) {
+                launchSingleTop = true
+                restoreState = true
             }
         }
     }

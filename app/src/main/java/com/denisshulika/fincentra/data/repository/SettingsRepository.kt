@@ -125,4 +125,20 @@ class SettingsRepository(
         }
     }
 
+    suspend fun saveSaltEdgeCustomerId(id: String) {
+        getSettingsRef()?.set(mapOf("saltEdgeCustomerId" to id), SetOptions.merge())?.await()
+    }
+
+    suspend fun getSaltEdgeCustomerId(): String? {
+        return getSettingsRef()?.get()?.await()?.getString("saltEdgeCustomerId")
+    }
+
+    suspend fun saveCurrentConnectingProviderId(id: String?) {
+        getSettingsRef()?.set(mapOf("currentConnectingProviderId" to id), SetOptions.merge())
+            ?.await()
+    }
+
+    suspend fun getCurrentConnectingProviderId(): String? {
+        return getSettingsRef()?.get()?.await()?.getString("currentConnectingProviderId")
+    }
 }
