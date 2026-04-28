@@ -7,10 +7,13 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.NaturePeople
@@ -48,6 +51,7 @@ fun BudgetsScreen(
     }
 
     Scaffold(
+        modifier = Modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             FinCentraTopBar(
@@ -61,13 +65,10 @@ fun BudgetsScreen(
                 onClick = { viewModel.toggleAddSheet(true) },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(20.dp),
+                modifier = Modifier.navigationBarsPadding()
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp)
-                )
+                Icon(Icons.Default.Add, null, modifier = Modifier.size(32.dp))
             }
         }
     ) { innerPadding ->
@@ -75,6 +76,7 @@ fun BudgetsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .imePadding()
         ) {
             BudgetsInfoCard()
 

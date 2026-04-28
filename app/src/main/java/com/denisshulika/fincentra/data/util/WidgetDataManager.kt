@@ -5,7 +5,6 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
-import androidx.glance.appwidget.updateAll
 import com.denisshulika.fincentra.data.models.domain.BudgetProgress
 import com.denisshulika.fincentra.data.models.domain.DreamProgress
 import com.denisshulika.fincentra.ui.widgets.DreamWidget
@@ -16,6 +15,8 @@ import kotlinx.coroutines.launch
 val PrefDreamTitle = stringPreferencesKey(WidgetConstants.KEY_DREAM_TITLE)
 val PrefDreamProgress = floatPreferencesKey(WidgetConstants.KEY_DREAM_PROGRESS)
 val PrefDreamEmoji = stringPreferencesKey(WidgetConstants.KEY_DREAM_EMOJI)
+
+val PrefAllBudgetsData = stringPreferencesKey("all_budgets_data")
 
 class WidgetDataManager(private val context: Context) {
     private val scope = MainScope()
@@ -40,13 +41,17 @@ class WidgetDataManager(private val context: Context) {
         val dataString = list.joinToString(";") {
             "${it.budget.categoryName},${it.progress},${it.treeImageRes}"
         }
-        context.getSharedPreferences(WidgetConstants.PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putString("all_budgets_data", dataString)
-            .apply()
 
         scope.launch {
-            TreeWidget().updateAll(context)
+            val manager = GlanceAppWidgetManager(context)
+            val ids = manager.getGlanceIds(TreeWidget::class.java)
+
+            ids.forEach { id ->
+                updateAppWidgetState(context, id) { prefs ->
+                    prefs[PrefAllBudgetsData] = dataString
+                }
+                TreeWidget().update(context, id)
+            }
         }
     }
 }

@@ -17,6 +17,8 @@ import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.LinearProgressIndicator
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.cornerRadius
@@ -42,6 +44,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
+import com.denisshulika.fincentra.data.util.PrefAllBudgetsData
 import com.denisshulika.fincentra.data.util.WidgetConstants
 
 val PrefSelectedCat = stringPreferencesKey("selected_cat")
@@ -60,7 +63,8 @@ class TreeWidget : GlanceAppWidget() {
 
             val globalPrefs =
                 context.getSharedPreferences(WidgetConstants.PREFS_NAME, Context.MODE_PRIVATE)
-            val allData = globalPrefs.getString("all_budgets_data", "") ?: ""
+            val allData =
+                prefs[PrefAllBudgetsData] ?: globalPrefs.getString("all_budgets_data", "") ?: ""
 
             GlanceTheme {
                 Box(
@@ -106,33 +110,47 @@ class TreeWidget : GlanceAppWidget() {
                 )
             )
 
-            LazyColumn(modifier = GlanceModifier.fillMaxSize()) {
-                items(categories) { catRow ->
-                    val name = catRow.split(",")[0]
-                    Box(
-                        modifier = GlanceModifier
-                            .fillMaxWidth()
-                            .height(44.dp)
-                            .padding(vertical = 4.dp)
-                            .background(Color(0xFF16A34A))
-                            .cornerRadius(12.dp)
-                            .clickable(
-                                actionRunCallback<SelectCategoryCallback>(
-                                    actionParametersOf(
-                                        CategoryKey to name
-                                    )
-                                )
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = name,
-                            style = TextStyle(
-                                color = ColorProvider(Color.White),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 12.sp
-                            )
+            if (categories.isEmpty()) {
+                Box(
+                    modifier = GlanceModifier.padding(horizontal = 8.dp).fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "Open app to sync or set any limits",
+                        style = TextStyle(
+                            color = ColorProvider(Color.Gray),
+                            fontSize = 11.sp,
+                            textAlign = TextAlign.Center
                         )
+                    )
+                }
+            } else {
+                LazyColumn(modifier = GlanceModifier.fillMaxSize()) {
+                    items(categories) { catRow ->
+                        val name = catRow.split(",")[0]
+                        Box(
+                            modifier = GlanceModifier
+                                .fillMaxWidth()
+                                .height(44.dp)
+                                .padding(vertical = 4.dp)
+                                .background(Color(0xFF16A34A))
+                                .cornerRadius(12.dp)
+                                .clickable(
+                                    actionRunCallback<SelectCategoryCallback>(
+                                        actionParametersOf(CategoryKey to name)
+                                    )
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = name,
+                                style = TextStyle(
+                                    color = ColorProvider(Color.White),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp
+                                )
+                            )
+                        }
                     }
                 }
             }
@@ -142,6 +160,7 @@ class TreeWidget : GlanceAppWidget() {
     @Composable
     private fun TreeView(name: String, progress: Float, imageRes: Int) {
         val neonGreen = Color(0xFF22C55E)
+        val displayColor = if (progress >= 1f) Color.Red else neonGreen
 
         Column(
             modifier = GlanceModifier
@@ -153,7 +172,7 @@ class TreeWidget : GlanceAppWidget() {
             Image(
                 provider = ImageProvider(imageRes),
                 contentDescription = null,
-                modifier = GlanceModifier.size(110.dp)
+                modifier = GlanceModifier.size(100.dp)
             )
 
             Spacer(GlanceModifier.height(4.dp))
@@ -163,50 +182,31 @@ class TreeWidget : GlanceAppWidget() {
                 style = TextStyle(
                     color = ColorProvider(Color.White),
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
+                    fontSize = 15.sp
                 )
             )
 
-            Spacer(GlanceModifier.height(12.dp))
+            Spacer(GlanceModifier.height(10.dp))
 
-            ProgressBar(progress, neonGreen)
+            Box(modifier = GlanceModifier.fillMaxWidth().padding(horizontal = 12.dp)) {
+                LinearProgressIndicator(
+                    progress = progress.coerceIn(0f, 1f),
+                    modifier = GlanceModifier.fillMaxWidth().height(14.dp),
+                    color = ColorProvider(displayColor),
+                    backgroundColor = ColorProvider(Color.White.copy(alpha = 0.15f))
+                )
+            }
 
-            Spacer(GlanceModifier.height(8.dp))
+            Spacer(GlanceModifier.height(6.dp))
 
             Text(
                 text = "${(progress * 100).toInt()}% USED",
                 style = TextStyle(
-                    color = ColorProvider(if (progress >= 1f) Color.Red else neonGreen),
+                    color = ColorProvider(displayColor),
                     fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp
+                    fontSize = 11.sp
                 )
             )
-        }
-    }
-
-    @Composable
-    private fun ProgressBar(progress: Float, neonGreen: Color) {
-        Box(
-            modifier = GlanceModifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Box(
-                modifier = GlanceModifier
-                    .fillMaxWidth()
-                    .height(16.dp)
-                    .background(Color.White.copy(alpha = 0.15f))
-                    .cornerRadius(8.dp)
-            ) {}
-
-            Box(
-                modifier = GlanceModifier
-                    .fillMaxWidth()
-                    .height(16.dp)
-                    .background(if (progress >= 1f) Color.Red else neonGreen)
-                    .cornerRadius(8.dp)
-            ) {}
         }
     }
 }
@@ -237,4 +237,8 @@ class EnterSelectionModeCallback : ActionCallback {
         }
         TreeWidget().update(context, glanceId)
     }
+}
+
+class TreeWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = TreeWidget()
 }

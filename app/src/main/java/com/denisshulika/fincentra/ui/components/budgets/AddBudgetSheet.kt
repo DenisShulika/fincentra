@@ -7,11 +7,14 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -56,7 +59,9 @@ fun AddBudgetSheet(viewModel: BudgetsViewModel) {
             modifier = Modifier
                 .padding(horizontal = 24.dp)
                 .fillMaxWidth()
-                .padding(bottom = 64.dp),
+                .padding(bottom = 64.dp)
+                .verticalScroll(rememberScrollState())
+                .imePadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -122,7 +127,7 @@ fun AddBudgetSheet(viewModel: BudgetsViewModel) {
                 }
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = { viewModel.saveBudget() },

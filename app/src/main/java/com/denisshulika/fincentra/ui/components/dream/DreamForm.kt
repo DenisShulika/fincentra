@@ -66,7 +66,7 @@ fun DreamForm(
             OutlinedTextField(
                 value = emoji,
                 onValueChange = {
-                    if (it.length <= 1) onEmojiChange(it)
+                    if (it.length <= 2) onEmojiChange(it)
                 },
                 label = { Text("Icon") },
                 modifier = Modifier.width(70.dp),

@@ -8,6 +8,7 @@ import android.graphics.RectF
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.Preferences
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -45,7 +46,7 @@ class DreamWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
 
         provideContent {
-            val prefs = currentState<androidx.datastore.preferences.core.Preferences>()
+            val prefs = currentState<Preferences>()
 
             val title = prefs[PrefDreamTitle] ?: "No Dream"
             val progress = prefs[PrefDreamProgress] ?: 0f
@@ -77,7 +78,10 @@ class DreamWidget : GlanceAppWidget() {
                             )
                             Text(
                                 text = emoji,
-                                style = TextStyle(fontSize = 45.sp)
+                                style = TextStyle(
+                                    fontSize = 45.sp,
+                                    color = ColorProvider(Color.White)
+                                )
                             )
                         }
                         Spacer(GlanceModifier.height(8.dp))
