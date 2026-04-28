@@ -41,6 +41,7 @@ import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.events.IntegrationsUiEvent
 import com.denisshulika.fincentra.data.models.ui.BankProviderInfo
 import com.denisshulika.fincentra.data.models.ui.SupportedBanks
+import com.denisshulika.fincentra.data.util.BankProviders
 import com.denisshulika.fincentra.ui.components.FinCentraTopBar
 import com.denisshulika.fincentra.ui.components.integrations.BankDetailsContent
 import com.denisshulika.fincentra.ui.components.integrations.BankGridItem
@@ -57,6 +58,9 @@ fun IntegrationsScreen(
 
     val isEuropeanMode by viewModel.isEuropeanMode.collectAsStateWithLifecycle()
     val europeanBanks by viewModel.europeanBanks.collectAsStateWithLifecycle()
+
+    val isWalletSystemEnabled by viewModel.isWalletEnabled.collectAsStateWithLifecycle()
+    val isWalletUserEnabled by viewModel.isWalletUserEnabled.collectAsStateWithLifecycle()
 
     val isEuroLoading by viewModel.isEuroLoading.collectAsStateWithLifecycle()
     val loadingBankId by viewModel.loadingBankId.collectAsStateWithLifecycle()
@@ -146,11 +150,19 @@ fun IntegrationsScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(SupportedBanks) { bank ->
+                            val isConnected = if (bank.id == BankProviders.GOOGLE_WALLET) {
+                                isWalletSystemEnabled && isWalletUserEnabled
+                            } else {
+                                savedAccounts.any { it.provider == bank.id }
+                            }
+
                             BankGridItem(
                                 bank = bank,
                                 isConnected = isConnected,
-                                isLoading = isMonoLoading,
-                                onClick = { viewModel.selectBank(bank) }
+                                isLoading = if (bank.id == BankProviders.GOOGLE_WALLET) false else isMonoLoading,
+                                onClick = {
+                                    viewModel.selectBank(bank, context)
+                                }
                             )
                         }
                     }
@@ -182,7 +194,8 @@ fun IntegrationsScreen(
                                             logo = R.drawable.ic_launcher_foreground,
                                             brandColor = provider.brandColor,
                                             subtitle = provider.countryName
-                                        )
+                                        ),
+                                        context
                                     )
                                 }
                             )

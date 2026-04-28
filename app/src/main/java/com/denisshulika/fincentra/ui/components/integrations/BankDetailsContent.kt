@@ -17,7 +17,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -27,6 +29,8 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -35,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
@@ -59,6 +64,8 @@ fun BankDetailsContent(
     bank: BankProviderInfo,
     viewModel: IntegrationsViewModel
 ) {
+    val context = LocalContext.current
+
     val accounts by viewModel.availableAccounts.collectAsStateWithLifecycle()
     val monoToken by viewModel.monobankToken.collectAsStateWithLifecycle()
 
@@ -70,6 +77,11 @@ fun BankDetailsContent(
 
     val bankAccounts = accounts.filter { it.provider == bank.id }
     val isAlreadyConnected = bankAccounts.isNotEmpty()
+
+    val isWallet = bank.id == BankProviders.GOOGLE_WALLET
+    val isWalletEnabled by viewModel.isWalletEnabled.collectAsStateWithLifecycle()
+    val isWalletUserEnabled by viewModel.isWalletUserEnabled.collectAsStateWithLifecycle()
+    val isSystemPermissionGranted by viewModel.isWalletEnabled.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -142,7 +154,90 @@ fun BankDetailsContent(
         Spacer(Modifier.height(24.dp))
 
         if (!isAlreadyConnected) {
-            if (isMonobank) {
+            if (isWallet) {
+
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Google Wallet Synchronization",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        text = "FinCentra can automatically catch payments from Google Wallet notifications. This allows you to track banks that don't have an official API.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+
+                    Surface(
+                        color = if (isSystemPermissionGranted) MaterialTheme.colorScheme.primaryContainer.copy(
+                            alpha = 0.2f
+                        )
+                        else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f),
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                if (isSystemPermissionGranted) Icons.Default.CheckCircle else Icons.Default.Warning,
+                                null,
+                                tint = if (isSystemPermissionGranted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = if (isSystemPermissionGranted) "System Access: Granted" else "System Access: Required",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                if (!isSystemPermissionGranted) {
+                                    Text(
+                                        "FinCentra needs permission to read notifications.",
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(Modifier.height(24.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            "Enable Automation",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Switch(
+                            checked = isWalletUserEnabled,
+                            onCheckedChange = { enabled ->
+                                viewModel.toggleWalletSync(enabled, context)
+                            }
+                        )
+                    }
+
+                    if (!isSystemPermissionGranted) {
+                        Button(
+                            onClick = { viewModel.openNotificationSettings(context) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp)
+                                .height(56.dp),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text("Grant System Access")
+                        }
+                    }
+                }
+            } else if (isMonobank) {
                 Spacer(Modifier.height(16.dp))
                 val annotatedString = buildAnnotatedString {
                     append(stringResource(R.string.bank_get_access_text))

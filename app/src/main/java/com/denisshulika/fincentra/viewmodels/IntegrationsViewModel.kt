@@ -1,5 +1,8 @@
 package com.denisshulika.fincentra.viewmodels
 
+import android.content.Context
+import android.content.Intent
+import android.provider.Settings
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -98,6 +101,18 @@ class IntegrationsViewModel : ViewModel() {
     private val _euroSyncProgress = MutableStateFlow(0f)
     val euroSyncProgress = _euroSyncProgress.asStateFlow()
 
+    private val _isWalletEnabled = MutableStateFlow(false)
+    val isWalletEnabled = _isWalletEnabled.asStateFlow()
+
+    val isWalletUserEnabled = settingsRepository.isWalletSyncEnabledFlow()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    fun toggleWalletSync(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.saveWalletSyncEnabled(enabled)
+        }
+    }
+
     init {
         viewModelScope.launch {
             val initialIds = settingsRepository.getSelectedAccountIds().toSet()
@@ -125,7 +140,11 @@ class IntegrationsViewModel : ViewModel() {
     }
 
 
-    fun selectBank(bank: BankProviderInfo) {
+    fun selectBank(bank: BankProviderInfo, context: Context) {
+        if (bank.id == BankProviders.GOOGLE_WALLET) {
+            checkWalletStatus(context)
+        }
+
         _selectedBank.value = bank
         viewModelScope.launch {
             _availableAccounts.value = getMappedAccounts()
@@ -513,6 +532,34 @@ class IntegrationsViewModel : ViewModel() {
             } finally {
                 if (isMono) _isMonoLoading.value = false else _isEuroLoading.value = false
                 refreshConnectionStatus()
+            }
+        }
+    }
+
+    fun checkWalletStatus(context: Context) {
+        val packageName = context.packageName
+        val flat =
+            Settings.Secure.getString(context.contentResolver, "enabled_notification_listeners")
+        _isWalletEnabled.value = flat?.contains(packageName) == true
+    }
+
+    fun openNotificationSettings(context: Context) {
+        context.startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))
+    }
+
+    fun toggleWalletSync(enabled: Boolean, context: Context) {
+        viewModelScope.launch {
+            val packageName = context.packageName
+            val flat =
+                Settings.Secure.getString(context.contentResolver, "enabled_notification_listeners")
+            val hasSystemAccess = flat?.contains(packageName) == true
+
+            if (enabled && !hasSystemAccess) {
+                _events.emit(IntegrationsUiEvent.ShowToast(R.string.error_permission_required))
+                openNotificationSettings(context)
+            } else {
+                settingsRepository.saveWalletSyncEnabled(enabled)
+                _isWalletEnabled.value = hasSystemAccess
             }
         }
     }

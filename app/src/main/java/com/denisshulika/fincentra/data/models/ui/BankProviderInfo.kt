@@ -15,8 +15,15 @@ data class BankProviderInfo(
 val SupportedBanks = listOf(
     BankProviderInfo(
         id = BankProviders.MONOBANK,
-        name = BankProviders.MONOBANK,
+        name = "Monobank",
         logo = R.drawable.monobank_logo,
         brandColor = Color(0xFFE91E63)
     ),
+    BankProviderInfo(
+        id = BankProviders.GOOGLE_WALLET,
+        name = "Google Wallet",
+        logo = R.drawable.google_icon,
+        brandColor = Color(0xFF4285F4),
+        subtitle = "NFC Notifications"
+    )
 )

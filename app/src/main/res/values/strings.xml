@@ -365,4 +365,6 @@
     <string name="ai_error_internet">AI is unavailable. Check your connection.</string>
     <string name="ai_click_prompt">Tap to get financial advice from AI</string>
     <string name="nav_about">About</string>
+
+    <string name="error_permission_required">error_permission_required</string>
 </resources>

@@ -78,7 +78,8 @@ class TransactionsViewModel : ViewModel() {
                 timestamp = editingTimestamp ?: System.currentTimeMillis(),
                 accountId = TransactionConstants.ACCOUNT_ID_MANUAL,
                 currencyCode = _selectedCurrency.value,
-                subCategoryRes = R.string.mcc_others
+                subCategoryRes = R.string.mcc_others,
+                sourceType = "MANUAL"
             )
             financeRepository.addTransaction(tx)
             toggleBottomSheet(false)

@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.tasks.await
+import kotlin.math.abs
 
 class FinanceRepository(private val db: FirebaseFirestore, private val auth: FirebaseAuth) {
     private val repositoryScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
@@ -130,18 +131,42 @@ class FinanceRepository(private val db: FirebaseFirestore, private val auth: Fir
             .collection(FirestoreCollections.TRANSACTIONS)
     }
 
-    suspend fun addTransaction(tx: Transaction) {
-        getTransactionsRef()?.document(tx.id)?.set(tx)
+    fun addTransaction(tx: Transaction) {
+        val ref = getTransactionsRef() ?: return
+
+        if (tx.sourceType == "DIRECT") {
+            val duplicate = _transactions.value.find {
+                it.sourceType == "NOTIFICATION" &&
+                        it.amount == tx.amount &&
+                        abs(it.timestamp - tx.timestamp) < 600000
+            }
+            duplicate?.let { deleteTransaction(it.id) }
+        }
+
+        ref.document(tx.id).set(tx)
     }
 
     suspend fun addTransactionsBatch(list: List<Transaction>) {
         val ref = getTransactionsRef() ?: return
         val batch = db.batch()
-        list.forEach { batch.set(ref.document(it.id), it) }
-        batch.commit()
+
+        list.forEach { newTx ->
+            if (newTx.sourceType == "DIRECT") {
+                val duplicateFromWallet = _transactions.value.find {
+                    it.sourceType == "NOTIFICATION" &&
+                            it.amount == newTx.amount &&
+                            Math.abs(it.timestamp - newTx.timestamp) < 600000
+                }
+
+                duplicateFromWallet?.let { batch.delete(ref.document(it.id)) }
+            }
+
+            batch.set(ref.document(newTx.id), newTx)
+        }
+        batch.commit().await()
     }
 
-    suspend fun deleteTransaction(id: String) {
+    fun deleteTransaction(id: String) {
         getTransactionsRef()?.document(id)?.delete()
     }
 

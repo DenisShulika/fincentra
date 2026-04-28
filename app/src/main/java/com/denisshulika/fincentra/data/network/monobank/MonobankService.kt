@@ -131,7 +131,8 @@ class MonobankService : BankProvider {
             subCategoryRes = mccInfo.subCategoryRes,
             mcc = this.mcc,
             balance = this.balance / 100.0,
-            comment = this.comment
+            comment = this.comment,
+            sourceType = "DIRECT"
         )
     }
 }

@@ -25,7 +25,7 @@ object FilterConstants {
 
 object BankProviders {
     const val MONOBANK = "Monobank"
-    const val PRIVATBANK = "PrivatBank"
+    const val GOOGLE_WALLET = "GoogleWallet"
 }
 
 object BankAccountTypes {

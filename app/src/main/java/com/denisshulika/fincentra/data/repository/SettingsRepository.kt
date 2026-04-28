@@ -141,4 +141,22 @@ class SettingsRepository(
     suspend fun getCurrentConnectingProviderId(): String? {
         return getSettingsRef()?.get()?.await()?.getString("currentConnectingProviderId")
     }
+
+    suspend fun saveWalletSyncEnabled(enabled: Boolean) {
+        getSettingsRef()?.set(mapOf("isWalletSyncEnabled" to enabled), SetOptions.merge())?.await()
+    }
+
+    fun isWalletSyncEnabledFlow(): Flow<Boolean> {
+        val ref = getSettingsRef() ?: return flowOf(false)
+        return callbackFlow {
+            val sub = ref.addSnapshotListener { s, _ ->
+                trySend(s?.getBoolean("isWalletSyncEnabled") ?: false) // За замовчуванням false
+            }
+            awaitClose { sub.remove() }
+        }
+    }
+
+    suspend fun isWalletSyncEnabled(): Boolean {
+        return getSettingsRef()?.get()?.await()?.getBoolean("isWalletSyncEnabled") ?: false
+    }
 }

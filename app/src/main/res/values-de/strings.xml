@@ -214,4 +214,6 @@
     <string name="settings_change_password">Passwort ändern</string>
     <string name="settings_delete_account">Konto löschen</string>
     <string name="settings_btn_logout_system">Abmelden</string>
+
+    <string name="error_permission_required">error_permission_required</string>
 </resources>

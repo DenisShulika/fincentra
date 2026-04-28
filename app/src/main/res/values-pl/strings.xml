@@ -203,4 +203,6 @@
     <string name="settings_change_password">Zmień hasło</string>
     <string name="settings_delete_account">Usuń moje konto</string>
     <string name="settings_btn_logout_system">Wyloguj się</string>
+
+    <string name="error_permission_required">error_permission_required</string>
 </resources>
