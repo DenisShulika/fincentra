@@ -205,7 +205,8 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
         }
 
         composable(Screen.Home.route) {
-            FinCentraScaffold(currentRoute,
+            FinCentraScaffold(
+                currentRoute,
                 { navController.navigate(it) },
                 { settingsViewModel.logout { navController.navigate(Screen.Login.route) { popUpTo(0) } } },
                 globalBottomBar,
@@ -227,7 +228,8 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
         }
 
         composable(Screen.Transactions.route) {
-            FinCentraScaffold(currentRoute,
+            FinCentraScaffold(
+                currentRoute,
                 { navController.navigate(it) },
                 { settingsViewModel.logout { navController.navigate(Screen.Login.route) { popUpTo(0) } } },
                 globalBottomBar,
@@ -242,7 +244,8 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
         }
 
         composable(Screen.Stats.route) {
-            FinCentraScaffold(currentRoute,
+            FinCentraScaffold(
+                currentRoute,
                 { navController.navigate(it) },
                 { settingsViewModel.logout { navController.navigate(Screen.Login.route) { popUpTo(0) } } },
                 globalBottomBar,

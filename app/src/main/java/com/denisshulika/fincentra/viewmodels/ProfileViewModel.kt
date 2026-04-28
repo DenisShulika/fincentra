@@ -27,8 +27,16 @@ class ProfileViewModel : ViewModel() {
 
     private val _selectedIds = MutableStateFlow<List<String>>(emptyList())
 
+    private val _exchangeRates = MutableStateFlow<Map<Int, Double>>(emptyMap())
+    val exchangeRates = _exchangeRates.asStateFlow()
+
     init {
         loadUserData()
+
+        viewModelScope.launch {
+            val rates = DependencyProvider.currencyRepository.getRates()
+            _exchangeRates.value = rates
+        }
 
         viewModelScope.launch {
             settingsRepository.getSelectedAccountIdsFlow().collect { ids ->

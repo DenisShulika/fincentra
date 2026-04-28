@@ -70,6 +70,7 @@ class StatsViewModel : ViewModel() {
 
         withContext(Dispatchers.Default) {
             val rates = DependencyProvider.currencyRepository.getRates()
+
             val baseState = calculateOptimizedStats(txs, accs, range, bank, accId, mode, activeIds)
 
             if (baseState.currencyData.isNotEmpty()) {

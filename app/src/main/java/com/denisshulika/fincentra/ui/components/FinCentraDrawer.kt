@@ -114,6 +114,14 @@ fun FinCentraDrawer(
                 }
             }
 
+            Spacer(modifier = Modifier.weight(1f))
+
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 24.dp),
+                thickness = 0.5.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
+            )
+
             Column(modifier = Modifier.padding(bottom = 24.dp)) {
                 DrawerItem(
                     label = stringResource(Screen.Settings.titleRes),

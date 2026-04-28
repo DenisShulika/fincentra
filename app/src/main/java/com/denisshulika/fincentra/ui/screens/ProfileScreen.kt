@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.ui.components.profile.BalanceCard
+import com.denisshulika.fincentra.ui.components.profile.ProfileCurrencyBlock
 import com.denisshulika.fincentra.viewmodels.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,6 +52,8 @@ fun ProfileScreen(
     val user by viewModel.user.collectAsStateWithLifecycle()
     val txCount by viewModel.totalTransactionsCount.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    val exchangeRates by viewModel.exchangeRates.collectAsStateWithLifecycle()
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -77,10 +80,10 @@ fun ProfileScreen(
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Surface(
-                modifier = Modifier.size(100.dp),
+                modifier = Modifier.size(80.dp),
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
                 border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
@@ -88,18 +91,18 @@ fun ProfileScreen(
                 Box(contentAlignment = Alignment.Center) {
                     Text(
                         text = user?.displayName?.take(1) ?: user?.email?.take(1) ?: "?",
-                        style = MaterialTheme.typography.displayMedium,
+                        style = MaterialTheme.typography.displaySmall,
                         fontWeight = FontWeight.Black,
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = user?.displayName?.ifBlank { "Користувач" } ?: "Завантаження...",
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Black
             )
 
@@ -109,7 +112,7 @@ fun ProfileScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             SuggestionChip(
                 onClick = { },
@@ -121,7 +124,7 @@ fun ProfileScreen(
                 )
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             HorizontalDivider(
                 thickness = 0.5.dp,
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
@@ -148,15 +151,20 @@ fun ProfileScreen(
                         )
                     }
                 }
-            }
 
-            TextButton(
-                onClick = { context.startActivity(viewModel.getSupportIntent()) },
-                modifier = Modifier
-                    .padding(bottom = 32.dp)
-                    .fillMaxWidth()
-            ) {
-                Text("Зв'язатися з розробником", fontWeight = FontWeight.Bold)
+                item {
+                    ProfileCurrencyBlock(rates = exchangeRates)
+                }
+
+                item {
+                    TextButton(
+                        onClick = { context.startActivity(viewModel.getSupportIntent()) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Text("Зв'язатися з розробником", fontWeight = FontWeight.Bold)
+                    }
+                }
             }
         }
     }
