@@ -41,34 +41,20 @@ class DreamViewModel : ViewModel() {
     ) { dream, accounts, transactions, selectedIds ->
         if (dream == null) return@combine null
 
-        val baseAccounts = if (selectedIds.isNotEmpty()) {
-            accounts.filter { selectedIds.contains(it.id) }
-        } else {
-            accounts
-        }
-
-        val bankBalance = baseAccounts
-            .filter { it.currencyCode == dream.currencyCode }
+        val trackedBankBalance = accounts
+            .filter { selectedIds.contains(it.id) && it.currencyCode == dream.currencyCode }
             .sumOf { it.balance }
 
         val cashBalance = transactions
             .filter { it.accountId == TransactionConstants.ACCOUNT_ID_MANUAL && it.currencyCode == dream.currencyCode }
             .sumOf { if (it.isExpense) -it.amount else it.amount }
 
-        val totalBalance = bankBalance + cashBalance
-        val available = (totalBalance - dream.safetyBuffer).coerceAtLeast(0.0)
-
-        val progress = if (dream.targetAmount > 0) {
-            (available / dream.targetAmount).toFloat().coerceIn(0f, 1f)
-        } else 0f
-
-        val progressData = DreamProgress(dream, available, progress)
+        val total = trackedBankBalance + cashBalance
+        val available = (total - dream.safetyBuffer).coerceAtLeast(0.0)
+        val progress = if (dream.targetAmount > 0) (available / dream.targetAmount).toFloat()
+            .coerceIn(0f, 1f) else 0f
 
         DreamProgress(dream, available, progress)
-
-        DependencyProvider.widgetDataManager.saveDreamData(progressData)
-
-        progressData
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     fun onTitleChange(v: String) {

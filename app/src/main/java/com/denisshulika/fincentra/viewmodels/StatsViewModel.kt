@@ -3,6 +3,9 @@ package com.denisshulika.fincentra.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.denisshulika.fincentra.data.models.domain.BankAccount
+import com.denisshulika.fincentra.data.models.domain.Budget
+import com.denisshulika.fincentra.data.models.domain.BudgetProgress
+import com.denisshulika.fincentra.data.models.domain.Dream
 import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.models.domain.TransactionCategory
 import com.denisshulika.fincentra.data.models.state.CategoryStat
@@ -11,6 +14,7 @@ import com.denisshulika.fincentra.data.models.state.StatsPeriod
 import com.denisshulika.fincentra.data.models.state.StatsUiState
 import com.denisshulika.fincentra.data.models.state.SubCategoryStat
 import com.denisshulika.fincentra.data.util.FilterConstants
+import com.denisshulika.fincentra.data.util.TransactionConstants
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,11 +53,16 @@ class StatsViewModel : ViewModel() {
 
     private val currencyRepository = DependencyProvider.currencyRepository
 
+    private val _healthScore = MutableStateFlow(100)
+    val healthScore = _healthScore.asStateFlow()
+
     val uiState: StateFlow<StatsUiState> = combine(
         financeRepository.transactions,
         availableAccounts,
         settingsRepository.getSelectedAccountIdsFlow(),
         settingsRepository.getDisplayCurrencyFlow(),
+        financeRepository.dream,
+        financeRepository.budgets, // 1. ДОДАНО: тепер Score реагує на видалення/зміну лімітів
         _selectedDateRange,
         _selectedBank,
         _selectedAccountId,
@@ -63,20 +72,78 @@ class StatsViewModel : ViewModel() {
         val accs = args[1] as List<BankAccount>
         val activeIds = args[2] as List<String>
         val displayCurrency = args[3] as Int
-        val range = args[4] as LongRange?
-        val bank = args[5] as String
-        val accId = args[6] as String?
-        val mode = args[7] as Boolean
+        val dream = args[4] as Dream?
+        val budgetsFromFlow = args[5] as List<Budget>
+        val range = args[6] as LongRange?
+        val bank = args[7] as String
+        val accId = args[8] as String?
+        val mode = args[9] as Boolean
 
         withContext(Dispatchers.Default) {
             val rates = DependencyProvider.currencyRepository.getRates()
-
             val baseState = calculateOptimizedStats(txs, accs, range, bank, accId, mode, activeIds)
 
             if (baseState.currencyData.isNotEmpty()) {
                 val totalCard = calculateTotalStats(baseState.currencyData, displayCurrency, rates)
+
+                val currentBudgets = budgetsFromFlow.map { budget ->
+                    val spent = txs.filter {
+                        it.category.name == budget.categoryName &&
+                                it.isExpense &&
+                                it.currencyCode == budget.currencyCode
+                    }.sumOf { it.amount }
+
+                    BudgetProgress(
+                        budget,
+                        spent,
+                        (budget.limitAmount - spent).coerceAtLeast(0.0),
+                        if (budget.limitAmount > 0) (spent / budget.limitAmount).toFloat() else 0f
+                    )
+                }
+
+                val actualDreamProgress = if (dream != null) {
+                    val trackedBankBalance = accs.filter { activeIds.contains(it.id) }
+                        .sumOf {
+                            DependencyProvider.currencyRepository.convert(
+                                it.balance,
+                                it.currencyCode,
+                                dream.currencyCode,
+                                rates
+                            ) ?: 0.0
+                        }
+
+                    val trackedCashBalance =
+                        txs.filter { it.accountId == TransactionConstants.ACCOUNT_ID_MANUAL }
+                            .groupBy { it.currencyCode }.map { (code, mtxs) ->
+                                val sum = mtxs.sumOf { if (it.isExpense) -it.amount else it.amount }
+                                DependencyProvider.currencyRepository.convert(
+                                    sum,
+                                    code,
+                                    dream.currencyCode,
+                                    rates
+                                ) ?: 0.0
+                            }.sum()
+
+                    val available =
+                        (trackedBankBalance + trackedCashBalance - dream.safetyBuffer).coerceAtLeast(
+                            0.0
+                        )
+                    if (dream.targetAmount > 0) (available / dream.targetAmount).toFloat()
+                        .coerceIn(0f, 1f) else 0f
+                } else 0f
+
+                _healthScore.value =
+                    if (totalCard.totalIncome == 0.0 && totalCard.totalExpense == 0.0) 100
+                    else calculateFinancialHealth(
+                        totalCard.totalIncome,
+                        totalCard.totalExpense,
+                        currentBudgets,
+                        actualDreamProgress
+                    )
+
                 StatsUiState(listOf(totalCard) + baseState.currencyData, range)
             } else {
+                _healthScore.value = 100
                 baseState
             }
         }
@@ -306,5 +373,24 @@ class StatsViewModel : ViewModel() {
             totalExpense = safeSum { it.totalExpense },
             categories = emptyList()
         )
+    }
+
+    private fun calculateFinancialHealth(
+        income: Double,
+        expense: Double,
+        budgets: List<BudgetProgress>,
+        dreamProgress: Float
+    ): Int {
+        val deltaScore = if (income >= expense) 50 else {
+            ((income / expense) * 50).toInt().coerceAtLeast(0)
+        }
+
+        val avgProgress =
+            if (budgets.isEmpty()) 0f else budgets.map { it.progress }.average().toFloat()
+        val budgetScore = ((1f - avgProgress.coerceIn(0f, 1f)) * 40).toInt()
+
+        val dreamScore = (dreamProgress * 10).toInt()
+
+        return (deltaScore + budgetScore + dreamScore).coerceIn(0, 100)
     }
 }

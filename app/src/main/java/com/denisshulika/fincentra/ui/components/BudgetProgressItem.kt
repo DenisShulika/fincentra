@@ -31,7 +31,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.BudgetProgress
 import com.denisshulika.fincentra.data.models.domain.TransactionCategory
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
@@ -85,22 +84,28 @@ fun BudgetProgressItem(
                         fontWeight = FontWeight.ExtraBold
                     )
                     Text(
-                        text = stringResource(item.statusMessageRes),
+                        text = item.statusMessage,
                         style = MaterialTheme.typography.bodyMedium,
                         color = statusColor
                     )
                 }
 
                 Column(horizontalAlignment = Alignment.End) {
+                    val remaining = item.remainingAmount
+                    val total = item.budget.limitAmount
+
                     Text(
-                        text = "${String.format("%.0f", item.remainingAmount)} $symbol",
-                        style = MaterialTheme.typography.headlineSmall,
+                        text = "${String.format("%.0f", remaining)} $symbol",
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Black,
                         color = if (item.progress >= 1f) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                     )
+
                     Text(
-                        text = stringResource(R.string.budget_remaining, ""),
-                        style = MaterialTheme.typography.labelMedium
+                        text = "left of ${total.toInt()} $symbol",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
