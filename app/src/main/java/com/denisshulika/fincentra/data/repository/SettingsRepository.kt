@@ -159,4 +159,12 @@ class SettingsRepository(
     suspend fun isWalletSyncEnabled(): Boolean {
         return getSettingsRef()?.get()?.await()?.getBoolean("isWalletSyncEnabled") ?: false
     }
+
+    suspend fun saveWiseApiToken(token: String?) {
+        getSettingsRef()?.set(mapOf("wiseToken" to token), SetOptions.merge())?.await()
+    }
+
+    suspend fun getWiseApiToken(): String? {
+        return getSettingsRef()?.get()?.await()?.getString("wiseToken")
+    }
 }

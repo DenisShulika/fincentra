@@ -1,5 +1,6 @@
 package com.denisshulika.fincentra.ui.components.integrations
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -51,8 +52,10 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.R
+import com.denisshulika.fincentra.data.models.domain.BankAccount
 import com.denisshulika.fincentra.data.models.ui.BankProviderInfo
 import com.denisshulika.fincentra.data.models.ui.EuropeanDemoBanks
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
@@ -65,32 +68,31 @@ fun BankDetailsContent(
     viewModel: IntegrationsViewModel
 ) {
     val context = LocalContext.current
-
     val accounts by viewModel.availableAccounts.collectAsStateWithLifecycle()
     val monoToken by viewModel.monobankToken.collectAsStateWithLifecycle()
+    val wiseToken by viewModel.wiseToken.collectAsStateWithLifecycle()
 
     val isMonobank = bank.id == BankProviders.MONOBANK
+    val isWallet = bank.id == BankProviders.GOOGLE_WALLET
+    val isWise = bank.id == BankProviders.WISE
 
-    val isLoading by (if (isMonobank) viewModel.isMonoLoading else viewModel.isEuroLoading).collectAsStateWithLifecycle()
+    val isLoading by when {
+        isMonobank -> viewModel.isMonoLoading
+        isWise -> viewModel.isWiseLoading
+        else -> viewModel.isEuroLoading
+    }.collectAsStateWithLifecycle()
     val syncStatus by (if (isMonobank) viewModel.monoSyncStatus else viewModel.euroSyncStatus).collectAsStateWithLifecycle()
     val syncProgress by (if (isMonobank) viewModel.monoSyncProgress else viewModel.euroSyncProgress).collectAsStateWithLifecycle()
 
     val bankAccounts = accounts.filter { it.provider == bank.id }
     val isAlreadyConnected = bankAccounts.isNotEmpty()
 
-    val isWallet = bank.id == BankProviders.GOOGLE_WALLET
-    val isWalletEnabled by viewModel.isWalletEnabled.collectAsStateWithLifecycle()
-    val isWalletUserEnabled by viewModel.isWalletUserEnabled.collectAsStateWithLifecycle()
-    val isSystemPermissionGranted by viewModel.isWalletEnabled.collectAsStateWithLifecycle()
-
     Column(
         modifier = Modifier
             .padding(24.dp)
             .fillMaxSize()
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
                 painter = painterResource(id = bank.logo),
                 contentDescription = null,
@@ -111,277 +113,350 @@ fun BankDetailsContent(
         }
 
         if (syncStatus.isNotBlank()) {
-            Spacer(Modifier.height(16.dp))
-            val displayStatus = when {
-                syncStatus == "UPDATING_BALANCES" -> stringResource(R.string.status_updating_balances)
-                syncStatus == "SYNCING_ASSETS" -> "Syncing European assets..."
-                syncStatus == "DONE" -> stringResource(R.string.status_done)
-                syncStatus.startsWith("SYNCING_ACC:") -> stringResource(
-                    R.string.status_syncing_account,
-                    syncStatus.removePrefix("SYNCING_ACC:")
-                )
-
-                syncStatus.startsWith("COOLDOWN:") -> stringResource(
-                    R.string.status_api_cooldown,
-                    syncStatus.removePrefix("COOLDOWN:").toIntOrNull() ?: 0
-                )
-
-                else -> syncStatus
-            }
-
-            Text(
-                text = displayStatus,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp)
-            )
-
-            LinearProgressIndicator(
-                progress = { syncProgress },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp)
-                    .clip(CircleShape),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-            )
+            SyncStatusBlock(syncStatus, syncProgress)
         }
 
         Spacer(Modifier.height(24.dp))
 
         if (!isAlreadyConnected) {
-            if (isWallet) {
+            when (bank.id) {
+                BankProviders.GOOGLE_WALLET -> WalletSetupContent(viewModel, context)
 
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = "Google Wallet Synchronization",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    Text(
-                        text = "FinCentra can automatically catch payments from Google Wallet notifications. This allows you to track banks that don't have an official API.",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                BankProviders.MONOBANK -> MonobankSetupContent(viewModel, monoToken, isLoading)
 
-                    Spacer(Modifier.height(16.dp))
+                BankProviders.WISE -> WiseSetupContent(viewModel, wiseToken, isLoading)
 
-                    Surface(
-                        color = if (isSystemPermissionGranted) MaterialTheme.colorScheme.primaryContainer.copy(
-                            alpha = 0.2f
-                        )
-                        else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f),
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                if (isSystemPermissionGranted) Icons.Default.CheckCircle else Icons.Default.Warning,
-                                null,
-                                tint = if (isSystemPermissionGranted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-                            )
-                            Spacer(Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = if (isSystemPermissionGranted) "System Access: Granted" else "System Access: Required",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                if (!isSystemPermissionGranted) {
-                                    Text(
-                                        "FinCentra needs permission to read notifications.",
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    Spacer(Modifier.height(24.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            "Enable Automation",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Switch(
-                            checked = isWalletUserEnabled,
-                            onCheckedChange = { enabled ->
-                                viewModel.toggleWalletSync(enabled, context)
-                            }
-                        )
-                    }
-
-                    if (!isSystemPermissionGranted) {
-                        Button(
-                            onClick = { viewModel.openNotificationSettings(context) },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 16.dp)
-                                .height(56.dp),
-                            shape = RoundedCornerShape(16.dp)
-                        ) {
-                            Text("Grant System Access")
-                        }
-                    }
-                }
-            } else if (isMonobank) {
-                Spacer(Modifier.height(16.dp))
-                val annotatedString = buildAnnotatedString {
-                    append(stringResource(R.string.bank_get_access_text))
-                    withLink(LinkAnnotation.Url("https://api.monobank.ua/")) {
-                        append(" ")
-                        withStyle(
-                            SpanStyle(
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold,
-                                textDecoration = TextDecoration.Underline
-                            )
-                        ) {
-                            append(stringResource(R.string.bank_personal_cabinet))
-                        }
-                    }
-                }
-                Text(text = annotatedString, style = MaterialTheme.typography.bodyLarge)
-
-                Spacer(Modifier.height(24.dp))
-
-                OutlinedTextField(
-                    value = monoToken,
-                    onValueChange = { viewModel.onMonobankTokenChange(it) },
-                    label = { Text(stringResource(R.string.bank_token_label)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    enabled = !isLoading
-                )
-
-                Button(
-                    onClick = { viewModel.connectMonobankAccount() },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 24.dp)
-                        .height(56.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    enabled = monoToken.isNotBlank() && !isLoading
-                ) {
-                    if (isLoading) CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        color = Color.White
-                    ) else Text(
-                        stringResource(R.string.bank_btn_connect),
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            } else {
-                Text(text = "Connect your ${bank.name} account securely via Salt Edge gateway.")
-                Button(
-                    onClick = {
-                        val provider = EuropeanDemoBanks.find { it.id == bank.id }
-                        provider?.let { viewModel.connectEuropeanBank(it) }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 32.dp)
-                        .height(56.dp),
-                    enabled = !isLoading,
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    if (isLoading && syncStatus.isEmpty()) CircularProgressIndicator(
-                        modifier = Modifier.size(
-                            24.dp
-                        ), color = Color.White
-                    )
-                    else Text("Connect via Browser", fontWeight = FontWeight.Bold)
-                }
+                else -> EuropeanSetupContent(viewModel, bank, isLoading, syncStatus)
             }
         } else {
-            Text(
-                text = "Select Accounts",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
+            ConnectedBankContent(viewModel, bank, bankAccounts, isWise, isMonobank, isLoading)
+        }
+    }
+}
 
-            LazyColumn(modifier = Modifier
+
+@Composable
+fun SyncStatusBlock(status: String, progress: Float) {
+    val displayStatus = when {
+        status == "UPDATING_BALANCES" -> stringResource(R.string.status_updating_balances)
+        status == "SYNCING_ASSETS" -> "Syncing assets..."
+        status == "DONE" -> stringResource(R.string.status_done)
+        status.startsWith("SYNCING_ACC:") -> stringResource(
+            R.string.status_syncing_account,
+            status.removePrefix("SYNCING_ACC:")
+        )
+
+        status.startsWith("COOLDOWN:") -> stringResource(
+            R.string.status_api_cooldown,
+            status.removePrefix("COOLDOWN:").toIntOrNull() ?: 0
+        )
+
+        else -> status
+    }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Spacer(Modifier.height(16.dp))
+        Text(
+            text = displayStatus,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
+        )
+        LinearProgressIndicator(
+            progress = { progress },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+                .clip(CircleShape),
+            color = MaterialTheme.colorScheme.primary,
+            trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+        )
+    }
+}
+
+@Composable
+fun WalletSetupContent(viewModel: IntegrationsViewModel, context: Context) {
+    val isWalletUserEnabled by viewModel.isWalletUserEnabled.collectAsStateWithLifecycle()
+    val isSystemPermissionGranted by viewModel.isWalletEnabled.collectAsStateWithLifecycle()
+
+    Column {
+        Text(
+            "Google Wallet Synchronization",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            "FinCentra can automatically catch payments from Google Wallet notifications.",
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Spacer(Modifier.height(16.dp))
+
+        Surface(
+            color = if (isSystemPermissionGranted) MaterialTheme.colorScheme.primaryContainer.copy(
+                alpha = 0.2f
+            ) else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f),
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    if (isSystemPermissionGranted) Icons.Default.CheckCircle else Icons.Default.Warning,
+                    null,
+                    tint = if (isSystemPermissionGranted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                )
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    if (isSystemPermissionGranted) "System Access: Granted" else "System Access: Required",
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+        Spacer(Modifier.height(24.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Enable Automation", fontWeight = FontWeight.Bold)
+            Switch(
+                checked = isWalletUserEnabled,
+                onCheckedChange = { viewModel.toggleWalletSync(it, context) })
+        }
+        if (!isSystemPermissionGranted) {
+            Button(
+                onClick = { viewModel.openNotificationSettings(context) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
+                    .height(56.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Grant System Access")
+            }
+        }
+    }
+}
+
+@Composable
+fun MonobankSetupContent(viewModel: IntegrationsViewModel, token: String, isLoading: Boolean) {
+    Column {
+        val annotatedString = buildAnnotatedString {
+            append(stringResource(R.string.bank_get_access_text))
+            withLink(LinkAnnotation.Url("https://api.monobank.ua/")) {
+                append(" ")
+                withStyle(
+                    SpanStyle(
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
+                        textDecoration = TextDecoration.Underline
+                    )
+                ) {
+                    append(stringResource(R.string.bank_personal_cabinet))
+                }
+            }
+        }
+        Text(text = annotatedString)
+        Spacer(Modifier.height(24.dp))
+        OutlinedTextField(
+            value = token,
+            onValueChange = viewModel::onMonobankTokenChange,
+            label = { Text("Monobank Token") },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp)
+        )
+        Button(
+            onClick = viewModel::connectMonobankAccount,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp)
+                .height(56.dp),
+            enabled = token.isNotBlank() && !isLoading,
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            if (isLoading) CircularProgressIndicator(
+                modifier = Modifier.size(20.dp),
+                color = Color.White
+            )
+            else Text("Connect Monobank", fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+@Composable
+fun WiseSetupContent(viewModel: IntegrationsViewModel, token: String, isLoading: Boolean) {
+    Column {
+        Surface(
+            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f),
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "How to get your API Token:",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = "1. Log in to Wise website (not the app).\n" +
+                            "2. Go to Settings -> API tokens.\n" +
+                            "3. Ensure 2-step verification is enabled.\n" +
+                            "4. Create and copy your Personal Token.",
+                    style = MaterialTheme.typography.bodySmall,
+                    lineHeight = 18.sp
+                )
+            }
+        }
+
+        Spacer(Modifier.height(24.dp))
+
+        OutlinedTextField(
+            value = token,
+            onValueChange = viewModel::onWiseTokenChange,
+            label = { Text("Wise API Token") },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            singleLine = true
+        )
+
+        Button(
+            onClick = viewModel::connectWiseAccount,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp)
+                .height(56.dp),
+            enabled = token.isNotBlank() && !isLoading,
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            if (isLoading) CircularProgressIndicator(
+                modifier = Modifier.size(20.dp),
+                color = Color.White
+            )
+            else Text("Connect Wise Account", fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+@Composable
+fun EuropeanSetupContent(
+    viewModel: IntegrationsViewModel,
+    bank: BankProviderInfo,
+    isLoading: Boolean,
+    syncStatus: String
+) {
+    Column {
+        Text("Connect your ${bank.name} account securely via Salt Edge gateway.")
+        Button(
+            onClick = {
+                val provider = EuropeanDemoBanks.find { it.id == bank.id }
+                provider?.let { viewModel.connectEuropeanBank(it) }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 32.dp)
+                .height(56.dp),
+            enabled = !isLoading,
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            if (isLoading && syncStatus.isEmpty()) CircularProgressIndicator(
+                modifier = Modifier.size(
+                    24.dp
+                ), color = Color.White
+            )
+            else Text("Connect via Browser", fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+@Composable
+fun ConnectedBankContent(
+    viewModel: IntegrationsViewModel,
+    bank: BankProviderInfo,
+    bankAccounts: List<BankAccount>,
+    isMonobank: Boolean,
+    isWise: Boolean,
+    isLoading: Boolean
+) {
+    Column {
+        Text(
+            text = "Select Accounts",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+        LazyColumn(
+            modifier = Modifier
                 .weight(1f)
-                .padding(vertical = 8.dp)) {
-                items(bankAccounts) { account ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp)
-                            .clickable { if (!isLoading) viewModel.toggleAccountSelection(account.id) },
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Checkbox(
-                            checked = account.selected,
-                            onCheckedChange = {
-                                if (!isLoading) viewModel.toggleAccountSelection(
-                                    account.id
+                .padding(vertical = 8.dp)
+        ) {
+            items(bankAccounts) { account ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp)
+                        .clickable { if (!isLoading) viewModel.toggleAccountSelection(account.id) },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = account.selected,
+                        onCheckedChange = { if (!isLoading) viewModel.toggleAccountSelection(account.id) },
+                        enabled = !isLoading
+                    )
+                    Column {
+                        Text(account.name, fontWeight = FontWeight.Bold)
+                        Text(
+                            "${String.format("%.2f", account.balance)} ${
+                                CurrencyMapper.getSymbol(
+                                    account.currencyCode
                                 )
-                            },
-                            enabled = !isLoading
+                            }", color = MaterialTheme.colorScheme.primary
                         )
-                        Column {
-                            Text(account.name, fontWeight = FontWeight.Bold)
-                            Text(
-                                text = "${
-                                    String.format(
-                                        "%.2f",
-                                        account.balance
-                                    )
-                                } ${CurrencyMapper.getSymbol(account.currencyCode)}",
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
                     }
                 }
             }
-
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (isMonobank) {
-                    OutlinedButton(
-                        onClick = { viewModel.refreshMonobankAccounts() },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp),
-                        enabled = !isLoading,
-                        shape = RoundedCornerShape(12.dp)
-                    ) { Text(stringResource(R.string.bank_btn_refresh)) }
-                }
-
-                Button(
-                    onClick = {
-                        if (isMonobank) viewModel.confirmMonobankSelection()
-                        else viewModel.confirmEuropeanSelection(bank.id)
-                    },
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (isMonobank) {
+                OutlinedButton(
+                    onClick = viewModel::refreshMonobankAccounts,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
+                        .height(52.dp),
                     enabled = !isLoading,
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Save & Sync", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.bank_btn_refresh))
                 }
-
-                TextButton(
-                    onClick = { viewModel.disconnectProvider(bank.id) },
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    enabled = !isLoading
-                ) {
-                    Text("Disconnect Bank", color = MaterialTheme.colorScheme.error)
-                }
+            }
+            Button(
+                onClick = {
+                    when {
+                        isMonobank -> viewModel.confirmMonobankSelection()
+                        isWise -> viewModel.confirmWiseSelection()
+                        else -> viewModel.confirmEuropeanSelection(bank.id)
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                enabled = !isLoading,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Save & Sync", fontWeight = FontWeight.Bold)
+            }
+            TextButton(
+                onClick = { viewModel.disconnectProvider(bank.id) },
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                enabled = !isLoading
+            ) {
+                Text("Disconnect Bank", color = MaterialTheme.colorScheme.error)
             }
         }
     }

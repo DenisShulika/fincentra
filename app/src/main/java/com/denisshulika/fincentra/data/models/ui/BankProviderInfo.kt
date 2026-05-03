@@ -20,6 +20,13 @@ val SupportedBanks = listOf(
         brandColor = Color(0xFFE91E63)
     ),
     BankProviderInfo(
+        id = BankProviders.WISE,
+        name = "Wise",
+        logo = R.drawable.wise_logo,
+        brandColor = Color(0xFF00B67A),
+        subtitle = "Global Multi-currency"
+    ),
+    BankProviderInfo(
         id = BankProviders.GOOGLE_WALLET,
         name = "Google Wallet",
         logo = R.drawable.google_icon,

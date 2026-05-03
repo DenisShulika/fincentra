@@ -12,6 +12,7 @@ import com.denisshulika.fincentra.data.models.events.IntegrationsUiEvent
 import com.denisshulika.fincentra.data.models.ui.BankProviderInfo
 import com.denisshulika.fincentra.data.models.ui.EuropeanDemoBanks
 import com.denisshulika.fincentra.data.models.ui.EuropeanProvider
+import com.denisshulika.fincentra.data.network.wise.WiseService
 import com.denisshulika.fincentra.data.repository.SaltEdgeRepository
 import com.denisshulika.fincentra.data.util.BankProviders
 import com.denisshulika.fincentra.data.util.DeepLinkHandler
@@ -107,6 +108,14 @@ class IntegrationsViewModel : ViewModel() {
     val isWalletUserEnabled = settingsRepository.isWalletSyncEnabledFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    private val _isWiseLoading = MutableStateFlow(false)
+    val isWiseLoading = _isWiseLoading.asStateFlow()
+
+    private val _wiseToken = MutableStateFlow("")
+    val wiseToken = _wiseToken.asStateFlow()
+
+    private val wiseService = WiseService()
+
     fun toggleWalletSync(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.saveWalletSyncEnabled(enabled)
@@ -135,8 +144,10 @@ class IntegrationsViewModel : ViewModel() {
     }
 
     suspend fun refreshConnectionStatus() {
-        val token = settingsRepository.getMonobankApiToken()
-        _isBankConnected.value = !token.isNullOrBlank()
+        val monoToken = settingsRepository.getMonobankApiToken()
+        val wiseToken = settingsRepository.getWiseApiToken()
+
+        _isBankConnected.value = !monoToken.isNullOrBlank() || !wiseToken.isNullOrBlank()
     }
 
 
@@ -561,6 +572,79 @@ class IntegrationsViewModel : ViewModel() {
                 settingsRepository.saveWalletSyncEnabled(enabled)
                 _isWalletEnabled.value = hasSystemAccess
             }
+        }
+    }
+
+    fun onWiseTokenChange(v: String) {
+        _wiseToken.value = v
+    }
+
+    fun connectWiseAccount() {
+        viewModelScope.launch {
+            _isWiseLoading.value = true
+            try {
+                val token = _wiseToken.value.trim()
+                val accounts = wiseService.fetchAccounts(token)
+
+                if (accounts.isNotEmpty()) {
+                    settingsRepository.saveWiseApiToken(token)
+                    financeRepository.saveAccounts(accounts)
+
+                    val currentIds = _selectedIdsInUi.value.toMutableSet()
+                    accounts.forEach { currentIds.add(it.id) }
+                    _selectedIdsInUi.value = currentIds
+                    settingsRepository.saveSelectedAccountIds(currentIds.toList())
+
+                    syncWiseData(token, accounts)
+
+                    _events.emit(IntegrationsUiEvent.ShowToast(R.string.success_updated))
+                    _wiseToken.value = ""
+                }
+            } catch (e: Exception) {
+                _events.emit(IntegrationsUiEvent.ShowToast(R.string.error_token_invalid))
+            } finally {
+                _isWiseLoading.value = false
+            }
+        }
+    }
+
+    fun confirmWiseSelection() {
+        viewModelScope.launch {
+            _isWiseLoading.value = true
+            val currentList = availableAccounts.value
+
+            val selectedWiseIds = currentList
+                .filter { it.provider == BankProviders.WISE && it.selected }
+                .map { it.id }
+
+            val allSelectedIds = settingsRepository.getSelectedAccountIds().toMutableList()
+            val allAccountsInDb = financeRepository.getAccountsOnce()
+            val oldWiseIds =
+                allAccountsInDb.filter { it.provider == BankProviders.WISE }.map { it.id }
+
+            allSelectedIds.removeAll { oldWiseIds.contains(it) }
+            allSelectedIds.addAll(selectedWiseIds)
+
+            settingsRepository.saveSelectedAccountIds(allSelectedIds)
+            financeRepository.saveAccounts(currentList, updateSelection = true)
+
+            _selectedBank.value = null
+            _isWiseLoading.value = false
+        }
+    }
+
+    private suspend fun syncWiseData(token: String, accounts: List<BankAccount>) {
+        accounts.forEach { acc ->
+            wiseService.fetchTransactionsForAccount(
+                token = token,
+                accountId = acc.id,
+                accountCurrency = acc.currencyCode,
+                fromTimeSeconds = 0,
+                onProgress = {},
+                onBatchLoaded = { batch ->
+                    financeRepository.addTransactionsBatch(batch)
+                }
+            )
         }
     }
 

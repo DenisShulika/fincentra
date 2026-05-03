@@ -25,6 +25,7 @@ object FilterConstants {
 
 object BankProviders {
     const val MONOBANK = "Monobank"
+    const val WISE = "Wise"
     const val GOOGLE_WALLET = "GoogleWallet"
 }
 
