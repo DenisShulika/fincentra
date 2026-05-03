@@ -25,7 +25,9 @@ fun TreeAnimationBlock(
 ) {
     val treeStages = listOf(
         R.drawable.img_tree_dead,
+        R.drawable.img_tree_wither,
         R.drawable.img_tree_healthy,
+        R.drawable.img_tree_bloom,
         R.drawable.img_tree_money
     )
 
@@ -39,15 +41,13 @@ fun TreeAnimationBlock(
     LaunchedEffect(isVisible) {
         if (isVisible) {
             while (true) {
-                for (i in 0 until treeStages.size) {
+
+                for (i in treeStages.indices) {
                     currentIndex = i
                     delay(stayDuration)
                 }
 
                 delay(500)
-
-                currentIndex = 1
-                delay(stayDuration)
             }
         } else {
             currentIndex = 0

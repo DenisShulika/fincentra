@@ -43,14 +43,14 @@ fun DynamicWeatherOverlay(score: Int) {
     }
 
     val particles = remember(currentImage) {
-        List(18) {
+        List(15) {
             FinancialParticle(
                 x = Random.nextFloat(),
                 initialY = Random.nextFloat(),
                 speedMultiplier = Random.nextInt(1, 4).toFloat(),
-                size = Random.nextFloat() * 30f + 40f,
+                size = Random.nextFloat() * 50f + 40f,
                 rotation = Random.nextFloat() * 360f,
-                opacity = Random.nextFloat() * 0.2f + 0.06f
+                opacity = Random.nextFloat() * 0.4f + 0.06f
             )
         }
     }

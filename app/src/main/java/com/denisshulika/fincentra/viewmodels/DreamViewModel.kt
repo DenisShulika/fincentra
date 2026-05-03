@@ -70,7 +70,9 @@ class DreamViewModel : ViewModel() {
     }
 
     fun onEmojiChange(v: String) {
-        if (v.length <= 1) _emoji.value = v
+        if (v.length <= 8) {
+            _emoji.value = v
+        }
     }
 
     fun prepareForEdit(dream: Dream) {

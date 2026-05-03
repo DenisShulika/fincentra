@@ -69,7 +69,7 @@ fun DreamForm(
                     if (it.length <= 2) onEmojiChange(it)
                 },
                 label = { Text("Icon") },
-                modifier = Modifier.width(70.dp),
+                modifier = Modifier.width(80.dp),
                 shape = RoundedCornerShape(16.dp),
                 singleLine = true,
                 textStyle = MaterialTheme.typography.headlineSmall.copy(textAlign = TextAlign.Center)
