@@ -92,16 +92,22 @@ fun FinCentraDrawer(
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             HorizontalDivider(
                 modifier = Modifier.padding(horizontal = 24.dp),
-                thickness = 0.5.dp,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
+                thickness = 2.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             val menuItems =
-                listOf(Screen.Profile, Screen.Integrations, Screen.Budgets, Screen.Dream)
+                listOf(
+                    Screen.Profile,
+                    Screen.Integrations,
+                    Screen.Budgets,
+                    Screen.Dream,
+                    Screen.Subscriptions
+                )
 
             Column(modifier = Modifier.weight(1f)) {
                 menuItems.forEach { screen ->
@@ -114,12 +120,10 @@ fun FinCentraDrawer(
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
-
             HorizontalDivider(
                 modifier = Modifier.padding(horizontal = 24.dp),
-                thickness = 0.5.dp,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
+                thickness = 2.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
             )
 
             Column(modifier = Modifier.padding(bottom = 24.dp)) {

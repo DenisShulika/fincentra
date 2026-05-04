@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.TrackChanges
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -39,4 +40,9 @@ sealed class Screen(
     data object Settings : Screen("settings", R.string.nav_settings, Icons.Default.Settings)
     data object Login : Screen("login", R.string.nav_login, Icons.AutoMirrored.Filled.Login)
     data object Register : Screen("register", R.string.nav_register, Icons.Default.AppRegistration)
+    data object Subscriptions : Screen(
+        route = "subscriptions",
+        titleRes = R.string.nav_subscriptions,
+        icon = Icons.Default.Repeat
+    )
 }

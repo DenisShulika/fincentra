@@ -50,6 +50,7 @@ import com.denisshulika.fincentra.ui.screens.ProfileScreen
 import com.denisshulika.fincentra.ui.screens.RegisterScreen
 import com.denisshulika.fincentra.ui.screens.SettingsScreen
 import com.denisshulika.fincentra.ui.screens.StatsScreen
+import com.denisshulika.fincentra.ui.screens.SubscriptionScreen
 import com.denisshulika.fincentra.ui.screens.TransactionsScreen
 import com.denisshulika.fincentra.ui.theme.FinCentraTheme
 import com.denisshulika.fincentra.viewmodels.AuthViewModel
@@ -59,6 +60,7 @@ import com.denisshulika.fincentra.viewmodels.IntegrationsViewModel
 import com.denisshulika.fincentra.viewmodels.ProfileViewModel
 import com.denisshulika.fincentra.viewmodels.SettingsViewModel
 import com.denisshulika.fincentra.viewmodels.StatsViewModel
+import com.denisshulika.fincentra.viewmodels.SubscriptionViewModel
 import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 import kotlinx.coroutines.launch
 
@@ -123,6 +125,7 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
     val authViewModel: AuthViewModel = viewModel()
     val integrationsViewModel: IntegrationsViewModel = viewModel()
     val transactionsViewModel: TransactionsViewModel = viewModel()
+    val subscriptionViewModel: SubscriptionViewModel = viewModel()
     val statsViewModel: StatsViewModel = viewModel()
     val profileViewModel: ProfileViewModel = viewModel()
     val budgetsViewModel: BudgetsViewModel = viewModel()
@@ -219,6 +222,7 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
                     budgetsViewModel,
                     dreamViewModel,
                     settingsViewModel,
+                    subViewModel = subscriptionViewModel,
                     navController = navController,
                     onNavigateToTransactions = { navigateWithClearStack(Screen.Transactions.route) },
                     onOpenDrawer = {},
@@ -271,23 +275,33 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
                 onBack = { navController.popBackStack() },
                 onNavigateToSettings = { navController.navigate(Screen.Settings.route) })
         }
+
         composable(Screen.Integrations.route) {
             IntegrationsScreen(integrationsViewModel, onBack = { navController.popBackStack() })
         }
+
         composable(Screen.Budgets.route) {
             BudgetsScreen(budgetsViewModel, onBack = { navController.popBackStack() })
         }
+
         composable(Screen.Dream.route) {
             DreamScreen(dreamViewModel, onBack = { navController.popBackStack() })
         }
+
         composable(Screen.Settings.route) {
             SettingsScreen(
                 settingsViewModel,
                 onBack = { navController.popBackStack() },
                 onLogout = { navController.navigate(Screen.Login.route) { popUpTo(0) } })
         }
+
         composable(Screen.About.route) {
             AboutScreen(onBack = { navController.popBackStack() })
+        }
+
+        composable(Screen.Subscriptions.route) {
+            val subViewModel: SubscriptionViewModel = viewModel()
+            SubscriptionScreen(subViewModel, onBack = { navController.popBackStack() })
         }
     }
 }

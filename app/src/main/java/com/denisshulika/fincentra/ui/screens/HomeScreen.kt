@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -71,6 +73,7 @@ import com.denisshulika.fincentra.viewmodels.BudgetsViewModel
 import com.denisshulika.fincentra.viewmodels.DreamViewModel
 import com.denisshulika.fincentra.viewmodels.SettingsViewModel
 import com.denisshulika.fincentra.viewmodels.StatsViewModel
+import com.denisshulika.fincentra.viewmodels.SubscriptionViewModel
 import com.denisshulika.fincentra.viewmodels.TransactionsViewModel
 import kotlin.math.absoluteValue
 
@@ -82,6 +85,7 @@ fun HomeScreen(
     budgetsViewModel: BudgetsViewModel,
     dreamViewModel: DreamViewModel,
     settingsViewModel: SettingsViewModel,
+    subViewModel: SubscriptionViewModel,
     aiViewModel: AiViewModel = viewModel(),
     navController: NavController,
     onNavigateToTransactions: () -> Unit,
@@ -130,6 +134,9 @@ fun HomeScreen(
     }
 
     val healthScore by statsViewModel.healthScore.collectAsStateWithLifecycle()
+
+    val upcomingSubs by subViewModel.upcomingSubscriptions.collectAsStateWithLifecycle()
+
     Box(modifier = Modifier.fillMaxSize()) {
 
         DynamicWeatherOverlay(score = healthScore)
@@ -388,6 +395,69 @@ fun HomeScreen(
                             critical.take(2).forEach { item ->
                                 BudgetProgressItem(item = item, onClick = onNavigateToBudgets)
                                 Spacer(modifier = Modifier.height(12.dp))
+                            }
+                        }
+                    }
+                }
+
+                if (upcomingSubs.isNotEmpty()) {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                        ) {
+                            Text(
+                                text = "Upcoming Bills (${upcomingSubs.size})",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                items(upcomingSubs) { sub ->
+                                    Card(
+                                        modifier = Modifier.width(180.dp),
+                                        shape = RoundedCornerShape(16.dp),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(
+                                                alpha = 0.4f
+                                            )
+                                        )
+                                    ) {
+                                        Column(modifier = Modifier.padding(16.dp)) {
+                                            Text(
+                                                text = sub.name,
+                                                maxLines = 1,
+                                                fontWeight = FontWeight.Bold,
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+
+                                            val days =
+                                                ((sub.nextPaymentDate - System.currentTimeMillis()) / (1000 * 60 * 60 * 24)).toInt()
+                                            val daysText =
+                                                if (days <= 0) "Today" else "In $days days"
+
+                                            Text(
+                                                text = daysText,
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.primary
+                                            )
+
+                                            Spacer(modifier = Modifier.height(8.dp))
+
+                                            Text(
+                                                text = "${sub.amount} ${CurrencyMapper.getSymbol(sub.currencyCode)}",
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                fontWeight = FontWeight.Black
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

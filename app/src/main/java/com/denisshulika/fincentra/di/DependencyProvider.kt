@@ -9,6 +9,7 @@ import com.denisshulika.fincentra.data.repository.BudgetRepository
 import com.denisshulika.fincentra.data.repository.CurrencyRepository
 import com.denisshulika.fincentra.data.repository.FinanceRepository
 import com.denisshulika.fincentra.data.repository.SettingsRepository
+import com.denisshulika.fincentra.data.repository.SubscriptionRepository
 import com.denisshulika.fincentra.data.util.WidgetDataManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -68,6 +69,13 @@ object DependencyProvider {
     val widgetDataManager by lazy { WidgetDataManager(applicationContext) }
 
     val currencyRepository by lazy { CurrencyRepository(getInstance()) }
+
+    val subscriptionRepository by lazy {
+        SubscriptionRepository(
+            db = getInstance(),
+            auth = auth
+        )
+    }
 
     fun getInstance(): FirebaseFirestore {
         return FirebaseFirestore.getInstance()
