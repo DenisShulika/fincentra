@@ -1,9 +1,11 @@
 package com.denisshulika.fincentra.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.denisshulika.fincentra.data.models.domain.SubFrequency
 import com.denisshulika.fincentra.data.models.domain.Subscription
+import com.denisshulika.fincentra.data.util.DateFormatter
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -45,6 +47,14 @@ class SubscriptionViewModel : ViewModel() {
 
     private val _editingSubId = MutableStateFlow<String?>(null)
     val editingSubId = _editingSubId.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            allSubscriptions.collect { subs ->
+                checkAndAutoRenewSubscriptions(subs)
+            }
+        }
+    }
 
     fun onNameChange(v: String) {
         _name.value = v
@@ -95,6 +105,41 @@ class SubscriptionViewModel : ViewModel() {
             } finally {
                 _isLoading.value = false
             }
+        }
+    }
+
+    private fun checkAndAutoRenewSubscriptions(subs: List<Subscription>) {
+        val now = System.currentTimeMillis()
+
+        subs.forEach { sub ->
+            if (sub.nextPaymentDate < now && sub.nextPaymentDate != 0L) {
+                viewModelScope.launch {
+                    val newDate = calculateNextDate(sub.nextPaymentDate, sub.frequency)
+                    val updatedSub = sub.copy(nextPaymentDate = newDate)
+                    subRepo.saveSubscription(updatedSub)
+                    Log.d(
+                        "SUB_SYNC",
+                        "Subscription ${sub.name} renewed to ${DateFormatter.formatFullDate(newDate)}"
+                    )
+                }
+            }
+        }
+    }
+
+    private fun calculateNextDate(currentDate: Long, frequency: String): Long {
+        val cal = java.util.Calendar.getInstance()
+        cal.timeInMillis = currentDate
+
+        when (frequency) {
+            "WEEKLY" -> cal.add(java.util.Calendar.WEEK_OF_YEAR, 1)
+            "YEARLY" -> cal.add(java.util.Calendar.YEAR, 1)
+            else -> cal.add(java.util.Calendar.MONTH, 1)
+        }
+
+        return if (cal.timeInMillis < System.currentTimeMillis()) {
+            calculateNextDate(cal.timeInMillis, frequency)
+        } else {
+            cal.timeInMillis
         }
     }
 

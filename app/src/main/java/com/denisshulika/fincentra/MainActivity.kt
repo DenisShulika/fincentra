@@ -41,6 +41,7 @@ import com.denisshulika.fincentra.ui.components.transactions.TransactionsTopBar
 import com.denisshulika.fincentra.ui.screens.AboutScreen
 import com.denisshulika.fincentra.ui.screens.BudgetsScreen
 import com.denisshulika.fincentra.ui.screens.DreamScreen
+import com.denisshulika.fincentra.ui.screens.ExportScreen
 import com.denisshulika.fincentra.ui.screens.HomeScreen
 import com.denisshulika.fincentra.ui.screens.IntegrationsScreen
 import com.denisshulika.fincentra.ui.screens.LoadingScreen
@@ -56,6 +57,7 @@ import com.denisshulika.fincentra.ui.theme.FinCentraTheme
 import com.denisshulika.fincentra.viewmodels.AuthViewModel
 import com.denisshulika.fincentra.viewmodels.BudgetsViewModel
 import com.denisshulika.fincentra.viewmodels.DreamViewModel
+import com.denisshulika.fincentra.viewmodels.ExportViewModel
 import com.denisshulika.fincentra.viewmodels.IntegrationsViewModel
 import com.denisshulika.fincentra.viewmodels.ProfileViewModel
 import com.denisshulika.fincentra.viewmodels.SettingsViewModel
@@ -273,7 +275,9 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
             ProfileScreen(
                 profileViewModel,
                 onBack = { navController.popBackStack() },
-                onNavigateToSettings = { navController.navigate(Screen.Settings.route) })
+                onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
+                onNavigateToExport = { navController.navigate(Screen.Export.route) }
+            )
         }
 
         composable(Screen.Integrations.route) {
@@ -302,6 +306,14 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
         composable(Screen.Subscriptions.route) {
             val subViewModel: SubscriptionViewModel = viewModel()
             SubscriptionScreen(subViewModel, onBack = { navController.popBackStack() })
+        }
+
+        composable(Screen.Export.route) {
+            val exportViewModel: ExportViewModel = viewModel()
+            ExportScreen(
+                viewModel = exportViewModel,
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }

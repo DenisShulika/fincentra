@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.AppRegistration
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Repeat
@@ -45,4 +46,7 @@ sealed class Screen(
         titleRes = R.string.nav_subscriptions,
         icon = Icons.Default.Repeat
     )
+
+    data object Export :
+        Screen(route = "export", titleRes = R.string.nav_export, icon = Icons.Default.Description)
 }

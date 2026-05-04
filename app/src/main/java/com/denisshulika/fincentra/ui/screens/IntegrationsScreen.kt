@@ -53,7 +53,6 @@ fun IntegrationsScreen(
     onBack: () -> Unit
 ) {
     val selectedBank by viewModel.selectedBank.collectAsStateWithLifecycle()
-    val isConnected by viewModel.isBankConnected.collectAsStateWithLifecycle()
     val showDeleteDialog by viewModel.showDeleteConfirmation.collectAsStateWithLifecycle()
 
     val isEuropeanMode by viewModel.isEuropeanMode.collectAsStateWithLifecycle()
@@ -67,6 +66,7 @@ fun IntegrationsScreen(
     val savedAccounts by viewModel.availableAccounts.collectAsStateWithLifecycle()
 
     val isMonoLoading by viewModel.isMonoLoading.collectAsStateWithLifecycle()
+    val isWiseLoading by viewModel.isWiseLoading.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
 
@@ -150,8 +150,14 @@ fun IntegrationsScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(SupportedBanks) { bank ->
+                            val currentLoading = when (bank.id) {
+                                BankProviders.MONOBANK -> isMonoLoading
+                                BankProviders.WISE -> isWiseLoading
+                                else -> false
+                            }
+
                             val isConnected = if (bank.id == BankProviders.GOOGLE_WALLET) {
-                                isWalletSystemEnabled && isWalletUserEnabled
+                                isWalletUserEnabled
                             } else {
                                 savedAccounts.any { it.provider == bank.id }
                             }
@@ -159,10 +165,8 @@ fun IntegrationsScreen(
                             BankGridItem(
                                 bank = bank,
                                 isConnected = isConnected,
-                                isLoading = if (bank.id == BankProviders.GOOGLE_WALLET) false else isMonoLoading,
-                                onClick = {
-                                    viewModel.selectBank(bank, context)
-                                }
+                                isLoading = currentLoading,
+                                onClick = { viewModel.selectBank(bank, context) }
                             )
                         }
                     }
@@ -173,8 +177,8 @@ fun IntegrationsScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(europeanBanks) { provider ->
-                            val isThisBankConnected =
-                                savedAccounts.any { it.provider == provider.id }
+                            val isConnected = savedAccounts.any { it.provider == provider.id }
+                            val isThisBankLoading = isEuroLoading && loadingBankId == provider.id
 
                             BankGridItem(
                                 bank = BankProviderInfo(
@@ -184,8 +188,8 @@ fun IntegrationsScreen(
                                     brandColor = provider.brandColor,
                                     subtitle = provider.countryName
                                 ),
-                                isConnected = savedAccounts.any { it.provider == provider.id },
-                                isLoading = isEuroLoading && loadingBankId == provider.id,
+                                isConnected = isConnected,
+                                isLoading = isThisBankLoading,
                                 onClick = {
                                     viewModel.selectBank(
                                         BankProviderInfo(

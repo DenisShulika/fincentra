@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -121,15 +122,16 @@ fun BankDetailsContent(
         if (!isAlreadyConnected) {
             when (bank.id) {
                 BankProviders.GOOGLE_WALLET -> WalletSetupContent(viewModel, context)
-
                 BankProviders.MONOBANK -> MonobankSetupContent(viewModel, monoToken, isLoading)
-
                 BankProviders.WISE -> WiseSetupContent(viewModel, wiseToken, isLoading)
-
                 else -> EuropeanSetupContent(viewModel, bank, isLoading, syncStatus)
             }
         } else {
-            ConnectedBankContent(viewModel, bank, bankAccounts, isWise, isMonobank, isLoading)
+            when {
+                isMonobank -> MonobankConnectedContent(viewModel, bank, bankAccounts, isLoading)
+                isWise -> WiseConnectedContent(viewModel, bank, bankAccounts, isLoading)
+                else -> EuropeanConnectedContent(viewModel, bank, bankAccounts, isLoading)
+            }
         }
     }
 }
@@ -377,25 +379,48 @@ fun EuropeanSetupContent(
 }
 
 @Composable
-fun ConnectedBankContent(
+fun MonobankConnectedContent(
     viewModel: IntegrationsViewModel,
     bank: BankProviderInfo,
     bankAccounts: List<BankAccount>,
-    isMonobank: Boolean,
-    isWise: Boolean,
     isLoading: Boolean
 ) {
     Column {
+        Surface(
+            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier
+                .padding(bottom = 20.dp)
+                .fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Default.Info,
+                    null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    text = stringResource(R.string.bank_sync_warning),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+
         Text(
-            text = "Select Accounts",
+            text = "Select Monobank Accounts",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .padding(vertical = 8.dp)
-        ) {
+
+        LazyColumn(modifier = Modifier
+            .weight(1f)
+            .padding(vertical = 8.dp)) {
             items(bankAccounts) { account ->
                 Row(
                     modifier = Modifier
@@ -422,35 +447,216 @@ fun ConnectedBankContent(
                 }
             }
         }
+
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (isMonobank) {
-                OutlinedButton(
-                    onClick = viewModel::refreshMonobankAccounts,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    enabled = !isLoading,
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(stringResource(R.string.bank_btn_refresh))
-                }
+            OutlinedButton(
+                onClick = viewModel::refreshMonobankAccounts,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                enabled = !isLoading,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(stringResource(R.string.bank_btn_refresh))
             }
+
             Button(
-                onClick = {
-                    when {
-                        isMonobank -> viewModel.confirmMonobankSelection()
-                        isWise -> viewModel.confirmWiseSelection()
-                        else -> viewModel.confirmEuropeanSelection(bank.id)
-                    }
-                },
+                onClick = viewModel::confirmMonobankSelection,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 enabled = !isLoading,
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Save & Sync", fontWeight = FontWeight.Bold)
+                Text("Save & Sync Monobank", fontWeight = FontWeight.Bold)
             }
+
+            TextButton(
+                onClick = { viewModel.disconnectProvider(bank.id) },
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                enabled = !isLoading
+            ) {
+                Text("Disconnect Monobank", color = MaterialTheme.colorScheme.error)
+            }
+        }
+    }
+}
+
+@Composable
+fun WiseConnectedContent(
+    viewModel: IntegrationsViewModel,
+    bank: BankProviderInfo,
+    bankAccounts: List<BankAccount>,
+    isLoading: Boolean
+) {
+    Column {
+        Surface(
+            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier
+                .padding(bottom = 20.dp)
+                .fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Default.Info,
+                    null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    text = "Wise sync might take a few seconds to update all currency balances.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+
+        Text(
+            text = "Wise Multi-currency Accounts",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+
+        LazyColumn(modifier = Modifier
+            .weight(1f)
+            .padding(vertical = 8.dp)) {
+            items(bankAccounts) { account ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp)
+                        .clickable { if (!isLoading) viewModel.toggleAccountSelection(account.id) },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = account.selected,
+                        onCheckedChange = { if (!isLoading) viewModel.toggleAccountSelection(account.id) },
+                        enabled = !isLoading
+                    )
+                    Column {
+                        Text(account.name, fontWeight = FontWeight.Bold)
+                        Text(
+                            "${String.format("%.2f", account.balance)} ${
+                                CurrencyMapper.getSymbol(
+                                    account.currencyCode
+                                )
+                            }", color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(
+                onClick = viewModel::confirmWiseSelection,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                enabled = !isLoading,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Save & Sync Wise", fontWeight = FontWeight.Bold)
+            }
+
+            TextButton(
+                onClick = { viewModel.disconnectProvider(bank.id) },
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                enabled = !isLoading
+            ) {
+                Text("Disconnect Wise", color = MaterialTheme.colorScheme.error)
+            }
+        }
+    }
+}
+
+@Composable
+fun EuropeanConnectedContent(
+    viewModel: IntegrationsViewModel,
+    bank: BankProviderInfo,
+    bankAccounts: List<BankAccount>,
+    isLoading: Boolean
+) {
+    Column {
+        Surface(
+            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier
+                .padding(bottom = 20.dp)
+                .fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Default.Info,
+                    null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    text = "European bank data is fetched via Salt Edge secure PSD2 gateway.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+
+        Text(
+            text = "Available European Accounts",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+
+        LazyColumn(modifier = Modifier
+            .weight(1f)
+            .padding(vertical = 8.dp)) {
+            items(bankAccounts) { account ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp)
+                        .clickable { if (!isLoading) viewModel.toggleAccountSelection(account.id) },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = account.selected,
+                        onCheckedChange = { if (!isLoading) viewModel.toggleAccountSelection(account.id) },
+                        enabled = !isLoading
+                    )
+                    Column {
+                        Text(account.name, fontWeight = FontWeight.Bold)
+                        Text(
+                            "${String.format("%.2f", account.balance)} ${
+                                CurrencyMapper.getSymbol(
+                                    account.currencyCode
+                                )
+                            }", color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(
+                onClick = { viewModel.confirmEuropeanSelection(bank.id) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                enabled = !isLoading,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Save & Sync European Hub", fontWeight = FontWeight.Bold)
+            }
+
             TextButton(
                 onClick = { viewModel.disconnectProvider(bank.id) },
                 modifier = Modifier.align(Alignment.CenterHorizontally),

@@ -236,10 +236,10 @@ class IntegrationsViewModel : ViewModel() {
                 delay(2000)
             } finally {
                 if (needsCooldown) {
-                    _monoSyncProgress.value = 0f
                     waitForApiCooldown(60)
                 }
                 _monoSyncStatus.value = ""
+                _monoSyncProgress.value = 0f
                 _isMonoLoading.value = false
             }
         }
@@ -247,10 +247,11 @@ class IntegrationsViewModel : ViewModel() {
 
     private suspend fun waitForApiCooldown(seconds: Int) {
         for (i in seconds downTo 1) {
-            _isMonoLoading.value = true
             _monoSyncStatus.value = "COOLDOWN:$i"
+            _monoSyncProgress.value = (seconds - i).toFloat() / seconds.toFloat()
             delay(1000)
         }
+        _monoSyncProgress.value = 1f
     }
 
     fun refreshMonobankAccounts() {
@@ -281,20 +282,24 @@ class IntegrationsViewModel : ViewModel() {
     fun confirmMonobankSelection() {
         viewModelScope.launch {
             _isMonoLoading.value = true
-            val allAccounts = financeRepository.getAccountsOnce()
-            val monoAccountIds =
-                allAccounts.filter { it.provider == BankProviders.MONOBANK }.map { it.id }
+            try {
+                val currentUiAccounts = availableAccounts.value
 
-            val currentAllSelected = settingsRepository.getSelectedAccountIds().toMutableList()
-            currentAllSelected.removeAll { monoAccountIds.contains(it) }
-            currentAllSelected.addAll(_selectedIdsInUi.value.filter { id ->
-                monoAccountIds.contains(
-                    id
-                )
-            })
+                val finalSelectedIds = _selectedIdsInUi.value.toList()
 
-            settingsRepository.saveSelectedAccountIds(currentAllSelected)
-            syncMonobankData()
+                settingsRepository.saveSelectedAccountIds(finalSelectedIds)
+                Log.d("DB_SAVE", "Saved selectedIds to settings: $finalSelectedIds")
+
+                financeRepository.saveAccounts(currentUiAccounts, updateSelection = true)
+                Log.d("DB_SAVE", "Updated accounts collection")
+
+                syncMonobankData()
+            } catch (e: Exception) {
+                Log.e("DB_SAVE", "Failed to save: ${e.message}")
+                _events.emit(IntegrationsUiEvent.ShowToast(R.string.error_unknown))
+            } finally {
+                _isMonoLoading.value = false
+            }
         }
     }
 
