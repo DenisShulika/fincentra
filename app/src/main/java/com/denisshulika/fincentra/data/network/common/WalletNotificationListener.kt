@@ -2,70 +2,95 @@ package com.denisshulika.fincentra.data.network.common
 
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import android.util.Log
 import com.denisshulika.fincentra.data.models.domain.Transaction
+import com.denisshulika.fincentra.data.models.domain.TransactionCategory
 import com.denisshulika.fincentra.di.DependencyProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class WalletNotificationListener : NotificationListenerService() {
 
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val activeJobs = mutableMapOf<String, Job>()
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         val pkg = sbn.packageName
         if (pkg != "com.google.android.apps.walletnfcrel" && pkg != "com.google.android.gms") return
 
-        val extras = sbn.notification.extras
-        val title = extras.getString("android.title") ?: "Payment"
-        val text = extras.getString("android.text") ?: ""
+        val notificationKey = sbn.key
 
-        if (text.isNotBlank()) {
-            parseAndSaveTransaction(pkg, title, text)
+        activeJobs[notificationKey]?.cancel()
+
+        activeJobs[notificationKey] = scope.launch {
+            delay(4000)
+
+            val currentSbn = activeNotifications.find { it.key == notificationKey } ?: sbn
+            val extras = currentSbn.notification.extras
+            val title = extras.getString("android.title") ?: ""
+            val text = extras.getString("android.text") ?: ""
+
+            saveLogToFirebase("Package: $pkg | Title: $title | Text: $text")
+
+            val currencyMarkers = listOf("грн", "UAH", "EUR", "€", "RON", "USD", "$", "PLN", "zł")
+            if (currencyMarkers.any { text.contains(it) } && text.any { it.isDigit() }) {
+                parseAndSaveTransaction(title, text)
+            }
+
+            activeJobs.remove(notificationKey)
         }
     }
 
-    private fun parseAndSaveTransaction(pkg: String, title: String, text: String) {
-        scope.launch {
-            val isEnabled = DependencyProvider.settingsRepository.isWalletSyncEnabled()
+    private suspend fun parseAndSaveTransaction(merchant: String, text: String) {
+        val isEnabled = DependencyProvider.settingsRepository.isWalletSyncEnabled()
+        if (!isEnabled) return
 
-            saveLogToFirebase("Package: $pkg | Title: $title | Text: $text | AppEnabled: $isEnabled")
+        try {
+            val amountRegex = "([\\d\\s,.]+?)\\s?(грн|UAH|EUR|€|RON|USD|\\$|PLN|zł)".toRegex()
+            val match = amountRegex.find(text) ?: return
 
-            if (!isEnabled) return@launch
+            val rawAmount = match.groupValues[1]
+                .replace("\\s".toRegex(), "")
+                .replace(",", ".")
+                .toDoubleOrNull() ?: return
 
-            try {
-                val amountRegex = "([\\d\\s,.]+?)\\s?(UAH|грн|EUR|€|RON|USD|\\$)".toRegex()
-                val match = amountRegex.find(text) ?: return@launch
+            val currencyCode = mapCurrency(match.groupValues[2])
 
-                val rawAmount = match.groupValues[1]
-                    .replace("\\s".toRegex(), "")
-                    .replace(",", ".")
-                    .toDoubleOrNull() ?: return@launch
+            val uniqueId = "wallet_${merchant.hashCode()}_${(rawAmount * 100).toInt()}"
 
-                val currencyStr = match.groupValues[2]
-                val currencyCode = when {
-                    currencyStr.contains("RON") -> 946
-                    currencyStr.contains("EUR") || currencyStr.contains("€") -> 978
-                    currencyStr.contains("UAH") || currencyStr.contains("грн") -> 980
-                    else -> 840
-                }
+            val newTx = Transaction(
+                id = uniqueId,
+                amount = rawAmount,
+                description = merchant,
+                timestamp = System.currentTimeMillis(),
+                isExpense = true,
+                bankName = "Google Wallet Sync",
+                currencyCode = currencyCode,
+                accountId = "google_wallet_sync",
+                sourceType = "NOTIFICATION",
+                category = TransactionCategory.OTHERS
+            )
 
-                val newTx = Transaction(
-                    id = "wallet_${System.currentTimeMillis()}",
-                    amount = rawAmount,
-                    description = title,
-                    timestamp = System.currentTimeMillis(),
-                    isExpense = true,
-                    bankName = "Google Wallet",
-                    currencyCode = currencyCode,
-                    accountId = "google_wallet_sync",
-                    sourceType = "NOTIFICATION"
-                )
+            DependencyProvider.financeRepository.addTransaction(newTx)
+            Log.d("WALLET_SYNC", "Final parsed: $merchant | $rawAmount")
 
-                DependencyProvider.financeRepository.addTransaction(newTx)
-            } catch (e: Exception) {
-                saveLogToFirebase("Error parsing: ${e.message}")
-            }
+        } catch (e: Exception) {
+            Log.e("WALLET_SYNC", "Parsing failed: ${e.message}")
+            saveLogToFirebase("Error parsing: ${e.message}")
+        }
+    }
+
+    private fun mapCurrency(str: String): Int {
+        return when {
+            str.contains("RON") -> 946
+            str.contains("EUR") || str.contains("€") -> 978
+            str.contains("PLN") || str.contains("zł") -> 985
+            str.contains("UAH") || str.contains("грн") -> 980
+            else -> 840
         }
     }
 

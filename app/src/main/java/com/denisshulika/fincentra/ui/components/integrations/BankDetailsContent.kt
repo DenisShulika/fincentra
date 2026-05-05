@@ -68,13 +68,13 @@ fun BankDetailsContent(
     bank: BankProviderInfo,
     viewModel: IntegrationsViewModel
 ) {
+
     val context = LocalContext.current
     val accounts by viewModel.availableAccounts.collectAsStateWithLifecycle()
     val monoToken by viewModel.monobankToken.collectAsStateWithLifecycle()
     val wiseToken by viewModel.wiseToken.collectAsStateWithLifecycle()
 
     val isMonobank = bank.id == BankProviders.MONOBANK
-    val isWallet = bank.id == BankProviders.GOOGLE_WALLET
     val isWise = bank.id == BankProviders.WISE
 
     val isLoading by when {
@@ -82,8 +82,18 @@ fun BankDetailsContent(
         isWise -> viewModel.isWiseLoading
         else -> viewModel.isEuroLoading
     }.collectAsStateWithLifecycle()
-    val syncStatus by (if (isMonobank) viewModel.monoSyncStatus else viewModel.euroSyncStatus).collectAsStateWithLifecycle()
-    val syncProgress by (if (isMonobank) viewModel.monoSyncProgress else viewModel.euroSyncProgress).collectAsStateWithLifecycle()
+
+    val syncStatus by when {
+        isMonobank -> viewModel.monoSyncStatus
+        isWise -> viewModel.wiseSyncStatus
+        else -> viewModel.euroSyncStatus
+    }.collectAsStateWithLifecycle()
+
+    val syncProgress by when {
+        isMonobank -> viewModel.monoSyncProgress
+        isWise -> viewModel.wiseSyncProgress
+        else -> viewModel.euroSyncProgress
+    }.collectAsStateWithLifecycle()
 
     val bankAccounts = accounts.filter { it.provider == bank.id }
     val isAlreadyConnected = bankAccounts.isNotEmpty()
@@ -128,8 +138,8 @@ fun BankDetailsContent(
             }
         } else {
             when {
-                isMonobank -> MonobankConnectedContent(viewModel, bank, bankAccounts, isLoading)
-                isWise -> WiseConnectedContent(viewModel, bank, bankAccounts, isLoading)
+                isMonobank -> MonobankConnectedContent(viewModel, bankAccounts, isLoading)
+                isWise -> WiseConnectedContent(viewModel, bankAccounts, isLoading)
                 else -> EuropeanConnectedContent(viewModel, bank, bankAccounts, isLoading)
             }
         }
@@ -381,7 +391,6 @@ fun EuropeanSetupContent(
 @Composable
 fun MonobankConnectedContent(
     viewModel: IntegrationsViewModel,
-    bank: BankProviderInfo,
     bankAccounts: List<BankAccount>,
     isLoading: Boolean
 ) {
@@ -472,7 +481,7 @@ fun MonobankConnectedContent(
             }
 
             TextButton(
-                onClick = { viewModel.disconnectProvider(bank.id) },
+                onClick = { viewModel.disconnectMonobank() },
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 enabled = !isLoading
             ) {
@@ -485,7 +494,6 @@ fun MonobankConnectedContent(
 @Composable
 fun WiseConnectedContent(
     viewModel: IntegrationsViewModel,
-    bank: BankProviderInfo,
     bankAccounts: List<BankAccount>,
     isLoading: Boolean
 ) {
@@ -565,7 +573,7 @@ fun WiseConnectedContent(
             }
 
             TextButton(
-                onClick = { viewModel.disconnectProvider(bank.id) },
+                onClick = { viewModel.disconnectWise() },
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 enabled = !isLoading
             ) {
@@ -658,7 +666,7 @@ fun EuropeanConnectedContent(
             }
 
             TextButton(
-                onClick = { viewModel.disconnectProvider(bank.id) },
+                onClick = { viewModel.disconnectEuropeanBank(bank.id) },
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 enabled = !isLoading
             ) {

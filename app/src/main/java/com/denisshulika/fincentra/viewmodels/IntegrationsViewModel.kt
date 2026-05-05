@@ -31,6 +31,8 @@ class IntegrationsViewModel : ViewModel() {
     private val settingsRepository = DependencyProvider.settingsRepository
     private val financeRepository = DependencyProvider.financeRepository
     private val monobankService = DependencyProvider.monobankProvider
+    private val saltEdgeRepo = SaltEdgeRepository()
+    private val wiseService = WiseService()
 
     private val _isMonoLoading = MutableStateFlow(false)
     val isMonoLoading = _isMonoLoading.asStateFlow()
@@ -38,8 +40,8 @@ class IntegrationsViewModel : ViewModel() {
     private val _isEuroLoading = MutableStateFlow(false)
     val isEuroLoading = _isEuroLoading.asStateFlow()
 
-    private val _showAccountSelection = MutableStateFlow(false)
-    val showAccountSelection = _showAccountSelection.asStateFlow()
+    private val _isWiseLoading = MutableStateFlow(false)
+    val isWiseLoading = _isWiseLoading.asStateFlow()
 
     private val _selectedIdsInUi = MutableStateFlow<Set<String>>(emptySet())
 
@@ -53,42 +55,11 @@ class IntegrationsViewModel : ViewModel() {
         }.sortedBy { it.name }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    private val _isBankConnected = MutableStateFlow(false)
-    val isBankConnected = _isBankConnected.asStateFlow()
-
-    private val _monobankToken = MutableStateFlow("")
-    val monobankToken = _monobankToken.asStateFlow()
-
     private val _isMonobankInputVisible = MutableStateFlow(false)
     val isMonobankInputVisible = _isMonobankInputVisible.asStateFlow()
 
-    private val _events = MutableSharedFlow<IntegrationsUiEvent>()
-    val events = _events.asSharedFlow()
-
-    val lastSyncTime = settingsRepository.getLastGlobalSyncTimeFlow()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
-
-    private val savedAccounts = financeRepository.accounts
-        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-
-    private val _selectedBank = MutableStateFlow<BankProviderInfo?>(null)
-    val selectedBank = _selectedBank.asStateFlow()
-
-    private val _showDeleteConfirmation = MutableStateFlow(false)
-    val showDeleteConfirmation = _showDeleteConfirmation.asStateFlow()
-
-    private val saltEdgeRepo = SaltEdgeRepository()
-
-    private val _isEuropeanMode = MutableStateFlow(false)
-    val isEuropeanMode = _isEuropeanMode.asStateFlow()
-
-    private val _europeanBanks = MutableStateFlow(EuropeanDemoBanks)
-    val europeanBanks = _europeanBanks.asStateFlow()
-
-    private val _loadingBankId = MutableStateFlow<String?>(null)
-    val loadingBankId = _loadingBankId.asStateFlow()
-
-    private var currentConnectingProviderId: String? = null
+    private val _showAccountSelection = MutableStateFlow(false)
+    val showAccountSelection = _showAccountSelection.asStateFlow()
 
     private val _monoSyncStatus = MutableStateFlow("")
     val monoSyncStatus = _monoSyncStatus.asStateFlow()
@@ -102,25 +73,46 @@ class IntegrationsViewModel : ViewModel() {
     private val _euroSyncProgress = MutableStateFlow(0f)
     val euroSyncProgress = _euroSyncProgress.asStateFlow()
 
+    private val _wiseSyncStatus = MutableStateFlow("")
+    val wiseSyncStatus = _wiseSyncStatus.asStateFlow()
+
+    private val _wiseSyncProgress = MutableStateFlow(0f)
+    val wiseSyncProgress = _wiseSyncProgress.asStateFlow()
+
+    private val _monobankToken = MutableStateFlow("")
+    val monobankToken = _monobankToken.asStateFlow()
+
+    private val _wiseToken = MutableStateFlow("")
+    val wiseToken = _wiseToken.asStateFlow()
+
+    private val _selectedBank = MutableStateFlow<BankProviderInfo?>(null)
+    val selectedBank = _selectedBank.asStateFlow()
+
+    private val _events = MutableSharedFlow<IntegrationsUiEvent>()
+    val events = _events.asSharedFlow()
+
+    private val _isBankConnected = MutableStateFlow(false)
+    val isBankConnected = _isBankConnected.asStateFlow()
+
+    private val _isEuropeanMode = MutableStateFlow(false)
+    val isEuropeanMode = _isEuropeanMode.asStateFlow()
+
+    private val _europeanBanks = MutableStateFlow(EuropeanDemoBanks)
+    val europeanBanks = _europeanBanks.asStateFlow()
+
+    private val _loadingBankId = MutableStateFlow<String?>(null)
+    val loadingBankId = _loadingBankId.asStateFlow()
+
     private val _isWalletEnabled = MutableStateFlow(false)
     val isWalletEnabled = _isWalletEnabled.asStateFlow()
 
     val isWalletUserEnabled = settingsRepository.isWalletSyncEnabledFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
-    private val _isWiseLoading = MutableStateFlow(false)
-    val isWiseLoading = _isWiseLoading.asStateFlow()
+    private var currentConnectingProviderId: String? = null
 
-    private val _wiseToken = MutableStateFlow("")
-    val wiseToken = _wiseToken.asStateFlow()
-
-    private val wiseService = WiseService()
-
-    fun toggleWalletSync(enabled: Boolean) {
-        viewModelScope.launch {
-            settingsRepository.saveWalletSyncEnabled(enabled)
-        }
-    }
+    private val _showDeleteConfirmation = MutableStateFlow(false)
+    val showDeleteConfirmation = _showDeleteConfirmation.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -135,12 +127,26 @@ class IntegrationsViewModel : ViewModel() {
         }
     }
 
-    private suspend fun getMappedAccounts(): List<BankAccount> {
-        val savedAccounts = financeRepository.getAccountsOnce()
-        val selectedIds = settingsRepository.getSelectedAccountIds()
-        return savedAccounts.map { acc ->
-            acc.copy(selected = selectedIds.contains(acc.id))
-        }.sortedBy { it.id }
+    fun dismissDeleteConfirmation() {
+        _showDeleteConfirmation.value = false
+    }
+
+    fun toggleEuropeanMode(enabled: Boolean) {
+        _isEuropeanMode.value = enabled
+    }
+
+    private fun mapCurrencyToIso(code: String?): Int {
+        return when (code?.uppercase()) {
+            "UAH" -> 980
+            "USD" -> 840
+            "EUR" -> 978
+            "RON" -> 946
+            "PLN" -> 985
+            "GBP" -> 826
+            "HUF" -> 348
+            "CZK" -> 203
+            else -> 0
+        }
     }
 
     suspend fun refreshConnectionStatus() {
@@ -149,7 +155,6 @@ class IntegrationsViewModel : ViewModel() {
 
         _isBankConnected.value = !monoToken.isNullOrBlank() || !wiseToken.isNullOrBlank()
     }
-
 
     fun selectBank(bank: BankProviderInfo, context: Context) {
         if (bank.id == BankProviders.GOOGLE_WALLET) {
@@ -162,11 +167,38 @@ class IntegrationsViewModel : ViewModel() {
         }
     }
 
+    private suspend fun getMappedAccounts(): List<BankAccount> {
+        val savedAccounts = financeRepository.getAccountsOnce()
+        val selectedIds = settingsRepository.getSelectedAccountIds()
+        return savedAccounts.map { acc ->
+            acc.copy(selected = selectedIds.contains(acc.id))
+        }.sortedBy { it.id }
+    }
+
     fun closeBankDetails() {
         _selectedBank.value = null
     }
 
-    fun syncMonobankData() {
+    fun toggleAccountSelection(id: String) {
+        val current = _selectedIdsInUi.value.toMutableSet()
+        if (current.contains(id)) current.remove(id) else current.add(id)
+        _selectedIdsInUi.value = current
+    }
+
+    fun onMonobankTokenChange(v: String) {
+        _monobankToken.value = v
+    }
+
+    private suspend fun waitForApiCooldown(seconds: Int) {
+        for (i in seconds downTo 1) {
+            _monoSyncStatus.value = "COOLDOWN:$i"
+            _monoSyncProgress.value = (seconds - i).toFloat() / seconds.toFloat()
+            delay(1000)
+        }
+        _monoSyncProgress.value = 1f
+    }
+
+    private fun syncMonobankData() {
         viewModelScope.launch {
             if (_isMonoLoading.value && _monoSyncStatus.value.isNotEmpty()) return@launch
             _isMonoLoading.value = true
@@ -245,77 +277,6 @@ class IntegrationsViewModel : ViewModel() {
         }
     }
 
-    private suspend fun waitForApiCooldown(seconds: Int) {
-        for (i in seconds downTo 1) {
-            _monoSyncStatus.value = "COOLDOWN:$i"
-            _monoSyncProgress.value = (seconds - i).toFloat() / seconds.toFloat()
-            delay(1000)
-        }
-        _monoSyncProgress.value = 1f
-    }
-
-    fun refreshMonobankAccounts() {
-        viewModelScope.launch {
-            if (_isMonoLoading.value && _monoSyncStatus.value.isNotEmpty()) return@launch
-            _isMonoLoading.value = true
-            try {
-                val token = settingsRepository.getMonobankApiToken() ?: return@launch
-                val actualAccounts = monobankService.fetchAccounts(token)
-                if (actualAccounts.isNotEmpty()) {
-                    val selectedIds = settingsRepository.getSelectedAccountIds()
-                    val mergedAccounts = actualAccounts.map { acc ->
-                        acc.copy(selected = selectedIds.contains(acc.id))
-                    }.sortedBy { it.id }
-
-                    financeRepository.saveAccounts(mergedAccounts, updateSelection = false)
-                    _availableAccounts.value = mergedAccounts
-                    _events.emit(IntegrationsUiEvent.ShowToast(R.string.success_updated))
-                }
-                waitForApiCooldown(60)
-            } finally {
-                _isMonoLoading.value = false
-                _monoSyncStatus.value = ""
-            }
-        }
-    }
-
-    fun confirmMonobankSelection() {
-        viewModelScope.launch {
-            _isMonoLoading.value = true
-            try {
-                val currentUiAccounts = availableAccounts.value
-
-                val finalSelectedIds = _selectedIdsInUi.value.toList()
-
-                settingsRepository.saveSelectedAccountIds(finalSelectedIds)
-                Log.d("DB_SAVE", "Saved selectedIds to settings: $finalSelectedIds")
-
-                financeRepository.saveAccounts(currentUiAccounts, updateSelection = true)
-                Log.d("DB_SAVE", "Updated accounts collection")
-
-                syncMonobankData()
-            } catch (e: Exception) {
-                Log.e("DB_SAVE", "Failed to save: ${e.message}")
-                _events.emit(IntegrationsUiEvent.ShowToast(R.string.error_unknown))
-            } finally {
-                _isMonoLoading.value = false
-            }
-        }
-    }
-
-    fun openAccountSettings() {
-        viewModelScope.launch {
-            _isMonoLoading.value = true
-            try {
-                _availableAccounts.value = getMappedAccounts()
-            } finally {
-                if (_monoSyncStatus.value.isEmpty()) {
-                    _isMonoLoading.value = false
-                }
-            }
-        }
-    }
-
     fun connectMonobankAccount() {
         viewModelScope.launch {
             if (_isMonoLoading.value && _monoSyncStatus.value.isNotEmpty()) return@launch
@@ -348,97 +309,221 @@ class IntegrationsViewModel : ViewModel() {
         }
     }
 
-    fun openMonobankAuth() {
-        viewModelScope.launch { _events.emit(IntegrationsUiEvent.OpenUrl("https://api.monobank.ua/")) }
+    fun confirmMonobankSelection() {
+        viewModelScope.launch {
+            _isMonoLoading.value = true
+            val monoAccountIds = financeRepository.getAccountsOnce()
+                .filter { it.provider == BankProviders.MONOBANK }.map { it.id }
+
+            val selectedForMono = _selectedIdsInUi.value.filter { monoAccountIds.contains(it) }
+
+            if (selectedForMono.isEmpty()) {
+                _events.emit(IntegrationsUiEvent.ShowToast(R.string.error_no_accounts_selected))
+                _isMonoLoading.value = false
+                return@launch
+            }
+
+            val allSelectedIds = settingsRepository.getSelectedAccountIds().toMutableList()
+            allSelectedIds.removeAll { monoAccountIds.contains(it) }
+            allSelectedIds.addAll(selectedForMono)
+
+            settingsRepository.saveSelectedAccountIds(allSelectedIds)
+            syncMonobankData()
+            _selectedBank.value = null
+            _isMonoLoading.value = false
+        }
     }
 
-    fun toggleAccountSelection(id: String) {
-        val current = _selectedIdsInUi.value.toMutableSet()
-        if (current.contains(id)) current.remove(id) else current.add(id)
-        _selectedIdsInUi.value = current
+    fun refreshMonobankAccounts() {
+        viewModelScope.launch {
+            if (_isMonoLoading.value && _monoSyncStatus.value.isNotEmpty()) return@launch
+            _isMonoLoading.value = true
+            try {
+                val token = settingsRepository.getMonobankApiToken() ?: return@launch
+                val actualAccounts = monobankService.fetchAccounts(token)
+                if (actualAccounts.isNotEmpty()) {
+                    val selectedIds = settingsRepository.getSelectedAccountIds()
+                    val mergedAccounts = actualAccounts.map { acc ->
+                        acc.copy(selected = selectedIds.contains(acc.id))
+                    }.sortedBy { it.id }
+
+                    financeRepository.saveAccounts(mergedAccounts, updateSelection = false)
+                    _availableAccounts.value = mergedAccounts
+                    _events.emit(IntegrationsUiEvent.ShowToast(R.string.success_updated))
+                }
+                waitForApiCooldown(60)
+            } finally {
+                _isMonoLoading.value = false
+                _monoSyncStatus.value = ""
+            }
+        }
     }
 
-    fun toggleAccountBottomSheet(show: Boolean) {
-        _showAccountSelection.value = show
-    }
-
-    fun onMonobankTokenChange(newToken: String) {
-        _monobankToken.value = newToken
-    }
-
-    fun toggleMonobankInput(visible: Boolean) {
-        _isMonobankInputVisible.value = visible
-    }
-
-    fun askDeleteConfirmation() {
-        _showDeleteConfirmation.value = true
-    }
-
-    fun dismissDeleteConfirmation() {
-        _showDeleteConfirmation.value = false
-    }
-
-    fun removeMonobankIntegration() {
+    fun disconnectMonobank() {
         viewModelScope.launch {
             _isMonoLoading.value = true
             try {
+                val allAccounts = financeRepository.getAccountsOnce()
+                val monoAccountIds =
+                    allAccounts.filter { it.provider == BankProviders.MONOBANK }.map { it.id }
+
+                // 2. Оновлюємо глобальний список вибраних ID
+                val currentSelectedIds = settingsRepository.getSelectedAccountIds().toMutableList()
+                currentSelectedIds.removeAll { monoAccountIds.contains(it) }
+                settingsRepository.saveSelectedAccountIds(currentSelectedIds)
+
+                // 3. Очищуємо токен та видаляємо акаунти з БД
                 settingsRepository.saveMonobankApiToken(null)
-                settingsRepository.saveSelectedAccountIds(emptyList())
                 financeRepository.deleteMonobankAccounts()
 
+                // 4. Оновлюємо стани UI
                 _isBankConnected.value = false
-                _availableAccounts.value = emptyList()
+                _selectedIdsInUi.value = currentSelectedIds.toSet()
                 _selectedBank.value = null
                 _events.emit(IntegrationsUiEvent.ShowToast(R.string.success_updated))
             } finally {
                 _isMonoLoading.value = false
-                _showDeleteConfirmation.value = false
+                refreshConnectionStatus()
+            }
+        }
+    }
+
+    fun onWiseTokenChange(v: String) {
+        _wiseToken.value = v
+    }
+
+    fun connectWiseAccount() {
+        viewModelScope.launch {
+            _isWiseLoading.value = true
+            try {
+                val token = _wiseToken.value.trim()
+                val accounts = wiseService.fetchAccounts(token)
+                if (accounts.isNotEmpty()) {
+                    settingsRepository.saveWiseApiToken(token)
+                    financeRepository.saveAccounts(accounts)
+
+                    val currentIds = _selectedIdsInUi.value.toMutableSet()
+                    accounts.forEach { currentIds.add(it.id) }
+                    _selectedIdsInUi.value = currentIds
+                    settingsRepository.saveSelectedAccountIds(currentIds.toList())
+
+                    syncWiseData(token, accounts)
+
+                    _events.emit(IntegrationsUiEvent.ShowToast(R.string.success_updated))
+                    _wiseToken.value = ""
+                }
+            } catch (e: Exception) {
+                _events.emit(IntegrationsUiEvent.ShowToast(R.string.error_token_invalid))
+            } finally {
+                _isWiseLoading.value = false
+            }
+        }
+    }
+
+    fun confirmWiseSelection() {
+        viewModelScope.launch {
+            _isWiseLoading.value = true
+            val currentList = availableAccounts.value
+
+            val selectedWiseIds = currentList
+                .filter { it.provider == BankProviders.WISE && it.selected }
+                .map { it.id }
+
+            val allSelectedIds = settingsRepository.getSelectedAccountIds().toMutableList()
+            val allAccountsInDb = financeRepository.getAccountsOnce()
+            val oldWiseIds =
+                allAccountsInDb.filter { it.provider == BankProviders.WISE }.map { it.id }
+
+            allSelectedIds.removeAll { oldWiseIds.contains(it) }
+            allSelectedIds.addAll(selectedWiseIds)
+
+            settingsRepository.saveSelectedAccountIds(allSelectedIds)
+            financeRepository.saveAccounts(currentList, updateSelection = true)
+
+            _selectedBank.value = null
+            _isWiseLoading.value = false
+        }
+    }
+
+    fun toggleWalletSync(enabled: Boolean, context: Context) {
+        viewModelScope.launch {
+            val packageName = context.packageName
+            val flat =
+                Settings.Secure.getString(context.contentResolver, "enabled_notification_listeners")
+            val hasSystemAccess = flat?.contains(packageName) == true
+
+            if (enabled && !hasSystemAccess) {
+                _events.emit(IntegrationsUiEvent.ShowToast(R.string.error_permission_required))
+                openNotificationSettings(context)
+            } else {
+                settingsRepository.saveWalletSyncEnabled(enabled)
+                _isWalletEnabled.value = hasSystemAccess
+            }
+        }
+    }
+
+    private suspend fun syncWiseData(token: String, accounts: List<BankAccount>) {
+        _wiseSyncStatus.value = "SYNCING_WISE"
+        accounts.forEachIndexed { index, acc ->
+            wiseService.fetchTransactionsForAccount(
+                token = token,
+                accountId = acc.id,
+                accountCurrency = acc.currencyCode,
+                fromTimeSeconds = 0,
+                onProgress = {},
+                onBatchLoaded = { batch ->
+                    financeRepository.addTransactionsBatch(batch)
+                }
+            )
+            _wiseSyncProgress.value = (index + 1).toFloat() / accounts.size.toFloat()
+        }
+        _wiseSyncStatus.value = "DONE"
+        delay(1500)
+        _wiseSyncStatus.value = ""
+    }
+
+    fun disconnectWise() {
+        viewModelScope.launch {
+            _isWiseLoading.value = true
+            try {
+                val allAccounts = financeRepository.getAccountsOnce()
+                val wiseAccountIds =
+                    allAccounts.filter { it.provider == BankProviders.WISE }.map { it.id }
+
+                val currentSelectedIds = settingsRepository.getSelectedAccountIds().toMutableList()
+                currentSelectedIds.removeAll { wiseAccountIds.contains(it) }
+                settingsRepository.saveSelectedAccountIds(currentSelectedIds)
+
+                settingsRepository.saveWiseApiToken(null)
+                financeRepository.deleteAccountsByProvider(BankProviders.WISE)
+
+                _selectedIdsInUi.value = currentSelectedIds.toSet()
+                _selectedBank.value = null
+                _events.emit(IntegrationsUiEvent.ShowToast(R.string.success_updated))
+            } finally {
+                _isWiseLoading.value = false
+                refreshConnectionStatus()
             }
         }
     }
 
     fun connectEuropeanBank(provider: EuropeanProvider) {
         viewModelScope.launch {
+            _isEuroLoading.value = true
             _loadingBankId.value = provider.id
             settingsRepository.saveCurrentConnectingProviderId(provider.id)
-
             val userIdentifier = DependencyProvider.authRepository.getCurrentUser()?.uid ?: ""
-            var customerId = settingsRepository.getSaltEdgeCustomerId()
-
-            if (customerId == null) customerId = saltEdgeRepo.findCustomer(userIdentifier)
-            if (customerId == null) customerId = saltEdgeRepo.createCustomer(userIdentifier)
+            var customerId =
+                settingsRepository.getSaltEdgeCustomerId() ?: saltEdgeRepo.findCustomer(
+                    userIdentifier
+                ) ?: saltEdgeRepo.createCustomer(userIdentifier)
 
             if (customerId != null) {
                 settingsRepository.saveSaltEdgeCustomerId(customerId)
-                val connectUrl = saltEdgeRepo.getConnectUrl(customerId, provider.providerCode)
-
-                connectUrl?.let {
+                saltEdgeRepo.getConnectUrl(customerId, provider.providerCode)?.let {
                     _events.emit(IntegrationsUiEvent.OpenUrl(it))
                 }
-            } else {
-                _events.emit(IntegrationsUiEvent.ShowToast(R.string.error_unknown))
-                _loadingBankId.value = null
             }
-        }
-    }
-
-    fun confirmEuropeanSelection(providerId: String) {
-        viewModelScope.launch {
-            _isEuroLoading.value = true
-            val allAccounts = financeRepository.getAccountsOnce()
-            val euroAccountIds = allAccounts.filter { it.provider == providerId }.map { it.id }
-
-            val currentAllSelected = settingsRepository.getSelectedAccountIds().toMutableList()
-            currentAllSelected.removeAll { euroAccountIds.contains(it) }
-            currentAllSelected.addAll(_selectedIdsInUi.value.filter { id ->
-                euroAccountIds.contains(
-                    id
-                )
-            })
-
-            settingsRepository.saveSelectedAccountIds(currentAllSelected)
-            _selectedBank.value = null
-            _isEuroLoading.value = false
         }
     }
 
@@ -492,39 +577,29 @@ class IntegrationsViewModel : ViewModel() {
         }
     }
 
-    fun startEuropeanAuth(providerId: String) {
-        val provider = EuropeanDemoBanks.find { it.id == providerId } ?: return
+    fun confirmEuropeanSelection(providerId: String) {
         viewModelScope.launch {
-            currentConnectingProviderId = provider.id
             _isEuroLoading.value = true
+            val allAccounts = financeRepository.getAccountsOnce()
+            val euroAccountIds = allAccounts.filter { it.provider == providerId }.map { it.id }
 
-            val userIdentifier = DependencyProvider.authRepository.getCurrentUser()?.uid ?: ""
-            var customerId = settingsRepository.getSaltEdgeCustomerId()
+            val currentAllSelected = settingsRepository.getSelectedAccountIds().toMutableList()
+            currentAllSelected.removeAll { euroAccountIds.contains(it) }
+            currentAllSelected.addAll(_selectedIdsInUi.value.filter { id ->
+                euroAccountIds.contains(
+                    id
+                )
+            })
 
-            if (customerId == null) customerId = saltEdgeRepo.findCustomer(userIdentifier)
-            if (customerId == null) customerId = saltEdgeRepo.createCustomer(userIdentifier)
-
-            if (customerId != null) {
-                settingsRepository.saveSaltEdgeCustomerId(customerId)
-                val connectUrl = saltEdgeRepo.getConnectUrl(customerId, provider.providerCode)
-                if (connectUrl != null) {
-                    _events.emit(IntegrationsUiEvent.OpenUrl(connectUrl))
-                }
-            } else {
-                _events.emit(IntegrationsUiEvent.ShowToast(R.string.error_unknown))
-            }
+            settingsRepository.saveSelectedAccountIds(currentAllSelected)
+            _selectedBank.value = null
             _isEuroLoading.value = false
         }
     }
 
-    fun toggleEuropeanMode(enabled: Boolean) {
-        _isEuropeanMode.value = enabled
-    }
-
-    fun disconnectProvider(providerId: String) {
-        val isMono = providerId == BankProviders.MONOBANK
+    fun disconnectEuropeanBank(providerId: String) {
         viewModelScope.launch {
-            if (isMono) _isMonoLoading.value = true else _isEuroLoading.value = true
+            _isEuroLoading.value = true
             try {
                 val allAccounts = financeRepository.getAccountsOnce()
                 val providerAccountIds =
@@ -534,19 +609,13 @@ class IntegrationsViewModel : ViewModel() {
                 currentSelectedIds.removeAll { providerAccountIds.contains(it) }
                 settingsRepository.saveSelectedAccountIds(currentSelectedIds)
 
-                if (providerId == BankProviders.MONOBANK) {
-                    settingsRepository.saveMonobankApiToken(null)
-                    financeRepository.deleteMonobankAccounts()
-                    _isBankConnected.value = false
-                } else {
-                    financeRepository.deleteAccountsByProvider(providerId)
-                }
+                financeRepository.deleteAccountsByProvider(providerId)
 
-                _availableAccounts.value = getMappedAccounts()
+                _selectedIdsInUi.value = currentSelectedIds.toSet()
                 _selectedBank.value = null
                 _events.emit(IntegrationsUiEvent.ShowToast(R.string.success_updated))
             } finally {
-                if (isMono) _isMonoLoading.value = false else _isEuroLoading.value = false
+                _isEuroLoading.value = false
                 refreshConnectionStatus()
             }
         }
@@ -561,109 +630,5 @@ class IntegrationsViewModel : ViewModel() {
 
     fun openNotificationSettings(context: Context) {
         context.startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))
-    }
-
-    fun toggleWalletSync(enabled: Boolean, context: Context) {
-        viewModelScope.launch {
-            val packageName = context.packageName
-            val flat =
-                Settings.Secure.getString(context.contentResolver, "enabled_notification_listeners")
-            val hasSystemAccess = flat?.contains(packageName) == true
-
-            if (enabled && !hasSystemAccess) {
-                _events.emit(IntegrationsUiEvent.ShowToast(R.string.error_permission_required))
-                openNotificationSettings(context)
-            } else {
-                settingsRepository.saveWalletSyncEnabled(enabled)
-                _isWalletEnabled.value = hasSystemAccess
-            }
-        }
-    }
-
-    fun onWiseTokenChange(v: String) {
-        _wiseToken.value = v
-    }
-
-    fun connectWiseAccount() {
-        viewModelScope.launch {
-            _isWiseLoading.value = true
-            try {
-                val token = _wiseToken.value.trim()
-                val accounts = wiseService.fetchAccounts(token)
-
-                if (accounts.isNotEmpty()) {
-                    settingsRepository.saveWiseApiToken(token)
-                    financeRepository.saveAccounts(accounts)
-
-                    val currentIds = _selectedIdsInUi.value.toMutableSet()
-                    accounts.forEach { currentIds.add(it.id) }
-                    _selectedIdsInUi.value = currentIds
-                    settingsRepository.saveSelectedAccountIds(currentIds.toList())
-
-                    syncWiseData(token, accounts)
-
-                    _events.emit(IntegrationsUiEvent.ShowToast(R.string.success_updated))
-                    _wiseToken.value = ""
-                }
-            } catch (e: Exception) {
-                _events.emit(IntegrationsUiEvent.ShowToast(R.string.error_token_invalid))
-            } finally {
-                _isWiseLoading.value = false
-            }
-        }
-    }
-
-    fun confirmWiseSelection() {
-        viewModelScope.launch {
-            _isWiseLoading.value = true
-            val currentList = availableAccounts.value
-
-            val selectedWiseIds = currentList
-                .filter { it.provider == BankProviders.WISE && it.selected }
-                .map { it.id }
-
-            val allSelectedIds = settingsRepository.getSelectedAccountIds().toMutableList()
-            val allAccountsInDb = financeRepository.getAccountsOnce()
-            val oldWiseIds =
-                allAccountsInDb.filter { it.provider == BankProviders.WISE }.map { it.id }
-
-            allSelectedIds.removeAll { oldWiseIds.contains(it) }
-            allSelectedIds.addAll(selectedWiseIds)
-
-            settingsRepository.saveSelectedAccountIds(allSelectedIds)
-            financeRepository.saveAccounts(currentList, updateSelection = true)
-
-            _selectedBank.value = null
-            _isWiseLoading.value = false
-        }
-    }
-
-    private suspend fun syncWiseData(token: String, accounts: List<BankAccount>) {
-        accounts.forEach { acc ->
-            wiseService.fetchTransactionsForAccount(
-                token = token,
-                accountId = acc.id,
-                accountCurrency = acc.currencyCode,
-                fromTimeSeconds = 0,
-                onProgress = {},
-                onBatchLoaded = { batch ->
-                    financeRepository.addTransactionsBatch(batch)
-                }
-            )
-        }
-    }
-
-    private fun mapCurrencyToIso(code: String?): Int {
-        return when (code?.uppercase()) {
-            "UAH" -> 980
-            "USD" -> 840
-            "EUR" -> 978
-            "RON" -> 946
-            "PLN" -> 985
-            "GBP" -> 826
-            "HUF" -> 348
-            "CZK" -> 203
-            else -> 0
-        }
     }
 }

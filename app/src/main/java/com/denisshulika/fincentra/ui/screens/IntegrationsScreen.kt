@@ -72,6 +72,7 @@ fun IntegrationsScreen(
 
     LaunchedEffect(Unit) {
         viewModel.refreshConnectionStatus()
+        viewModel.checkWalletStatus(context)
         viewModel.events.collect { event ->
             when (event) {
                 is IntegrationsUiEvent.OpenUrl -> {
@@ -245,7 +246,7 @@ fun IntegrationsScreen(
             },
             text = { Text(stringResource(R.string.bank_delete_desc)) },
             confirmButton = {
-                TextButton(onClick = { viewModel.removeMonobankIntegration() }) {
+                TextButton(onClick = { viewModel.disconnectMonobank() }) {
                     Text(
                         text = stringResource(R.string.bank_delete_confirm),
                         color = MaterialTheme.colorScheme.error,
