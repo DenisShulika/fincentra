@@ -120,11 +120,15 @@ fun FinCentraDrawer(
                 }
             }
 
+            Spacer(modifier = Modifier.height(12.dp))
+
             HorizontalDivider(
                 modifier = Modifier.padding(horizontal = 24.dp),
                 thickness = 2.dp,
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
             )
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             Column(modifier = Modifier.padding(bottom = 24.dp)) {
                 DrawerItem(

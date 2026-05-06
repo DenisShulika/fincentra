@@ -6,11 +6,18 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.denisshulika.fincentra.data.models.domain.BankAccount
 import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.util.ExportManager
 import com.denisshulika.fincentra.data.util.FilterConstants
 import com.denisshulika.fincentra.di.DependencyProvider
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 class ExportViewModel : ViewModel() {
     private val financeRepository = DependencyProvider.financeRepository
@@ -40,13 +47,16 @@ class ExportViewModel : ViewModel() {
     val selectedCurrencies = _selectedCurrencies.asStateFlow()
 
     val availableSources: StateFlow<List<String>> = financeRepository.transactions
-        .map { txs ->
-            txs.map { it.bankName }.distinct().sorted()
-        }
+        .map { txs -> txs.map { it.bankName }.distinct().filter { it.isNotBlank() }.sorted() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val availableAccounts = financeRepository.accounts
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val availableAccounts: StateFlow<List<BankAccount>> = combine(
+        financeRepository.accounts,
+        _selectedSources
+    ) { accounts, selectedSources ->
+        if (selectedSources.isEmpty()) accounts
+        else accounts.filter { selectedSources.contains(it.provider) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val filteredTransactions: StateFlow<List<Transaction>> = combine(
         financeRepository.transactions,
@@ -55,22 +65,36 @@ class ExportViewModel : ViewModel() {
         _selectedSources,
         _selectedAccountIds,
         _selectedCurrencies
-    ) { txs, range, type, sources, accIds, currencies ->
+    ) { args: Array<Any?> ->
+        val txs = args[0] as List<Transaction>
+        val range = args[1] as LongRange?
+        val type = args[2] as String
+        val sources = args[3] as Set<String>
+        val accIds = args[4] as Set<String>
+        val currencies = args[5] as Set<Int>
+
         txs.filter { tx ->
             val matchesDate = range == null || tx.timestamp in range
+
             val matchesType = when (type) {
                 FilterConstants.EXPENSES -> tx.isExpense
                 FilterConstants.INCOME -> !tx.isExpense
                 else -> true
             }
+
             val matchesSource = sources.isEmpty() || sources.contains(tx.bankName)
+
             val matchesAccount = accIds.isEmpty() || accIds.contains(tx.accountId)
 
             val matchesCurrency = currencies.isEmpty() || currencies.contains(tx.currencyCode)
 
             matchesDate && matchesType && matchesSource && matchesAccount && matchesCurrency
         }.sortedByDescending { it.timestamp }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
 
     val availableCurrencies: StateFlow<List<Int>> = financeRepository.transactions
         .map { txs -> txs.map { it.currencyCode }.distinct().sorted() }

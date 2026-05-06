@@ -37,7 +37,6 @@ import com.denisshulika.fincentra.di.DependencyProvider
 import com.denisshulika.fincentra.navigation.Screen
 import com.denisshulika.fincentra.ui.components.FinCentraScaffold
 import com.denisshulika.fincentra.ui.components.FinCentraTopBar
-import com.denisshulika.fincentra.ui.components.transactions.TransactionsTopBar
 import com.denisshulika.fincentra.ui.screens.AboutScreen
 import com.denisshulika.fincentra.ui.screens.BudgetsScreen
 import com.denisshulika.fincentra.ui.screens.DreamScreen
@@ -239,7 +238,13 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
                 { navController.navigate(it) },
                 { settingsViewModel.logout { navController.navigate(Screen.Login.route) { popUpTo(0) } } },
                 globalBottomBar,
-                topBar = { onOpen -> TransactionsTopBar(transactionsViewModel, {}, onOpen, {}, {}) }
+                topBar = { onOpen ->
+                    FinCentraTopBar(
+                        stringResource(R.string.nav_transactions),
+                        true,
+                        onOpen
+                    )
+                }
             ) { innerPadding ->
                 TransactionsScreen(
                     transactionsViewModel,

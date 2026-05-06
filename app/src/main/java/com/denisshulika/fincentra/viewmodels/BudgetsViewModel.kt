@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -39,43 +40,39 @@ class BudgetsViewModel : ViewModel() {
 
     val budgetProgressList: StateFlow<List<BudgetProgress>> = combine(
         financeRepository.budgets,
-        financeRepository.transactions
-    ) { budgets, transactions ->
+        financeRepository.transactions,
+        flow { emit(DependencyProvider.currencyRepository.getRates()) }
+    ) { budgets, transactions, rates ->
         val cal = Calendar.getInstance()
         val currentMonth = cal.get(Calendar.MONTH)
         val currentYear = cal.get(Calendar.YEAR)
 
-        val list = budgets.map { budget ->
-            val spent = transactions.filter { tx ->
+        budgets.map { budget ->
+            val spentInBudgetCurrency = transactions.filter { tx ->
                 val txCal = Calendar.getInstance().apply { timeInMillis = tx.timestamp }
                 tx.isExpense &&
                         tx.category.name == budget.categoryName &&
                         txCal.get(Calendar.MONTH) == currentMonth &&
-                        txCal.get(Calendar.YEAR) == currentYear &&
-                        tx.currencyCode == budget.currencyCode
-            }.sumOf { it.amount }
+                        txCal.get(Calendar.YEAR) == currentYear
+            }.sumOf { tx ->
+                DependencyProvider.currencyRepository.convert(
+                    amount = tx.amount,
+                    from = tx.currencyCode,
+                    to = budget.currencyCode,
+                    rates = rates
+                ) ?: 0.0
+            }
 
             BudgetProgress(
                 budget = budget,
-                spentAmount = spent,
-                remainingAmount = (budget.limitAmount - spent).coerceAtLeast(0.0),
+                spentAmount = spentInBudgetCurrency,
+                remainingAmount = (budget.limitAmount - spentInBudgetCurrency).coerceAtLeast(0.0),
                 progress = if (budget.limitAmount > 0) {
-                    (spent / budget.limitAmount).toFloat().coerceIn(0f, 1.1f)
-                } else {
-                    0f
-                }
+                    (spentInBudgetCurrency / budget.limitAmount).toFloat().coerceIn(0f, 1.1f)
+                } else 0f
             )
         }
-
-        val mostCritical = list.maxByOrNull { it.progress }
-        DependencyProvider.widgetDataManager.saveAllBudgets(list)
-
-        list
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyList()
-    )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun toggleAddSheet(show: Boolean) {
         _showAddSheet.value = show

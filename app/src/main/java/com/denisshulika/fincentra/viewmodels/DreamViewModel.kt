@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -37,24 +38,39 @@ class DreamViewModel : ViewModel() {
         financeRepository.dream,
         financeRepository.accounts,
         financeRepository.transactions,
-        settingsRepository.getSelectedAccountIdsFlow()
-    ) { dream, accounts, transactions, selectedIds ->
+        settingsRepository.getSelectedAccountIdsFlow(),
+        flow { emit(DependencyProvider.currencyRepository.getRates()) }
+    ) { dream, accounts, transactions, selectedIds, rates ->
         if (dream == null) return@combine null
 
-        val trackedBankBalance = accounts
-            .filter { selectedIds.contains(it.id) && it.currencyCode == dream.currencyCode }
-            .sumOf { it.balance }
+        val totalBankInDreamCurrency = accounts
+            .filter { selectedIds.contains(it.id) }
+            .sumOf { acc ->
+                DependencyProvider.currencyRepository.convert(
+                    acc.balance,
+                    acc.currencyCode,
+                    dream.currencyCode,
+                    rates
+                ) ?: 0.0
+            }
 
-        val cashBalance = transactions
-            .filter { it.accountId == TransactionConstants.ACCOUNT_ID_MANUAL && it.currencyCode == dream.currencyCode }
-            .sumOf { if (it.isExpense) -it.amount else it.amount }
+        val totalCashInDreamCurrency = transactions
+            .filter { it.accountId == TransactionConstants.ACCOUNT_ID_MANUAL }
+            .groupBy { it.currencyCode }
+            .map { (code, manualTxs) ->
+                val sum = manualTxs.sumOf { if (it.isExpense) -it.amount else it.amount }
+                DependencyProvider.currencyRepository.convert(sum, code, dream.currencyCode, rates)
+                    ?: 0.0
+            }.sum()
 
-        val total = trackedBankBalance + cashBalance
-        val available = (total - dream.safetyBuffer).coerceAtLeast(0.0)
-        val progress = if (dream.targetAmount > 0) (available / dream.targetAmount).toFloat()
-            .coerceIn(0f, 1f) else 0f
+        val totalAvailable = totalBankInDreamCurrency + totalCashInDreamCurrency
+        val availableForDream = (totalAvailable - dream.safetyBuffer).coerceAtLeast(0.0)
 
-        DreamProgress(dream, available, progress)
+        val progress = if (dream.targetAmount > 0)
+            (availableForDream / dream.targetAmount).toFloat().coerceIn(0f, 1f)
+        else 0f
+
+        DreamProgress(dream, availableForDream, progress)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     fun onTitleChange(v: String) {

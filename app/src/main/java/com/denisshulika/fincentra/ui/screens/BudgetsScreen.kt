@@ -78,9 +78,9 @@ fun BudgetsScreen(
                 .padding(innerPadding)
                 .imePadding()
         ) {
-            BudgetsInfoCard()
-
             if (budgets.isEmpty()) {
+                BudgetsInfoCard()
+
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -115,6 +115,9 @@ fun BudgetsScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     contentPadding = PaddingValues(16.dp)
                 ) {
+                    item {
+                        BudgetsInfoCard()
+                    }
                     items(budgets) { item ->
                         BudgetProgressItem(
                             item = item,

@@ -62,7 +62,7 @@ class StatsViewModel : ViewModel() {
         settingsRepository.getSelectedAccountIdsFlow(),
         settingsRepository.getDisplayCurrencyFlow(),
         financeRepository.dream,
-        financeRepository.budgets, // 1. ДОДАНО: тепер Score реагує на видалення/зміну лімітів
+        financeRepository.budgets,
         _selectedDateRange,
         _selectedBank,
         _selectedAccountId,
@@ -84,7 +84,8 @@ class StatsViewModel : ViewModel() {
             val baseState = calculateOptimizedStats(txs, accs, range, bank, accId, mode, activeIds)
 
             if (baseState.currencyData.isNotEmpty()) {
-                val totalCard = calculateTotalStats(baseState.currencyData, displayCurrency, rates)
+                val totalCard =
+                    calculateTotalStats(baseState.currencyData, displayCurrency, rates, mode)
 
                 val currentBudgets = budgetsFromFlow.map { budget ->
                     val spent = txs.filter {
@@ -352,26 +353,52 @@ class StatsViewModel : ViewModel() {
     private fun calculateTotalStats(
         data: List<CurrencyStats>,
         target: Int,
-        rates: Map<Int, Double>
+        rates: Map<Int, Double>,
+        isExpenseMode: Boolean
     ): CurrencyStats {
+
         fun safeSum(selector: (CurrencyStats) -> Double): Double {
             return data.sumOf { item ->
                 DependencyProvider.currencyRepository.convert(
-                    amount = selector(item),
-                    from = item.currencyCode,
-                    to = target,
-                    rates = rates
+                    selector(item),
+                    item.currencyCode,
+                    target,
+                    rates
                 ) ?: 0.0
             }
         }
 
+        val categoryMap = mutableMapOf<TransactionCategory, Double>()
+
+        data.forEach { currencyStat ->
+            currencyStat.categories.forEach { catStat ->
+                val convertedAmount = DependencyProvider.currencyRepository.convert(
+                    catStat.amount, currencyStat.currencyCode, target, rates
+                ) ?: 0.0
+                categoryMap[catStat.category] =
+                    (categoryMap[catStat.category] ?: 0.0) + convertedAmount
+            }
+        }
+
+        val totalForPercentage =
+            if (isExpenseMode) safeSum { it.totalExpense } else safeSum { it.totalIncome }
+
+        val aggregatedCategories = categoryMap.map { (cat, amount) ->
+            CategoryStat(
+                category = cat,
+                amount = amount.round(2),
+                percentage = if (totalForPercentage > 0) (amount / totalForPercentage).toFloat() else 0f,
+                subCategories = emptyList()
+            )
+        }.sortedByDescending { it.amount }
+
         return CurrencyStats(
             currencyCode = target,
-            startPeriodBalance = safeSum { it.startPeriodBalance },
-            endPeriodBalance = safeSum { it.endPeriodBalance },
-            totalIncome = safeSum { it.totalIncome },
-            totalExpense = safeSum { it.totalExpense },
-            categories = emptyList()
+            startPeriodBalance = safeSum { it.startPeriodBalance }.round(2),
+            endPeriodBalance = safeSum { it.endPeriodBalance }.round(2),
+            totalIncome = safeSum { it.totalIncome }.round(2),
+            totalExpense = safeSum { it.totalExpense }.round(2),
+            categories = aggregatedCategories
         )
     }
 
