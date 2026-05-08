@@ -14,8 +14,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.denisshulika.fincentra.R
 
 @Composable
 fun ProfileCurrencyBlock(rates: Map<Int, Double>) {
@@ -40,7 +42,7 @@ fun ProfileCurrencyBlock(rates: Map<Int, Double>) {
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
-                text = "Global Market Rates (to 1 €)",
+                text = stringResource(R.string.profile_currency_block_title),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold
@@ -65,7 +67,10 @@ fun ProfileCurrencyBlock(rates: Map<Int, Double>) {
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                text = String.format("%.2f", rateInEur),
+                                text = stringResource(
+                                    R.string.profile_currency_block_rate_format,
+                                    rateInEur
+                                ),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Black,
                                 color = MaterialTheme.colorScheme.onSurface

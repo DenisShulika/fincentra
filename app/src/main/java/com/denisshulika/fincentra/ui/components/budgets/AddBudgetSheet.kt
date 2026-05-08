@@ -65,8 +65,8 @@ fun AddBudgetSheet(viewModel: BudgetsViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = if (editingId == null) stringResource(R.string.budget_new_title)
-                else stringResource(R.string.budget_edit_title),
+                text = if (editingId == null) stringResource(R.string.add_budget_sheet_title_new)
+                else stringResource(R.string.add_budget_sheet_title_edit),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Black
             )
@@ -76,7 +76,7 @@ fun AddBudgetSheet(viewModel: BudgetsViewModel) {
             OutlinedTextField(
                 value = amount,
                 onValueChange = viewModel::onAmountChange,
-                label = { Text(stringResource(R.string.transaction_label_amount)) },
+                label = { Text(stringResource(R.string.add_budget_sheet_amount_label)) },
                 suffix = {
                     Text(
                         text = CurrencyMapper.getSymbol(selectedCurrency),
@@ -101,7 +101,7 @@ fun AddBudgetSheet(viewModel: BudgetsViewModel) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = stringResource(R.string.budget_select_category),
+                text = stringResource(R.string.add_budget_sheet_category_label),
                 modifier = Modifier.align(Alignment.Start),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
@@ -142,7 +142,8 @@ fun AddBudgetSheet(viewModel: BudgetsViewModel) {
                     color = Color.White
                 )
                 else Text(
-                    if (editingId == null) "Set Limit" else "Update Limit",
+                    if (editingId == null) stringResource(R.string.add_budget_sheet_btn_set)
+                    else stringResource(R.string.add_budget_sheet_btn_update),
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -155,7 +156,10 @@ fun AddBudgetSheet(viewModel: BudgetsViewModel) {
                         .padding(top = 8.dp),
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
                 ) {
-                    Text("Delete This Limit", fontWeight = FontWeight.Bold)
+                    Text(
+                        stringResource(R.string.add_budget_sheet_btn_delete),
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }

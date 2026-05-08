@@ -1,5 +1,6 @@
 package com.denisshulika.fincentra.ui.components.dream
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,12 +22,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.denisshulika.fincentra.R
+import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 
 @Composable
 fun DreamForm(
@@ -38,6 +41,8 @@ fun DreamForm(
     onBufferChange: (String) -> Unit,
     emoji: String,
     onEmojiChange: (String) -> Unit,
+    selectedCurrency: Int,
+    onCurrencyChange: (Int) -> Unit,
     isLoading: Boolean,
     isExistingDream: Boolean,
     onSave: () -> Unit,
@@ -51,8 +56,8 @@ fun DreamForm(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
-            text = if (isExistingDream) stringResource(R.string.dream_form_edit_title)
-            else stringResource(R.string.dream_form_new_title),
+            text = if (isExistingDream) stringResource(R.string.dream_form_title_edit)
+            else stringResource(R.string.dream_form_title_new),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 8.dp)
@@ -68,7 +73,7 @@ fun DreamForm(
                 onValueChange = {
                     if (it.length <= 2) onEmojiChange(it)
                 },
-                label = { Text("Icon") },
+                label = { Text(stringResource(R.string.dream_form_label_icon)) },
                 modifier = Modifier.width(80.dp),
                 shape = RoundedCornerShape(16.dp),
                 singleLine = true,
@@ -78,8 +83,8 @@ fun DreamForm(
             OutlinedTextField(
                 value = title,
                 onValueChange = onTitleChange,
-                label = { Text(stringResource(R.string.dream_label_title)) },
-                placeholder = { Text(stringResource(R.string.dream_placeholder_title)) },
+                label = { Text(stringResource(R.string.dream_form_label_title)) },
+                placeholder = { Text(stringResource(R.string.dream_form_placeholder_title)) },
                 modifier = Modifier.weight(1f),
                 singleLine = true,
                 shape = RoundedCornerShape(16.dp)
@@ -89,17 +94,50 @@ fun DreamForm(
         OutlinedTextField(
             value = target,
             onValueChange = onTargetChange,
-            label = { Text(stringResource(R.string.dream_label_target)) },
+            label = { Text(stringResource(R.string.dream_form_label_target)) },
+            suffix = {
+                Text(
+                    text = CurrencyMapper.getSymbol(selectedCurrency),
+                    modifier = Modifier.clickable {
+                        val next = when (selectedCurrency) {
+                            980 -> 840
+                            840 -> 978
+                            978 -> 946
+                            946 -> 985
+                            else -> 980
+                        }
+                        onCurrencyChange(next)
+                    },
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
             shape = RoundedCornerShape(16.dp)
         )
 
         OutlinedTextField(
             value = buffer,
             onValueChange = onBufferChange,
-            label = { Text(stringResource(R.string.dream_label_buffer)) },
+            label = { Text(stringResource(R.string.dream_form_label_buffer)) },
+            suffix = {
+                Text(
+                    text = CurrencyMapper.getSymbol(selectedCurrency),
+                    modifier = Modifier.clickable {
+                        val next = when (selectedCurrency) {
+                            980 -> 840
+                            840 -> 978
+                            978 -> 946
+                            946 -> 985
+                            else -> 980
+                        }
+                        onCurrencyChange(next)
+                    },
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
@@ -116,19 +154,15 @@ fun DreamForm(
             enabled = !isLoading && isFormValid,
             shape = RoundedCornerShape(16.dp)
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            } else {
-                Text(
-                    text = if (isExistingDream) stringResource(R.string.dream_btn_update)
-                    else stringResource(R.string.dream_btn_save),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            if (isLoading) CircularProgressIndicator(
+                modifier = Modifier.size(24.dp),
+                color = Color.White
+            )
+            else Text(
+                if (isExistingDream) stringResource(R.string.dream_form_btn_update)
+                else stringResource(R.string.dream_form_btn_save),
+                fontWeight = FontWeight.Bold
+            )
         }
 
         if (isExistingDream) {
@@ -137,7 +171,7 @@ fun DreamForm(
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
             ) {
-                Text("Delete Dream", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.dream_form_btn_delete), fontWeight = FontWeight.Bold)
             }
 
             TextButton(
@@ -145,7 +179,7 @@ fun DreamForm(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    stringResource(R.string.btn_cancel),
+                    stringResource(R.string.dream_form_btn_cancel),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

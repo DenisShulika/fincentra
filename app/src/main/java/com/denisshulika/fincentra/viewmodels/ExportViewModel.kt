@@ -6,6 +6,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.BankAccount
 import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.util.ExportManager
@@ -167,7 +168,12 @@ class ExportViewModel : ViewModel() {
                 putExtra(Intent.EXTRA_STREAM, uri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-            context.startActivity(Intent.createChooser(intent, "Share Report via"))
+            context.startActivity(
+                Intent.createChooser(
+                    intent,
+                    context.getString(R.string.export_view_model_share_chooser_title)
+                )
+            )
         } else {
             Log.e("EXPORT_DEBUG", "Failed to get URI from ExportManager")
         }

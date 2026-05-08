@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -55,6 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.R
+import com.denisshulika.fincentra.data.util.LanguageManager
 import com.denisshulika.fincentra.ui.components.FinCentraTopBar
 import com.denisshulika.fincentra.ui.theme.AppTheme
 import com.denisshulika.fincentra.viewmodels.SettingsViewModel
@@ -78,12 +78,17 @@ fun SettingsScreen(
     if (showPassDialog) {
         AlertDialog(
             onDismissRequest = { showPassDialog = false },
-            title = { Text("Новий пароль", fontWeight = FontWeight.Bold) },
+            title = {
+                Text(
+                    stringResource(R.string.settings_screen_pass_dialog_title),
+                    fontWeight = FontWeight.Bold
+                )
+            },
             text = {
                 OutlinedTextField(
                     value = newPassword,
                     onValueChange = { newPassword = it },
-                    label = { Text("Введіть пароль") },
+                    label = { Text(stringResource(R.string.settings_screen_pass_dialog_hint)) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 )
@@ -97,10 +102,13 @@ fun SettingsScreen(
                         showPassDialog = false
                         newPassword = ""
                     }
-                ) { Text("Оновити") }
+                ) { Text(stringResource(R.string.settings_screen_pass_dialog_btn_update)) }
             },
+
             dismissButton = {
-                TextButton(onClick = { showPassDialog = false }) { Text("Скасувати") }
+                TextButton(onClick = {
+                    showPassDialog = false
+                }) { Text(stringResource(R.string.settings_screen_pass_dialog_btn_cancel)) }
             }
         )
     }
@@ -108,8 +116,13 @@ fun SettingsScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Видалити акаунт?", fontWeight = FontWeight.Bold) },
-            text = { Text("Всі ваші дані в хмарі будуть безповоротно втрачені.") },
+            title = {
+                Text(
+                    stringResource(R.string.settings_screen_delete_dialog_title),
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = { Text(stringResource(R.string.settings_screen_delete_dialog_desc)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -127,7 +140,9 @@ fun SettingsScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Скасувати") }
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                }) { Text("Скасувати") }
             }
         )
     }
@@ -136,7 +151,7 @@ fun SettingsScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             FinCentraTopBar(
-                title = stringResource(R.string.nav_settings),
+                title = stringResource(R.string.settings_screen_title),
                 isTopLevelScreen = false,
                 onNavigationClick = onBack
             )
@@ -151,9 +166,9 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
 
-            SettingsSection(title = "Finance Settings") {
+            SettingsSection(title = stringResource(R.string.settings_screen_section_finance)) {
                 Text(
-                    text = "Total Balance Currency",
+                    text = stringResource(R.string.settings_screen_currency_label),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -195,15 +210,15 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "This currency will be used for the 'Total Balance' card on your Home screen.",
+                    text = stringResource(R.string.settings_screen_currency_desc),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
-            SettingsSection(title = stringResource(R.string.settings_appearance_section)) {
+            SettingsSection(title = stringResource(R.string.settings_screen_section_appearance)) {
                 Text(
-                    text = "App Theme",
+                    text = stringResource(R.string.settings_screen_theme_label),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -233,31 +248,62 @@ fun SettingsScreen(
                 }
                 HorizontalDivider(
                     thickness = 0.5.dp,
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f),
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
-                SettingsRow(
-                    title = stringResource(R.string.settings_app_language),
-                    icon = Icons.Default.Language,
-                    action = {
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            listOf("uk", "en", "pl", "de").forEach { lang ->
+
+                // 2. Заголовок підсекції
+                Text(
+                    text = stringResource(R.string.settings_screen_language_label),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                androidx.compose.foundation.layout.FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val languages = listOf(
+                        "uk" to R.string.settings_screen_lang_uk,
+                        "en" to R.string.settings_screen_lang_en,
+                        "pl" to R.string.settings_screen_lang_pl,
+                        "de" to R.string.settings_screen_lang_de,
+                        "ro" to R.string.settings_screen_lang_ro
+                    )
+
+                    languages.forEach { (code, labelRes) ->
+                        val isSelected = LanguageManager.getCurrentLanguage() == code
+
+                        FilterChip(
+                            selected = isSelected,
+                            onClick = { viewModel.setLanguage(code) },
+                            label = {
                                 Text(
-                                    text = lang.uppercase(),
-                                    modifier = Modifier
-                                        .clickable { viewModel.setLanguage(lang) }
-                                        .padding(4.dp),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontWeight = FontWeight.Bold
+                                    text = stringResource(labelRes),
+                                    style = MaterialTheme.typography.bodyMedium
                                 )
-                            }
-                        }
+                            },
+                            shape = CircleShape,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = isSelected,
+                                borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                            )
+                        )
                     }
-                )
+                }
             }
 
-            SettingsSection(title = stringResource(R.string.settings_security_section)) {
+            SettingsSection(title = stringResource(R.string.settings_screen_section_security)) {
                 SettingsRow(
-                    title = stringResource(R.string.settings_change_password),
+                    title = stringResource(R.string.settings_screen_change_password),
                     icon = Icons.Default.Lock,
                     onClick = { if (!isLoading) showPassDialog = true }
                 )
@@ -266,7 +312,7 @@ fun SettingsScreen(
                     color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
                 )
                 SettingsRow(
-                    title = stringResource(R.string.settings_delete_account),
+                    title = stringResource(R.string.settings_screen_delete_account),
                     icon = Icons.Default.DeleteForever,
                     titleColor = MaterialTheme.colorScheme.error,
                     onClick = { if (!isLoading) showDeleteDialog = true }
@@ -285,7 +331,7 @@ fun SettingsScreen(
                 enabled = !isLoading
             ) {
                 Text(
-                    stringResource(R.string.settings_btn_logout_system),
+                    stringResource(R.string.settings_screen_btn_logout),
                     color = MaterialTheme.colorScheme.error,
                     fontWeight = FontWeight.Bold
                 )

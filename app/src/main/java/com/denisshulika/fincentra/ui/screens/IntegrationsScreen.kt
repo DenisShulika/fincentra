@@ -92,7 +92,7 @@ fun IntegrationsScreen(
             containerColor = MaterialTheme.colorScheme.background,
             topBar = {
                 FinCentraTopBar(
-                    title = stringResource(R.string.bank_title),
+                    title = stringResource(R.string.integrations_screen_title),
                     isTopLevelScreen = false,
                     onNavigationClick = onBack
                 )
@@ -105,7 +105,7 @@ fun IntegrationsScreen(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.bank_connection_header),
+                    text = stringResource(R.string.integrations_screen_connection_header),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Black
                 )
@@ -123,7 +123,7 @@ fun IntegrationsScreen(
                         onClick = { viewModel.toggleEuropeanMode(false) }
                     ) {
                         Text(
-                            text = "Ukraine (API)",
+                            text = stringResource(R.string.integrations_screen_tab_ukraine),
                             modifier = Modifier.padding(12.dp),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
@@ -134,7 +134,7 @@ fun IntegrationsScreen(
                         onClick = { viewModel.toggleEuropeanMode(true) }
                     ) {
                         Text(
-                            text = "Europe (PSD2)",
+                            text = stringResource(R.string.integrations_screen_tab_europe),
                             modifier = Modifier.padding(12.dp),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
@@ -184,10 +184,10 @@ fun IntegrationsScreen(
                             BankGridItem(
                                 bank = BankProviderInfo(
                                     id = provider.id,
-                                    name = provider.name,
+                                    nameRes = provider.nameRes,
                                     logo = R.drawable.ic_launcher_foreground,
                                     brandColor = provider.brandColor,
-                                    subtitle = provider.countryName
+                                    subtitleRes = provider.countryNameRes
                                 ),
                                 isConnected = isConnected,
                                 isLoading = isThisBankLoading,
@@ -195,10 +195,10 @@ fun IntegrationsScreen(
                                     viewModel.selectBank(
                                         BankProviderInfo(
                                             id = provider.id,
-                                            name = provider.name,
+                                            nameRes = provider.nameRes,
                                             logo = R.drawable.ic_launcher_foreground,
                                             brandColor = provider.brandColor,
-                                            subtitle = provider.countryName
+                                            subtitleRes = provider.countryNameRes
                                         ),
                                         context
                                     )
@@ -240,15 +240,15 @@ fun IntegrationsScreen(
             onDismissRequest = { viewModel.dismissDeleteConfirmation() },
             title = {
                 Text(
-                    text = stringResource(R.string.bank_delete_title),
+                    text = stringResource(R.string.integrations_screen_delete_title),
                     fontWeight = FontWeight.Bold
                 )
             },
-            text = { Text(stringResource(R.string.bank_delete_desc)) },
+            text = { Text(stringResource(R.string.integrations_screen_delete_desc)) },
             confirmButton = {
                 TextButton(onClick = { viewModel.disconnectMonobank() }) {
                     Text(
-                        text = stringResource(R.string.bank_delete_confirm),
+                        text = stringResource(R.string.integrations_screen_delete_confirm),
                         color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.Bold
                     )
@@ -256,7 +256,7 @@ fun IntegrationsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.dismissDeleteConfirmation() }) {
-                    Text(stringResource(R.string.btn_cancel))
+                    Text(stringResource(R.string.integrations_screen_btn_cancel))
                 }
             }
         )

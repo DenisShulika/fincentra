@@ -113,13 +113,16 @@ fun BankDetailsContent(
             )
             Spacer(Modifier.width(16.dp))
             Text(
-                text = bank.name,
+                text = stringResource(bank.nameRes),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Black,
                 modifier = Modifier.weight(1f)
             )
             IconButton(onClick = { viewModel.closeBankDetails() }) {
-                Icon(Icons.Default.Close, null)
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = stringResource(R.string.bank_details_content_close_desc)
+                )
             }
         }
 
@@ -150,19 +153,17 @@ fun BankDetailsContent(
 @Composable
 fun SyncStatusBlock(status: String, progress: Float) {
     val displayStatus = when {
-        status == "UPDATING_BALANCES" -> stringResource(R.string.status_updating_balances)
-        status == "SYNCING_ASSETS" -> "Syncing assets..."
-        status == "DONE" -> stringResource(R.string.status_done)
+        status == "UPDATING_BALANCES" -> stringResource(R.string.bank_details_content_status_updating)
+        status == "SYNCING_ASSETS" -> stringResource(R.string.bank_details_content_status_assets)
+        status == "DONE" -> stringResource(R.string.bank_details_content_status_done)
         status.startsWith("SYNCING_ACC:") -> stringResource(
-            R.string.status_syncing_account,
+            R.string.bank_details_content_status_syncing,
             status.removePrefix("SYNCING_ACC:")
         )
-
         status.startsWith("COOLDOWN:") -> stringResource(
-            R.string.status_api_cooldown,
+            R.string.bank_details_content_status_cooldown,
             status.removePrefix("COOLDOWN:").toIntOrNull() ?: 0
         )
-
         else -> status
     }
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -196,13 +197,13 @@ fun WalletSetupContent(viewModel: IntegrationsViewModel, context: Context) {
 
     Column {
         Text(
-            "Google Wallet Synchronization",
+            stringResource(R.string.bank_details_content_wallet_title),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            "FinCentra can automatically catch payments from Google Wallet notifications.",
+            stringResource(R.string.bank_details_content_wallet_desc),
             style = MaterialTheme.typography.bodyMedium
         )
         Spacer(Modifier.height(16.dp))
@@ -225,7 +226,8 @@ fun WalletSetupContent(viewModel: IntegrationsViewModel, context: Context) {
                 )
                 Spacer(Modifier.width(12.dp))
                 Text(
-                    if (isSystemPermissionGranted) "System Access: Granted" else "System Access: Required",
+                    text = if (isSystemPermissionGranted) stringResource(R.string.bank_details_content_wallet_access_granted)
+                    else stringResource(R.string.bank_details_content_wallet_access_required),
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -236,7 +238,10 @@ fun WalletSetupContent(viewModel: IntegrationsViewModel, context: Context) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Enable Automation", fontWeight = FontWeight.Bold)
+            Text(
+                stringResource(R.string.bank_details_content_wallet_enable_automation),
+                fontWeight = FontWeight.Bold
+            )
             Switch(
                 checked = isWalletUserEnabled,
                 onCheckedChange = { viewModel.toggleWalletSync(it, context) })
@@ -250,7 +255,7 @@ fun WalletSetupContent(viewModel: IntegrationsViewModel, context: Context) {
                     .height(56.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text("Grant System Access")
+                Text(stringResource(R.string.bank_details_content_wallet_btn_grant))
             }
         }
     }
@@ -260,7 +265,7 @@ fun WalletSetupContent(viewModel: IntegrationsViewModel, context: Context) {
 fun MonobankSetupContent(viewModel: IntegrationsViewModel, token: String, isLoading: Boolean) {
     Column {
         val annotatedString = buildAnnotatedString {
-            append(stringResource(R.string.bank_get_access_text))
+            append(stringResource(R.string.bank_details_content_mono_get_access))
             withLink(LinkAnnotation.Url("https://api.monobank.ua/")) {
                 append(" ")
                 withStyle(
@@ -270,7 +275,7 @@ fun MonobankSetupContent(viewModel: IntegrationsViewModel, token: String, isLoad
                         textDecoration = TextDecoration.Underline
                     )
                 ) {
-                    append(stringResource(R.string.bank_personal_cabinet))
+                    append(stringResource(R.string.bank_details_content_mono_personal_cabinet))
                 }
             }
         }
@@ -279,7 +284,7 @@ fun MonobankSetupContent(viewModel: IntegrationsViewModel, token: String, isLoad
         OutlinedTextField(
             value = token,
             onValueChange = viewModel::onMonobankTokenChange,
-            label = { Text("Monobank Token") },
+            label = { Text(stringResource(R.string.bank_details_content_mono_token_label)) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp)
         )
@@ -296,7 +301,10 @@ fun MonobankSetupContent(viewModel: IntegrationsViewModel, token: String, isLoad
                 modifier = Modifier.size(20.dp),
                 color = Color.White
             )
-            else Text("Connect Monobank", fontWeight = FontWeight.Bold)
+            else Text(
+                stringResource(R.string.bank_details_content_mono_btn_connect),
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
@@ -311,17 +319,14 @@ fun WiseSetupContent(viewModel: IntegrationsViewModel, token: String, isLoading:
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = "How to get your API Token:",
+                    stringResource(R.string.bank_details_content_wise_setup_title),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "1. Log in to Wise website (not the app).\n" +
-                            "2. Go to Settings -> API tokens.\n" +
-                            "3. Ensure 2-step verification is enabled.\n" +
-                            "4. Create and copy your Personal Token.",
+                    stringResource(R.string.bank_details_content_wise_setup_desc),
                     style = MaterialTheme.typography.bodySmall,
                     lineHeight = 18.sp
                 )
@@ -333,7 +338,7 @@ fun WiseSetupContent(viewModel: IntegrationsViewModel, token: String, isLoading:
         OutlinedTextField(
             value = token,
             onValueChange = viewModel::onWiseTokenChange,
-            label = { Text("Wise API Token") },
+            label = { Text(stringResource(R.string.bank_details_content_wise_token_label)) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             singleLine = true
@@ -352,7 +357,10 @@ fun WiseSetupContent(viewModel: IntegrationsViewModel, token: String, isLoading:
                 modifier = Modifier.size(20.dp),
                 color = Color.White
             )
-            else Text("Connect Wise Account", fontWeight = FontWeight.Bold)
+            else Text(
+                stringResource(R.string.bank_details_content_wise_btn_connect),
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
@@ -365,7 +373,7 @@ fun EuropeanSetupContent(
     syncStatus: String
 ) {
     Column {
-        Text("Connect your ${bank.name} account securely via Salt Edge gateway.")
+        Text(stringResource(R.string.bank_details_content_euro_setup_desc, bank.nameRes))
         Button(
             onClick = {
                 val provider = EuropeanDemoBanks.find { it.id == bank.id }
@@ -383,7 +391,10 @@ fun EuropeanSetupContent(
                     24.dp
                 ), color = Color.White
             )
-            else Text("Connect via Browser", fontWeight = FontWeight.Bold)
+            else Text(
+                stringResource(R.string.bank_details_content_euro_btn_connect),
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
@@ -414,7 +425,7 @@ fun MonobankConnectedContent(
                 )
                 Spacer(Modifier.width(12.dp))
                 Text(
-                    text = stringResource(R.string.bank_sync_warning),
+                    text = stringResource(R.string.bank_details_content_mono_sync_warning),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -422,7 +433,7 @@ fun MonobankConnectedContent(
         }
 
         Text(
-            text = "Select Monobank Accounts",
+            text = stringResource(R.string.bank_details_content_mono_select_title),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
@@ -446,11 +457,12 @@ fun MonobankConnectedContent(
                     Column {
                         Text(account.name, fontWeight = FontWeight.Bold)
                         Text(
-                            "${String.format("%.2f", account.balance)} ${
-                                CurrencyMapper.getSymbol(
-                                    account.currencyCode
-                                )
-                            }", color = MaterialTheme.colorScheme.primary
+                            stringResource(
+                                R.string.bank_details_content_account_format,
+                                account.balance,
+                                CurrencyMapper.getSymbol(account.currencyCode)
+                            ),
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -466,7 +478,7 @@ fun MonobankConnectedContent(
                 enabled = !isLoading,
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text(stringResource(R.string.bank_btn_refresh))
+                Text(stringResource(R.string.bank_details_content_mono_btn_refresh))
             }
 
             Button(
@@ -477,7 +489,10 @@ fun MonobankConnectedContent(
                 enabled = !isLoading,
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Save & Sync Monobank", fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.bank_details_content_mono_btn_save),
+                    fontWeight = FontWeight.Bold
+                )
             }
 
             TextButton(
@@ -485,7 +500,10 @@ fun MonobankConnectedContent(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 enabled = !isLoading
             ) {
-                Text("Disconnect Monobank", color = MaterialTheme.colorScheme.error)
+                Text(
+                    stringResource(R.string.bank_details_content_mono_btn_disconnect),
+                    color = MaterialTheme.colorScheme.error
+                )
             }
         }
     }
@@ -517,7 +535,7 @@ fun WiseConnectedContent(
                 )
                 Spacer(Modifier.width(12.dp))
                 Text(
-                    text = "Wise sync might take a few seconds to update all currency balances.",
+                    text = stringResource(R.string.bank_details_content_wise_sync_info),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -525,7 +543,7 @@ fun WiseConnectedContent(
         }
 
         Text(
-            text = "Wise Multi-currency Accounts",
+            text = stringResource(R.string.bank_details_content_wise_select_title),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
@@ -549,11 +567,12 @@ fun WiseConnectedContent(
                     Column {
                         Text(account.name, fontWeight = FontWeight.Bold)
                         Text(
-                            "${String.format("%.2f", account.balance)} ${
-                                CurrencyMapper.getSymbol(
-                                    account.currencyCode
-                                )
-                            }", color = MaterialTheme.colorScheme.primary
+                            stringResource(
+                                R.string.bank_details_content_account_format,
+                                account.balance,
+                                CurrencyMapper.getSymbol(account.currencyCode)
+                            ),
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -569,7 +588,10 @@ fun WiseConnectedContent(
                 enabled = !isLoading,
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Save & Sync Wise", fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.bank_details_content_wise_btn_save),
+                    fontWeight = FontWeight.Bold
+                )
             }
 
             TextButton(
@@ -577,7 +599,10 @@ fun WiseConnectedContent(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 enabled = !isLoading
             ) {
-                Text("Disconnect Wise", color = MaterialTheme.colorScheme.error)
+                Text(
+                    stringResource(R.string.bank_details_content_wise_btn_disconnect),
+                    color = MaterialTheme.colorScheme.error
+                )
             }
         }
     }
@@ -610,7 +635,7 @@ fun EuropeanConnectedContent(
                 )
                 Spacer(Modifier.width(12.dp))
                 Text(
-                    text = "European bank data is fetched via Salt Edge secure PSD2 gateway.",
+                    text = stringResource(R.string.bank_details_content_euro_sync_info),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -618,7 +643,7 @@ fun EuropeanConnectedContent(
         }
 
         Text(
-            text = "Available European Accounts",
+            text = stringResource(R.string.bank_details_content_euro_select_title),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
@@ -642,11 +667,12 @@ fun EuropeanConnectedContent(
                     Column {
                         Text(account.name, fontWeight = FontWeight.Bold)
                         Text(
-                            "${String.format("%.2f", account.balance)} ${
-                                CurrencyMapper.getSymbol(
-                                    account.currencyCode
-                                )
-                            }", color = MaterialTheme.colorScheme.primary
+                            stringResource(
+                                R.string.bank_details_content_account_format,
+                                account.balance,
+                                CurrencyMapper.getSymbol(account.currencyCode)
+                            ),
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -662,7 +688,10 @@ fun EuropeanConnectedContent(
                 enabled = !isLoading,
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Save & Sync European Hub", fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.bank_details_content_euro_btn_save),
+                    fontWeight = FontWeight.Bold
+                )
             }
 
             TextButton(
@@ -670,7 +699,10 @@ fun EuropeanConnectedContent(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 enabled = !isLoading
             ) {
-                Text("Disconnect Bank", color = MaterialTheme.colorScheme.error)
+                Text(
+                    stringResource(R.string.bank_details_content_euro_btn_disconnect),
+                    color = MaterialTheme.colorScheme.error
+                )
             }
         }
     }

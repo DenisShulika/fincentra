@@ -1,5 +1,7 @@
 package com.denisshulika.fincentra.data.network.wise
 
+import android.content.Context
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.BankAccount
 import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.network.common.BankProvider
@@ -13,7 +15,7 @@ import org.json.JSONObject
 import java.time.ZonedDateTime
 import kotlin.math.abs
 
-class WiseService : BankProvider {
+class WiseService(private val context: Context) : BankProvider {
     private val client = OkHttpClient()
     private val BASE_URL = "https://api.transferwise.com"
 
@@ -48,7 +50,10 @@ class WiseService : BankProvider {
                             BankAccount(
                                 id = "wise_${currency.lowercase()}",
                                 provider = BankProviders.WISE,
-                                name = "Wise $currency",
+                                name = context.getString(
+                                    R.string.wise_service_account_name_format,
+                                    currency
+                                ),
                                 balance = b.getJSONObject("amount").getDouble("value"),
                                 currencyCode = mapCurrencyToIso(currency),
                                 selected = true,
@@ -87,7 +92,6 @@ class WiseService : BankProvider {
                 val act = activities.getJSONObject(i)
                 val primaryAmount = act.getJSONObject("primaryAmount")
 
-                // Wise повертає дату як "2024-04-27T10:00:00Z"
                 val timestamp = try {
                     ZonedDateTime.parse(act.getString("createdAfter")).toInstant().toEpochMilli()
                 } catch (e: Exception) {

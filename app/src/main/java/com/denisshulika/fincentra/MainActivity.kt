@@ -214,7 +214,13 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
                 { navController.navigate(it) },
                 { settingsViewModel.logout { navController.navigate(Screen.Login.route) { popUpTo(0) } } },
                 globalBottomBar,
-                topBar = { onOpen -> FinCentraTopBar("FinCentra", true, onOpen) }
+                topBar = { onOpen ->
+                    FinCentraTopBar(
+                        stringResource(R.string.main_activity_title_home),
+                        true,
+                        onOpen
+                    )
+                }
             ) { innerPadding ->
                 HomeScreen(
                     modifier = Modifier.padding(innerPadding),
@@ -240,7 +246,7 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
                 globalBottomBar,
                 topBar = { onOpen ->
                     FinCentraTopBar(
-                        stringResource(R.string.nav_transactions),
+                        stringResource(R.string.main_activity_title_transactions),
                         true,
                         onOpen
                     )
@@ -262,7 +268,7 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
                 globalBottomBar,
                 topBar = { onOpen ->
                     FinCentraTopBar(
-                        stringResource(R.string.nav_stats),
+                        stringResource(R.string.main_activity_title_stats),
                         true,
                         onOpen
                     )

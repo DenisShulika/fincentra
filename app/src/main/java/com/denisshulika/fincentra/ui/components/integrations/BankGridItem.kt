@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.denisshulika.fincentra.data.models.ui.BankProviderInfo
@@ -73,14 +74,14 @@ fun BankGridItem(
                 }
                 Spacer(Modifier.height(12.dp))
                 Text(
-                    text = bank.name,
+                    text = stringResource(bank.nameRes),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = if (isConnected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                 )
-                if (bank.subtitle.isNotBlank()) {
+                if (stringResource(bank.nameRes).isNotBlank()) {
                     Text(
-                        text = bank.subtitle,
+                        text = stringResource(bank.subtitleRes),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                     )

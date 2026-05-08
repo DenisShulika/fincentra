@@ -47,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.TransactionCategory
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.data.util.DateFormatter
@@ -79,7 +80,7 @@ fun ExportScreen(
     val selectedAccountIds by viewModel.selectedAccountIds.collectAsStateWithLifecycle()
 
     Scaffold(
-        topBar = { FinCentraTopBar("Export Report", false, onBack) },
+        topBar = { FinCentraTopBar(stringResource(R.string.export_screen_title), false, onBack) },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Column(
@@ -90,14 +91,14 @@ fun ExportScreen(
                 .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
             Text(
-                text = "Select Data to Export",
+                text = stringResource(R.string.export_screen_headline),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Black
             )
 
             Spacer(Modifier.height(20.dp))
 
-            ExportSectionTitle("Date Range")
+            ExportSectionTitle(stringResource(R.string.export_screen_section_dates))
             OutlinedButton(
                 onClick = { showDatePicker = true },
                 modifier = Modifier
@@ -108,7 +109,7 @@ fun ExportScreen(
                 Icon(Icons.Default.DateRange, null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = if (dateRange == null) "All Time"
+                    text = if (dateRange == null) stringResource(R.string.export_screen_date_all_time)
                     else "${DateFormatter.formatFullDate(dateRange!!.first)} - ${
                         DateFormatter.formatFullDate(
                             dateRange!!.last
@@ -120,7 +121,7 @@ fun ExportScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            ExportSectionTitle("Sources")
+            ExportSectionTitle(stringResource(R.string.export_screen_section_sources))
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -138,7 +139,7 @@ fun ExportScreen(
             Spacer(Modifier.height(16.dp))
 
             Text(
-                "Specific Accounts",
+                stringResource(R.string.export_screen_section_accounts),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -150,7 +151,7 @@ fun ExportScreen(
                     FilterChip(
                         selected = selectedAccountIds.isEmpty(),
                         onClick = { viewModel.clearAccountIds() },
-                        label = { Text("All Cards") },
+                        label = { Text(stringResource(R.string.export_screen_all_cards)) },
                         shape = CircleShape
                     )
                 }
@@ -172,7 +173,7 @@ fun ExportScreen(
             val selectedCurrencies by viewModel.selectedCurrencies.collectAsStateWithLifecycle()
 
             Text(
-                "Currencies",
+                stringResource(R.string.export_screen_section_currencies),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -184,7 +185,7 @@ fun ExportScreen(
                     FilterChip(
                         selected = selectedCurrencies.isEmpty(),
                         onClick = { viewModel.clearCurrencies() },
-                        label = { Text("All Currencies") },
+                        label = { Text(stringResource(R.string.export_screen_all_currencies)) },
                         shape = CircleShape
                     )
                 }
@@ -215,7 +216,12 @@ fun ExportScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                ExportSectionTitle("Categories (${selectedCategories.size} selected)")
+                ExportSectionTitle(
+                    stringResource(
+                        R.string.export_screen_section_categories,
+                        selectedCategories.size
+                    )
+                )
                 IconButton(onClick = { isCategoriesExpanded = !isCategoriesExpanded }) {
                     Icon(
                         imageVector = if (isCategoriesExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
@@ -252,7 +258,7 @@ fun ExportScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            ExportSectionTitle("Transaction Type")
+            ExportSectionTitle(stringResource(R.string.export_screen_section_type))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf(
                     FilterConstants.ALL,
@@ -264,7 +270,11 @@ fun ExportScreen(
                         onClick = { viewModel.setType(type) },
                         label = {
                             Text(
-                                type.lowercase().replaceFirstChar { it.uppercase() },
+                                text = when (type) {
+                                    FilterConstants.EXPENSES -> stringResource(R.string.export_screen_type_expenses)
+                                    FilterConstants.INCOME -> stringResource(R.string.export_screen_type_income)
+                                    else -> stringResource(R.string.export_screen_type_all)
+                                },
                                 fontSize = 12.sp
                             )
                         },
@@ -276,7 +286,7 @@ fun ExportScreen(
             Spacer(Modifier.height(16.dp))
 
             Text(
-                "Report Style",
+                stringResource(R.string.export_screen_section_style),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -298,7 +308,7 @@ fun ExportScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            "Include Header (Branding)",
+                            stringResource(R.string.export_screen_style_header),
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Switch(
@@ -312,7 +322,7 @@ fun ExportScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            "Include Financial Summary",
+                            stringResource(R.string.export_screen_style_summary),
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Switch(
@@ -333,7 +343,10 @@ fun ExportScreen(
                 shape = RoundedCornerShape(16.dp),
                 enabled = transactions.isNotEmpty()
             ) {
-                Text("Generate PDF (${transactions.size} items)", fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.export_screen_btn_pdf, transactions.size),
+                    fontWeight = FontWeight.Bold
+                )
             }
 
             Spacer(Modifier.height(12.dp))
@@ -346,7 +359,7 @@ fun ExportScreen(
                 shape = RoundedCornerShape(16.dp),
                 enabled = transactions.isNotEmpty()
             ) {
-                Text("Export to CSV", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.export_screen_btn_csv), fontWeight = FontWeight.Bold)
             }
 
             Spacer(Modifier.height(24.dp))

@@ -60,10 +60,10 @@ class AuthViewModel : ViewModel() {
 
     fun signIn() {
         if (_email.value.isBlank()) {
-            _emailError.value = R.string.error_email_required; return
+            _emailError.value = R.string.auth_view_model_error_email_required; return
         }
         if (_password.value.isBlank()) {
-            _passwordError.value = R.string.error_password_required; return
+            _passwordError.value = R.string.auth_view_model_error_password_required; return
         }
 
         viewModelScope.launch {
@@ -75,7 +75,7 @@ class AuthViewModel : ViewModel() {
             result.onSuccess {
                 _events.emit(AuthUiEvent.NavigateToMain)
             }.onFailure {
-                _events.emit(AuthUiEvent.ShowError(R.string.error_invalid_credentials))
+                _events.emit(AuthUiEvent.ShowError(R.string.auth_view_model_error_invalid_credentials))
             }
         }
     }
@@ -83,17 +83,18 @@ class AuthViewModel : ViewModel() {
     fun signUp() {
         var isValid = true
         if (_name.value.isBlank()) {
-            _nameError.value = R.string.error_name_required
+            _nameError.value = R.string.auth_view_model_error_name_required
             isValid = false
         }
         if (!validateEmail(_email.value)) {
-            _emailError.value = R.string.error_invalid_email; isValid = false
+            _emailError.value = R.string.auth_view_model_error_invalid_email; isValid = false
         }
         if (_password.value.length < 6) {
-            _passwordError.value = R.string.error_short_password; isValid = false
+            _passwordError.value = R.string.auth_view_model_error_short_password; isValid = false
         }
         if (_password.value != _confirmPassword.value) {
-            _confirmPasswordError.value = R.string.error_passwords_dont_match; isValid = false
+            _confirmPasswordError.value =
+                R.string.auth_view_model_error_passwords_dont_match; isValid = false
         }
 
         if (!isValid) return
@@ -106,7 +107,7 @@ class AuthViewModel : ViewModel() {
             result.onSuccess {
                 _events.emit(AuthUiEvent.NavigateToMain)
             }.onFailure {
-                _events.emit(AuthUiEvent.ShowError(R.string.error_unknown))
+                _events.emit(AuthUiEvent.ShowError(R.string.auth_view_model_error_unknown))
             }
         }
     }
@@ -120,7 +121,7 @@ class AuthViewModel : ViewModel() {
             result.onSuccess {
                 _events.emit(AuthUiEvent.NavigateToMain)
             }.onFailure {
-                _events.emit(AuthUiEvent.ShowError(R.string.error_google_failed))
+                _events.emit(AuthUiEvent.ShowError(R.string.auth_view_model_error_google_failed))
             }
             _isGoogleLoading.value = false
         }
@@ -151,9 +152,9 @@ class AuthViewModel : ViewModel() {
             _isLoading.value = false
 
             result.onSuccess {
-                _events.emit(AuthUiEvent.ShowError(R.string.success_password_changed))
+                _events.emit(AuthUiEvent.ShowError(R.string.auth_view_model_success_password_changed))
             }.onFailure {
-                _events.emit(AuthUiEvent.ShowError(R.string.error_unknown))
+                _events.emit(AuthUiEvent.ShowError(R.string.auth_view_model_error_unknown))
             }
         }
     }
@@ -169,7 +170,7 @@ class AuthViewModel : ViewModel() {
             result.onSuccess {
                 onDeleted()
             }.onFailure {
-                _events.emit(AuthUiEvent.ShowError(R.string.error_relogin_required))
+                _events.emit(AuthUiEvent.ShowError(R.string.auth_view_model_error_relogin_required))
             }
         }
     }

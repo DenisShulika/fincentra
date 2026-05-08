@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.util.FinancialPredictions
 import com.denisshulika.fincentra.data.util.LanguageManager
 import com.denisshulika.fincentra.di.DependencyProvider
@@ -59,8 +60,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             _isLoading.value = true
             val result = authRepository.updatePassword(newPass)
             _isLoading.value = false
-            result.onSuccess { onComplete("SUCCESS_PASSWORD") }
-                .onFailure { onComplete("ERROR_REAUTH") }
+            result.onSuccess {
+                onComplete(getApplication<Application>().getString(R.string.settings_view_model_success_password))
+            }
+                .onFailure {
+                    onComplete(getApplication<Application>().getString(R.string.settings_view_model_error_reauth))
+                }
         }
     }
 
@@ -71,7 +76,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             val result = authRepository.deleteUserAccount()
             _isLoading.value = false
             result.onSuccess { onDeleted() }
-                .onFailure { onError("ERROR_REAUTH") }
+                .onFailure {
+                    onError(getApplication<Application>().getString(R.string.settings_view_model_error_reauth))
+                }
         }
     }
 
@@ -96,7 +103,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun checkDailyPrediction() {
+    fun checkDailyPrediction(context: Context) {
         val lastFlipDate = prefs.getString("last_flip_date", "")
         val today = java.time.LocalDate.now().toString()
 
@@ -105,7 +112,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             _isCoinFlipped.value = true
         } else {
             _isCoinFlipped.value = false
-            _dailyPrediction.value = FinancialPredictions.random()
+            _dailyPrediction.value = context.getString(FinancialPredictions.random())
         }
     }
 

@@ -86,12 +86,20 @@ fun DreamProgressView(progressData: DreamProgress, onEditClick: () -> Unit) {
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
                 DetailRow(
-                    label = stringResource(R.string.dream_view_target),
-                    value = "${String.format("%.2f", progressData.dream.targetAmount)} $symbol"
+                    label = stringResource(R.string.dream_progress_view_label_target),
+                    value = stringResource(
+                        R.string.dream_progress_view_amount_format,
+                        progressData.dream.targetAmount,
+                        symbol
+                    )
                 )
                 DetailRow(
-                    label = stringResource(R.string.dream_view_buffer),
-                    value = "-${String.format("%.2f", progressData.dream.safetyBuffer)} $symbol"
+                    label = stringResource(R.string.dream_progress_view_label_buffer),
+                    value = stringResource(
+                        R.string.dream_progress_view_amount_buffer_format,
+                        progressData.dream.safetyBuffer,
+                        symbol
+                    )
                 )
 
                 HorizontalDivider(
@@ -101,8 +109,12 @@ fun DreamProgressView(progressData: DreamProgress, onEditClick: () -> Unit) {
                 )
 
                 DetailRow(
-                    label = stringResource(R.string.dream_view_available),
-                    value = "${String.format("%.2f", progressData.currentAvailable)} $symbol",
+                    label = stringResource(R.string.dream_progress_view_label_available),
+                    value = stringResource(
+                        R.string.dream_progress_view_amount_format,
+                        progressData.currentAvailable,
+                        symbol
+                    ),
                     isHighlight = true
                 )
             }
@@ -121,7 +133,10 @@ fun DreamProgressView(progressData: DreamProgress, onEditClick: () -> Unit) {
                 contentColor = MaterialTheme.colorScheme.primary
             )
         ) {
-            Text(stringResource(R.string.dream_btn_edit), fontWeight = FontWeight.Bold)
+            Text(
+                stringResource(R.string.dream_progress_view_btn_edit),
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

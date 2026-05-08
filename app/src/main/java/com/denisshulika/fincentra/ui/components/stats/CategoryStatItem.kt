@@ -69,7 +69,7 @@ fun CategoryStatItem(stat: CategoryStat, symbol: String) {
                 if (stat.subCategories.isNotEmpty()) {
                     Text(
                         text = stringResource(
-                            R.string.stats_subcategories_count,
+                            R.string.category_stat_item_subcategories_count,
                             stat.subCategories.size
                         ),
                         style = MaterialTheme.typography.labelSmall,

@@ -8,6 +8,7 @@ import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import androidx.core.content.FileProvider
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import java.io.File
@@ -44,16 +45,22 @@ object ExportManager {
                 paint.color = Color.WHITE
                 paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
                 paint.textSize = 24f
-                canvas.drawText("FinCentra", 25f, 45f, paint)
+                canvas.drawText(context.getString(R.string.app_name), 25f, 45f, paint)
 
                 paint.textSize = 12f
                 paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-                canvas.drawText("Financial Statement", 25f, 65f, paint)
                 canvas.drawText(
-                    "Generated: ${DateFormatter.formatFullDate(System.currentTimeMillis())}",
+                    context.getString(R.string.export_manager_pdf_statement),
                     25f,
-                    80f,
+                    65f,
                     paint
+                )
+                canvas.drawText(
+                    context.getString(
+                        R.string.export_manager_pdf_generated,
+                        DateFormatter.formatFullDate(System.currentTimeMillis())
+                    ),
+                    25f, 80f, paint
                 )
                 y = 120f
             }
@@ -62,7 +69,12 @@ object ExportManager {
                 paint.color = Color.BLACK
                 paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
                 paint.textSize = 14f
-                canvas.drawText("Summary", 25f, y, paint)
+                canvas.drawText(
+                    context.getString(R.string.export_manager_pdf_summary),
+                    25f,
+                    y,
+                    paint
+                )
                 y += 22f
 
                 val totalInc = transactions.filter { !it.isExpense }.sumOf { it.amount }
@@ -70,18 +82,24 @@ object ExportManager {
 
                 paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
                 paint.textSize = 12f
-                canvas.drawText("Total Income: +${String.format("%.2f", totalInc)}", 25f, y, paint)
-                y += 18f
                 canvas.drawText(
-                    "Total Expenses: -${String.format("%.2f", totalExp)}",
-                    25f,
-                    y,
-                    paint
+                    context.getString(
+                        R.string.export_manager_pdf_total_income,
+                        String.format("%.2f", totalInc)
+                    ), 25f, y, paint
+                )
+                y += 18f
+
+                canvas.drawText(
+                    context.getString(
+                        R.string.export_manager_pdf_total_expenses,
+                        String.format("%.2f", totalExp)
+                    ), 25f, y, paint
                 )
                 y += 40f
             }
 
-            drawTableHeaders(canvas, paint, y)
+            drawTableHeaders(context, canvas, paint, y)
             y += 30f
 
             transactions.forEachIndexed { index, tx ->
@@ -94,7 +112,7 @@ object ExportManager {
                     page = pdfDocument.startPage(pageInfo)
                     canvas = page.canvas
                     y = 40f
-                    drawTableHeaders(canvas, paint, y)
+                    drawTableHeaders(context, canvas, paint, y)
                     y += 30f
                 }
 
@@ -116,16 +134,21 @@ object ExportManager {
         }
     }
 
-    private fun drawTableHeaders(canvas: Canvas, paint: Paint, y: Float) {
+    private fun drawTableHeaders(context: Context, canvas: Canvas, paint: Paint, y: Float) {
         paint.color = Color.parseColor("#F1F5F9")
         canvas.drawRect(20f, y - 15f, 575f, y + 10f, paint)
         paint.color = Color.BLACK
         paint.textSize = 11f
         paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-        canvas.drawText("Date", 25f, y, paint)
-        canvas.drawText("Description", 100f, y, paint)
-        canvas.drawText("Category", 340f, y, paint)
-        canvas.drawText("Amount", 480f, y, paint)
+        canvas.drawText(context.getString(R.string.export_manager_table_date), 25f, y, paint)
+        canvas.drawText(
+            context.getString(R.string.export_manager_table_description),
+            100f,
+            y,
+            paint
+        )
+        canvas.drawText(context.getString(R.string.export_manager_table_category), 340f, y, paint)
+        canvas.drawText(context.getString(R.string.export_manager_table_amount), 480f, y, paint)
     }
 
     private fun drawTransactionRow(
@@ -175,12 +198,40 @@ object ExportManager {
         if (includeSummary) {
             val totalInc = transactions.filter { !it.isExpense }.sumOf { it.amount }
             val totalExp = transactions.filter { it.isExpense }.sumOf { it.amount }
-            csvContent.append("FINCENTRA SUMMARY\n")
-            csvContent.append("Total Income${sep}+${String.format("%.2f", totalInc)}\n")
-            csvContent.append("Total Expenses${sep}-${String.format("%.2f", totalExp)}\n\n")
+            csvContent.append("${context.getString(R.string.export_manager_csv_summary_header)}\n")
+            csvContent.append(
+                "${context.getString(R.string.export_manager_csv_label_income)}${sep}+${
+                    String.format(
+                        "%.2f",
+                        totalInc
+                    )
+                }\n"
+            )
+            csvContent.append(
+                "${context.getString(R.string.export_manager_csv_label_expenses)}${sep}-${
+                    String.format(
+                        "%.2f",
+                        totalExp
+                    )
+                }\n\n"
+            )
         }
 
-        csvContent.append("Date${sep}Description${sep}Category${sep}Amount${sep}Currency${sep}Type\n")
+        csvContent.append(
+            "${context.getString(R.string.export_manager_table_date)}${sep}${
+                context.getString(
+                    R.string.export_manager_table_description
+                )
+            }${sep}${context.getString(R.string.export_manager_table_category)}${sep}${
+                context.getString(
+                    R.string.export_manager_table_amount
+                )
+            }${sep}${context.getString(R.string.export_manager_csv_col_currency)}${sep}${
+                context.getString(
+                    R.string.export_manager_csv_col_type
+                )
+            }\n"
+        )
 
         transactions.forEach { tx ->
             val date = DateFormatter.formatFullDate(tx.timestamp)
@@ -188,7 +239,10 @@ object ExportManager {
             val cat = tx.category.name.lowercase().replaceFirstChar { it.uppercase() }
             val amount = String.format("%.2f", tx.amount)
             val currency = CurrencyMapper.getCodeName(tx.currencyCode)
-            val type = if (tx.isExpense) "Expense" else "Income"
+            val type =
+                if (tx.isExpense) context.getString(R.string.export_manager_type_expense) else context.getString(
+                    R.string.export_manager_type_income
+                )
 
             csvContent.append("$date${sep}$desc${sep}$cat${sep}$amount${sep}$currency${sep}$type\n")
         }

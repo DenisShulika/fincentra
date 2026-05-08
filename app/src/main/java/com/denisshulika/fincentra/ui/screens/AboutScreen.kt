@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -45,7 +46,7 @@ fun AboutScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             FinCentraTopBar(
-                title = "About FinCentra",
+                title = stringResource(R.string.about_screen_title),
                 isTopLevelScreen = false,
                 onNavigationClick = onBack
             )
@@ -69,12 +70,12 @@ fun AboutScreen(onBack: () -> Unit) {
             )
             Spacer(Modifier.height(16.dp))
             Text(
-                "FinCentra",
+                stringResource(R.string.app_name),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Black
             )
             Text(
-                "Version 1.1",
+                stringResource(R.string.about_screen_version),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -82,22 +83,22 @@ fun AboutScreen(onBack: () -> Unit) {
             Spacer(Modifier.height(32.dp))
 
             AboutFeatureCard(
-                "The Living Tree",
-                "Your budget limits are visualized as trees. Stay within budget to keep your financial ecosystem blooming. If you overspend, the tree withers."
+                stringResource(R.string.about_screen_feature_tree_title),
+                stringResource(R.string.about_screen_feature_tree_desc)
             )
             AboutFeatureCard(
-                "Safety Threshold",
-                "Unique logic that protects your essential living funds. Progress toward your goals is calculated only from truly free money."
+                stringResource(R.string.about_screen_feature_safety_title),
+                stringResource(R.string.about_screen_feature_safety_desc)
             )
             AboutFeatureCard(
-                "AI Advisor",
-                "Powered by Gemini, our AI performs a 360-degree audit of your finances, providing professional CFO-level insights."
+                stringResource(R.string.about_screen_feature_ai_title),
+                stringResource(R.string.about_screen_feature_ai_desc)
             )
 
             Spacer(Modifier.height(32.dp))
 
             Text(
-                "Contact & Legal",
+                stringResource(R.string.about_screen_contact_legal_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.align(Alignment.Start)
@@ -116,7 +117,7 @@ fun AboutScreen(onBack: () -> Unit) {
             ) {
                 Icon(Icons.Default.Email, null)
                 Spacer(Modifier.width(8.dp))
-                Text("denisshulika31@gmail.com")
+                Text(stringResource(R.string.about_screen_contact_email))
             }
 
             Spacer(Modifier.height(8.dp))
@@ -134,7 +135,7 @@ fun AboutScreen(onBack: () -> Unit) {
                 Icon(Icons.Default.Language, null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "Privacy Policy",
+                    text = stringResource(R.string.about_screen_privacy_policy),
                     style = MaterialTheme.typography.bodyMedium,
                     textDecoration = TextDecoration.Underline
                 )
@@ -142,7 +143,7 @@ fun AboutScreen(onBack: () -> Unit) {
 
             Spacer(Modifier.height(48.dp))
             Text(
-                "Designed & Developed by Denys Shulika",
+                stringResource(R.string.about_screen_footer_credits),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

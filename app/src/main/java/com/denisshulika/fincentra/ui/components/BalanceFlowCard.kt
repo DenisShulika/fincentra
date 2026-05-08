@@ -62,7 +62,8 @@ fun BalanceFlowCard(
         Box(modifier = Modifier.background(cardBackground)) {
             Column(modifier = Modifier.padding(20.dp)) {
                 Text(
-                    text = if (isTotal) "Total Balance (All Accounts)" else "Account Balance",
+                    text = if (isTotal) stringResource(R.string.balance_flow_card_total_title)
+                    else stringResource(R.string.balance_flow_card_account_title),
                     style = MaterialTheme.typography.labelMedium,
                     color = if (isTotal) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = if (isTotal) FontWeight.ExtraBold else FontWeight.Medium
@@ -72,7 +73,7 @@ fun BalanceFlowCard(
 
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(
-                        text = stringResource(R.string.stats_balance_start),
+                        text = stringResource(R.string.balance_flow_card_balance_start),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -95,7 +96,7 @@ fun BalanceFlowCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = stringResource(R.string.stats_net_flow),
+                        text = stringResource(R.string.balance_flow_card_net_flow),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -120,7 +121,7 @@ fun BalanceFlowCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = stringResource(R.string.stats_balance_current),
+                        text = stringResource(R.string.balance_flow_card_balance_current),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface

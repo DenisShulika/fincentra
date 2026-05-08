@@ -25,18 +25,34 @@ enum class TransactionCategory(
     val color: Color,
     val materialIcon: ImageVector
 ) {
-    FOOD(R.string.cat_food, Color(0xFF4CAF50), Icons.Default.ShoppingCart),
-    TRANSPORT(R.string.cat_transport, Color(0xFF2196F3), Icons.Default.DirectionsBus),
-    HOUSING(R.string.cat_housing, Color(0xFFFF9800), Icons.Default.Home),
-    HEALTH(R.string.cat_health, Color(0xFFE91E63), Icons.Default.Favorite),
-    ENTERTAINMENT(R.string.cat_entertainment, Color(0xFF9C27B0), Icons.Default.PlayArrow),
-    SALARY(R.string.cat_salary, Color(0xFFFFEB3B), Icons.Default.Star),
-    SUBSCRIPTIONS(R.string.cat_subscriptions, Color(0xFF3F51B5), Icons.Default.Refresh),
-    TRANSFERS(R.string.cat_transfers, Color(0xFF90A4AE), Icons.Default.SyncAlt),
-    SERVICES(R.string.cat_services, Color(0xFF00BCD4), Icons.Default.Build),
-    SHOPPING(R.string.cat_shopping, Color(0xFFFF5722), Icons.Default.Store),
-    TRAVEL(R.string.cat_travel, Color(0xFF3F51B5), Icons.Default.Flight),
-    GOVERNMENT(R.string.cat_government, Color(0xFF607D8B), Icons.Default.AccountBalance),
-    EDUCATION(R.string.cat_education, Color(0xFF795548), Icons.Default.School),
-    OTHERS(R.string.cat_others, Color(0xFF9E9E9E), Icons.AutoMirrored.Filled.List)
+    FOOD(R.string.transaction_category_food, Color(0xFF4CAF50), Icons.Default.ShoppingCart),
+    TRANSPORT(
+        R.string.transaction_category_transport,
+        Color(0xFF2196F3),
+        Icons.Default.DirectionsBus
+    ),
+    HOUSING(R.string.transaction_category_housing, Color(0xFFFF9800), Icons.Default.Home),
+    HEALTH(R.string.transaction_category_health, Color(0xFFE91E63), Icons.Default.Favorite),
+    ENTERTAINMENT(
+        R.string.transaction_category_entertainment,
+        Color(0xFF9C27B0),
+        Icons.Default.PlayArrow
+    ),
+    SALARY(R.string.transaction_category_salary, Color(0xFFFFEB3B), Icons.Default.Star),
+    SUBSCRIPTIONS(
+        R.string.transaction_category_subscriptions,
+        Color(0xFF3F51B5),
+        Icons.Default.Refresh
+    ),
+    TRANSFERS(R.string.transaction_category_transfers, Color(0xFF90A4AE), Icons.Default.SyncAlt),
+    SERVICES(R.string.transaction_category_services, Color(0xFF00BCD4), Icons.Default.Build),
+    SHOPPING(R.string.transaction_category_shopping, Color(0xFFFF5722), Icons.Default.Store),
+    TRAVEL(R.string.transaction_category_travel, Color(0xFF3F51B5), Icons.Default.Flight),
+    GOVERNMENT(
+        R.string.transaction_category_government,
+        Color(0xFF607D8B),
+        Icons.Default.AccountBalance
+    ),
+    EDUCATION(R.string.transaction_category_education, Color(0xFF795548), Icons.Default.School),
+    OTHERS(R.string.transaction_category_others, Color(0xFF9E9E9E), Icons.AutoMirrored.Filled.List)
 }

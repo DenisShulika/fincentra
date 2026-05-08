@@ -1,7 +1,9 @@
 package com.denisshulika.fincentra.viewmodels
 
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.User
 import com.denisshulika.fincentra.data.models.state.CurrencySummary
 import com.denisshulika.fincentra.data.util.TransactionConstants
@@ -98,10 +100,13 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    fun getSupportIntent(): android.content.Intent {
-        return android.content.Intent(android.content.Intent.ACTION_SENDTO).apply {
+    fun getSupportIntent(context: android.content.Context): Intent {
+        return Intent(Intent.ACTION_SENDTO).apply {
             data = android.net.Uri.parse("mailto:denisshulika31@gmail.com")
-            putExtra(android.content.Intent.EXTRA_SUBJECT, "FinCentra Feedback")
+            putExtra(
+                Intent.EXTRA_SUBJECT,
+                context.getString(R.string.profile_view_model_feedback_subject)
+            )
         }
     }
 }

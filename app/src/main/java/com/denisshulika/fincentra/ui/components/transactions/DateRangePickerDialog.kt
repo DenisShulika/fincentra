@@ -26,10 +26,10 @@ fun DateRangePickerDialog(
     DatePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = onConfirm) { Text("OK") }
+            TextButton(onClick = onConfirm) { Text(stringResource(R.string.date_range_picker_dialog_btn_confirm)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.btn_cancel)) }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.date_range_picker_dialog_btn_cancel)) }
         }
     ) {
         DateRangePicker(
@@ -40,7 +40,7 @@ fun DateRangePickerDialog(
             showModeToggle = true,
             title = {
                 Text(
-                    text = stringResource(R.string.date_picker_select_period),
+                    text = stringResource(R.string.date_range_picker_dialog_title),
                     modifier = Modifier.padding(start = 24.dp, top = 16.dp),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.secondary
@@ -49,10 +49,10 @@ fun DateRangePickerDialog(
             headline = {
                 val start = state.selectedStartDateMillis?.let {
                     DateFormatter.formatFullDate(it)
-                } ?: stringResource(R.string.date_start)
+                } ?: stringResource(R.string.date_range_picker_dialog_start_label)
                 val end = state.selectedEndDateMillis?.let {
                     DateFormatter.formatFullDate(it)
-                } ?: stringResource(R.string.date_end)
+                } ?: stringResource(R.string.date_range_picker_dialog_end_label)
 
                 Text(
                     text = "$start — $end",

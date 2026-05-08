@@ -40,10 +40,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.SubFrequency
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.data.util.DateFormatter
@@ -79,10 +81,12 @@ fun AddSubscriptionSheet(viewModel: SubscriptionViewModel, onDismiss: () -> Unit
                         viewModel.onDateChange(date)
                     }
                     showDatePicker = false
-                }) { Text("OK") }
+                }) { Text(stringResource(R.string.add_subscription_sheet_date_ok)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+                TextButton(onClick = {
+                    showDatePicker = false
+                }) { Text(stringResource(R.string.add_subscription_sheet_date_cancel)) }
             }
         ) {
             DatePicker(state = datePickerState)
@@ -100,7 +104,9 @@ fun AddSubscriptionSheet(viewModel: SubscriptionViewModel, onDismiss: () -> Unit
                 .padding(bottom = 32.dp)
         ) {
             Text(
-                text = if (editingId == null) "New Subscription" else "Subscription Details",
+                text = if (editingId == null) stringResource(R.string.add_subscription_sheet_title_new) else stringResource(
+                    R.string.add_subscription_sheet_title_details
+                ),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Black
             )
@@ -109,7 +115,7 @@ fun AddSubscriptionSheet(viewModel: SubscriptionViewModel, onDismiss: () -> Unit
 
             OutlinedTextField(
                 value = name, onValueChange = viewModel::onNameChange,
-                label = { Text("Service Name") },
+                label = { Text(stringResource(R.string.add_subscription_sheet_label_service_name)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 singleLine = true
@@ -119,7 +125,7 @@ fun AddSubscriptionSheet(viewModel: SubscriptionViewModel, onDismiss: () -> Unit
 
             OutlinedTextField(
                 value = amount, onValueChange = viewModel::onAmountChange,
-                label = { Text("Amount") },
+                label = { Text(stringResource(R.string.add_subscription_sheet_label_amount)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -139,7 +145,10 @@ fun AddSubscriptionSheet(viewModel: SubscriptionViewModel, onDismiss: () -> Unit
 
             Spacer(Modifier.height(24.dp))
 
-            Text("Billing Cycle", style = MaterialTheme.typography.titleSmall)
+            Text(
+                stringResource(R.string.add_subscription_sheet_billing_cycle),
+                style = MaterialTheme.typography.titleSmall
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -150,7 +159,14 @@ fun AddSubscriptionSheet(viewModel: SubscriptionViewModel, onDismiss: () -> Unit
                     FilterChip(
                         selected = selectedFreq == freq,
                         onClick = { viewModel.onFrequencyChange(freq) },
-                        label = { Text(freq.name.lowercase().replaceFirstChar { it.uppercase() }) },
+                        label = {
+                            val label = when (freq) {
+                                SubFrequency.WEEKLY -> stringResource(R.string.add_subscription_sheet_freq_weekly)
+                                SubFrequency.MONTHLY -> stringResource(R.string.add_subscription_sheet_freq_monthly)
+                                SubFrequency.YEARLY -> stringResource(R.string.add_subscription_sheet_freq_yearly)
+                            }
+                            Text(label)
+                        },
                         shape = CircleShape
                     )
                 }
@@ -167,7 +183,10 @@ fun AddSubscriptionSheet(viewModel: SubscriptionViewModel, onDismiss: () -> Unit
                 Icon(Icons.Default.DateRange, null)
                 Spacer(Modifier.width(12.dp))
                 Column(horizontalAlignment = Alignment.Start) {
-                    Text("Next Payment Date", style = MaterialTheme.typography.labelSmall)
+                    Text(
+                        stringResource(R.string.add_subscription_sheet_label_payment_date),
+                        style = MaterialTheme.typography.labelSmall
+                    )
                     Text(
                         text = DateFormatter.formatFullDate(selectedDateByVm),
                         style = MaterialTheme.typography.bodyLarge,
@@ -195,7 +214,9 @@ fun AddSubscriptionSheet(viewModel: SubscriptionViewModel, onDismiss: () -> Unit
                     color = Color.White
                 )
                 else Text(
-                    if (editingId == null) "Add Subscription" else "Save Changes",
+                    if (editingId == null) stringResource(R.string.add_subscription_sheet_btn_add) else stringResource(
+                        R.string.add_subscription_sheet_btn_save
+                    ),
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -210,7 +231,10 @@ fun AddSubscriptionSheet(viewModel: SubscriptionViewModel, onDismiss: () -> Unit
                         .fillMaxWidth()
                         .padding(top = 8.dp)
                 ) {
-                    Text("Cancel Subscription", color = MaterialTheme.colorScheme.error)
+                    Text(
+                        stringResource(R.string.add_subscription_sheet_btn_cancel_sub),
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             }
         }

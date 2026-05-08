@@ -44,7 +44,7 @@ fun EmptyTransactionsPlaceholder(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = stringResource(R.string.transactions_empty_title),
+                text = stringResource(R.string.empty_transactions_placeholder_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Black,
                 color = MaterialTheme.colorScheme.onSurface
@@ -53,7 +53,7 @@ fun EmptyTransactionsPlaceholder(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = stringResource(R.string.transactions_empty_desc),
+                text = stringResource(R.string.empty_transactions_placeholder_desc),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -67,7 +67,7 @@ fun EmptyTransactionsPlaceholder(
                 modifier = Modifier.height(52.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.transactions_btn_reset),
+                    text = stringResource(R.string.empty_transactions_placeholder_btn_reset),
                     fontWeight = FontWeight.Bold
                 )
             }

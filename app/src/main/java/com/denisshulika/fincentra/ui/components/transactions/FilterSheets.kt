@@ -57,7 +57,7 @@ fun CategoryFilterContent(
             .padding(bottom = 32.dp)
     ) {
         Text(
-            text = stringResource(R.string.filter_categories_title),
+            text = stringResource(R.string.category_filter_title),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Black,
             color = MaterialTheme.colorScheme.onSurface,
@@ -139,7 +139,7 @@ fun CategoryFilterContent(
                 .height(56.dp),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Text(stringResource(R.string.filter_btn_apply), fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.category_filter_btn_apply), fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -160,7 +160,7 @@ fun TypeBankFilterContent(
             .padding(bottom = 32.dp)
     ) {
         Text(
-            text = stringResource(R.string.filter_appearance_title),
+            text = stringResource(R.string.category_filter_appearance_title),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Black
         )
@@ -168,7 +168,7 @@ fun TypeBankFilterContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            stringResource(R.string.filter_sort_by),
+            stringResource(R.string.category_filter_sort_by),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.primary
         )
@@ -189,15 +189,15 @@ fun TypeBankFilterContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            stringResource(R.string.filter_type),
+            stringResource(R.string.category_filter_type_label),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.primary
         )
         Row(modifier = Modifier.padding(top = 8.dp)) {
             val types = listOf(
-                FilterConstants.ALL to R.string.filter_all,
-                FilterConstants.EXPENSES to R.string.stats_expenses,
-                FilterConstants.INCOME to R.string.stats_income
+                FilterConstants.ALL to R.string.category_filter_all,
+                FilterConstants.EXPENSES to R.string.category_filter_expenses,
+                FilterConstants.INCOME to R.string.category_filter_income
             )
             types.forEach { (tech, res) ->
                 FilterChip(
@@ -213,15 +213,15 @@ fun TypeBankFilterContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            stringResource(R.string.filter_source),
+            stringResource(R.string.category_filter_source_label),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.primary
         )
         Row(modifier = Modifier.padding(top = 8.dp)) {
             val sources = listOf(
-                FilterConstants.ALL to R.string.filter_all,
-                BankProviders.MONOBANK to R.string.filter_monobank,
-                TransactionConstants.SOURCE_CASH to R.string.filter_cash
+                FilterConstants.ALL to R.string.category_filter_all,
+                BankProviders.MONOBANK to R.string.category_filter_monobank,
+                TransactionConstants.SOURCE_CASH to R.string.category_filter_cash
             )
             sources.forEach { (tech, res) ->
                 FilterChip(
@@ -242,7 +242,7 @@ fun TypeBankFilterContent(
                 .height(56.dp),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Text(stringResource(R.string.filter_btn_done), fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.category_filter_btn_done), fontWeight = FontWeight.Bold)
         }
     }
 }

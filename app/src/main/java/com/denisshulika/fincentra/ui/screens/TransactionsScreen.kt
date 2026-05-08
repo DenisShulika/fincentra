@@ -66,17 +66,17 @@ fun TransactionsScreen(
             onDismissRequest = { transactionToDelete = null },
             title = {
                 Text(
-                    stringResource(R.string.tx_delete_confirm_title),
+                    stringResource(R.string.transactions_screen_delete_title),
                     fontWeight = FontWeight.Bold
                 )
             },
-            text = { Text(stringResource(R.string.tx_delete_confirm_desc)) },
+            text = { Text(stringResource(R.string.transactions_screen_delete_desc)) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.deleteTransaction(transactionToDelete!!); transactionToDelete = null
                 }) {
                     Text(
-                        stringResource(R.string.btn_delete),
+                        stringResource(R.string.transactions_screen_delete_btn_confirm),
                         color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.Bold
                     )
@@ -85,7 +85,7 @@ fun TransactionsScreen(
             dismissButton = {
                 TextButton(onClick = { transactionToDelete = null }) {
                     Text(
-                        stringResource(R.string.btn_cancel)
+                        stringResource(R.string.transactions_screen_delete_btn_cancel)
                     )
                 }
             }
@@ -156,8 +156,8 @@ fun TransactionsScreen(
                                 color = MaterialTheme.colorScheme.background.copy(alpha = 0.95f)
                             ) {
                                 val displayDate = when (dateHeader) {
-                                    "DATE_TODAY" -> stringResource(R.string.date_today)
-                                    "DATE_YESTERDAY" -> stringResource(R.string.date_yesterday)
+                                    "DATE_TODAY" -> stringResource(R.string.transactions_screen_date_today)
+                                    "DATE_YESTERDAY" -> stringResource(R.string.transactions_screen_date_yesterday)
                                     else -> dateHeader
                                 }
                                 Text(

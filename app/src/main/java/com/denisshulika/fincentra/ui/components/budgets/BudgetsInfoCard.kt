@@ -33,7 +33,7 @@ fun BudgetsInfoCard() {
         shape = RoundedCornerShape(24.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
         modifier = Modifier
-            .padding(horizontal = 20.dp, vertical = 8.dp)
+            .padding(vertical = 8.dp)
             .fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
@@ -49,7 +49,7 @@ fun BudgetsInfoCard() {
             Spacer(Modifier.height(12.dp))
 
             Text(
-                text = stringResource(R.string.budget_info_text),
+                text = stringResource(R.string.budgets_info_card_text),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )

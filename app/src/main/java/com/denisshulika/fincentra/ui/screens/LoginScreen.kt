@@ -97,14 +97,14 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = stringResource(R.string.login_title),
+            text = stringResource(R.string.login_screen_title),
             style = MaterialTheme.typography.displayMedium,
             fontWeight = FontWeight.Black,
             color = MaterialTheme.colorScheme.primary
         )
 
         Text(
-            text = stringResource(R.string.login_subtitle),
+            text = stringResource(R.string.login_screen_subtitle),
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center,
@@ -116,7 +116,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = email,
             onValueChange = { viewModel.onEmailChange(it) },
-            label = { Text(stringResource(R.string.auth_email_label)) },
+            label = { Text(stringResource(R.string.login_screen_email_label)) },
             leadingIcon = {
                 Icon(
                     Icons.Default.Email,
@@ -138,7 +138,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = password,
             onValueChange = { viewModel.onPasswordChange(it) },
-            label = { Text(stringResource(R.string.auth_password_label)) },
+            label = { Text(stringResource(R.string.login_screen_password_label)) },
             leadingIcon = {
                 Icon(
                     Icons.Default.Lock,
@@ -184,7 +184,7 @@ fun LoginScreen(
                 )
             } else {
                 Text(
-                    text = stringResource(R.string.login_btn_enter),
+                    text = stringResource(R.string.login_screen_btn_login),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -195,7 +195,7 @@ fun LoginScreen(
 
         TextButton(onClick = onNavigateToRegister) {
             Text(
-                text = stringResource(R.string.login_no_account),
+                text = stringResource(R.string.login_screen_no_account),
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.SemiBold
             )
@@ -209,7 +209,7 @@ fun LoginScreen(
         ) {
             HorizontalDivider(modifier = Modifier.weight(1f), thickness = 0.5.dp)
             Text(
-                text = stringResource(R.string.auth_or_with),
+                text = stringResource(R.string.login_screen_or_with),
                 modifier = Modifier.padding(horizontal = 16.dp),
                 style = MaterialTheme.typography.labelMedium
             )
@@ -251,7 +251,7 @@ fun LoginScreen(
         ) {
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.google_icon),
-                contentDescription = "Google Login",
+                contentDescription = stringResource(R.string.login_screen_google_login_desc),
                 tint = Color.Unspecified,
                 modifier = Modifier.size(40.dp)
             )

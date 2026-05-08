@@ -27,7 +27,7 @@ fun EmptyStatsPlaceholder() {
                 tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
             )
             Text(
-                text = stringResource(R.string.stats_no_data),
+                text = stringResource(R.string.empty_stats_placeholder_no_data),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

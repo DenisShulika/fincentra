@@ -6,31 +6,31 @@ import com.denisshulika.fincentra.data.util.BankProviders
 
 data class BankProviderInfo(
     val id: String,
-    val name: String,
+    val nameRes: Int,
     val logo: Int,
     val brandColor: Color,
-    val subtitle: String = ""
+    val subtitleRes: Int = 0
 )
 
 val SupportedBanks = listOf(
     BankProviderInfo(
         id = BankProviders.MONOBANK,
-        name = "Monobank",
+        nameRes = R.string.bank_provider_info_mono_name,
         logo = R.drawable.monobank_logo,
         brandColor = Color(0xFFE91E63)
     ),
     BankProviderInfo(
         id = BankProviders.WISE,
-        name = "Wise",
+        nameRes = R.string.bank_provider_info_wise_name,
         logo = R.drawable.wise_logo,
         brandColor = Color(0xFF00B67A),
-        subtitle = "Global Multi-currency"
+        subtitleRes = R.string.bank_provider_info_wise_subtitle
     ),
     BankProviderInfo(
         id = BankProviders.GOOGLE_WALLET,
-        name = "Google Wallet",
+        nameRes = R.string.bank_provider_info_wallet_name,
         logo = R.drawable.google_icon,
         brandColor = Color(0xFF4285F4),
-        subtitle = "NFC Notifications"
+        subtitleRes = R.string.bank_provider_info_wallet_subtitle
     )
 )

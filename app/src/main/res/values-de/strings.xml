@@ -2,218 +2,643 @@
     <!-- General -->
     <string name="app_name">FinCentra</string>
 
-    <!-- Navigation -->
-    <string name="nav_onboarding">Einführung</string>
-    <string name="nav_home">Übersicht</string>
-    <string name="nav_transactions">Transaktionen</string>
-    <string name="nav_stats">Analyse</string>
-    <string name="nav_profile">Profil</string>
-    <string name="nav_integrations">Banken</string>
-    <string name="nav_budgets">Limits</string>
-    <string name="nav_dream">Traum</string>
-    <string name="nav_login">Anmelden</string>
-    <string name="nav_register">Registrieren</string>
-    <string name="nav_settings">Einstellungen</string>
+    <!-- About Screen -->
+    <string name="about_screen_title">Über FinCentra</string>
+    <string name="about_screen_version">Version 1.1</string>
+    <string name="about_screen_feature_tree_title">Der lebende Baum</string>
+    <string name="about_screen_feature_tree_desc">Deine Budgetlimits werden als Bäume visualisiert. Bleibe im Budget, damit dein Finanz-Ökosystem gedeiht. Wenn du zu viel ausgibst, verwelkt der Baum.</string>
+    <string name="about_screen_feature_safety_title">Sicherheitsschwelle</string>
+    <string name="about_screen_feature_safety_desc">Eine einzigartige Logik, die deine lebensnotwendigen Mittel schützt. Der Fortschritt zu deinen Zielen wird nur aus dem Geld berechnet, das du wirklich übrig hast.</string>
+    <string name="about_screen_feature_ai_title">KI-Berater</string>
+    <string name="about_screen_feature_ai_desc">Unterstützt durch Gemini führt unsere KI ein 360-Grad-Audit deiner Finanzen durch и bietet Einblicke auf CFO-Niveau.</string>
+    <string name="about_screen_contact_legal_title">Kontakt &amp; Rechtliches</string>
+    <string name="about_screen_contact_email">denisshulika31@gmail.com</string>
+    <string name="about_screen_privacy_policy">Datenschutzerklärung</string>
+    <string name="about_screen_footer_credits">Design &amp; Entwicklung: Denys Shulika</string>
 
-    <!-- Common Buttons -->
-    <string name="btn_save">Speichern</string>
-    <string name="btn_update">Aktualisieren</string>
-    <string name="btn_cancel">Abbrechen</string>
-    <string name="btn_close">Schließen</string>
-    <string name="btn_edit">Bearbeiten</string>
-    <string name="btn_done">Fertig</string>
-    <string name="btn_apply">Anwenden</string>
-    <string name="btn_delete">Löschen</string>
-    <string name="btn_skip">Überspringen</string>
-    <string name="btn_next">Weiter</string>
-    <string name="btn_start">Start</string>
-    <string name="btn_logout">Abmelden</string>
+    <!-- Budgets Screen -->
+    <string name="budgets_screen_title">Limits</string>
+    <string name="budgets_screen_empty_title">Dein Wald ist noch leer</string>
+    <string name="budgets_screen_empty_desc">Lege ein Limit für eine Kategorie fest, um deinen Finanzbaum wachsen zu lassen.</string>
 
-    <!-- Authentication -->
-    <string name="login_title">FinCentra</string>
-    <string name="login_subtitle">Dein intelligenter Finanz-Hub und Assistent!</string>
-    <string name="login_email_label">E-Mail</string>
-    <string name="login_password_label">Passwort</string>
-    <string name="login_btn_enter">Einloggen</string>
-    <string name="login_no_account">Noch kein Konto? Registrieren</string>
-    <string name="login_or_with">oder mit</string>
-    <string name="register_header">Konto erstellen</string>
-    <string name="register_desc">Tritt FinCentra bei und nimm deine Finanzen in die Hand</string>
-    <string name="register_name_label">Wie heißt du?</string>
-    <string name="register_confirm_password">Passwort bestätigen</string>
-    <string name="register_btn">Registrieren</string>
-    <string name="register_already_have">Hast du bereits ein Konto? Einloggen</string>
-    <string name="auth_email_hint">E-Mail-Adresse</string>
-    <string name="auth_password_hint">Passwort</string>
-    <string name="auth_name_hint">Dein Name</string>
-    <string name="auth_confirm_password_hint">Passwort bestätigen</string>
-    <string name="auth_email_label">E-Mail</string>
-    <string name="auth_password_label">Passwort</string>
-    <string name="auth_or_with">oder mit</string>
+    <!-- Dream Screen -->
+    <string name="dream_screen_title">Mein Traum</string>
+    <string name="dream_screen_delete_title">Traum löschen?</string>
+    <string name="dream_screen_delete_desc">Dies setzt deinen Fortschritt zurück. Deine Transaktionen bleiben sicher.</string>
+    <string name="dream_screen_btn_delete">Löschen</string>
+    <string name="dream_screen_btn_cancel">Abbrechen</string>
+
+    <!-- Export Screen -->
+    <string name="export_screen_title">Bericht exportieren</string>
+    <string name="export_screen_headline">Daten zum Exportieren auswählen</string>
+    <string name="export_screen_section_dates">Zeitraum</string>
+    <string name="export_screen_date_all_time">Gesamter Zeitraum</string>
+    <string name="export_screen_section_sources">Quellen</string>
+    <string name="export_screen_section_accounts">Spezifische Konten</string>
+    <string name="export_screen_all_cards">Alle Karten</string>
+    <string name="export_screen_section_currencies">Währungen</string>
+    <string name="export_screen_all_currencies">Alle Währungen</string>
+    <string name="export_screen_section_categories">Kategorien (%d ausgewählt)</string>
+    <string name="export_screen_section_type">Vorgangstyp</string>
+    <string name="export_screen_type_all">Alle</string>
+    <string name="export_screen_type_expenses">Ausgaben</string>
+    <string name="export_screen_type_income">Einnahmen</string>
+    <string name="export_screen_section_style">Berichtsstil</string>
+    <string name="export_screen_style_header">Kopfzeile einschließen (Branding)</string>
+    <string name="export_screen_style_summary">Finanzielle Zusammenfassung einschließen</string>
+    <string name="export_screen_btn_pdf">PDF generieren (%d Einträge)</string>
+    <string name="export_screen_btn_csv">Als CSV exportieren</string>
 
     <!-- Home Screen -->
-    <string name="home_greeting">Hallo, %s!</string>
-    <string name="home_status_title">Dein Finanzstatus heute</string>
-    <string name="home_ai_title">KI-Ratgeber</string>
-    <string name="home_ai_desc">Ausgaben werden analysiert… Tipps folgen in Kürze.</string>
-    <string name="home_recent_tx">Letzte Transaktionen</string>
-    <string name="home_view_all">Alle anzeigen</string>
-    <string name="home_no_tx">Noch keine Transaktionen</string>
-    <string name="home_no_transactions">Noch keine Transaktionen</string>
-    <string name="home_dream_goal">Sparziel</string>
-    <string name="home_dream_collected">%d%% gesammelt</string>
-    <string name="home_critical_limits">Limit-Warnungen</string>
-    <string name="home_all_limits">Alle Limits</string>
+    <string name="home_screen_user_placeholder">Benutzer</string>
+    <string name="home_screen_greeting">Hallo, %s!</string>
+    <string name="home_screen_status_title">Dein Finanzstatus heute</string>
+    <string name="home_screen_ai_title">KI-Ratgeber</string>
+    <string name="home_screen_ai_loading">Finanzwald wird analysiert…</string>
+    <string name="home_screen_ai_error_internet">KI nicht erreichbar. Internet prüfen.</string>
+    <string name="home_screen_ai_click_prompt">Tippen für KI-Ratgeber</string>
+    <string name="home_screen_dream_goal">Sparziel</string>
+    <string name="home_screen_dream_collected_percentage">%1$d%% gesammelt</string>
+    <string name="home_screen_critical_limits">Limit-Warnungen</string>
+    <string name="home_screen_all_limits">Alle Limits</string>
+    <string name="home_screen_upcoming_bills">Anstehende Rechnungen (%d)</string>
+    <string name="home_screen_sub_today">Heute</string>
+    <string name="home_screen_sub_in_days">In %d Tagen</string>
+    <string name="home_screen_recent_transactions">Letzte Transaktionen</string>
+    <string name="home_screen_view_all">Alle anzeigen</string>
+    <string name="home_screen_no_transactions">Noch keine Transaktionen</string>
 
-    <!-- Profile -->
-    <string name="profile_title_screen">Mein Profil</string>
-    <string name="profile_total_balance">Gesamtbilanz (%s)</string>
-    <string name="profile_no_accounts">Keine Konten verbunden</string>
-    <string name="profile_contact_dev">Entwickler kontaktieren</string>
-    <string name="profile_account_actions">Konto-Optionen</string>
-    <string name="profile_transactions_count">%d Transaktionen</string>
-    <string name="profile_new_password_title">Neues Passwort</string>
-    <string name="profile_enter_password_hint">Passwort eingeben</string>
-    <string name="profile_delete_acc_title">Konto löschen?</string>
-    <string name="profile_delete_acc_desc">Alle Cloud-Daten gehen dauerhaft verloren.</string>
-    <string name="profile_user_placeholder">Benutzer</string>
-    <string name="profile_loading">Laden…</string>
+    <!-- Integrations Screen -->
+    <string name="integrations_screen_title">Banken &amp; Konten</string>
+    <string name="integrations_screen_connection_header">Verbindung</string>
+    <string name="integrations_screen_tab_ukraine">Offizielle Synchronisierung (API)</string>
+    <string name="integrations_screen_tab_europe">Europa (PSD2)</string>
+    <string name="integrations_screen_delete_title">Bank trennen?</string>
+    <string name="integrations_screen_delete_desc">Neue Transaktionen werden nicht mehr geladen. Kontoeinstellungen werden entfernt.</string>
+    <string name="integrations_screen_delete_confirm">Ja, trennen</string>
+    <string name="integrations_screen_btn_cancel">Abbrechen</string>
 
-    <!-- Budgets -->
-    <string name="budget_new_title">Neues Limit</string>
-    <string name="budget_edit_title">Limit bearbeiten</string>
-    <string name="budget_amount_label">Monatlicher Betrag</string>
-    <string name="budget_select_category">Kategorie wählen</string>
-    <string name="budget_btn_set">Limit festlegen</string>
-    <string name="budget_btn_update">Limit aktualisieren</string>
-    <string name="budget_info_text">Betrag, der immer für Fixkosten auf deinen Konten bleiben sollte (Miete, Essen, Reserve).</string>
-    <string name="budget_status_safe">Sicherer Vorrat</string>
-    <string name="budget_status_warning">Limit fast erreicht</string>
-    <string name="budget_status_broken">Limit überschritten!</string>
-    <string name="budget_remaining">%s verbleibend</string>
-    <string name="budgets_empty_title">Dein Wald ist noch leer</string>
-    <string name="budgets_empty_desc">Lege ein Limit fest, um deinen Finanzbaum wachsen zu lassen.</string>
+    <!-- Login Screen -->
+    <string name="login_screen_title">FinCentra</string>
+    <string name="login_screen_subtitle">Dein intelligenter Finanz-Hub und Assistent!</string>
+    <string name="login_screen_email_label">E-Mail</string>
+    <string name="login_screen_password_label">Passwort</string>
+    <string name="login_screen_btn_login">Einloggen</string>
+    <string name="login_screen_no_account">Noch kein Konto? Registrieren</string>
+    <string name="login_screen_or_with">oder mit</string>
+    <string name="login_screen_google_login_desc">Google Login</string>
 
-    <!-- Dream -->
-    <string name="dream_title_screen">Mein Traum</string>
-    <string name="dream_form_edit_title">Parameter aktualisieren</string>
-    <string name="dream_form_new_title">Traum einrichten</string>
-    <string name="dream_label_title">Wofür sparen wir?</string>
-    <string name="dream_placeholder_title">z.B. Auto</string>
-    <string name="dream_label_target">Zielbetrag</string>
-    <string name="dream_label_buffer">Sicherheitspuffer (Leben)</string>
-    <string name="dream_btn_update">Traum aktualisieren</string>
-    <string name="dream_btn_save">Traum speichern</string>
-    <string name="dream_info_title">Was ist ein Sicherheitspuffer?</string>
-    <string name="dream_info_desc">Dies ist der Betrag, der für Fixkosten auf deinen Konten bleiben sollte.</string>
-    <string name="dream_info_detail">Der Fortschritt wird nur aus dem Geld berechnet, das diesen Puffer übersteigt.</string>
-    <string name="dream_view_target">Sparziel</string>
-    <string name="dream_view_buffer">Dein Sicherheitspuffer</string>
-    <string name="dream_view_available">Verfügbar für Traum</string>
-    <string name="dream_btn_edit">Ziel bearbeiten</string>
-    <string name="dream_collected_percentage">Gesammelt %1$d%%</string>
+    <!-- Onboarding Screen -->
+    <string name="onboarding_screen_btn_skip">Überspringen</string>
+    <string name="onboarding_screen_btn_next">Weiter</string>
+    <string name="onboarding_screen_btn_start">Start</string>
 
-    <!-- Stats -->
-    <string name="stats_no_data">Keine Daten gefunden</string>
-    <string name="stats_expenses">Ausgaben</string>
-    <string name="stats_income">Einnahmen</string>
-    <string name="stats_expense_distribution">Ausgabenverteilung</string>
-    <string name="stats_income_sources">Einnahmequellen</string>
-    <string name="stats_subcategories_count">%d Unterkategorien</string>
-    <string name="stats_other_subcategory">Andere</string>
-    <string name="stats_balance_start">Zu Beginn</string>
-    <string name="stats_net_flow">Netto-Geldfluss</string>
-    <string name="stats_balance_current">Aktuelles Saldo</string>
+    <!-- Profile Screen -->
+    <string name="profile_screen_title">Mein Profil</string>
+    <string name="profile_screen_settings_desc">Einstellungen</string>
+    <string name="profile_screen_user_placeholder">Benutzer</string>
+    <string name="profile_screen_loading">Laden…</string>
+    <string name="profile_screen_tx_count">%d Transaktionen</string>
+    <string name="profile_screen_no_accounts">Keine Konten verbunden</string>
+    <string name="profile_screen_btn_export">Finanzberichte exportieren</string>
+    <string name="profile_screen_contact_dev">Entwickler kontaktieren</string>
 
-    <!-- Filters -->
-    <string name="filter_all">Alle</string>
-    <string name="filter_monobank">Monobank</string>
-    <string name="filter_cash">Bargeld</string>
-    <string name="filter_all_cards">Alle Karten</string>
-    <string name="filter_categories_title">Kategoriefilter</string>
-    <string name="filter_appearance_title">Anzeige-Einstellungen</string>
-    <string name="filter_sort_by">Sortieren nach</string>
-    <string name="filter_type">Vorgangstyp</string>
-    <string name="filter_source">Quelle</string>
+    <!-- Register Screen -->
+    <string name="register_screen_header">Konto erstellen</string>
+    <string name="register_screen_desc">Tritt FinCentra bei und nimm deine Finanzen in die Hand</string>
+    <string name="register_screen_name_hint">Wie heißt du?</string>
+    <string name="register_screen_email_hint">E-Mail-Adresse</string>
+    <string name="register_screen_password_hint">Passwort</string>
+    <string name="register_screen_confirm_password_hint">Passwort bestätigen</string>
+    <string name="register_screen_btn_signup">Registrieren</string>
+    <string name="register_screen_already_have_account">Hast du bereits ein Konto? Einloggen</string>
 
-    <!-- Transactions -->
-    <string name="transactions_title">Vorgänge</string>
-    <string name="transactions_search_hint">Suchen…</string>
-    <string name="transactions_empty_title">Nichts gefunden</string>
-    <string name="transactions_empty_desc">Ändere den Zeitraum oder setze Filter zurück.</string>
-    <string name="transactions_btn_reset">Filter zurücksetzen</string>
-    <string name="transaction_new_title">Neuer Vorgang</string>
-    <string name="transaction_edit_title">Bearbeiten</string>
-    <string name="transaction_label_amount">Betrag</string>
-    <string name="transaction_label_desc">Beschreibung oder Name</string>
-    <string name="transaction_label_category">Kategorie</string>
-    <string name="transaction_btn_save">Speichern</string>
-    <string name="transaction_btn_update">Aktualisieren</string>
-    <string name="tx_detail_no_name">Unbenannter Vorgang</string>
-    <string name="tx_detail_bank_comment">Bankkommentar</string>
-    <string name="tx_detail_category">Kategorie</string>
-    <string name="tx_detail_subcategory">Unterkategorie</string>
-    <string name="tx_detail_source">Quelle</string>
-    <string name="tx_detail_time">Vorgangszeit</string>
-    <string name="tx_type_expense">Ausgabe</string>
-    <string name="tx_type_income">Einnahme</string>
-    <string name="tx_search_placeholder">Suchen…</string>
-    <string name="tx_category_label">Kategorie</string>
-    <string name="tx_delete_confirm_title">Vorgang löschen?</string>
-    <string name="tx_delete_confirm_desc">Bist du sicher? Das kann nicht rückgängig gemacht werden.</string>
+    <!-- Settings Screen -->
+    <string name="settings_screen_title">Einstellungen</string>
+    <string name="settings_screen_pass_dialog_title">Neues Passwort</string>
+    <string name="settings_screen_pass_dialog_hint">Passwort eingeben</string>
+    <string name="settings_screen_pass_dialog_btn_update">Aktualisieren</string>
+    <string name="settings_screen_pass_dialog_btn_cancel">Abbrechen</string>
+    <string name="settings_screen_delete_dialog_title">Konto löschen?</string>
+    <string name="settings_screen_delete_dialog_desc">Alle deine Cloud-Daten gehen dauerhaft verloren.</string>
+    <string name="settings_screen_delete_dialog_btn_confirm">Löschen</string>
+    <string name="settings_screen_delete_dialog_btn_cancel">Abbrechen</string>
+    <string name="settings_screen_section_finance">Finanzeinstellungen</string>
+    <string name="settings_screen_currency_label">Währung für Gesamtsaldo</string>
+    <string name="settings_screen_currency_desc">Diese Währung wird für die Karte «Gesamtsaldo» auf deinem Startbildschirm verwendet.</string>
+    <string name="settings_screen_section_appearance">Erscheinungsbild &amp; Sprache</string>
+    <string name="settings_screen_theme_label">App-Design</string>
+    <string name="settings_screen_language_label">App-Sprache</string>
+    <string name="settings_screen_section_security">Kontosicherheit</string>
+    <string name="settings_screen_change_password">Passwort ändern</string>
+    <string name="settings_screen_delete_account">Mein Konto löschen</string>
+    <string name="settings_screen_btn_logout">Vom System abmelden</string>
+    <string name="settings_screen_lang_uk">uk</string>
+    <string name="settings_screen_lang_en">en</string>
+    <string name="settings_screen_lang_pl">pl</string>
+    <string name="settings_screen_lang_de">de</string>
+    <string name="settings_screen_lang_ro">ro</string>
 
-    <!-- Integrations -->
-    <string name="bank_title">Banken &amp; Konten</string>
-    <string name="bank_connection_header">Verbindung</string>
-    <string name="bank_sync_warning">Abfragen sind nur alle 60 Sekunden erlaubt.</string>
-    <string name="bank_accounts_title">Konten verfolgen</string>
-    <string name="bank_btn_refresh">Aktualisieren</string>
-    <string name="bank_btn_save_sync">Speichern &amp; Sync</string>
-    <string name="bank_btn_disconnect">Bank trennen</string>
-    <string name="bank_get_access_text">Zugang erhalten im </string>
-    <string name="bank_personal_cabinet">Kundenbereich</string>
-    <string name="bank_token_label">Bank-Token eingeben</string>
-    <string name="bank_btn_connect">Bank verbinden</string>
-    <string name="bank_delete_title">Bank trennen?</string>
-    <string name="bank_delete_desc">Einstellungen werden gelöscht.</string>
-    <string name="bank_delete_confirm">Ja, trennen</string>
+    <!-- Stats Screen -->
+    <string name="stats_screen_expenses">Ausgaben</string>
+    <string name="stats_screen_income">Einnahmen</string>
+    <string name="stats_screen_expense_distribution">Ausgabenverteilung</string>
+    <string name="stats_screen_income_sources">Einnahmequellen</string>
 
-    <!-- AI -->
-    <string name="ai_loading">Finanzwald wird analysiert…</string>
-    <string name="ai_error_internet">KI nicht erreichbar. Internet prüfen.</string>
-    <string name="ai_click_prompt">Tippen für KI-Ratgeber</string>
+    <!-- Subscription Screen -->
+    <string name="subscription_screen_title">Abonnements</string>
+    <string name="subscription_screen_add_desc">Abo hinzufügen</string>
+    <string name="subscription_screen_empty">Noch keine Abos hinzugefügt</string>
+    <string name="subscription_screen_days_today">Heute</string>
+    <string name="subscription_screen_days_remaining">In %d Tagen</string>
 
-    <!-- Categories -->
-    <string name="cat_food">Lebensmittel</string>
-    <string name="cat_transport">Transport</string>
-    <string name="cat_housing">Wohnen</string>
-    <string name="cat_health">Gesundheit</string>
-    <string name="cat_entertainment">Unterhaltung</string>
-    <string name="cat_salary">Gehalt &amp; Bar</string>
-    <string name="cat_subscriptions">Abos</string>
-    <string name="cat_transfers">Überweisungen</string>
-    <string name="cat_services">Dienste</string>
-    <string name="cat_shopping">Einkaufen</string>
-    <string name="cat_travel">Reisen</string>
-    <string name="cat_government">Behörden</string>
-    <string name="cat_education">Bildung</string>
-    <string name="cat_others">Sonstiges</string>
+    <!-- Transactions Screen -->
+    <string name="transactions_screen_delete_title">Transaktion löschen?</string>
+    <string name="transactions_screen_delete_desc">Bist du sicher? Dies kann nicht rückgängig gemacht werden.</string>
+    <string name="transactions_screen_delete_btn_confirm">Löschen</string>
+    <string name="transactions_screen_delete_btn_cancel">Abbrechen</string>
+    <string name="transactions_screen_date_today">Heute</string>
+    <string name="transactions_screen_date_yesterday">Gestern</string>
 
-    <!-- Errors & Sorting -->
-    <string name="error_invalid_credentials">E-Mail oder Passwort falsch</string>
-    <string name="sort_date_desc">Neueste zuerst</string>
-    <string name="sort_date_asc">Älteste zuerst</string>
-    <string name="sort_amount_desc">Teuerste</string>
-    <string name="sort_amount_asc">Günstigste</string>
+    <!-- Dream Widget -->
+    <string name="dream_widget_no_dream">Kein Ziel</string>
+    <string name="dream_widget_progress_percent">%d%%</string>
 
-    <!-- Settings -->
-    <string name="settings_appearance_section">Erscheinungsbild</string>
-    <string name="settings_dark_mode">Dunkler Modus</string>
-    <string name="settings_app_language">App-Sprache</string>
-    <string name="settings_security_section">Kontosicherheit</string>
-    <string name="settings_change_password">Passwort ändern</string>
-    <string name="settings_delete_account">Konto löschen</string>
-    <string name="settings_btn_logout_system">Abmelden</string>
+    <!-- Tree Widget -->
+    <string name="tree_widget_selection_header">BAUM WÄHLEN</string>
+    <string name="tree_widget_no_data_hint">App öffnen, um Limits zu synchronisieren</string>
+    <string name="tree_widget_usage_status">%d%% GENUTZT</string>
 
-    <string name="error_permission_required">error_permission_required</string>
+    <!-- Animated Amount Component -->
+    <string name="animated_amount_format">%1$.2f %2$s</string>
+
+    <!-- Balance Flow Card Component -->
+    <string name="balance_flow_card_total_title">Gesamtbilanz (Alle Konten)</string>
+    <string name="balance_flow_card_account_title">Kontostand</string>
+    <string name="balance_flow_card_balance_start">Zu Beginn des Zeitraums</string>
+    <string name="balance_flow_card_net_flow">Netto-Geldfluss</string>
+    <string name="balance_flow_card_balance_current">Aktueller Stand</string>
+
+    <!-- Budget Progress Item Component -->
+    <string name="budget_progress_item_remaining">%1$.0f %2$s</string>
+    <string name="budget_progress_item_limit_info">verbleibend von %1$d %2$s</string>
+
+    <!-- FinCentra Drawer Component -->
+    <string name="drawer_close_desc">Schließen</string>
+    <string name="drawer_user_placeholder">Finanz-Held</string>
+    <string name="drawer_loading">Laden…</string>
+    <string name="drawer_about_app">Über die App</string>
+    <string name="drawer_sign_out">Abmelden</string>
+
+    <!-- Health Badge Component -->
+    <string name="health_badge_label">PUNKTE</string>
+
+    <!-- Transaction Detail Sheet Component -->
+    <string name="transaction_detail_amount_format">%1$s%2$.2f %3$s</string>
+    <string name="transaction_detail_no_name">Unbenannter Vorgang</string>
+    <string name="transaction_detail_category">Kategorie</string>
+    <string name="transaction_detail_subcategory">Unterkategorie</string>
+    <string name="transaction_detail_source">Quelle</string>
+    <string name="transaction_detail_time">Zeitpunkt</string>
+    <string name="transaction_detail_bank_comment">Bankkommentar</string>
+    <string name="transaction_detail_btn_close">Schließen</string>
+
+    <!-- Transaction Item Component -->
+    <string name="transaction_item_amount_format">%1$s%2$.2f %3$s</string>
+
+    <!-- Add Budget Sheet Component -->
+    <string name="add_budget_sheet_title_new">Neues Limit</string>
+    <string name="add_budget_sheet_title_edit">Limit bearbeiten</string>
+    <string name="add_budget_sheet_amount_label">Betrag</string>
+    <string name="add_budget_sheet_category_label">Kategorie wählen</string>
+    <string name="add_budget_sheet_btn_set">Limit festlegen</string>
+    <string name="add_budget_sheet_btn_update">Limit aktualisieren</string>
+    <string name="add_budget_sheet_btn_delete">Dieses Limit löschen</string>
+
+    <!-- Budgets Info Card Component -->
+    <string name="budgets_info_card_text">Dies ist der Betrag, der für Fixkosten auf deinen Konten bleiben sollte (Miete, Essen, Reserve).</string>
+
+    <!-- Dream Form Component -->
+    <string name="dream_form_title_edit">Parameter aktualisieren</string>
+    <string name="dream_form_title_new">Traum einrichten</string>
+    <string name="dream_form_label_icon">Icon</string>
+    <string name="dream_form_label_title">Wofür sparen wir?</string>
+    <string name="dream_form_placeholder_title">z.B. Auto</string>
+    <string name="dream_form_label_target">Zielbetrag</string>
+    <string name="dream_form_label_buffer">Sicherheitspuffer (Leben)</string>
+    <string name="dream_form_btn_update">Traum aktualisieren</string>
+    <string name="dream_form_btn_save">Traum speichern</string>
+    <string name="dream_form_btn_delete">Traum löschen</string>
+    <string name="dream_form_btn_cancel">Abbrechen</string>
+
+    <!-- Dream Info Card Component -->
+    <string name="dream_info_card_title">Was ist ein Sicherheitspuffer?</string>
+    <string name="dream_info_card_desc">Dies ist der Betrag, der für Fixkosten auf deinen Konten bleiben sollte.</string>
+    <string name="dream_info_card_detail">Der Fortschritt wird nur aus Geld berechnet, das diesen Puffer übersteigt. So bleibst du finanziell sicher.</string>
+
+    <!-- Dream Progress View Component -->
+    <string name="dream_progress_view_label_target">Sparziel</string>
+    <string name="dream_progress_view_label_buffer">Dein Sicherheitspuffer</string>
+    <string name="dream_progress_view_label_available">Verfügbar für Traum</string>
+    <string name="dream_progress_view_btn_edit">Ziel bearbeiten</string>
+    <string name="dream_progress_view_amount_format">%1$.2f %2$s</string>
+    <string name="dream_progress_view_amount_buffer_format">-%1$.2f %2$s</string>
+
+    <!-- Prediction Coin Component -->
+    <string name="prediction_coin_title_default">Täglicher Einblick</string>
+    <string name="prediction_coin_tap_instruction">Tippen zum Werfen</string>
+
+    <!-- Bank Details Content Component -->
+    <string name="bank_details_content_close_desc">Schließen</string>
+    <string name="bank_details_content_status_updating">Salden werden aktualisiert…</string>
+    <string name="bank_details_content_status_assets">Vermögenswerte werden synchronisiert…</string>
+    <string name="bank_details_content_status_done">Fertig!</string>
+    <string name="bank_details_content_status_syncing">Synchronisierung: %s…</string>
+    <string name="bank_details_content_status_cooldown">API-Pause: %d s…</string>
+    <string name="bank_details_content_wallet_title">Google Wallet Synchronisierung</string>
+    <string name="bank_details_content_wallet_desc">FinCentra kann Zahlungen automatisch über Google Wallet Benachrichtigungen erfassen.</string>
+    <string name="bank_details_content_wallet_access_granted">Systemzugriff: Erteilt</string>
+    <string name="bank_details_content_wallet_access_required">Systemzugriff: Erforderlich</string>
+    <string name="bank_details_content_wallet_enable_automation">Automatisierung aktivieren</string>
+    <string name="bank_details_content_wallet_btn_grant">Systemzugriff gewähren</string>
+    <string name="bank_details_content_mono_token_label">Monobank Token</string>
+    <string name="bank_details_content_mono_btn_connect">Monobank verbinden</string>
+    <string name="bank_details_content_mono_get_access">Zugang erhalten im </string>
+    <string name="bank_details_content_mono_personal_cabinet">Kundenbereich</string>
+    <string name="bank_details_content_mono_select_title">Monobank Konten wählen</string>
+    <string name="bank_details_content_mono_sync_warning">Abfragen sind nur alle 60 Sekunden erlaubt. Bitte App nicht schließen.</string>
+    <string name="bank_details_content_mono_btn_save">Speichern &amp; Synchronisieren</string>
+    <string name="bank_details_content_mono_btn_refresh">Kontenliste aktualisieren</string>
+    <string name="bank_details_content_mono_btn_disconnect">Monobank trennen</string>
+    <string name="bank_details_content_wise_setup_title">So erhältst du deinen API-Token:</string>
+    <string name="bank_details_content_wise_setup_desc">1. Logge dich auf der Wise Webseite ein.\n2. Gehe zu Einstellungen -> API-Tokens.\n3. Stelle sicher, dass 2FA aktiviert ist.\n4. Erstelle und kopiere deinen persönlichen Token.</string>
+    <string name="bank_details_content_wise_token_label">Wise API-Token</string>
+    <string name="bank_details_content_wise_btn_connect">Wise Konto verbinden</string>
+    <string name="bank_details_content_wise_sync_info">Die Wise-Synchronisierung kann einige Sekunden dauern.</string>
+    <string name="bank_details_content_wise_select_title">Wise Multi-Währungskonten</string>
+    <string name="bank_details_content_wise_btn_save">Wise speichern &amp; synchronisieren</string>
+    <string name="bank_details_content_wise_btn_disconnect">Wise trennen</string>
+    <string name="bank_details_content_euro_setup_desc">Verbinde dein %s Konto sicher über das Salt Edge Gateway.</string>
+    <string name="bank_details_content_euro_btn_connect">Über Browser verbinden</string>
+    <string name="bank_details_content_euro_sync_info">Daten europäischer Banken werden über das sichere PSD2-Gateway von Salt Edge abgerufen.</string>
+    <string name="bank_details_content_euro_select_title">Verfügbare europäische Konten</string>
+    <string name="bank_details_content_euro_btn_save">Speichern &amp; Synchronisieren</string>
+    <string name="bank_details_content_euro_btn_disconnect">Bank trennen</string>
+    <string name="bank_details_content_account_format">%1$.2f %2$s</string>
+
+    <!-- Onboarding Page Content Component -->
+    <string name="onboarding_page_content_step1_title">Intelligente Analyse</string>
+    <string name="onboarding_page_content_step1_desc">FinCentra sammelt automatisch Daten von deinen Banken. Keine Notizbücher mehr.</string>
+    <string name="onboarding_page_content_step1_highlight">automatisch</string>
+    <string name="onboarding_page_content_step2_title">Deine Ecosystem</string>
+    <string name="onboarding_page_content_step2_desc">Dein Limit ist ein lebender Baum. Kontrolliere Ausgaben, damit dein Finanzbaum blüht.</string>
+    <string name="onboarding_page_content_step2_highlight">lebender Baum</string>
+    <string name="onboarding_page_content_step3_title">Träumen ohne Risiko</string>
+    <string name="onboarding_page_content_step3_desc">Schütze automatisch Geld für das tägliche Leben und nutze nur den Überschuss für deine Träume.</string>
+    <string name="onboarding_page_content_step3_highlight">Schütze automatisch Geld</string>
+
+    <!-- Balance Card Component -->
+    <string name="balance_card_total_label">Gesamtbilanz (%s)</string>
+    <string name="balance_card_amount_format">%1$.2f %2$s</string>
+
+    <!-- Profile Currency Block Component -->
+    <string name="profile_currency_block_title">Weltmarkt-Kurse (zu 1 €)</string>
+    <string name="profile_currency_block_rate_format">%1$.2f</string>
+
+    <!-- Category Stat Item Component -->
+    <string name="category_stat_item_subcategories_count">%d Unterkategorien</string>
+
+    <!-- Empty Stats Placeholder Component -->
+    <string name="empty_stats_placeholder_no_data">Keine Daten gefunden</string>
+
+    <!-- Filter Row Component -->
+    <string name="filter_row_all">Alle</string>
+    <string name="filter_row_monobank">Monobank</string>
+    <string name="filter_row_cash">Bargeld</string>
+    <string name="filter_row_all_cards">Alle Karten</string>
+
+    <!-- Period Selector Component -->
+    <string name="period_selector_week">Woche</string>
+    <string name="period_selector_month">Monat</string>
+    <string name="period_selector_quarter">3 Monate</string>
+    <string name="period_selector_all_time">Gesamt</string>
+    <string name="period_selector_custom_picker_desc">Eigenen Zeitraum wählen</string>
+
+    <!-- Spending Donut Chart Component -->
+    <string name="spending_donut_chart_expenses">Ausgaben</string>
+    <string name="spending_donut_chart_income">Einnahmen</string>
+
+    <!-- Add Subscription Sheet -->
+    <string name="add_subscription_sheet_date_ok">OK</string>
+    <string name="add_subscription_sheet_date_cancel">Abbrechen</string>
+    <string name="add_subscription_sheet_title_new">Neues Abo</string>
+    <string name="add_subscription_sheet_title_details">Abo-Details</string>
+    <string name="add_subscription_sheet_label_service_name">Dienstname</string>
+    <string name="add_subscription_sheet_label_amount">Betrag</string>
+    <string name="add_subscription_sheet_billing_cycle">Abrechnungszyklus</string>
+    <string name="add_subscription_sheet_freq_weekly">Wöchentlich</string>
+    <string name="add_subscription_sheet_freq_monthly">Monatlich</string>
+    <string name="add_subscription_sheet_freq_yearly">Jährlich</string>
+    <string name="add_subscription_sheet_label_payment_date">Nächstes Zahldatum</string>
+    <string name="add_subscription_sheet_btn_add">Abonnement hinzufügen</string>
+    <string name="add_subscription_sheet_btn_save">Änderungen speichern</string>
+    <string name="add_subscription_sheet_btn_cancel_sub">Abonnement kündigen</string>
+
+    <!-- Date Range Picker Dialog Component -->
+    <string name="date_range_picker_dialog_btn_confirm">OK</string>
+    <string name="date_range_picker_dialog_btn_cancel">Abbrechen</string>
+    <string name="date_range_picker_dialog_title">Zeitraum wählen</string>
+    <string name="date_range_picker_dialog_start_label">Start</string>
+    <string name="date_range_picker_dialog_end_label">Ende</string>
+
+    <!-- Empty Transactions Placeholder Component -->
+    <string name="empty_transactions_placeholder_title">Nichts gefunden</string>
+    <string name="empty_transactions_placeholder_desc">Zeitraum ändern oder Filter zurücksetzen.</string>
+    <string name="empty_transactions_placeholder_btn_reset">Alle Filter zurücksetzen</string>
+
+    <!-- Category Filter Component -->
+    <string name="category_filter_title">Kategoriefilter</string>
+    <string name="category_filter_btn_apply">Anwenden</string>
+    <string name="category_filter_appearance_title">Anzeige-Einstellungen</string>
+    <string name="category_filter_sort_by">Sortieren nach</string>
+    <string name="category_filter_type_label">Vorgangstyp</string>
+    <string name="category_filter_all">Alle</string>
+    <string name="category_filter_expenses">Ausgaben</string>
+    <string name="category_filter_income">Einnahmen</string>
+    <string name="category_filter_source_label">Quelle</string>
+    <string name="category_filter_monobank">Monobank</string>
+    <string name="category_filter_cash">Bargeld</string>
+    <string name="category_filter_btn_done">Fertig</string>
+
+    <!-- Swipe Background Component -->
+    <string name="swipe_background_edit_desc">Bearbeiten</string>
+    <string name="swipe_background_delete_desc">Löschen</string>
+
+    <!-- Transaction Form Component -->
+    <string name="transaction_form_title_new">Neuer Vorgang</string>
+    <string name="transaction_form_title_edit">Bearbeitung</string>
+    <string name="transaction_form_label_amount">Betrag</string>
+    <string name="transaction_form_label_description">Beschreibung oder Name</string>
+    <string name="transaction_form_label_category_header">Kategorie</string>
+    <string name="transaction_form_btn_save">Speichern</string>
+    <string name="transaction_form_btn_update">Aktualisieren</string>
+    <string name="transaction_form_type_expense">Ausgabe</string>
+    <string name="transaction_form_type_income">Einnahme</string>
+
+    <!-- Transactions Top Bar Component -->
+    <string name="transactions_top_bar_title">Vorgänge</string>
+    <string name="transactions_top_bar_search_placeholder">Suchen…</string>
+    <string name="transactions_top_bar_menu_desc">Navigationsmenü öffnen</string>
+    <string name="transactions_top_bar_search_btn_desc">Transaktionen suchen</string>
+    <string name="transactions_top_bar_filter_cat_desc">Nach Kategorie filtern</string>
+    <string name="transactions_top_bar_filter_type_desc">Nach Typ filtern und sortieren</string>
+    <string name="transactions_top_bar_filter_date_desc">Nach Datum filtern</string>
+    <string name="transactions_top_bar_close_search_desc">Suche schließen</string>
+
+    <!-- Navigation Screens -->
+    <string name="screen_nav_onboarding">Einführung</string>
+    <string name="screen_nav_home">Übersicht</string>
+    <string name="screen_nav_transactions">Transaktionen</string>
+    <string name="screen_nav_stats">Analyse</string>
+    <string name="screen_nav_profile">Profil</string>
+    <string name="screen_nav_integrations">Banken</string>
+    <string name="screen_nav_budgets">Limits</string>
+    <string name="screen_nav_dream">Traum</string>
+    <string name="screen_nav_about">Über die App</string>
+    <string name="screen_nav_settings">Einstellungen</string>
+    <string name="screen_nav_login">Anmelden</string>
+    <string name="screen_nav_register">Registrieren</string>
+    <string name="screen_nav_subscriptions">Abonnements</string>
+    <string name="screen_nav_export">Export-Berichte</string>
+
+    <!-- Main Activity -->
+    <string name="main_activity_title_home">FinCentra</string>
+    <string name="main_activity_title_transactions">Transaktionen</string>
+    <string name="main_activity_title_stats">Analyse</string>
+
+    <!-- FinCentra Application -->
+    <string name="fin_centra_app_notif_channel_budget_name">Finanzlimits</string>
+    <string name="fin_centra_app_notif_channel_budget_desc">Benachrichtigungen bei Budgetüberschreitung</string>
+
+    <!-- Auth ViewModel -->
+    <string name="auth_view_model_error_email_required">E-Mail erforderlich</string>
+    <string name="auth_view_model_error_password_required">Passwort erforderlich</string>
+    <string name="auth_view_model_error_invalid_credentials">Falsche E-Mail oder Passwort</string>
+    <string name="auth_view_model_error_name_required">Name ist erforderlich</string>
+    <string name="auth_view_model_error_invalid_email">Ungültiges E-Mail-Format</string>
+    <string name="auth_view_model_error_short_password">Mindestens 6 Zeichen</string>
+    <string name="auth_view_model_error_passwords_dont_match">Passwörter stimmen nicht überein</string>
+    <string name="auth_view_model_error_unknown">Ein Fehler ist aufgetreten.</string>
+    <string name="auth_view_model_error_google_failed">Google Login fehlgeschlagen</string>
+    <string name="auth_view_model_success_password_changed">Passwort erfolgreich geändert</string>
+    <string name="auth_view_model_error_relogin_required">Bitte logge dich erneut ein</string>
+
+    <!-- Export ViewModel -->
+    <string name="export_view_model_share_chooser_title">Bericht teilen mit</string>
+
+    <!-- Integrations ViewModel -->
+    <string name="integrations_view_model_error_no_accounts">Konten in den Einstellungen wählen</string>
+    <string name="integrations_view_model_error_token_invalid">Ungültiger API-Token</string>
+    <string name="integrations_view_model_success_updated">Aktualisiert</string>
+    <string name="integrations_view_model_error_permission_required">Benachrichtigungszugriff erforderlich</string>
+    <string name="integrations_view_model_default_account_name">Konto</string>
+
+    <!-- Profile ViewModel -->
+    <string name="profile_view_model_feedback_subject">FinCentra Feedback</string>
+
+    <!-- Settings ViewModel -->
+    <string name="settings_view_model_success_password">Passwort erfolgreich geändert</string>
+    <string name="settings_view_model_error_reauth">Erneute Anmeldung erforderlich</string>
+
+    <!-- Transactions ViewModel -->
+    <string name="transactions_view_model_sort_date_desc">Neueste zuerst</string>
+    <string name="transactions_view_model_sort_date_asc">Älteste zuerst</string>
+    <string name="transactions_view_model_sort_amount_desc">Teuerste</string>
+    <string name="transactions_view_model_sort_amount_asc">Günstigste</string>
+    <string name="transactions_view_model_type_expense">Ausgabe</string>
+    <string name="transactions_view_model_type_income">Einnahme</string>
+    <string name="transactions_view_model_subcat_others">Sonstiges</string>
+
+    <!-- Budget Progress Model -->
+    <string name="budget_progress_status_wealthy">Wohlhabend</string>
+    <string name="budget_progress_status_blooming">Blühend</string>
+    <string name="budget_progress_status_healthy">Gesund</string>
+    <string name="budget_progress_status_needs_care">Pflege nötig</string>
+    <string name="budget_progress_status_withered">Verwelkt</string>
+
+    <!-- Transaction Model -->
+    <string name="transaction_subcat_others">Sonstiges</string>
+
+    <!-- Transaction Category Model -->
+    <string name="transaction_category_food">Lebensmittel</string>
+    <string name="transaction_category_transport">Transport</string>
+    <string name="transaction_category_housing">Wohnen</string>
+    <string name="transaction_category_health">Gesundheit</string>
+    <string name="transaction_category_entertainment">Unterhaltung</string>
+    <string name="transaction_category_salary">Gehalt &amp; Bargeld</string>
+    <string name="transaction_category_subscriptions">Abonnements</string>
+    <string name="transaction_category_transfers">Überweisungen</string>
+    <string name="transaction_category_services">Dienste</string>
+    <string name="transaction_category_shopping">Shopping</string>
+    <string name="transaction_category_travel">Reisen</string>
+    <string name="transaction_category_government">Behörden</string>
+    <string name="transaction_category_education">Bildung</string>
+    <string name="transaction_category_others">Sonstiges</string>
+
+    <!-- Stats Period Model -->
+    <string name="stats_period_week">Woche</string>
+    <string name="stats_period_month">Monat</string>
+    <string name="stats_period_quarter">3 Monate</string>
+    <string name="stats_period_all">Gesamt</string>
+    <string name="stats_period_custom">Kalender</string>
+
+    <!-- Bank Provider Info Model -->
+    <string name="bank_provider_info_mono_name">Monobank</string>
+    <string name="bank_provider_info_wise_name">Wise</string>
+    <string name="bank_provider_info_wise_subtitle">Global Multi-Währung</string>
+    <string name="bank_provider_info_wallet_name">Google Wallet</string>
+    <string name="bank_provider_info_wallet_subtitle">NFC-Meldungen</string>
+
+    <!-- European Provider Model -->
+    <string name="european_provider_revolut">Revolut</string>
+    <string name="european_provider_revolut_country">Global / EU</string>
+    <string name="european_provider_db">Deutsche Bank</string>
+    <string name="european_provider_db_country">Deutschland</string>
+    <string name="european_provider_santander">Santander</string>
+    <string name="european_provider_santander_country">Spanien</string>
+    <string name="european_provider_bnp">BNP Paribas</string>
+    <string name="european_provider_bnp_country">Frankreich</string>
+    <string name="european_provider_bt">Banca Transilvania</string>
+    <string name="european_provider_bt_country">Rumänien</string>
+    <string name="european_provider_biz">Business Hub</string>
+    <string name="european_provider_biz_country">EU Business</string>
+
+    <!-- MCC Directory (Subcategories) -->
+    <string name="mcc_directory_vet">Tierärztliche Leistungen</string>
+    <string name="mcc_directory_agro">Agrargenossenschaften</string>
+    <string name="mcc_directory_landscaping">Landschaftsbau</string>
+    <string name="mcc_directory_contractors">Generalunternehmer</string>
+    <string name="mcc_directory_plumbing">Heizung &amp; Sanitär</string>
+    <string name="mcc_directory_electrical">Elektroarbeiten</string>
+    <string name="mcc_directory_construction">Bauarbeiten</string>
+    <string name="mcc_directory_special_contractors">Spezialunternehmer</string>
+    <string name="mcc_directory_printing">Druckdienstleistungen</string>
+    <string name="mcc_directory_cleaning">Reinigung</string>
+    <string name="mcc_directory_railway_cargo">Eisenbahn (Fracht)</string>
+    <string name="mcc_directory_public_transport">ÖPNV</string>
+    <string name="mcc_directory_railway_passenger">Personenverkehr</string>
+    <string name="mcc_directory_taxi">Taxi &amp; Limousinen</string>
+    <string name="mcc_directory_bus">Buslinien</string>
+    <string name="mcc_directory_courier">Kurierdienste</string>
+    <string name="mcc_directory_cruises">Kreuzfahrten</string>
+    <string name="mcc_directory_airlines">Fluggesellschaften</string>
+    <string name="mcc_directory_airports">Flughäfen</string>
+    <string name="mcc_directory_travel_agencies">Reisebüros</string>
+    <string name="mcc_directory_tolls">Maut &amp; Brücken</string>
+    <string name="mcc_directory_comm_equipment">Kommunikationsgeräte</string>
+    <string name="mcc_directory_mobile">Mobilfunk</string>
+    <string name="mcc_directory_it_services">IT-Dienstleistungen</string>
+    <string name="mcc_directory_wire_transfers">Geldtransfers</string>
+    <string name="mcc_directory_tv_radio">TV &amp; Radio Dienste</string>
+    <string name="mcc_directory_utilities">Versorgungsbetriebe</string>
+    <string name="mcc_directory_auto_goods">Kfz-Zubehör</string>
+    <string name="mcc_directory_computers_sw">Computer &amp; Software</string>
+    <string name="mcc_directory_jewelry">Schmuck</string>
+    <string name="mcc_directory_pharmacy_goods">Apothekenwaren</string>
+    <string name="mcc_directory_books_news">Bücher &amp; Zeitungen</string>
+    <string name="mcc_directory_building_materials">Baumaterialien</string>
+    <string name="mcc_directory_garden">Garten &amp; Pflanzen</string>
+    <string name="mcc_directory_discount_stores">Discounter</string>
+    <string name="mcc_directory_department_stores">Kaufhäuser</string>
+    <string name="mcc_directory_low_price_stores">Billigläden</string>
+    <string name="mcc_directory_supermarkets">Supermärkte</string>
+    <string name="mcc_directory_confectionery">Süßwaren</string>
+    <string name="mcc_directory_bakeries">Bäckereien</string>
+    <string name="mcc_directory_groceries">Lebensmittelgeschäfte</string>
+    <string name="mcc_directory_car_sales">Autoverkauf</string>
+    <string name="mcc_directory_auto_parts">Auto-Ersatzteile</string>
+    <string name="mcc_directory_gas_station">Tankstelle</string>
+    <string name="mcc_directory_gas_automated">SB-Tankstelle</string>
+    <string name="mcc_directory_mens_clothing">Herrenbekleidung</string>
+    <string name="mcc_directory_womens_clothing">Damenbekleidung</string>
+    <string name="mcc_directory_kids_clothing">Kinderbekleidung</string>
+    <string name="mcc_directory_family_clothing">Familienbekleidung</string>
+    <string name="mcc_directory_shoes">Schuhe</string>
+    <string name="mcc_directory_furniture">Möbel</string>
+    <string name="mcc_directory_appliances">Haushaltsgeräte</string>
+    <string name="mcc_directory_electronics">Elektronik</string>
+    <string name="mcc_directory_catering">Catering</string>
+    <string name="mcc_directory_restaurants">Restaurants</string>
+    <string name="mcc_directory_bars_clubs">Bars &amp; Clubs</string>
+    <string name="mcc_directory_fastfood">Fast Food</string>
+    <string name="mcc_directory_pharmacy">Apotheken</string>
+    <string name="mcc_directory_liquor_stores">Spirituosenläden</string>
+    <string name="mcc_directory_sporting_goods">Sportartikel</string>
+    <string name="mcc_directory_book_stores">Buchhandlungen</string>
+    <string name="mcc_directory_toys_hobby">Spielzeug &amp; Hobby</string>
+    <string name="mcc_directory_cosmetics">Kosmetik</string>
+    <string name="mcc_directory_pet_shops">Zoohandlungen</string>
+    <string name="mcc_directory_cash_desk">Bargeld (Kasse)</string>
+    <string name="mcc_directory_atm">Bargeld (Automat)</string>
+    <string name="mcc_directory_card_topup">Karteneinzahlung</string>
+    <string name="mcc_directory_hotels">Hotels &amp; Motels</string>
+    <string name="mcc_directory_barber">Friseursalons</string>
+    <string name="mcc_directory_spa">Wellness &amp; SPA</string>
+    <string name="mcc_directory_car_rental">Autovermietung</string>
+    <string name="mcc_directory_car_wash">Autowäsche</string>
+    <string name="mcc_directory_cinema">Kinos</string>
+    <string name="mcc_directory_fitness">Fitnessstudios</string>
+    <string name="mcc_directory_doctors">Ärzte</string>
+    <string name="mcc_directory_dentists">Zahnärzte</string>
+    <string name="mcc_directory_schools">Schulen</string>
+    <string name="mcc_directory_universities">Universitäten</string>
+    <string name="mcc_directory_charity">Wohltätigkeit</string>
+    <string name="mcc_directory_fines">Bußgelder</string>
+    <string name="mcc_directory_taxes">Steuern</string>
+    <string name="mcc_directory_gov_services">Behördliche Dienste</string>
+    <string name="mcc_directory_post_services">Postdienste</string>
+    <string name="mcc_directory_others">Sonstiges</string>
+
+    <!-- Monobank Service -->
+    <string name="monobank_service_card_format">Karte %1$s %2$s</string>
+    <string name="monobank_service_jar_format">Jar-Konto: %s</string>
+    <string name="monobank_service_limit_exceeded">BANK: Limit überschritten!</string>
+    <string name="monobank_service_pause_history">Großer Verlauf… Pause %d s</string>
+
+    <!-- Wise Service -->
+    <string name="wise_service_account_name_format">Wise %s</string>
+
+    <!-- Global Sync Worker -->
+    <string name="global_sync_worker_notif_title">Limit überschritten: %1$s</string>
+    <string name="global_sync_worker_notif_message">Du hast %1$d von geplanten %2$d %3$s ausgegeben</string>
+
+    <!-- Financial Predictions (Constants) -->
+    <string name="constants_prediction_1">Kleine Ausgaben sind wie kleine Lecks in einem Schiff – sie können es zum Sinken bringen. Achte heute auf deine «Sonstiges»-Kategorie!</string>
+    <string name="constants_prediction_2">Dein Finanzbaum liebt Beständigkeit. Trage heute jede Barausgabe manuell ein.</string>
+    <string name="constants_prediction_3">Heute ist ein guter Tag, um deinen «Traum»-Fortschritt zu prüfen. Du bist näher dran, als du denkst!</string>
+    <string name="constants_prediction_4">Der beste Weg, Geld zu sparen, ist es nicht auszugeben. Challenge: Heute null Ausgaben für Süßigkeiten!</string>
+    <string name="constants_prediction_5">Ein Budget sagt deinem Geld, wo es hin soll, anstatt dich zu fragen, wo es geblieben ist. Prüfe deine Limits.</string>
+    <string name="constants_prediction_6">Investiere in dein zukünftiges Ich. Dein «Sicherheitsschwelle» ist dein bester Freund.</string>
+    <string name="constants_prediction_7">Finanzieller Frieden ist nicht der Erwerb von Dingen. Es bedeutet, mit weniger zu leben, als man verdient.</string>
+    <string name="constants_prediction_8">Dein zukünftiges Ich wird dir für den Kaffee danken, den du heute nicht gekauft hast. Füge ihn deinem Traum hinzu!</string>
+    <string name="constants_prediction_9">Das Ziel ist es, reich zu sein, nicht reich auszusehen. Bleibe deinem Finanzplan treu.</string>
+    <string name="constants_prediction_10">Ein blühender Baum beginnt mit einem einzigen Wassertropfen. Jeder Cent zählt heute.</string>
+
+    <!-- Export Manager Component -->
+    <string name="export_manager_pdf_statement">Finanzbericht</string>
+    <string name="export_manager_pdf_generated">Erstellt am: %s</string>
+    <string name="export_manager_pdf_summary">Zusammenfassung</string>
+    <string name="export_manager_pdf_total_income">Gesamteinnahmen: +%s</string>
+    <string name="export_manager_pdf_total_expenses">Gesamtausgaben: -%s</string>
+    <string name="export_manager_table_date">Datum</string>
+    <string name="export_manager_table_description">Beschreibung</string>
+    <string name="export_manager_table_category">Kategorie</string>
+    <string name="export_manager_table_amount">Betrag</string>
+    <string name="export_manager_csv_summary_header">FINCENTRA ZUSAMMENFASSUNG</string>
+    <string name="export_manager_csv_label_income">Gesamteinnahmen</string>
+    <string name="export_manager_csv_label_expenses">Gesamtausgaben</string>
+    <string name="export_manager_csv_col_currency">Währung</string>
+    <string name="export_manager_csv_col_type">Typ</string>
+    <string name="export_manager_type_expense">Ausgabe</string>
+    <string name="export_manager_type_income">Einnahme</string>
 </resources>

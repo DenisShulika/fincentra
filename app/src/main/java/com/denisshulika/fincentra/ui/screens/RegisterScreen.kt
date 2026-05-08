@@ -92,14 +92,14 @@ fun RegisterScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = stringResource(R.string.register_header),
+                text = stringResource(R.string.register_screen_header),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Black,
                 color = MaterialTheme.colorScheme.primary
             )
 
             Text(
-                text = stringResource(R.string.register_desc),
+                text = stringResource(R.string.register_screen_desc),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
@@ -109,7 +109,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = name,
                 onValueChange = { viewModel.onNameChange(it) },
-                label = { Text(stringResource(R.string.auth_name_hint)) },
+                label = { Text(stringResource(R.string.register_screen_name_hint)) },
                 leadingIcon = {
                     Icon(
                         Icons.Default.Person,
@@ -131,7 +131,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = email,
                 onValueChange = { viewModel.onEmailChange(it) },
-                label = { Text(stringResource(R.string.auth_email_hint)) },
+                label = { Text(stringResource(R.string.register_screen_email_hint)) },
                 leadingIcon = {
                     Icon(
                         Icons.Default.Email,
@@ -153,7 +153,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { viewModel.onPasswordChange(it) },
-                label = { Text(stringResource(R.string.auth_password_hint)) },
+                label = { Text(stringResource(R.string.register_screen_password_hint)) },
                 leadingIcon = {
                     Icon(
                         Icons.Default.Lock,
@@ -184,7 +184,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { viewModel.onConfirmPasswordChange(it) },
-                label = { Text(stringResource(R.string.auth_confirm_password_hint)) },
+                label = { Text(stringResource(R.string.register_screen_confirm_password_hint)) },
                 leadingIcon = {
                     Icon(
                         Icons.Default.Lock,
@@ -227,7 +227,7 @@ fun RegisterScreen(
                     )
                 } else {
                     Text(
-                        text = stringResource(R.string.register_btn),
+                        text = stringResource(R.string.register_screen_btn_signup),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -238,7 +238,7 @@ fun RegisterScreen(
 
             TextButton(onClick = onBackToLogin) {
                 Text(
-                    text = stringResource(R.string.register_already_have),
+                    text = stringResource(R.string.register_screen_already_have_account),
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.SemiBold
                 )

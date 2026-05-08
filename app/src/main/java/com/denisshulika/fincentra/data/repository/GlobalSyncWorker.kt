@@ -110,11 +110,11 @@ class GlobalSyncWorker(
 
                 sendNotification(
                     title = applicationContext.getString(
-                        R.string.notif_limit_exceeded,
+                        R.string.global_sync_worker_notif_title,
                         categoryDisplayName
                     ),
                     message = applicationContext.getString(
-                        R.string.notif_limit_message,
+                        R.string.global_sync_worker_notif_message,
                         spent.toInt(),
                         budget.limitAmount.toInt(),
                         currencySymbol

@@ -38,9 +38,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.ui.components.profile.BalanceCard
 import com.denisshulika.fincentra.ui.components.profile.ProfileCurrencyBlock
 import com.denisshulika.fincentra.viewmodels.ProfileViewModel
@@ -64,7 +66,12 @@ fun ProfileScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("Мій профіль", fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        stringResource(R.string.profile_screen_title),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
@@ -72,7 +79,10 @@ fun ProfileScreen(
                 },
                 actions = {
                     IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Налаштування")
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = stringResource(R.string.profile_screen_settings_desc)
+                        )
                     }
                 }
             )
@@ -106,7 +116,8 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = user?.displayName?.ifBlank { "Користувач" } ?: "Завантаження...",
+                text = user?.displayName?.ifBlank { stringResource(R.string.profile_screen_user_placeholder) }
+                    ?: stringResource(R.string.profile_screen_loading),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Black
             )
@@ -121,7 +132,12 @@ fun ProfileScreen(
 
             SuggestionChip(
                 onClick = { },
-                label = { Text("$txCount транзакцій", fontWeight = FontWeight.Bold) },
+                label = {
+                    Text(
+                        stringResource(R.string.profile_screen_tx_count, txCount),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 shape = CircleShape,
                 colors = SuggestionChipDefaults.suggestionChipColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
@@ -149,7 +165,7 @@ fun ProfileScreen(
                 } else {
                     item {
                         Text(
-                            text = "Рахунки не підключені",
+                            text = stringResource(R.string.profile_screen_no_accounts),
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -173,7 +189,10 @@ fun ProfileScreen(
                     ) {
                         Icon(Icons.Default.Description, contentDescription = null)
                         Spacer(Modifier.width(12.dp))
-                        Text("Export Financial Reports", fontWeight = FontWeight.Bold)
+                        Text(
+                            stringResource(R.string.profile_screen_btn_export),
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
 
@@ -183,11 +202,14 @@ fun ProfileScreen(
 
                 item {
                     TextButton(
-                        onClick = { context.startActivity(viewModel.getSupportIntent()) },
+                        onClick = { context.startActivity(viewModel.getSupportIntent(context)) },
                         modifier = Modifier
                             .fillMaxWidth()
                     ) {
-                        Text("Зв'язатися з розробником", fontWeight = FontWeight.Bold)
+                        Text(
+                            stringResource(R.string.profile_screen_contact_dev),
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }

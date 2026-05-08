@@ -12,7 +12,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import com.denisshulika.fincentra.R
 
 @Composable
 fun AnimatedAmount(
@@ -35,7 +37,7 @@ fun AnimatedAmount(
     }
 
     Text(
-        text = "${String.format("%.2f", animatedValue)} $symbol",
+        text = stringResource(R.string.animated_amount_format, animatedValue, symbol),
         style = style,
         color = color,
         modifier = modifier

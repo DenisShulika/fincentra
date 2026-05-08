@@ -24,29 +24,39 @@ sealed class Screen(
     val icon: ImageVector
 ) {
     data object Onboarding :
-        Screen("onboarding", R.string.nav_onboarding, Icons.Default.AutoAwesome)
+        Screen("onboarding", R.string.screen_nav_onboarding, Icons.Default.AutoAwesome)
 
-    data object Home : Screen("home", R.string.nav_home, Icons.Default.Dashboard)
-    data object Transactions :
-        Screen("transactions", R.string.nav_transactions, Icons.AutoMirrored.Filled.ReceiptLong)
+    data object Home : Screen("home", R.string.screen_nav_home, Icons.Default.Dashboard)
+    data object Transactions : Screen(
+        "transactions",
+        R.string.screen_nav_transactions,
+        Icons.AutoMirrored.Filled.ReceiptLong
+    )
 
-    data object Stats : Screen("stats", R.string.nav_stats, Icons.Default.BarChart)
-    data object Profile : Screen("profile", R.string.nav_profile, Icons.Default.Person)
+    data object Stats : Screen("stats", R.string.screen_nav_stats, Icons.Default.BarChart)
+    data object Profile : Screen("profile", R.string.screen_nav_profile, Icons.Default.Person)
     data object Integrations :
-        Screen("integrations", R.string.nav_integrations, Icons.Default.AccountBalance)
+        Screen("integrations", R.string.screen_nav_integrations, Icons.Default.AccountBalance)
 
-    data object Budgets : Screen("budgets_manage", R.string.nav_budgets, Icons.Default.TrackChanges)
-    data object Dream : Screen("dream", R.string.nav_dream, Icons.Default.AutoAwesome)
-    data object About : Screen("about", R.string.nav_about, Icons.Default.Info)
-    data object Settings : Screen("settings", R.string.nav_settings, Icons.Default.Settings)
-    data object Login : Screen("login", R.string.nav_login, Icons.AutoMirrored.Filled.Login)
-    data object Register : Screen("register", R.string.nav_register, Icons.Default.AppRegistration)
+    data object Budgets :
+        Screen("budgets_manage", R.string.screen_nav_budgets, Icons.Default.TrackChanges)
+
+    data object Dream : Screen("dream", R.string.screen_nav_dream, Icons.Default.AutoAwesome)
+    data object About : Screen("about", R.string.screen_nav_about, Icons.Default.Info)
+    data object Settings : Screen("settings", R.string.screen_nav_settings, Icons.Default.Settings)
+    data object Login : Screen("login", R.string.screen_nav_login, Icons.AutoMirrored.Filled.Login)
+    data object Register :
+        Screen("register", R.string.screen_nav_register, Icons.Default.AppRegistration)
+
     data object Subscriptions : Screen(
         route = "subscriptions",
-        titleRes = R.string.nav_subscriptions,
+        titleRes = R.string.screen_nav_subscriptions,
         icon = Icons.Default.Repeat
     )
 
-    data object Export :
-        Screen(route = "export", titleRes = R.string.nav_export, icon = Icons.Default.Description)
+    data object Export : Screen(
+        route = "export",
+        titleRes = R.string.screen_nav_export,
+        icon = Icons.Default.Description
+    )
 }

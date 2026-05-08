@@ -1,8 +1,10 @@
 package com.denisshulika.fincentra.di
 
+import android.content.Context
 import com.denisshulika.fincentra.data.network.common.BankProvider
 import com.denisshulika.fincentra.data.network.monobank.MonobankApi
 import com.denisshulika.fincentra.data.network.monobank.MonobankService
+import com.denisshulika.fincentra.data.network.wise.WiseService
 import com.denisshulika.fincentra.data.repository.AiRepository
 import com.denisshulika.fincentra.data.repository.AuthRepository
 import com.denisshulika.fincentra.data.repository.BudgetRepository
@@ -18,9 +20,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object DependencyProvider {
 
-    private lateinit var applicationContext: android.content.Context
+    private lateinit var applicationContext: Context
 
-    fun init(context: android.content.Context) {
+    fun init(context: Context) {
         applicationContext = context.applicationContext
     }
 
@@ -57,7 +59,11 @@ object DependencyProvider {
     }
 
     val monobankProvider: BankProvider by lazy {
-        MonobankService()
+        MonobankService(applicationContext)
+    }
+
+    val wiseService: BankProvider by lazy {
+        WiseService(applicationContext)
     }
 
     val aiRepository by lazy { AiRepository() }

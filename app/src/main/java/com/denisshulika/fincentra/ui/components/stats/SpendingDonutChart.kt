@@ -62,9 +62,9 @@ fun SpendingDonutChart(categories: List<CategoryStat>, symbol: String, isExpense
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = if (isExpenseMode)
-                    stringResource(R.string.stats_expenses)
+                    stringResource(R.string.spending_donut_chart_expenses)
                 else
-                    stringResource(R.string.stats_income),
+                    stringResource(R.string.spending_donut_chart_income),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

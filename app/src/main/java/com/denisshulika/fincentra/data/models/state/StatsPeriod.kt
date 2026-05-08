@@ -4,9 +4,9 @@ import androidx.annotation.StringRes
 import com.denisshulika.fincentra.R
 
 enum class StatsPeriod(@StringRes val displayNameRes: Int) {
-    WEEK(R.string.period_week),
-    MONTH(R.string.period_month),
-    QUARTER(R.string.period_quarter),
-    ALL(R.string.period_all),
-    CUSTOM(R.string.period_custom)
+    WEEK(R.string.stats_period_week),
+    MONTH(R.string.stats_period_month),
+    QUARTER(R.string.stats_period_quarter),
+    ALL(R.string.stats_period_all),
+    CUSTOM(R.string.stats_period_custom)
 }

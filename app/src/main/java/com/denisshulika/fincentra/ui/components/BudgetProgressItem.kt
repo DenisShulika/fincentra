@@ -31,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.BudgetProgress
 import com.denisshulika.fincentra.data.models.domain.TransactionCategory
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
@@ -84,7 +85,7 @@ fun BudgetProgressItem(
                         fontWeight = FontWeight.ExtraBold
                     )
                     Text(
-                        text = item.statusMessage,
+                        text = stringResource(item.statusRes),
                         style = MaterialTheme.typography.bodyMedium,
                         color = statusColor
                     )
@@ -95,14 +96,22 @@ fun BudgetProgressItem(
                     val total = item.budget.limitAmount
 
                     Text(
-                        text = "${String.format("%.0f", remaining)} $symbol",
+                        text = stringResource(
+                            R.string.budget_progress_item_remaining,
+                            remaining,
+                            symbol
+                        ),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Black,
                         color = if (item.progress >= 1f) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                     )
 
                     Text(
-                        text = "left of ${total.toInt()} $symbol",
+                        text = stringResource(
+                            R.string.budget_progress_item_limit_info,
+                            total.toInt(),
+                            symbol
+                        ),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                         fontWeight = FontWeight.Bold

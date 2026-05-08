@@ -46,7 +46,7 @@ fun DreamInfoCard() {
                 )
                 Spacer(Modifier.width(12.dp))
                 Text(
-                    text = stringResource(R.string.dream_info_title),
+                    text = stringResource(R.string.dream_info_card_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.primary
@@ -56,7 +56,7 @@ fun DreamInfoCard() {
             Spacer(Modifier.height(12.dp))
 
             Text(
-                text = stringResource(R.string.dream_info_desc),
+                text = stringResource(R.string.dream_info_card_desc),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -64,7 +64,7 @@ fun DreamInfoCard() {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = stringResource(R.string.dream_info_detail),
+                text = stringResource(R.string.dream_info_card_detail),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

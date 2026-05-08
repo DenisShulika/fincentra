@@ -94,14 +94,14 @@ fun StatsScreen(
                 FilterChip(
                     selected = isExpenseMode,
                     onClick = { viewModel.toggleMode(true) },
-                    label = { Text(stringResource(R.string.stats_expenses)) },
+                    label = { Text(stringResource(R.string.stats_screen_expenses)) },
                     shape = CircleShape
                 )
                 Spacer(Modifier.width(8.dp))
                 FilterChip(
                     selected = !isExpenseMode,
                     onClick = { viewModel.toggleMode(false) },
-                    label = { Text(stringResource(R.string.stats_income)) },
+                    label = { Text(stringResource(R.string.stats_screen_income)) },
                     shape = CircleShape
                 )
             }
@@ -162,8 +162,8 @@ fun StatsScreen(
                 }
                 item {
                     Text(
-                        text = if (isExpenseMode) stringResource(R.string.stats_expense_distribution) else stringResource(
-                            R.string.stats_income_sources
+                        text = if (isExpenseMode) stringResource(R.string.stats_screen_expense_distribution) else stringResource(
+                            R.string.stats_screen_income_sources
                         ),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Black

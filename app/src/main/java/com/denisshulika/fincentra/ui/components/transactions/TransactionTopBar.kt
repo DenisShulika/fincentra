@@ -55,11 +55,14 @@ fun TransactionsTopBar(
         ) {
             if (!isSearchActive) {
                 IconButton(onClick = onOpenDrawer) {
-                    Icon(imageVector = Icons.Default.Menu, contentDescription = null)
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = stringResource(R.string.transactions_top_bar_menu_desc)
+                    )
                 }
 
                 Text(
-                    text = stringResource(R.string.transactions_title),
+                    text = stringResource(R.string.transactions_top_bar_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
@@ -67,7 +70,10 @@ fun TransactionsTopBar(
                         .padding(start = 8.dp)
                 )
                 IconButton(onClick = { viewModel.toggleSearch(true) }) {
-                    Icon(Icons.Default.Search, contentDescription = null)
+                    Icon(
+                        Icons.Default.Search,
+                        contentDescription = stringResource(R.string.transactions_top_bar_search_btn_desc)
+                    )
                 }
             } else {
                 Row(
@@ -75,19 +81,28 @@ fun TransactionsTopBar(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = onFilterCategoryClick) {
-                        Icon(Icons.Default.FilterList, contentDescription = null)
+                        Icon(
+                            Icons.Default.FilterList,
+                            contentDescription = stringResource(R.string.transactions_top_bar_filter_cat_desc)
+                        )
                     }
                     IconButton(onClick = onFilterTypeClick) {
-                        Icon(Icons.Default.Tune, contentDescription = null)
+                        Icon(
+                            Icons.Default.Tune,
+                            contentDescription = stringResource(R.string.transactions_top_bar_filter_type_desc)
+                        )
                     }
                     IconButton(onClick = onFilterDateClick) {
-                        Icon(Icons.Default.DateRange, contentDescription = null)
+                        Icon(
+                            Icons.Default.DateRange,
+                            contentDescription = stringResource(R.string.transactions_top_bar_filter_date_desc)
+                        )
                     }
 
                     TextField(
                         value = searchQuery,
                         onValueChange = { viewModel.onSearchQueryChange(it) },
-                        placeholder = { Text(stringResource(R.string.tx_search_placeholder)) },
+                        placeholder = { Text(stringResource(R.string.transactions_top_bar_search_placeholder)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         colors = TextFieldDefaults.colors(
@@ -99,7 +114,10 @@ fun TransactionsTopBar(
                     )
                 }
                 IconButton(onClick = { viewModel.toggleSearch(false) }) {
-                    Icon(Icons.Default.Close, contentDescription = null)
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = stringResource(R.string.transactions_top_bar_close_search_desc)
+                    )
                 }
             }
         }

@@ -78,7 +78,7 @@ class TransactionsViewModel : ViewModel() {
                 timestamp = editingTimestamp ?: System.currentTimeMillis(),
                 accountId = TransactionConstants.ACCOUNT_ID_MANUAL,
                 currencyCode = _selectedCurrency.value,
-                subCategoryRes = R.string.mcc_others,
+                subCategoryRes = R.string.transactions_view_model_subcat_others,
                 sourceType = "MANUAL"
             )
             financeRepository.addTransaction(tx)
@@ -87,10 +87,10 @@ class TransactionsViewModel : ViewModel() {
     }
 
     enum class SortOrder(@StringRes val displayNameRes: Int) {
-        DATE_DESC(R.string.sort_date_desc),
-        DATE_ASC(R.string.sort_date_asc),
-        AMOUNT_DESC(R.string.sort_amount_desc),
-        AMOUNT_ASC(R.string.sort_amount_asc)
+        DATE_DESC(R.string.transactions_view_model_sort_date_desc),
+        DATE_ASC(R.string.transactions_view_model_sort_date_asc),
+        AMOUNT_DESC(R.string.transactions_view_model_sort_amount_desc),
+        AMOUNT_ASC(R.string.transactions_view_model_sort_amount_asc)
     }
 
     private val _selectedSortOrder = MutableStateFlow(SortOrder.DATE_DESC)
@@ -112,7 +112,10 @@ class TransactionsViewModel : ViewModel() {
     val category = _category.asStateFlow()
 
     val categories = TransactionCategory.entries
-    val expenseOptions = listOf(R.string.tx_type_expense, R.string.tx_type_income)
+    val expenseOptions = listOf(
+        R.string.transactions_view_model_type_expense,
+        R.string.transactions_view_model_type_income
+    )
 
     private val _editingTransactionId = MutableStateFlow<String?>(null)
     val editingTransactionId = _editingTransactionId.asStateFlow()

@@ -1,4 +1,4 @@
-package com.denisshulika.fincentra.ui.components
+package com.denisshulika.fincentra.ui.components.home
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -101,7 +102,7 @@ fun PredictionCoin(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = if (!isFlipped) "Daily Insight" else prediction,
+                    text = if (!isFlipped) stringResource(R.string.prediction_coin_title_default) else prediction,
                     style = if (!isFlipped) MaterialTheme.typography.titleSmall else MaterialTheme.typography.bodySmall,
                     fontWeight = if (!isFlipped) FontWeight.Black else FontWeight.Bold,
                     color = if (!isFlipped) Color.White else Color.White.copy(alpha = 0.9f),
@@ -109,7 +110,7 @@ fun PredictionCoin(
                 )
                 if (!isFlipped) {
                     Text(
-                        text = "Tap to flip",
+                        text = stringResource(R.string.prediction_coin_tap_instruction),
                         style = MaterialTheme.typography.labelSmall,
                         color = Color(0xFF22C55E).copy(alpha = 0.7f)
                     )

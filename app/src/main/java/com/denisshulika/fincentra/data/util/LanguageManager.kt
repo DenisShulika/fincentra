@@ -5,7 +5,7 @@ import androidx.core.os.LocaleListCompat
 import java.util.Locale
 
 object LanguageManager {
-    private val supportedLanguages = listOf("uk", "en", "pl", "de")
+    private val supportedLanguages = listOf("uk", "en", "pl", "de", "ro")
 
     fun initLocale() {
         val currentLocales = AppCompatDelegate.getApplicationLocales()

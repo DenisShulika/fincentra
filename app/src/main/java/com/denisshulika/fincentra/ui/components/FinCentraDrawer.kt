@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.User
 import com.denisshulika.fincentra.navigation.Screen
 
@@ -53,7 +54,10 @@ fun FinCentraDrawer(
                     .padding(12.dp)
             ) {
                 IconButton(onClick = onClose, modifier = Modifier.align(Alignment.TopEnd)) {
-                    Icon(Icons.Default.Close, contentDescription = "Close")
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = stringResource(R.string.drawer_close_desc)
+                    )
                 }
             }
 
@@ -81,7 +85,8 @@ fun FinCentraDrawer(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = user?.displayName?.ifBlank { "Financial Hero" } ?: "Loading...",
+                    text = user?.displayName?.ifBlank { stringResource(R.string.drawer_user_placeholder) }
+                        ?: stringResource(R.string.drawer_loading),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Black
                 )
@@ -139,14 +144,14 @@ fun FinCentraDrawer(
                 )
 
                 DrawerItem(
-                    label = "About App",
+                    label = stringResource(R.string.drawer_about_app),
                     icon = Icons.Default.Info,
                     selected = currentRoute == Screen.About.route,
                     onClick = { onNavigate(Screen.About.route) }
                 )
 
                 DrawerItem(
-                    label = "Sign Out",
+                    label = stringResource(R.string.drawer_sign_out),
                     icon = Icons.AutoMirrored.Filled.Logout,
                     selected = false,
                     onClick = onLogout,

@@ -34,6 +34,9 @@ class DreamViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
+    private val _selectedCurrency = MutableStateFlow(980)
+    val selectedCurrency = _selectedCurrency.asStateFlow()
+
     val dreamProgress: StateFlow<DreamProgress?> = combine(
         financeRepository.dream,
         financeRepository.accounts,
@@ -64,6 +67,7 @@ class DreamViewModel : ViewModel() {
             }.sum()
 
         val totalAvailable = totalBankInDreamCurrency + totalCashInDreamCurrency
+
         val availableForDream = (totalAvailable - dream.safetyBuffer).coerceAtLeast(0.0)
 
         val progress = if (dream.targetAmount > 0)
@@ -91,11 +95,16 @@ class DreamViewModel : ViewModel() {
         }
     }
 
+    fun onCurrencyChange(code: Int) {
+        _selectedCurrency.value = code
+    }
+
     fun prepareForEdit(dream: Dream) {
         _title.value = dream.title
         _target.value = dream.targetAmount.toInt().toString()
         _buffer.value = dream.safetyBuffer.toInt().toString()
         _emoji.value = dream.iconEmoji.ifBlank { "🚀" }
+        _selectedCurrency.value = dream.currencyCode
     }
 
     fun resetForm() {
@@ -103,6 +112,7 @@ class DreamViewModel : ViewModel() {
         _target.value = ""
         _buffer.value = ""
         _emoji.value = "🚀"
+        _selectedCurrency.value = 980
     }
 
     fun deleteDream() {
@@ -114,11 +124,12 @@ class DreamViewModel : ViewModel() {
         }
     }
 
-    fun updateDream(currencyCode: Int) {
+    fun updateDream() {
         val titleVal = _title.value
         val targetVal = _target.value.toDoubleOrNull() ?: 0.0
         val bufferVal = _buffer.value.toDoubleOrNull() ?: 0.0
         val emojiVal = _emoji.value
+        val currencyVal = _selectedCurrency.value
 
         viewModelScope.launch {
             _isLoading.value = true
@@ -126,7 +137,7 @@ class DreamViewModel : ViewModel() {
                 title = titleVal,
                 targetAmount = targetVal,
                 safetyBuffer = bufferVal,
-                currencyCode = currencyCode,
+                currencyCode = currencyVal,
                 iconEmoji = emojiVal
             )
             settingsRepository.saveDream(newDream)

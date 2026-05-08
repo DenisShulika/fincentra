@@ -23,8 +23,8 @@ class FinCentraApplication : Application() {
     }
 
     private fun createNotificationChannel() {
-        val name = "Фінансові ліміти"
-        val descriptionText = "Сповіщення про перевищення місячного бюджету"
+        val name = getString(R.string.fin_centra_app_notif_channel_budget_name)
+        val descriptionText = getString(R.string.fin_centra_app_notif_channel_budget_desc)
         val importance = NotificationManager.IMPORTANCE_DEFAULT
         val channel = android.app.NotificationChannel("BUDGET_ALERTS", name, importance).apply {
             description = descriptionText

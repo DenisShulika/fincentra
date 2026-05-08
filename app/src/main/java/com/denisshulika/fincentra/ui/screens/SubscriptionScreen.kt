@@ -36,9 +36,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.Subscription
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
 import com.denisshulika.fincentra.ui.components.FinCentraTopBar
@@ -64,7 +66,7 @@ fun SubscriptionScreen(viewModel: SubscriptionViewModel, onBack: () -> Unit) {
 
     Scaffold(
         topBar = {
-            FinCentraTopBar("Subscriptions", false, onBack)
+            FinCentraTopBar(stringResource(R.string.subscription_screen_title), false, onBack)
         },
         containerColor = MaterialTheme.colorScheme.background,
         floatingActionButton = {
@@ -73,7 +75,10 @@ fun SubscriptionScreen(viewModel: SubscriptionViewModel, onBack: () -> Unit) {
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Subscription")
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = stringResource(R.string.subscription_screen_add_desc)
+                )
             }
         }
     ) { innerPadding ->
@@ -83,7 +88,7 @@ fun SubscriptionScreen(viewModel: SubscriptionViewModel, onBack: () -> Unit) {
                     .fillMaxSize()
                     .padding(innerPadding), contentAlignment = Alignment.Center) {
                 Text(
-                    "No subscriptions added yet",
+                    stringResource(R.string.subscription_screen_empty),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -171,7 +176,8 @@ fun SubscriptionItem(
                     fontWeight = FontWeight.Black
                 )
                 Text(
-                    text = if (daysLeft <= 0) "Today" else "In $daysLeft days",
+                    text = if (daysLeft <= 0) stringResource(R.string.subscription_screen_days_today)
+                    else stringResource(R.string.subscription_screen_days_remaining, daysLeft),
                     style = MaterialTheme.typography.labelSmall,
                     color = if (daysLeft <= 3) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold

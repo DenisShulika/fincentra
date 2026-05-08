@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
+import com.denisshulika.fincentra.data.network.common.MccDirectory
 import com.denisshulika.fincentra.data.util.BankProviders
 import com.denisshulika.fincentra.data.util.DateFormatter
 
@@ -128,7 +129,7 @@ fun TransactionItem(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = stringResource(transaction.subCategoryRes),
+                    text = stringResource(MccDirectory.getDetails(transaction.mcc).subCategoryRes),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -140,12 +141,12 @@ fun TransactionItem(
                     if (transaction.isExpense) MaterialTheme.colorScheme.error else Color(0xFF4CAF50)
 
                 Text(
-                    text = "${if (transaction.isExpense) "-" else "+"}${
-                        String.format(
-                            "%.2f",
-                            transaction.amount
-                        )
-                    } $symbol",
+                    text = stringResource(
+                        R.string.transaction_item_amount_format,
+                        if (transaction.isExpense) "-" else "+",
+                        transaction.amount,
+                        symbol
+                    ),
                     style = MaterialTheme.typography.titleMedium,
                     color = color,
                     fontWeight = FontWeight.ExtraBold

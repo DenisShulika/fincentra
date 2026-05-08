@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.state.StatsPeriod
 
 @Composable
@@ -49,7 +50,13 @@ fun PeriodSelector(
                 onClick = { onPeriodSelected(period) },
                 label = {
                     Text(
-                        text = stringResource(period.displayNameRes),
+                        text = when (period) {
+                            StatsPeriod.WEEK -> stringResource(R.string.period_selector_week)
+                            StatsPeriod.MONTH -> stringResource(R.string.period_selector_month)
+                            StatsPeriod.QUARTER -> stringResource(R.string.period_selector_quarter)
+                            StatsPeriod.ALL -> stringResource(R.string.period_selector_all_time)
+                            else -> ""
+                        },
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = if (selectedPeriod == period) FontWeight.Black else FontWeight.Medium,
                         modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp)
@@ -73,7 +80,7 @@ fun PeriodSelector(
                 label = {
                     Icon(
                         imageVector = Icons.Default.DateRange,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.period_selector_custom_picker_desc),
                         modifier = Modifier.size(22.dp)
                     )
                 },

@@ -33,9 +33,9 @@ fun FilterRow(
     ) {
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             val banks = listOf(
-                FilterConstants.ALL to R.string.filter_all,
-                BankProviders.MONOBANK to R.string.filter_monobank,
-                TransactionConstants.SOURCE_CASH to R.string.filter_cash
+                FilterConstants.ALL to R.string.filter_row_all,
+                BankProviders.MONOBANK to R.string.filter_row_monobank,
+                TransactionConstants.SOURCE_CASH to R.string.filter_row_cash
             )
 
             items(banks) { (technicalName, labelRes) ->
@@ -59,7 +59,7 @@ fun FilterRow(
                         FilterChip(
                             selected = selectedAccountId == null,
                             onClick = { onAccountChange(null) },
-                            label = { Text("Всі карти") },
+                            label = { Text(stringResource(R.string.filter_row_all_cards)) },
                             shape = CircleShape
                         )
                     }

@@ -35,6 +35,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.util.PrefDreamEmoji
 import com.denisshulika.fincentra.data.util.PrefDreamProgress
 import com.denisshulika.fincentra.data.util.PrefDreamTitle
@@ -48,7 +49,7 @@ class DreamWidget : GlanceAppWidget() {
         provideContent {
             val prefs = currentState<Preferences>()
 
-            val title = prefs[PrefDreamTitle] ?: "No Dream"
+            val title = prefs[PrefDreamTitle] ?: context.getString(R.string.dream_widget_no_dream)
             val progress = prefs[PrefDreamProgress] ?: 0f
             val emoji = prefs[PrefDreamEmoji] ?: "🚀"
 
@@ -96,7 +97,10 @@ class DreamWidget : GlanceAppWidget() {
                             maxLines = 1
                         )
                         Text(
-                            text = "${(progress * 100).toInt()}%",
+                            text = context.getString(
+                                R.string.dream_widget_progress_percent,
+                                (progress * 100).toInt()
+                            ),
                             style = TextStyle(color = ColorProvider(Color.White), fontSize = 12.sp)
                         )
                     }

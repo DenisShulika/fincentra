@@ -1,5 +1,7 @@
 package com.denisshulika.fincentra.data.util
 
+import com.denisshulika.fincentra.R
+
 object FirestoreCollections {
     const val USERS = "users"
     const val TRANSACTIONS = "transactions"
@@ -52,14 +54,14 @@ object CurrencyConstants {
 }
 
 val FinancialPredictions = listOf(
-    "Small expenses are like small leaks in a ship – they can sink it. Watch your 'Others' category today!",
-    "Your financial tree loves consistency. Add a manual transaction for any cash spent today.",
-    "Today is a great day to review your 'Dream' progress. You are closer than you think!",
-    "The best way to save money is not to spend it. Challenge: Zero spending on treats today!",
-    "A budget tells your money where to go instead of wondering where it went. Check your limits.",
-    "Invest in your future self. Your 'Safety Threshold' is your best friend.",
-    "Financial peace isn't the acquisition of stuff. It's learning to live on less than you make.",
-    "Your future self will thank you for the coffee you didn't buy today. Add it to your Dream!",
-    "The goal is to be rich, not to look rich. Stay true to your financial plan.",
-    "A blooming tree starts with a single drop of water. Every cent counts today."
+    R.string.constants_prediction_1,
+    R.string.constants_prediction_2,
+    R.string.constants_prediction_3,
+    R.string.constants_prediction_4,
+    R.string.constants_prediction_5,
+    R.string.constants_prediction_6,
+    R.string.constants_prediction_7,
+    R.string.constants_prediction_8,
+    R.string.constants_prediction_9,
+    R.string.constants_prediction_10
 )

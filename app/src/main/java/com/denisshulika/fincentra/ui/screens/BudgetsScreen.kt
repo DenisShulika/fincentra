@@ -55,7 +55,7 @@ fun BudgetsScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             FinCentraTopBar(
-                title = stringResource(R.string.nav_budgets),
+                title = stringResource(R.string.budgets_screen_title),
                 isTopLevelScreen = false,
                 onNavigationClick = onBack
             )
@@ -97,13 +97,13 @@ fun BudgetsScreen(
                         )
                         Spacer(modifier = Modifier.height(20.dp))
                         Text(
-                            text = stringResource(R.string.budgets_empty_title),
+                            text = stringResource(R.string.budgets_screen_empty_title),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = stringResource(R.string.budgets_empty_desc),
+                            text = stringResource(R.string.budgets_screen_empty_desc),
                             style = MaterialTheme.typography.bodyLarge,
                             textAlign = TextAlign.Center
                         )

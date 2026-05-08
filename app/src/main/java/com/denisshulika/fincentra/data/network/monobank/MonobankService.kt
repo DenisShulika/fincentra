@@ -1,6 +1,8 @@
 package com.denisshulika.fincentra.data.network.monobank
 
+import android.content.Context
 import android.util.Log
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.BankAccount
 import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.network.common.BankProvider
@@ -13,7 +15,7 @@ import kotlinx.coroutines.delay
 import retrofit2.HttpException
 import kotlin.math.abs
 
-class MonobankService : BankProvider {
+class MonobankService(private val context: Context) : BankProvider {
     private val api get() = DependencyProvider.monobankApi
 
     override suspend fun fetchAccounts(token: String): List<BankAccount> {
@@ -30,7 +32,8 @@ class MonobankService : BankProvider {
                     BankAccount(
                         id = acc.id,
                         provider = BankProviders.MONOBANK,
-                        name = "Картка $symbol $pan".trim(),
+                        name = context.getString(R.string.monobank_service_card_format, symbol, pan)
+                            .trim(),
                         type = acc.type,
                         balance = acc.balance / 100.0,
                         currencyCode = acc.currencyCode,
@@ -45,7 +48,7 @@ class MonobankService : BankProvider {
                     BankAccount(
                         id = jar.id,
                         provider = BankProviders.MONOBANK,
-                        name = "Банка: ${jar.title}",
+                        name = context.getString(R.string.monobank_service_jar_format, jar.title),
                         type = "jar",
                         balance = jar.balance / 100.0,
                         currencyCode = jar.currencyCode,
@@ -84,7 +87,7 @@ class MonobankService : BankProvider {
             } catch (e: HttpException) {
                 Log.e("MONO_SYNC", "HTTP Error: ${e.code()} ${e.response()?.errorBody()?.string()}")
                 if (e.code() == 429) {
-                    onProgress("БАНК: Ліміт перевищено!")
+                    onProgress(context.getString(R.string.monobank_service_limit_exceeded))
                 }
                 emptyList()
             } catch (e: Exception) {
@@ -102,7 +105,7 @@ class MonobankService : BankProvider {
                 if (monoList.size == 500) {
                     currentTo = monoList.last().time
                     for (i in 60 downTo 1) {
-                        onProgress("Велика історія... Пауза $i с")
+                        onProgress(context.getString(R.string.monobank_service_pause_history, i))
                         delay(1000)
                     }
                 } else {

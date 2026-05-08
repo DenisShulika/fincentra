@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.Transaction
 import com.denisshulika.fincentra.data.network.common.CurrencyMapper
+import com.denisshulika.fincentra.data.network.common.MccDirectory
 import com.denisshulika.fincentra.data.util.DateFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,12 +62,12 @@ fun TransactionDetailSheet(transaction: Transaction, onDismiss: () -> Unit) {
 
             val symbol = CurrencyMapper.getSymbol(transaction.currencyCode)
             Text(
-                text = "${if (transaction.isExpense) "-" else "+"}${
-                    String.format(
-                        "%.2f",
-                        transaction.amount
-                    )
-                } $symbol",
+                text = stringResource(
+                    R.string.transaction_detail_amount_format,
+                    if (transaction.isExpense) "-" else "+",
+                    transaction.amount,
+                    symbol
+                ),
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Black,
                 color = if (transaction.isExpense) MaterialTheme.colorScheme.error else Color(
@@ -75,7 +76,7 @@ fun TransactionDetailSheet(transaction: Transaction, onDismiss: () -> Unit) {
             )
 
             Text(
-                text = transaction.description.ifBlank { stringResource(R.string.tx_detail_no_name) },
+                text = transaction.description.ifBlank { stringResource(R.string.transaction_detail_no_name) },
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
@@ -85,22 +86,22 @@ fun TransactionDetailSheet(transaction: Transaction, onDismiss: () -> Unit) {
 
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 DetailRow(
-                    stringResource(R.string.tx_detail_category),
+                    stringResource(R.string.transaction_detail_category),
                     stringResource(transaction.category.displayNameRes)
                 )
                 DetailRow(
-                    stringResource(R.string.tx_detail_subcategory),
-                    stringResource(transaction.subCategoryRes)
+                    stringResource(R.string.transaction_detail_subcategory),
+                    stringResource(MccDirectory.getDetails(transaction.mcc).subCategoryRes)
                 )
-                DetailRow(stringResource(R.string.tx_detail_source), transaction.bankName)
+                DetailRow(stringResource(R.string.transaction_detail_source), transaction.bankName)
                 DetailRow(
-                    stringResource(R.string.tx_detail_time),
+                    stringResource(R.string.transaction_detail_time),
                     DateFormatter.formatDateTime(transaction.timestamp)
                 )
 
                 if (transaction.comment != null) {
                     Text(
-                        stringResource(R.string.tx_detail_bank_comment),
+                        stringResource(R.string.transaction_detail_bank_comment),
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(transaction.comment, style = MaterialTheme.typography.bodyLarge)
@@ -115,7 +116,10 @@ fun TransactionDetailSheet(transaction: Transaction, onDismiss: () -> Unit) {
                     .height(56.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text(stringResource(R.string.btn_close), fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.transaction_detail_btn_close),
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }

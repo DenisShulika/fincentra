@@ -23,7 +23,7 @@ data class Transaction(
     val balance: Double? = null,
     val comment: String? = null,
 
-    val subCategoryRes: Int = R.string.mcc_others,
+    val subCategoryRes: Int = R.string.transaction_subcat_others,
 
     val sourceType: String = "MANUAL"
 )

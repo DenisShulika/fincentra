@@ -44,6 +44,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
+import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.util.PrefAllBudgetsData
 import com.denisshulika.fincentra.data.util.WidgetConstants
 
@@ -76,7 +77,7 @@ class TreeWidget : GlanceAppWidget() {
                     contentAlignment = Alignment.Center
                 ) {
                     if (isSelectionMode || selectedCategory == null) {
-                        SelectionView(allData)
+                        SelectionView(context, allData)
                     } else {
                         val budget = allData.split(";").mapNotNull {
                             val parts = it.split(",")
@@ -84,9 +85,9 @@ class TreeWidget : GlanceAppWidget() {
                         }.firstOrNull()
 
                         if (budget != null) {
-                            TreeView(budget[0], budget[1].toFloat(), budget[2].toInt())
+                            TreeView(context, budget[0], budget[1].toFloat(), budget[2].toInt())
                         } else {
-                            SelectionView(allData)
+                            SelectionView(context, allData)
                         }
                     }
                 }
@@ -95,12 +96,12 @@ class TreeWidget : GlanceAppWidget() {
     }
 
     @Composable
-    private fun SelectionView(allData: String) {
+    private fun SelectionView(context: Context, allData: String) {
         val categories = allData.split(";").filter { it.isNotBlank() }
 
         Column(modifier = GlanceModifier.fillMaxSize()) {
             Text(
-                text = "SELECT TREE",
+                text = context.getString(R.string.tree_widget_selection_header),
                 modifier = GlanceModifier.padding(bottom = 10.dp).fillMaxWidth(),
                 style = TextStyle(
                     color = ColorProvider(Color.White),
@@ -116,7 +117,7 @@ class TreeWidget : GlanceAppWidget() {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        "Open app to sync or set any limits",
+                        context.getString(R.string.tree_widget_no_data_hint),
                         style = TextStyle(
                             color = ColorProvider(Color.Gray),
                             fontSize = 11.sp,
@@ -158,7 +159,7 @@ class TreeWidget : GlanceAppWidget() {
     }
 
     @Composable
-    private fun TreeView(name: String, progress: Float, imageRes: Int) {
+    private fun TreeView(context: Context, name: String, progress: Float, imageRes: Int) {
         val neonGreen = Color(0xFF22C55E)
         val displayColor = if (progress >= 1f) Color.Red else neonGreen
 
@@ -200,7 +201,10 @@ class TreeWidget : GlanceAppWidget() {
             Spacer(GlanceModifier.height(6.dp))
 
             Text(
-                text = "${(progress * 100).toInt()}% USED",
+                text = context.getString(
+                    R.string.tree_widget_usage_status,
+                    (progress * 100).toInt()
+                ),
                 style = TextStyle(
                     color = ColorProvider(displayColor),
                     fontWeight = FontWeight.Bold,

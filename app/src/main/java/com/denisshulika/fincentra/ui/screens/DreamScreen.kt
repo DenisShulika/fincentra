@@ -46,6 +46,8 @@ fun DreamScreen(
     var isEditMode by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
+    val selectedCurrency by viewModel.selectedCurrency.collectAsStateWithLifecycle()
+
     LaunchedEffect(progressState) {
         if (progressState != null && !isEditMode) {
             viewModel.prepareForEdit(progressState!!.dream)
@@ -56,7 +58,7 @@ fun DreamScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             FinCentraTopBar(
-                title = stringResource(R.string.dream_title_screen),
+                title = stringResource(R.string.dream_screen_title),
                 isTopLevelScreen = false,
                 onNavigationClick = onBack
             )
@@ -85,9 +87,11 @@ fun DreamScreen(
                     emoji = emoji,
                     onEmojiChange = viewModel::onEmojiChange,
                     isLoading = isLoading,
+                    selectedCurrency = selectedCurrency,
+                    onCurrencyChange = viewModel::onCurrencyChange,
                     isExistingDream = progressState != null,
                     onSave = {
-                        viewModel.updateDream(progressState?.dream?.currencyCode ?: 980)
+                        viewModel.updateDream()
                         isEditMode = false
                     },
                     onCancel = {
@@ -113,8 +117,8 @@ fun DreamScreen(
     if (showDeleteConfirm) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            title = { Text("Delete Dream?") },
-            text = { Text("This will reset your goal progress. Your transactions will remain safe.") },
+            title = { Text(stringResource(R.string.dream_screen_delete_title)) },
+            text = { Text(stringResource(R.string.dream_screen_delete_desc)) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.deleteDream()
@@ -122,14 +126,16 @@ fun DreamScreen(
                     isEditMode = false
                 }) {
                     Text(
-                        "Delete",
+                        stringResource(R.string.dream_screen_btn_delete),
                         color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.Bold
                     )
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = false }) { Text("Cancel") }
+                TextButton(onClick = {
+                    showDeleteConfirm = false
+                }) { Text(stringResource(R.string.dream_screen_btn_cancel)) }
             }
         )
     }

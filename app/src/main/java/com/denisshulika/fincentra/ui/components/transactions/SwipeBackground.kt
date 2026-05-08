@@ -16,7 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.denisshulika.fincentra.R
 
 @Composable
 fun SwipeBackground(dismissState: SwipeToDismissBoxState) {
@@ -44,6 +46,11 @@ fun SwipeBackground(dismissState: SwipeToDismissBoxState) {
             SwipeToDismissBoxValue.EndToStart -> Icons.Default.Delete
             else -> null
         }
-        icon?.let { Icon(it, contentDescription = null, tint = Color.White) }
+        val description = when (direction) {
+            SwipeToDismissBoxValue.StartToEnd -> stringResource(R.string.swipe_background_edit_desc)
+            SwipeToDismissBoxValue.EndToStart -> stringResource(R.string.swipe_background_delete_desc)
+            else -> null
+        }
+        icon?.let { Icon(it, contentDescription = description, tint = Color.White) }
     }
 }

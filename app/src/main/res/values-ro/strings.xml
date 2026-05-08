@@ -1,0 +1,644 @@
+<resources>
+    <!-- General -->
+    <string name="app_name">FinCentra</string>
+
+    <!-- About Screen -->
+    <string name="about_screen_title">Despre FinCentra</string>
+    <string name="about_screen_version">Versiunea 1.2</string>
+    <string name="about_screen_feature_tree_title">Copacul Viu</string>
+    <string name="about_screen_feature_tree_desc">Limitele tale bugetare sunt vizualizate sub formă de copaci. Respectă bugetul pentru a-ți menține ecosistemul financiar înfloritor. Dacă cheltuiești prea mult, copacul se ofilește.</string>
+    <string name="about_screen_feature_safety_title">Pragul de Siguranță</string>
+    <string name="about_screen_feature_safety_desc">O logică unică ce îți protejează fondurile esențiale pentru trai. Progresul către obiectivele tale este calculat doar din banii cu adevărat liberi.</string>
+    <string name="about_screen_feature_ai_title">Consilier AI</string>
+    <string name="about_screen_feature_ai_desc">Bazat pe Gemini, AI-ul nostru efectuează un audit de 360 de grade al finanțelor tale, oferind perspective profesionale la nivel de director financiar (CFO).</string>
+    <string name="about_screen_contact_legal_title">Contact și Juridic</string>
+    <string name="about_screen_contact_email">denisshulika31@gmail.com</string>
+    <string name="about_screen_privacy_policy">Politica de Confidențialitate</string>
+    <string name="about_screen_footer_credits">Design și Dezvoltare: Denys Shulika</string>
+
+    <!-- Budgets Screen -->
+    <string name="budgets_screen_title">Limite</string>
+    <string name="budgets_screen_empty_title">Pădurea ta este încă goală</string>
+    <string name="budgets_screen_empty_desc">Setează o limită pentru o categorie pentru a începe să-ți crești copacul financiar.</string>
+
+    <!-- Dream Screen -->
+    <string name="dream_screen_title">Visul Meu</string>
+    <string name="dream_screen_delete_title">Ștergi Visul?</string>
+    <string name="dream_screen_delete_desc">Această acțiune va reseta progresul obiectivului tău. Tranzacțiile tale vor rămâne în siguranță.</string>
+    <string name="dream_screen_btn_delete">Șterge</string>
+    <string name="dream_screen_btn_cancel">Anulează</string>
+
+    <!-- Export Screen -->
+    <string name="export_screen_title">Exportă Raportul</string>
+    <string name="export_screen_headline">Selectează datele pentru export</string>
+    <string name="export_screen_section_dates">Interval de date</string>
+    <string name="export_screen_date_all_time">Tot timpul</string>
+    <string name="export_screen_section_sources">Surse</string>
+    <string name="export_screen_section_accounts">Conturi specifice</string>
+    <string name="export_screen_all_cards">Toate cardurile</string>
+    <string name="export_screen_section_currencies">Valute</string>
+    <string name="export_screen_all_currencies">Toate valutele</string>
+    <string name="export_screen_section_categories">Categorii (%d selectate)</string>
+    <string name="export_screen_section_type">Tipul operațiunii</string>
+    <string name="export_screen_type_all">Toate</string>
+    <string name="export_screen_type_expenses">Cheltuieli</string>
+    <string name="export_screen_type_income">Venituri</string>
+    <string name="export_screen_section_style">Stilul raportului</string>
+    <string name="export_screen_style_header">Include antet (Branding)</string>
+    <string name="export_screen_style_summary">Include rezumat financiar</string>
+    <string name="export_screen_btn_pdf">Generează PDF (%d elemente)</string>
+    <string name="export_screen_btn_csv">Exportă în CSV</string>
+
+    <!-- Home Screen -->
+    <string name="home_screen_user_placeholder">Utilizator</string>
+    <string name="home_screen_greeting">Salut, %s!</string>
+    <string name="home_screen_status_title">Starea ta financiară astăzi</string>
+    <string name="home_screen_ai_title">Sfat AI</string>
+    <string name="home_screen_ai_loading">Se analizează pădurea ta financiară…</string>
+    <string name="home_screen_ai_error_internet">AI este indisponibil. Verifică conexiunea.</string>
+    <string name="home_screen_ai_click_prompt">Atinge pentru un sfat financiar de la AI</string>
+    <string name="home_screen_dream_goal">Țintă de economisire</string>
+    <string name="home_screen_dream_collected_percentage">Colectat %1$d%%</string>
+    <string name="home_screen_critical_limits">Alerte Limite</string>
+    <string name="home_screen_all_limits">Toate limitele</string>
+    <string name="home_screen_upcoming_bills">Plăți viitoare (%d)</string>
+    <string name="home_screen_sub_today">Astăzi</string>
+    <string name="home_screen_sub_in_days">În %d zile</string>
+    <string name="home_screen_recent_transactions">Tranzacții recente</string>
+    <string name="home_screen_view_all">Vezi tot</string>
+    <string name="home_screen_no_transactions">Nicio tranzacție încă</string>
+
+    <!-- Integrations Screen -->
+    <string name="integrations_screen_title">Bănci și Conturi</string>
+    <string name="integrations_screen_connection_header">Conectare</string>
+    <string name="integrations_screen_tab_ukraine">Sincronizare Oficială (API)</string>
+    <string name="integrations_screen_tab_europe">Europa (PSD2)</string>
+    <string name="integrations_screen_delete_title">Deconectezi banca?</string>
+    <string name="integrations_screen_delete_desc">Tranzacțiile noi nu vor mai fi descărcate. Setările contului vor fi eliminate.</string>
+    <string name="integrations_screen_delete_confirm">Da, deconectează</string>
+    <string name="integrations_screen_btn_cancel">Anulează</string>
+
+    <!-- Login Screen -->
+    <string name="login_screen_title">FinCentra</string>
+    <string name="login_screen_subtitle">Hub-ul și asistentul tău financiar de încredere!</string>
+    <string name="login_screen_email_label">Email</string>
+    <string name="login_screen_password_label">Parolă</string>
+    <string name="login_screen_btn_login">Autentificare</string>
+    <string name="login_screen_no_account">Nu ai cont? Înregistrează-te</string>
+    <string name="login_screen_or_with">sau prin</string>
+    <string name="login_screen_google_login_desc">Autentificare cu Google</string>
+
+    <!-- Onboarding Screen -->
+    <string name="onboarding_screen_btn_skip">Sari</string>
+    <string name="onboarding_screen_btn_next">Înainte</string>
+    <string name="onboarding_screen_btn_start">Începe</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_screen_title">Profilul Meu</string>
+    <string name="profile_screen_settings_desc">Setări</string>
+    <string name="profile_screen_user_placeholder">Utilizator</string>
+    <string name="profile_screen_loading">Se încarcă…</string>
+    <string name="profile_screen_tx_count">%d tranzacții</string>
+    <string name="profile_screen_no_accounts">Niciun cont conectat</string>
+    <string name="profile_screen_btn_export">Exportă Rapoarte Financiare</string>
+    <string name="profile_screen_contact_dev">Contactează dezvoltatorul</string>
+
+    <!-- Register Screen -->
+    <string name="register_screen_header">Creează cont</string>
+    <string name="register_screen_desc">Alătură-te FinCentra și preia controlul finanțelor tale</string>
+    <string name="register_screen_name_hint">Cum te numești?</string>
+    <string name="register_screen_email_hint">Adresă de email</string>
+    <string name="register_screen_password_hint">Parolă</string>
+    <string name="register_screen_confirm_password_hint">Confirmă parola</string>
+    <string name="register_screen_btn_signup">Înregistrare</string>
+    <string name="register_screen_already_have_account">Ai deja cont? Autentifică-te</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_screen_title">Setări</string>
+    <string name="settings_screen_pass_dialog_title">Parolă Nouă</string>
+    <string name="settings_screen_pass_dialog_hint">Introdu parola</string>
+    <string name="settings_screen_pass_dialog_btn_update">Actualizează</string>
+    <string name="settings_screen_pass_dialog_btn_cancel">Anulează</string>
+    <string name="settings_screen_delete_dialog_title">Ștergi contul?</string>
+    <string name="settings_screen_delete_dialog_desc">Toate datele tale din cloud vor fi pierdute definitiv.</string>
+    <string name="settings_screen_delete_dialog_btn_confirm">Șterge</string>
+    <string name="settings_screen_delete_dialog_btn_cancel">Anulează</string>
+    <string name="settings_screen_section_finance">Setări Financiare</string>
+    <string name="settings_screen_currency_label">Valuta Soldului Total</string>
+    <string name="settings_screen_currency_desc">Această valută va fi folosită pentru cardul „Sold Total” de pe ecranul principal.</string>
+    <string name="settings_screen_section_appearance">Aspect și Limbă</string>
+    <string name="settings_screen_theme_label">Tema Aplicației</string>
+    <string name="settings_screen_language_label">Limba Aplicației</string>
+    <string name="settings_screen_section_security">Securitate Cont</string>
+    <string name="settings_screen_change_password">Schimbă Parola</string>
+    <string name="settings_screen_delete_account">Șterge Contul Meu</string>
+    <string name="settings_screen_btn_logout">Deconectare din Sistem</string>
+    <string name="settings_screen_lang_uk">uk</string>
+    <string name="settings_screen_lang_en">en</string>
+    <string name="settings_screen_lang_pl">pl</string>
+    <string name="settings_screen_lang_de">de</string>
+    <string name="settings_screen_lang_ro">ro</string>
+
+    <!-- Stats Screen -->
+    <string name="stats_screen_expenses">Cheltuieli</string>
+    <string name="stats_screen_income">Venituri</string>
+    <string name="stats_screen_expense_distribution">Distribuția cheltuielilor</string>
+    <string name="stats_screen_income_sources">Surse de venit</string>
+
+    <!-- Subscription Screen -->
+    <string name="subscription_screen_title">Abonamente</string>
+    <string name="subscription_screen_add_desc">Adaugă Abonament</string>
+    <string name="subscription_screen_empty">Niciun abonament adăugat încă</string>
+    <string name="subscription_screen_days_today">Astăzi</string>
+    <string name="subscription_screen_days_remaining">În %d zile</string>
+
+    <!-- Transactions Screen -->
+    <string name="transactions_screen_delete_title">Ștergi tranzacția?</string>
+    <string name="transactions_screen_delete_desc">Ești sigur? Această acțiune nu poate fi anulată.</string>
+    <string name="transactions_screen_delete_btn_confirm">Șterge</string>
+    <string name="transactions_screen_delete_btn_cancel">Anulează</string>
+    <string name="transactions_screen_date_today">Astăzi</string>
+    <string name="transactions_screen_date_yesterday">Ieri</string>
+
+    <!-- Dream Widget -->
+    <string name="dream_widget_no_dream">Niciun Vis</string>
+    <string name="dream_widget_progress_percent">%d%%</string>
+
+    <!-- Tree Widget -->
+    <string name="tree_widget_selection_header">ALEGE UN COPAC</string>
+    <string name="tree_widget_no_data_hint">Deschide aplicația pentru sincronizarea limitelor</string>
+    <string name="tree_widget_usage_status">%d%% UTILIZAT</string>
+
+    <!-- Animated Amount Component -->
+    <string name="animated_amount_format">%1$.2f %2$s</string>
+
+    <!-- Balance Flow Card Component -->
+    <string name="balance_flow_card_total_title">Sold Total (Toate Conturile)</string>
+    <string name="balance_flow_card_account_title">Sold Cont</string>
+    <string name="balance_flow_card_balance_start">La începutul perioadei</string>
+    <string name="balance_flow_card_net_flow">Flux Net</string>
+    <string name="balance_flow_card_balance_current">Sold curent</string>
+
+    <!-- Budget Progress Item Component -->
+    <string name="budget_progress_item_remaining">%1$.0f %2$s rămași</string>
+    <string name="budget_progress_item_limit_info">din %1$d %2$s planificați</string>
+
+    <!-- FinCentra Drawer Component -->
+    <string name="drawer_close_desc">Închide</string>
+    <string name="drawer_user_placeholder">Erou Financiar</string>
+    <string name="drawer_loading">Se încarcă…</string>
+    <string name="drawer_about_app">Despre Aplicație</string>
+    <string name="drawer_sign_out">Deconectare</string>
+
+    <!-- Health Badge Component -->
+    <string name="health_badge_label">SCOR</string>
+
+    <!-- Transaction Detail Sheet Component -->
+    <string name="transaction_detail_amount_format">%1$s%2$.2f %3$s</string>
+    <string name="transaction_detail_no_name">Operațiune fără nume</string>
+    <string name="transaction_detail_category">Categorie</string>
+    <string name="transaction_detail_subcategory">Subcategorie</string>
+    <string name="transaction_detail_source">Sursă</string>
+    <string name="transaction_detail_time">Ora operațiunii</string>
+    <string name="transaction_detail_bank_comment">Comentariu bancă</string>
+    <string name="transaction_detail_btn_close">Închide</string>
+
+    <!-- Transaction Item Component -->
+    <string name="transaction_item_amount_format">%1$s%2$.2f %3$s</string>
+
+    <!-- Add Budget Sheet Component -->
+    <string name="add_budget_sheet_title_new">Limită Nouă</string>
+    <string name="add_budget_sheet_title_edit">Editare Limită</string>
+    <string name="add_budget_sheet_amount_label">Sumă</string>
+    <string name="add_budget_sheet_category_label">Selectează categoria</string>
+    <string name="add_budget_sheet_btn_set">Setează limita</string>
+    <string name="add_budget_sheet_btn_update">Actualizează limita</string>
+    <string name="add_budget_sheet_btn_delete">Șterge această limită</string>
+
+    <!-- Budgets Info Card Component -->
+    <string name="budgets_info_card_text">Aceasta este suma care ar trebui să rămână mereu în conturile tale pentru un trai confortabil (chirie, alimente, rezervă).</string>
+
+    <!-- Dream Form Component -->
+    <string name="dream_form_title_edit">Actualizează parametrii</string>
+    <string name="dream_form_title_new">Configurează-ți visul</string>
+    <string name="dream_form_label_icon">Pictogramă</string>
+    <string name="dream_form_label_title">Pentru ce economisim?</string>
+    <string name="dream_form_placeholder_title">Exemplu: Mașină</string>
+    <string name="dream_form_label_target">Suma țintă</string>
+    <string name="dream_form_label_buffer">Prag de siguranță (pentru trai)</string>
+    <string name="dream_form_btn_update">Actualizează visul</string>
+    <string name="dream_form_btn_save">Salvează visul</string>
+    <string name="dream_form_btn_delete">Șterge visul</string>
+    <string name="dream_form_btn_cancel">Anulează</string>
+
+    <!-- Dream Info Card Component -->
+    <string name="dream_info_card_title">Ce este un prag de siguranță?</string>
+    <string name="dream_info_card_desc">Aceasta este suma care ar trebui să rămână mereu în conturile tale pentru un trai confortabil (chirie, alimente, rezervă).</string>
+    <string name="dream_info_card_detail">Progresul visului este calculat doar din fondurile care depășesc acest prag. Astfel, ești sigur că economiile nu te vor lăsa cu portofelul gol.</string>
+
+    <!-- Dream Progress View Component -->
+    <string name="dream_progress_view_label_target">Țintă de economisire</string>
+    <string name="dream_progress_view_label_buffer">Pragul tău de siguranță</string>
+    <string name="dream_progress_view_label_available">Disponibil pentru vis</string>
+    <string name="dream_progress_view_btn_edit">Editează ținta</string>
+    <string name="dream_progress_view_amount_format">%1$.2f %2$s</string>
+    <string name="dream_progress_view_amount_buffer_format">-%1$.2f %2$s</string>
+
+    <!-- Prediction Coin Component -->
+    <string name="prediction_coin_title_default">Sfatul Zilei</string>
+    <string name="prediction_coin_tap_instruction">Atinge pentru a arunca</string>
+
+    <!-- Bank Details Content Component -->
+    <string name="bank_details_content_close_desc">Închide</string>
+    <string name="bank_details_content_status_updating">Se actualizează soldurile…</string>
+    <string name="bank_details_content_status_assets">Se sincronizează activele…</string>
+    <string name="bank_details_content_status_done">Gata!</string>
+    <string name="bank_details_content_status_syncing">Sincronizare: %s…</string>
+    <string name="bank_details_content_status_cooldown">Așteptare API: %d s…</string>
+    <string name="bank_details_content_wallet_title">Sincronizare Google Wallet</string>
+    <string name="bank_details_content_wallet_desc">FinCentra poate înregistra automat plățile din notificările Google Wallet.</string>
+    <string name="bank_details_content_wallet_access_granted">Acces sistem: Acordat</string>
+    <string name="bank_details_content_wallet_access_required">Acces sistem: Necesar</string>
+    <string name="bank_details_content_wallet_enable_automation">Activează automatizarea</string>
+    <string name="bank_details_content_wallet_btn_grant">Acordă acces la sistem</string>
+    <string name="bank_details_content_mono_token_label">Token Monobank</string>
+    <string name="bank_details_content_mono_btn_connect">Conectează Monobank</string>
+    <string name="bank_details_content_mono_get_access">Obține acces în </string>
+    <string name="bank_details_content_mono_personal_cabinet">Cabinetul Personal</string>
+    <string name="bank_details_content_mono_select_title">Selectează conturile Monobank</string>
+    <string name="bank_details_content_mono_sync_warning">Cererile de extras sunt permise o dată la 60 de secunde. Vă rugăm să nu închideți aplicația.</string>
+    <string name="bank_details_content_mono_btn_save">Salvează și Sincronizează</string>
+    <string name="bank_details_content_mono_btn_refresh">Actualizează lista conturilor</string>
+    <string name="bank_details_content_mono_btn_disconnect">Deconectează Monobank</string>
+    <string name="bank_details_content_wise_setup_title">Cum obții token-ul API:</string>
+    <string name="bank_details_content_wise_setup_desc">1. Conectează-te pe site-ul Wise (nu în aplicație).\n2. Mergi la Setări -> API tokens.\n3. Asigură-te că autentificarea 2FA este activă.\n4. Creează și copiază Token-ul tău Personal.</string>
+    <string name="bank_details_content_wise_token_label">Token API Wise</string>
+    <string name="bank_details_content_wise_btn_connect">Conectează contul Wise</string>
+    <string name="bank_details_content_wise_sync_info">Sincronizarea Wise poate dura câteva secunde pentru a actualiza toate soldurile.</string>
+    <string name="bank_details_content_wise_select_title">Conturi multi-valută Wise</string>
+    <string name="bank_details_content_wise_btn_save">Salvează și Sincronizează Wise</string>
+    <string name="bank_details_content_wise_btn_disconnect">Deconectează Wise</string>
+    <string name="bank_details_content_euro_setup_desc">Conectează-ți contul %s în siguranță prin poarta Salt Edge.</string>
+    <string name="bank_details_content_euro_btn_connect">Conectează-te prin Browser</string>
+    <string name="bank_details_content_euro_sync_info">Datele băncilor europene sunt preluate prin poarta securizată Salt Edge (PSD2).</string>
+    <string name="bank_details_content_euro_select_title">Conturi europene disponibile</string>
+    <string name="bank_details_content_euro_btn_save">Salvează și Sincronizează</string>
+    <string name="bank_details_content_euro_btn_disconnect">Deconectează banca</string>
+    <string name="bank_details_content_account_format">%1$.2f %2$s</string>
+
+    <!-- Onboarding Page Content Component -->
+    <string name="onboarding_page_content_step1_title">Analtică Inteligentă</string>
+    <string name="onboarding_page_content_step1_desc">FinCentra colectează automat date de la băncile tale. Fără agende — doar observă rezultatul.</string>
+    <string name="onboarding_page_content_step1_highlight">automat</string>
+    <string name="onboarding_page_content_step2_title">Ecosistemul Tău</string>
+    <string name="onboarding_page_content_step2_desc">Limita ta este un copac viu. Controlează cheltuielile pentru ca arborele tău financiar să crească mereu înfloritor.</string>
+    <string name="onboarding_page_content_step2_highlight">copac viu</string>
+    <string name="onboarding_page_content_step3_title">Visează fără Risc</string>
+    <string name="onboarding_page_content_step3_desc">Protejezi automat banii pentru trai, iar surplusul va fi direcționat. Atinge-ți visele menținând liniștea financiară.</string>
+    <string name="onboarding_page_content_step3_highlight">protejezi automat banii pentru trai</string>
+
+    <!-- Balance Card Component -->
+    <string name="balance_card_total_label">Sold total (%s)</string>
+    <string name="balance_card_amount_format">%1$.2f %2$s</string>
+
+    <!-- Profile Currency Block Component -->
+    <string name="profile_currency_block_title">Cursuri Piață Globală (raportat la 1 €)</string>
+    <string name="profile_currency_block_rate_format">%1$.2f</string>
+
+    <!-- Category Stat Item Component -->
+    <string name="category_stat_item_subcategories_count">%d subcategorii</string>
+
+    <!-- Empty Stats Placeholder Component -->
+    <string name="empty_stats_placeholder_no_data">Nu s-au găsit date</string>
+
+    <!-- Filter Row Component -->
+    <string name="filter_row_all">Toate</string>
+    <string name="filter_row_monobank">Monobank</string>
+    <string name="filter_row_cash">Numerar</string>
+    <string name="filter_row_all_cards">Toate cardurile</string>
+
+    <!-- Period Selector Component -->
+    <string name="period_selector_week">Săptămână</string>
+    <string name="period_selector_month">Lună</string>
+    <string name="period_selector_quarter">3 luni</string>
+    <string name="period_selector_all_time">Tot timpul</string>
+    <string name="period_selector_custom_picker_desc">Selectează perioadă personalizată</string>
+
+    <!-- Spending Donut Chart Component -->
+    <string name="spending_donut_chart_expenses">Cheltuieli</string>
+    <string name="spending_donut_chart_income">Venituri</string>
+
+    <!-- Add Subscription Sheet -->
+    <string name="add_subscription_sheet_date_ok">OK</string>
+    <string name="add_subscription_sheet_date_cancel">Anulează</string>
+    <string name="add_subscription_sheet_title_new">Abonament Nou</string>
+    <string name="add_subscription_sheet_title_details">Detalii Abonament</string>
+    <string name="add_subscription_sheet_label_service_name">Nume Serviciu</string>
+    <string name="add_subscription_sheet_label_amount">Sumă</string>
+    <string name="add_subscription_sheet_billing_cycle">Ciclu de Facturare</string>
+    <string name="add_subscription_sheet_freq_weekly">Săptămânal</string>
+    <string name="add_subscription_sheet_freq_monthly">Lunar</string>
+    <string name="add_subscription_sheet_freq_yearly">Anual</string>
+    <string name="add_subscription_sheet_label_payment_date">Data Următoarei Plăți</string>
+    <string name="add_subscription_sheet_btn_add">Adaugă Abonament</string>
+    <string name="add_subscription_sheet_btn_save">Salvează Modificările</string>
+    <string name="add_subscription_sheet_btn_cancel_sub">Anulează Abonamentul</string>
+
+    <!-- Date Range Picker Dialog Component -->
+    <string name="date_range_picker_dialog_btn_confirm">OK</string>
+    <string name="date_range_picker_dialog_btn_cancel">Anulează</string>
+    <string name="date_range_picker_dialog_title">Selectează perioada</string>
+    <string name="date_range_picker_dialog_start_label">Început</string>
+    <string name="date_range_picker_dialog_end_label">Sfârșit</string>
+
+    <!-- Empty Transactions Placeholder Component -->
+    <string name="empty_transactions_placeholder_title">Nu s-a găsit nimic</string>
+    <string name="empty_transactions_placeholder_desc">Încearcă să schimbi perioada sau să resetezi filtrele pentru a vedea tranzacțiile.</string>
+    <string name="empty_transactions_placeholder_btn_reset">Resetează toate filtrele</string>
+
+    <!-- Category Filter Component -->
+    <string name="category_filter_title">Filtru categorii</string>
+    <string name="category_filter_btn_apply">Aplică</string>
+    <string name="category_filter_appearance_title">Setări aspect</string>
+    <string name="category_filter_sort_by">Sortează după</string>
+    <string name="category_filter_type_label">Tip operațiune</string>
+    <string name="category_filter_all">Toate</string>
+    <string name="category_filter_expenses">Cheltuieli</string>
+    <string name="category_filter_income">Venituri</string>
+    <string name="category_filter_source_label">Sursă</string>
+    <string name="category_filter_monobank">Monobank</string>
+    <string name="category_filter_cash">Numerar</string>
+    <string name="category_filter_btn_done">Gata</string>
+
+    <!-- Swipe Background Component -->
+    <string name="swipe_background_edit_desc">Editează</string>
+    <string name="swipe_background_delete_desc">Șterge</string>
+
+    <!-- Transaction Form Component -->
+    <string name="transaction_form_title_new">Operațiune nouă</string>
+    <string name="transaction_form_title_edit">Editare</string>
+    <string name="transaction_form_label_amount">Sumă</string>
+    <string name="transaction_form_label_description">Descriere sau nume</string>
+    <string name="transaction_form_label_category_header">Categorie</string>
+    <string name="transaction_form_btn_save">Salvează</string>
+    <string name="transaction_form_btn_update">Actualizează</string>
+    <string name="transaction_form_type_expense">Cheltuială</string>
+    <string name="transaction_form_type_income">Venit</string>
+
+    <!-- Transactions Top Bar Component -->
+    <string name="transactions_top_bar_title">Operațiuni</string>
+    <string name="transactions_top_bar_search_placeholder">Caută…</string>
+    <string name="transactions_top_bar_menu_desc">Deschide meniul de navigare</string>
+    <string name="transactions_top_bar_search_btn_desc">Caută tranzacții</string>
+    <string name="transactions_top_bar_filter_cat_desc">Filtrează după categorie</string>
+    <string name="transactions_top_bar_filter_type_desc">Filtrează după tip și sortează</string>
+    <string name="transactions_top_bar_filter_date_desc">Filtrează după dată</string>
+    <string name="transactions_top_bar_close_search_desc">Închide căutarea</string>
+
+    <!-- Navigation Screens -->
+    <string name="screen_nav_onboarding">Intro</string>
+    <string name="screen_nav_home">Prezentare</string>
+    <string name="screen_nav_transactions">Tranzacții</string>
+    <string name="screen_nav_stats">Analitică</string>
+    <string name="screen_nav_profile">Profil</string>
+    <string name="screen_nav_integrations">Bănci</string>
+    <string name="screen_nav_budgets">Limite</string>
+    <string name="screen_nav_dream">Vis</string>
+    <string name="screen_nav_about">Despre</string>
+    <string name="screen_nav_settings">Setări</string>
+    <string name="screen_nav_login">Login</string>
+    <string name="screen_nav_register">Înregistrare</string>
+    <string name="screen_nav_subscriptions">Abonamente</string>
+    <string name="screen_nav_export">Export Rapoarte</string>
+
+    <!-- Main Activity -->
+    <string name="main_activity_title_home">FinCentra</string>
+    <string name="main_activity_title_transactions">Tranzacții</string>
+    <string name="main_activity_title_stats">Analitică</string>
+
+    <!-- FinCentra Application -->
+    <string name="fin_centra_app_notif_channel_budget_name">Limite Financiare</string>
+    <string name="fin_centra_app_notif_channel_budget_desc">Notificări despre depășirea bugetului lunar</string>
+
+    <!-- Auth ViewModel -->
+    <string name="auth_view_model_error_email_required">Email-ul este obligatoriu</string>
+    <string name="auth_view_model_error_password_required">Parola este obligatorie</string>
+    <string name="auth_view_model_error_invalid_credentials">Email sau parolă incorectă</string>
+    <string name="auth_view_model_error_name_required">Numele este obligatoriu</string>
+    <string name="auth_view_model_error_invalid_email">Format email invalid</string>
+    <string name="auth_view_model_error_short_password">Minimum 6 caractere</string>
+    <string name="auth_view_model_error_passwords_dont_match">Parolele nu se potrivesc</string>
+    <string name="auth_view_model_error_unknown">A apărut o eroare. Încearcă din nou.</string>
+    <string name="auth_view_model_error_google_failed">Autentificarea Google a eșuat</string>
+    <string name="auth_view_model_success_password_changed">Parolă schimbată cu succes</string>
+    <string name="auth_view_model_error_relogin_required">Vă rugăm să vă autentificați din nou pentru această acțiune</string>
+
+    <!-- Export ViewModel -->
+    <string name="export_view_model_share_chooser_title">Distribuie Raportul prin</string>
+
+    <!-- Integrations ViewModel -->
+    <string name="integrations_view_model_error_no_accounts">Te rugăm să selectezi conturile în setări</string>
+    <string name="integrations_view_model_error_token_invalid">Token API invalid</string>
+    <string name="integrations_view_model_success_updated">Actualizat</string>
+    <string name="integrations_view_model_error_permission_required">Accesul la notificări este necesar pentru această funcție</string>
+    <string name="integrations_view_model_default_account_name">Cont</string>
+
+    <!-- Profile ViewModel -->
+    <string name="profile_view_model_feedback_subject">FinCentra Feedback</string>
+
+    <!-- Settings ViewModel -->
+    <string name="settings_view_model_success_password">Parolă schimbată cu succes</string>
+    <string name="settings_view_model_error_reauth">Pentru a continua, autentifică-te din nou din motive de securitate</string>
+
+    <!-- Transactions ViewModel -->
+    <string name="transactions_view_model_sort_date_desc">Cele mai noi</string>
+    <string name="transactions_view_model_sort_date_asc">Cele mai vechi</string>
+    <string name="transactions_view_model_sort_amount_desc">Cele mai scumpe</string>
+    <string name="transactions_view_model_sort_amount_asc">Cele mai ieftine</string>
+    <string name="transactions_view_model_type_expense">Cheltuială</string>
+    <string name="transactions_view_model_type_income">Venit</string>
+    <string name="transactions_view_model_subcat_others">Altele</string>
+
+    <!-- Budget Progress Model -->
+    <string name="budget_progress_status_wealthy">Prosper</string>
+    <string name="budget_progress_status_blooming">Înfloritor</string>
+    <string name="budget_progress_status_healthy">Sănătos</string>
+    <string name="budget_progress_status_needs_care">Necesită atenție</string>
+    <string name="budget_progress_status_withered">Ofulit</string>
+
+    <!-- Transaction Model -->
+    <string name="transaction_subcat_others">Altele</string>
+
+    <!-- Transaction Category Model -->
+    <string name="transaction_category_food">Alimentație</string>
+    <string name="transaction_category_transport">Transport</string>
+    <string name="transaction_category_housing">Locuință</string>
+    <string name="transaction_category_health">Sănătate</string>
+    <string name="transaction_category_entertainment">Divertisment</string>
+    <string name="transaction_category_salary">Salariu &amp; Numerar</string>
+    <string name="transaction_category_subscriptions">Abonamente</string>
+    <string name="transaction_category_transfers">Transferuri</string>
+    <string name="transaction_category_services">Servicii</string>
+    <string name="transaction_category_shopping">Cumpărături</string>
+    <string name="transaction_category_travel">Călătorii</string>
+    <string name="transaction_category_government">Servicii Stat</string>
+    <string name="transaction_category_education">Educație</string>
+    <string name="transaction_category_others">Altele</string>
+
+    <!-- Stats Period Model -->
+    <string name="stats_period_week">Săptămână</string>
+    <string name="stats_period_month">Lună</string>
+    <string name="stats_period_quarter">3 luni</string>
+    <string name="stats_period_all">Tot timpul</string>
+    <string name="stats_period_custom">Calendar</string>
+
+    <!-- Bank Provider Info Model -->
+    <string name="bank_provider_info_mono_name">Monobank</string>
+    <string name="bank_provider_info_wise_name">Wise</string>
+    <string name="bank_provider_info_wise_subtitle">Multi-valută Global</string>
+    <string name="bank_provider_info_wallet_name">Google Wallet</string>
+    <string name="bank_provider_info_wallet_subtitle">Notificări NFC</string>
+
+    <!-- European Provider Model -->
+    <string name="european_provider_revolut">Revolut</string>
+    <string name="european_provider_revolut_country">Global / UE</string>
+    <string name="european_provider_db">Deutsche Bank</string>
+    <string name="european_provider_db_country">Germania</string>
+    <string name="european_provider_santander">Santander</string>
+    <string name="european_provider_santander_country">Spania</string>
+    <string name="european_provider_bnp">BNP Paribas</string>
+    <string name="european_provider_bnp_country">Franța</string>
+    <string name="european_provider_bt">Banca Transilvania</string>
+    <string name="european_provider_bt_country">România</string>
+    <string name="european_provider_biz">Business Hub</string>
+    <string name="european_provider_biz_country">EU Business</string>
+
+    <!-- MCC Directory (Subcategories) -->
+    <string name="mcc_directory_vet">Servicii Veterinare</string>
+    <string name="mcc_directory_agro">Cooperative Agricole</string>
+    <string name="mcc_directory_landscaping">Servicii Peisagistică</string>
+    <string name="mcc_directory_contractors">Antreprenori Generali</string>
+    <string name="mcc_directory_plumbing">Încălzire și Instalații</string>
+    <string name="mcc_directory_electrical">Lucrări Electrice</string>
+    <string name="mcc_directory_construction">Lucrări Construcții</string>
+    <string name="mcc_directory_special_contractors">Antreprenori Specializați</string>
+    <string name="mcc_directory_printing">Servicii Tipografie</string>
+    <string name="mcc_directory_cleaning">Servicii Curățenie</string>
+    <string name="mcc_directory_railway_cargo">Cale Ferată (Marfă)</string>
+    <string name="mcc_directory_public_transport">Transport Public</string>
+    <string name="mcc_directory_railway_passenger">Cale Ferată (Pasageri)</string>
+    <string name="mcc_directory_taxi">Taxi și Limuzine</string>
+    <string name="mcc_directory_bus">Linii Autobuz</string>
+    <string name="mcc_directory_courier">Servicii Curierat</string>
+    <string name="mcc_directory_cruises">Linii Croazieră</string>
+    <string name="mcc_directory_airlines">Linii Aeriene</string>
+    <string name="mcc_directory_airports">Aeroporturi</string>
+    <string name="mcc_directory_travel_agencies">Agenții Turism</string>
+    <string name="mcc_directory_tolls">Taxe Drum și Poduri</string>
+    <string name="mcc_directory_comm_equipment">Echipamente Comunicații</string>
+    <string name="mcc_directory_mobile">Servicii Mobile</string>
+    <string name="mcc_directory_it_services">Servicii IT</string>
+    <string name="mcc_directory_wire_transfers">Transferuri Bani</string>
+    <string name="mcc_directory_tv_radio">Servicii TV și Radio</string>
+    <string name="mcc_directory_utilities">Utilități</string>
+    <string name="mcc_directory_auto_goods">Produse Auto</string>
+    <string name="mcc_directory_computers_sw">Calculatoare și Software</string>
+    <string name="mcc_directory_jewelry">Bijuterii</string>
+    <string name="mcc_directory_pharmacy_goods">Produse Farmaceutice</string>
+    <string name="mcc_directory_books_news">Cărți și Ziare</string>
+    <string name="mcc_directory_building_materials">Materiale Construcții</string>
+    <string name="mcc_directory_garden">Grădină și Plante</string>
+    <string name="mcc_directory_discount_stores">Magazine Discount</string>
+    <string name="mcc_directory_department_stores">Magazine Universale</string>
+    <string name="mcc_directory_low_price_stores">Magazine cu Prețuri Mici</string>
+    <string name="mcc_directory_supermarkets">Supermarket-uri</string>
+    <string name="mcc_directory_confectionery">Cofetării</string>
+    <string name="mcc_directory_bakeries">Brătării și Patiserii</string>
+    <string name="mcc_directory_groceries">Produse Alimentare</string>
+    <string name="mcc_directory_car_sales">Vânzări Auto</string>
+    <string name="mcc_directory_auto_parts">Piese Auto</string>
+    <string name="mcc_directory_gas_station">Benzinărie</string>
+    <string name="mcc_directory_gas_automated">Benzinărie (Automat)</string>
+    <string name="mcc_directory_mens_clothing">Îmbrăcăminte Bărbați</string>
+    <string name="mcc_directory_womens_clothing">Îmbrăcăminte Femei</string>
+    <string name="mcc_directory_kids_clothing">Îmbrăcăminte Copii</string>
+    <string name="mcc_directory_family_clothing">Îmbrăcăminte Familie</string>
+    <string name="mcc_directory_shoes">Încălțăminte</string>
+    <string name="mcc_directory_furniture">Mobilă</string>
+    <string name="mcc_directory_appliances">Electrocasnice</string>
+    <string name="mcc_directory_electronics">Electronice</string>
+    <string name="mcc_directory_catering">Catering</string>
+    <string name="mcc_directory_restaurants">Restaurante</string>
+    <string name="mcc_directory_bars_clubs">Baruri și Cluburi</string>
+    <string name="mcc_directory_fastfood">Fast Food</string>
+    <string name="mcc_directory_pharmacy">Farmacii</string>
+    <string name="mcc_directory_liquor_stores">Magazine de Alcool</string>
+    <string name="mcc_directory_sporting_goods">Articole Sportive</string>
+    <string name="mcc_directory_book_stores">Librării</string>
+    <string name="mcc_directory_toys_hobby">Jucării și Hobby</string>
+    <string name="mcc_directory_cosmetics">Cosmetice</string>
+    <string name="mcc_directory_pet_shops">Pet Shop-uri</string>
+    <string name="mcc_directory_cash_desk">Numerar (Casierie)</string>
+    <string name="mcc_directory_atm">Numerar (ATM)</string>
+    <string name="mcc_directory_card_topup">Alimentare Card</string>
+    <string name="mcc_directory_hotels">Hoteluri și Moteluri</string>
+    <string name="mcc_directory_barber">Frizerii</string>
+    <string name="mcc_directory_spa">Saloane SPA</string>
+    <string name="mcc_directory_car_rental">Închirieri Auto</string>
+    <string name="mcc_directory_car_wash">Spălătorie Auto</string>
+    <string name="mcc_directory_cinema">Cinematografe</string>
+    <string name="mcc_directory_fitness">Cluburi Fitness</string>
+    <string name="mcc_directory_doctors">Doctori</string>
+    <string name="mcc_directory_dentists">Stomatologi</string>
+    <string name="mcc_directory_schools">Școli</string>
+    <string name="mcc_directory_universities">Universități</string>
+    <string name="mcc_directory_charity">Caritate</string>
+    <string name="mcc_directory_fines">Amenzi</string>
+    <string name="mcc_directory_taxes">Taxe</string>
+    <string name="mcc_directory_gov_services">Servicii Guvernamentale</string>
+    <string name="mcc_directory_post_services">Servicii Poștale</string>
+    <string name="mcc_directory_others">Altele</string>
+
+    <!-- Monobank Service -->
+    <string name="monobank_service_card_format">Card %1$s %2$s</string>
+    <string name="monobank_service_jar_format">Economii (Jar): %s</string>
+    <string name="monobank_service_limit_exceeded">BANCĂ: Limită depășită!</string>
+    <string name="monobank_service_pause_history">Istoric voluminos… Pauză %d s</string>
+
+    <!-- Wise Service -->
+    <string name="wise_service_account_name_format">Wise %s</string>
+
+    <!-- Global Sync Worker -->
+    <string name="global_sync_worker_notif_title">Limită depășită: %1$s</string>
+    <string name="global_sync_worker_notif_message">Ai cheltuit %1$d din %2$d %3$s planificați</string>
+
+    <!-- Financial Predictions (Constants) -->
+    <string name="constants_prediction_1">Cheltuielile mici sunt ca niște scurgeri mici într-o navă – o pot scufunda. Atenție la categoria „Altele” astăzi!</string>
+    <string name="constants_prediction_2">Copacul tău financiar iubește consecvența. Adaugă o tranzacție manuală pentru numerarul cheltuit astăzi.</string>
+    <string name="constants_prediction_3">Astăzi este o zi excelentă pentru a vedea progresul „Visului” tău. Ești mai aproape decât crezi!</string>
+    <string name="constants_prediction_4">Cea mai bună metodă de a economisi bani este să nu-i cheltuiești. Provocare: Zero cheltuieli pe pofte astăzi!</string>
+    <string name="constants_prediction_5">Un buget îi spune banilor tăi unde să meargă, în loc să te întrebi unde s-au dus. Verifică-ți limitele.</string>
+    <string name="constants_prediction_6">Investește în viitorul tău. „Pragul tău de siguranță” este cel mai bun prieten al tău.</string>
+    <string name="constants_prediction_7">Liniștea financiară nu înseamnă acumularea de lucruri. Înseamnă să înveți să trăiești cu mai puțin decât câștigi.</string>
+    <string name="constants_prediction_8">Viitorul tu îți va mulțumi pentru cafeaua pe care nu ai cumpărat-o astăzi. Adaugă acei bani la Visul tău!</string>
+    <string name="constants_prediction_9">Scopul este să fii bogat, nu să pară că ești bogat. Respectă-ți planul financiar.</string>
+    <string name="constants_prediction_10">Un copac înflorit începe cu o singură picătură de apă. Fiecare bănuț contează astăzi.</string>
+
+    <!-- Export Manager Component -->
+    <string name="export_manager_pdf_statement">Extras de Cont</string>
+    <string name="export_manager_pdf_generated">Generat la: %s</string>
+    <string name="export_manager_pdf_summary">Rezumat</string>
+    <string name="export_manager_pdf_total_income">Venit Total: +%s</string>
+    <string name="export_manager_pdf_total_expenses">Cheltuieli Totale: -%s</string>
+    <string name="export_manager_table_date">Data</string>
+    <string name="export_manager_table_description">Descriere</string>
+    <string name="export_manager_table_category">Categorie</string>
+    <string name="export_manager_table_amount">Sumă</string>
+    <string name="export_manager_csv_summary_header">REZUMAT FINCENTRA</string>
+    <string name="export_manager_csv_label_income">Venit Total</string>
+    <string name="export_manager_csv_label_expenses">Cheltuieli Totale</string>
+    <string name="export_manager_csv_col_currency">Valută</string>
+    <string name="export_manager_csv_col_type">Tip</string>
+    <string name="export_manager_type_expense">Cheltuială</string>
+    <string name="export_manager_type_income">Venit</string>
+</resources>

@@ -38,13 +38,13 @@ fun BalanceCard(summary: CurrencySummary) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = stringResource(R.string.profile_total_balance, symbol),
+                text = stringResource(R.string.balance_card_total_label, symbol),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "${String.format("%.2f", summary.balance)} $symbol",
+                text = stringResource(R.string.balance_card_amount_format, summary.balance, symbol),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Black,
                 color = MaterialTheme.colorScheme.onSurface

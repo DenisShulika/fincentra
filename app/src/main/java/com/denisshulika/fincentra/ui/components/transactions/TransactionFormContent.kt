@@ -49,8 +49,8 @@ fun TransactionFormContent(viewModel: TransactionsViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = if (editingId == null) stringResource(R.string.transaction_new_title) else stringResource(
-                R.string.transaction_edit_title
+            text = if (editingId == null) stringResource(R.string.transaction_form_title_new) else stringResource(
+                R.string.transaction_form_title_edit
             ),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Black,
@@ -62,7 +62,7 @@ fun TransactionFormContent(viewModel: TransactionsViewModel) {
         OutlinedTextField(
             value = amount,
             onValueChange = { viewModel.onAmountChange(it) },
-            label = { Text(stringResource(R.string.transaction_label_amount)) },
+            label = { Text(stringResource(R.string.transaction_form_label_amount)) },
             suffix = {
                 Text(
                     text = CurrencyMapper.getSymbol(selectedCurrency),
@@ -88,7 +88,7 @@ fun TransactionFormContent(viewModel: TransactionsViewModel) {
         OutlinedTextField(
             value = description,
             onValueChange = { viewModel.onDescriptionChange(it) },
-            label = { Text(stringResource(R.string.transaction_label_desc)) },
+            label = { Text(stringResource(R.string.transaction_form_label_description)) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             singleLine = true
@@ -97,7 +97,7 @@ fun TransactionFormContent(viewModel: TransactionsViewModel) {
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = stringResource(R.string.tx_category_label),
+            text = stringResource(R.string.transaction_form_label_category_header),
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.align(Alignment.Start),
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -130,7 +130,12 @@ fun TransactionFormContent(viewModel: TransactionsViewModel) {
         SingleChoiceSegmentedButtonRow(
             modifier = Modifier.fillMaxWidth()
         ) {
-            viewModel.expenseOptions.forEachIndexed { index, resId ->
+            for (index in viewModel.expenseOptions.indices) {
+                val labelText = stringResource(
+                    if (index == 0) R.string.transaction_form_type_expense
+                    else R.string.transaction_form_type_income
+                )
+
                 SegmentedButton(
                     shape = SegmentedButtonDefaults.itemShape(
                         index = index,
@@ -140,7 +145,7 @@ fun TransactionFormContent(viewModel: TransactionsViewModel) {
                     selected = if (index == 0) isExpense else !isExpense,
                     label = {
                         Text(
-                            text = stringResource(resId),
+                            text = labelText,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -159,8 +164,8 @@ fun TransactionFormContent(viewModel: TransactionsViewModel) {
             enabled = amount.isNotBlank()
         ) {
             Text(
-                text = if (editingId == null) stringResource(R.string.transaction_btn_save) else stringResource(
-                    R.string.transaction_btn_update
+                text = if (editingId == null) stringResource(R.string.transaction_form_btn_save) else stringResource(
+                    R.string.transaction_form_btn_update
                 ),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold

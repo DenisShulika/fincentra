@@ -32,6 +32,7 @@ class AiViewModel : ViewModel() {
                 "uk" -> "Ukrainian"
                 "pl" -> "Polish"
                 "de" -> "German"
+                "ro" -> "Romanian"
                 else -> "English"
             }
 

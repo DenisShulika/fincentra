@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -65,9 +66,9 @@ import com.denisshulika.fincentra.ui.components.BalanceFlowCard
 import com.denisshulika.fincentra.ui.components.BudgetProgressItem
 import com.denisshulika.fincentra.ui.components.DynamicWeatherOverlay
 import com.denisshulika.fincentra.ui.components.HealthBadge
-import com.denisshulika.fincentra.ui.components.PredictionCoin
 import com.denisshulika.fincentra.ui.components.TransactionDetailSheet
 import com.denisshulika.fincentra.ui.components.TransactionItem
+import com.denisshulika.fincentra.ui.components.home.PredictionCoin
 import com.denisshulika.fincentra.viewmodels.AiViewModel
 import com.denisshulika.fincentra.viewmodels.BudgetsViewModel
 import com.denisshulika.fincentra.viewmodels.DreamViewModel
@@ -101,7 +102,8 @@ fun HomeScreen(
     val isAiLoading by aiViewModel.isLoading.collectAsStateWithLifecycle()
 
     val user = DependencyProvider.authRepository.auth.currentUser
-    val currentUserName = user?.displayName?.substringBefore(" ") ?: "User"
+    val currentUserName = user?.displayName?.substringBefore(" ")
+        ?: stringResource(R.string.home_screen_user_placeholder)
     val pagerState = rememberPagerState(pageCount = { uiState.currencyData.size })
 
     val infiniteTransition = rememberInfiniteTransition(label = "pulsing")
@@ -115,8 +117,10 @@ fun HomeScreen(
         label = "alpha"
     )
 
+    val context = LocalContext.current
+
     LaunchedEffect(Unit) {
-        settingsViewModel.checkDailyPrediction()
+        settingsViewModel.checkDailyPrediction(context)
     }
 
     val prediction by settingsViewModel.dailyPrediction.collectAsStateWithLifecycle()
@@ -161,12 +165,15 @@ fun HomeScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = stringResource(R.string.home_greeting, currentUserName),
+                                text = stringResource(
+                                    R.string.home_screen_greeting,
+                                    currentUserName
+                                ),
                                 style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.Black
                             )
                             Text(
-                                text = stringResource(R.string.home_status_title),
+                                text = stringResource(R.string.home_screen_status_title),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }
@@ -274,7 +281,7 @@ fun HomeScreen(
 
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = stringResource(R.string.home_ai_title),
+                                        text = stringResource(R.string.home_screen_ai_title),
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.ExtraBold,
                                         color = MaterialTheme.colorScheme.onPrimary
@@ -283,9 +290,9 @@ fun HomeScreen(
                                     Spacer(modifier = Modifier.height(4.dp))
 
                                     val displayMessage = when {
-                                        isAiLoading && aiAdvice.isEmpty() -> stringResource(R.string.ai_loading)
-                                        aiAdvice == "ERROR_STATE" -> stringResource(R.string.ai_error_internet)
-                                        aiAdvice.isEmpty() -> stringResource(R.string.ai_click_prompt)
+                                        isAiLoading && aiAdvice.isEmpty() -> stringResource(R.string.home_screen_ai_loading)
+                                        aiAdvice == "ERROR_STATE" -> stringResource(R.string.home_screen_ai_error_internet)
+                                        aiAdvice.isEmpty() -> stringResource(R.string.home_screen_ai_click_prompt)
                                         else -> aiAdvice
                                     }
 
@@ -305,7 +312,7 @@ fun HomeScreen(
                     item {
                         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                             Text(
-                                text = stringResource(R.string.home_dream_goal),
+                                text = stringResource(R.string.home_screen_dream_goal),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
                             )
@@ -350,7 +357,7 @@ fun HomeScreen(
                                         )
                                         Text(
                                             text = stringResource(
-                                                R.string.dream_collected_percentage,
+                                                R.string.home_screen_dream_collected_percentage,
                                                 (progressData.progress * 100).toInt()
                                             ),
                                             style = MaterialTheme.typography.bodyMedium,
@@ -380,12 +387,12 @@ fun HomeScreen(
                                 verticalAlignment = Alignment.Bottom
                             ) {
                                 Text(
-                                    text = stringResource(R.string.home_critical_limits),
+                                    text = stringResource(R.string.home_screen_critical_limits),
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = stringResource(R.string.home_all_limits),
+                                    text = stringResource(R.string.home_screen_all_limits),
                                     modifier = Modifier.clickable { onNavigateToBudgets() },
                                     color = MaterialTheme.colorScheme.primary,
                                     style = MaterialTheme.typography.labelLarge
@@ -408,7 +415,10 @@ fun HomeScreen(
                                 .padding(horizontal = 16.dp)
                         ) {
                             Text(
-                                text = "Upcoming Bills (${upcomingSubs.size})",
+                                text = stringResource(
+                                    R.string.home_screen_upcoming_bills,
+                                    upcomingSubs.size
+                                ),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
                             )
@@ -440,7 +450,11 @@ fun HomeScreen(
                                             val days =
                                                 ((sub.nextPaymentDate - System.currentTimeMillis()) / (1000 * 60 * 60 * 24)).toInt()
                                             val daysText =
-                                                if (days <= 0) "Today" else "In $days days"
+                                                if (days <= 0) stringResource(R.string.home_screen_sub_today)
+                                                else stringResource(
+                                                    R.string.home_screen_sub_in_days,
+                                                    days
+                                                )
 
                                             Text(
                                                 text = daysText,
@@ -471,12 +485,12 @@ fun HomeScreen(
                             verticalAlignment = Alignment.Bottom
                         ) {
                             Text(
-                                text = stringResource(R.string.home_recent_tx),
+                                text = stringResource(R.string.home_screen_recent_transactions),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = stringResource(R.string.home_view_all),
+                                text = stringResource(R.string.home_screen_view_all),
                                 modifier = Modifier.clickable { onNavigateToTransactions() },
                                 color = MaterialTheme.colorScheme.primary,
                                 style = MaterialTheme.typography.labelLarge
@@ -486,7 +500,7 @@ fun HomeScreen(
                         val lastThree = transactions.take(3)
                         if (lastThree.isEmpty()) {
                             Text(
-                                text = stringResource(R.string.home_no_transactions),
+                                text = stringResource(R.string.home_screen_no_transactions),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 16.dp),

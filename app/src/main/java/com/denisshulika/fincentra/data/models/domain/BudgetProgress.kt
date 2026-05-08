@@ -17,12 +17,12 @@ data class BudgetProgress(
             else -> R.drawable.img_tree_dead
         }
 
-    val statusMessage: String
+    val statusRes: Int
         get() = when {
-            progress <= 0.2f -> "Wealthy"
-            progress <= 0.5f -> "Blooming"
-            progress <= 0.8f -> "Healthy"
-            progress < 1.0f -> "Needs care"
-            else -> "Withered"
+            progress <= 0.2f -> R.string.budget_progress_status_wealthy
+            progress <= 0.5f -> R.string.budget_progress_status_blooming
+            progress <= 0.8f -> R.string.budget_progress_status_healthy
+            progress < 1.0f -> R.string.budget_progress_status_needs_care
+            else -> R.string.budget_progress_status_withered
         }
 }

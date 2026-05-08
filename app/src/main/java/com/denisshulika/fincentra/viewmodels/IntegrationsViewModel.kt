@@ -12,7 +12,6 @@ import com.denisshulika.fincentra.data.models.events.IntegrationsUiEvent
 import com.denisshulika.fincentra.data.models.ui.BankProviderInfo
 import com.denisshulika.fincentra.data.models.ui.EuropeanDemoBanks
 import com.denisshulika.fincentra.data.models.ui.EuropeanProvider
-import com.denisshulika.fincentra.data.network.wise.WiseService
 import com.denisshulika.fincentra.data.repository.SaltEdgeRepository
 import com.denisshulika.fincentra.data.util.BankProviders
 import com.denisshulika.fincentra.data.util.DeepLinkHandler
@@ -32,7 +31,7 @@ class IntegrationsViewModel : ViewModel() {
     private val financeRepository = DependencyProvider.financeRepository
     private val monobankService = DependencyProvider.monobankProvider
     private val saltEdgeRepo = SaltEdgeRepository()
-    private val wiseService = WiseService()
+    private val wiseService = DependencyProvider.wiseService
 
     private val _isMonoLoading = MutableStateFlow(false)
     val isMonoLoading = _isMonoLoading.asStateFlow()
@@ -220,7 +219,7 @@ class IntegrationsViewModel : ViewModel() {
                 val accountsToSync = actualAccounts.filter { selectedIds.contains(it.id) }
 
                 if (accountsToSync.isEmpty()) {
-                    _events.emit(IntegrationsUiEvent.ShowToast(R.string.error_no_accounts_selected))
+                    _events.emit(IntegrationsUiEvent.ShowToast(R.string.integrations_view_model_error_no_accounts))
                     delay(2000)
                 } else {
                     for ((index, account) in accountsToSync.withIndex()) {
@@ -302,7 +301,7 @@ class IntegrationsViewModel : ViewModel() {
                     _showAccountSelection.value = true
                 }
             } catch (e: Exception) {
-                _events.emit(IntegrationsUiEvent.ShowToast(R.string.error_token_invalid))
+                _events.emit(IntegrationsUiEvent.ShowToast(R.string.integrations_view_model_error_token_invalid))
             } finally {
                 _isMonoLoading.value = false
             }
@@ -318,7 +317,7 @@ class IntegrationsViewModel : ViewModel() {
             val selectedForMono = _selectedIdsInUi.value.filter { monoAccountIds.contains(it) }
 
             if (selectedForMono.isEmpty()) {
-                _events.emit(IntegrationsUiEvent.ShowToast(R.string.error_no_accounts_selected))
+                _events.emit(IntegrationsUiEvent.ShowToast(R.string.integrations_view_model_error_no_accounts))
                 _isMonoLoading.value = false
                 return@launch
             }
@@ -349,7 +348,7 @@ class IntegrationsViewModel : ViewModel() {
 
                     financeRepository.saveAccounts(mergedAccounts, updateSelection = false)
                     _availableAccounts.value = mergedAccounts
-                    _events.emit(IntegrationsUiEvent.ShowToast(R.string.success_updated))
+                    _events.emit(IntegrationsUiEvent.ShowToast(R.string.integrations_view_model_success_updated))
                 }
                 waitForApiCooldown(60)
             } finally {
@@ -380,7 +379,7 @@ class IntegrationsViewModel : ViewModel() {
                 _isBankConnected.value = false
                 _selectedIdsInUi.value = currentSelectedIds.toSet()
                 _selectedBank.value = null
-                _events.emit(IntegrationsUiEvent.ShowToast(R.string.success_updated))
+                _events.emit(IntegrationsUiEvent.ShowToast(R.string.integrations_view_model_success_updated))
             } finally {
                 _isMonoLoading.value = false
                 refreshConnectionStatus()
@@ -409,11 +408,11 @@ class IntegrationsViewModel : ViewModel() {
 
                     syncWiseData(token, accounts)
 
-                    _events.emit(IntegrationsUiEvent.ShowToast(R.string.success_updated))
+                    _events.emit(IntegrationsUiEvent.ShowToast(R.string.integrations_view_model_success_updated))
                     _wiseToken.value = ""
                 }
             } catch (e: Exception) {
-                _events.emit(IntegrationsUiEvent.ShowToast(R.string.error_token_invalid))
+                _events.emit(IntegrationsUiEvent.ShowToast(R.string.integrations_view_model_error_token_invalid))
             } finally {
                 _isWiseLoading.value = false
             }
@@ -453,7 +452,7 @@ class IntegrationsViewModel : ViewModel() {
             val hasSystemAccess = flat?.contains(packageName) == true
 
             if (enabled && !hasSystemAccess) {
-                _events.emit(IntegrationsUiEvent.ShowToast(R.string.error_permission_required))
+                _events.emit(IntegrationsUiEvent.ShowToast(R.string.integrations_view_model_error_permission_required))
                 openNotificationSettings(context)
             } else {
                 settingsRepository.saveWalletSyncEnabled(enabled)
@@ -499,7 +498,7 @@ class IntegrationsViewModel : ViewModel() {
 
                 _selectedIdsInUi.value = currentSelectedIds.toSet()
                 _selectedBank.value = null
-                _events.emit(IntegrationsUiEvent.ShowToast(R.string.success_updated))
+                _events.emit(IntegrationsUiEvent.ShowToast(R.string.integrations_view_model_success_updated))
             } finally {
                 _isWiseLoading.value = false
                 refreshConnectionStatus()
@@ -541,10 +540,10 @@ class IntegrationsViewModel : ViewModel() {
             if (providerInfo != null) {
                 _selectedBank.value = BankProviderInfo(
                     id = providerInfo.id,
-                    name = providerInfo.name,
+                    nameRes = providerInfo.nameRes,
                     logo = R.drawable.ic_launcher_foreground,
                     brandColor = providerInfo.brandColor,
-                    subtitle = providerInfo.countryName
+                    subtitleRes = providerInfo.countryNameRes
                 )
             }
 
@@ -613,7 +612,7 @@ class IntegrationsViewModel : ViewModel() {
 
                 _selectedIdsInUi.value = currentSelectedIds.toSet()
                 _selectedBank.value = null
-                _events.emit(IntegrationsUiEvent.ShowToast(R.string.success_updated))
+                _events.emit(IntegrationsUiEvent.ShowToast(R.string.integrations_view_model_success_updated))
             } finally {
                 _isEuroLoading.value = false
                 refreshConnectionStatus()

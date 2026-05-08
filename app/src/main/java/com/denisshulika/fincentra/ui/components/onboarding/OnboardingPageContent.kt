@@ -62,7 +62,7 @@ fun OnboardingPageContent(
                 Spacer(modifier = Modifier.height(48.dp))
 
                 Text(
-                    text = stringResource(R.string.onboarding_1_title),
+                    text = stringResource(R.string.onboarding_page_content_step1_title),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Black,
                     color = MaterialTheme.colorScheme.onSurface
@@ -72,8 +72,9 @@ fun OnboardingPageContent(
 
                 Text(
                     text = buildAnnotatedString {
-                        val fullText = stringResource(R.string.onboarding_1_desc)
-                        val highlight = stringResource(R.string.onboarding_1_highlight)
+                        val fullText = stringResource(R.string.onboarding_page_content_step1_desc)
+                        val highlight =
+                            stringResource(R.string.onboarding_page_content_step1_highlight)
                         val startIndex = fullText.indexOf(highlight)
 
                         append(fullText)
@@ -99,7 +100,7 @@ fun OnboardingPageContent(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    stringResource(R.string.onboarding_2_title),
+                    stringResource(R.string.onboarding_page_content_step2_title),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Black,
                     color = MaterialTheme.colorScheme.onSurface
@@ -109,8 +110,9 @@ fun OnboardingPageContent(
 
                 Text(
                     text = buildAnnotatedString {
-                        val fullText = stringResource(R.string.onboarding_2_desc)
-                        val highlight = stringResource(R.string.onboarding_2_highlight)
+                        val fullText = stringResource(R.string.onboarding_page_content_step2_desc)
+                        val highlight =
+                            stringResource(R.string.onboarding_page_content_step2_highlight)
                         val startIndex = fullText.indexOf(highlight)
                         append(fullText)
                         if (startIndex != -1) {
@@ -150,7 +152,7 @@ fun OnboardingPageContent(
                 Spacer(modifier = Modifier.height(48.dp))
 
                 Text(
-                    stringResource(R.string.onboarding_3_title),
+                    stringResource(R.string.onboarding_page_content_step3_title),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Black,
                     color = MaterialTheme.colorScheme.onSurface
@@ -160,8 +162,9 @@ fun OnboardingPageContent(
 
                 Text(
                     text = buildAnnotatedString {
-                        val fullText = stringResource(R.string.onboarding_3_desc)
-                        val highlight = stringResource(R.string.onboarding_3_highlight)
+                        val fullText = stringResource(R.string.onboarding_page_content_step3_desc)
+                        val highlight =
+                            stringResource(R.string.onboarding_page_content_step3_highlight)
                         val startIndex = fullText.indexOf(highlight)
                         append(fullText)
                         if (startIndex != -1) {

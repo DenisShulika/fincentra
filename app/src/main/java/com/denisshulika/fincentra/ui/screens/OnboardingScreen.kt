@@ -47,7 +47,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             ) {
                 TextButton(onClick = onFinish) {
                     Text(
-                        text = stringResource(R.string.btn_skip),
+                        text = stringResource(R.string.onboarding_screen_btn_skip),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
@@ -80,8 +80,9 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                     contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
                 ) {
                     Text(
-                        text = if (pagerState.currentPage == 2) stringResource(R.string.btn_start) else stringResource(
-                            R.string.btn_next
+
+                        text = if (pagerState.currentPage == 2) stringResource(R.string.onboarding_screen_btn_start) else stringResource(
+                            R.string.onboarding_screen_btn_next
                         ),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
