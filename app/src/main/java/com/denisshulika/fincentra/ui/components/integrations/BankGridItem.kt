@@ -79,7 +79,7 @@ fun BankGridItem(
                     fontWeight = FontWeight.Bold,
                     color = if (isConnected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                 )
-                if (stringResource(bank.nameRes).isNotBlank()) {
+                if (bank.subtitleRes != 0) {
                     Text(
                         text = stringResource(bank.subtitleRes),
                         style = MaterialTheme.typography.labelSmall,

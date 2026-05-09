@@ -47,11 +47,7 @@ object TransactionFilterEngine {
 
     private fun List<Transaction>.filterByBank(bank: String) = filter {
         if (bank == FilterConstants.ALL) true
-        else if (bank == TransactionConstants.SOURCE_CASH) {
-            it.bankName == "Cash" || it.bankName == "Готівка"
-        } else {
-            it.bankName == bank
-        }
+        else it.bankName == bank
     }
 
     private fun List<Transaction>.filterByType(type: String) = filter {

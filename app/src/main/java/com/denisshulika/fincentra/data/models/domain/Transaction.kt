@@ -13,17 +13,11 @@ data class Transaction(
     val timestamp: Long = 0L,
     val category: TransactionCategory = TransactionCategory.OTHERS,
     val bankName: String = TransactionConstants.SOURCE_CASH,
-
-    @get:PropertyName("isExpense")
-    @set:PropertyName("isExpense")
     var isExpense: Boolean = true,
-
     val mcc: Int? = null,
     val note: String? = null,
     val balance: Double? = null,
     val comment: String? = null,
-
     val subCategoryRes: Int = R.string.transaction_subcat_others,
-
     val sourceType: String = "MANUAL"
 )

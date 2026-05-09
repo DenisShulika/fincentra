@@ -328,7 +328,6 @@ class IntegrationsViewModel : ViewModel() {
 
             settingsRepository.saveSelectedAccountIds(allSelectedIds)
             syncMonobankData()
-            _selectedBank.value = null
             _isMonoLoading.value = false
         }
     }
@@ -366,19 +365,15 @@ class IntegrationsViewModel : ViewModel() {
                 val monoAccountIds =
                     allAccounts.filter { it.provider == BankProviders.MONOBANK }.map { it.id }
 
-                // 2. Оновлюємо глобальний список вибраних ID
                 val currentSelectedIds = settingsRepository.getSelectedAccountIds().toMutableList()
                 currentSelectedIds.removeAll { monoAccountIds.contains(it) }
                 settingsRepository.saveSelectedAccountIds(currentSelectedIds)
 
-                // 3. Очищуємо токен та видаляємо акаунти з БД
                 settingsRepository.saveMonobankApiToken(null)
                 financeRepository.deleteMonobankAccounts()
 
-                // 4. Оновлюємо стани UI
                 _isBankConnected.value = false
                 _selectedIdsInUi.value = currentSelectedIds.toSet()
-                _selectedBank.value = null
                 _events.emit(IntegrationsUiEvent.ShowToast(R.string.integrations_view_model_success_updated))
             } finally {
                 _isMonoLoading.value = false
@@ -439,7 +434,6 @@ class IntegrationsViewModel : ViewModel() {
             settingsRepository.saveSelectedAccountIds(allSelectedIds)
             financeRepository.saveAccounts(currentList, updateSelection = true)
 
-            _selectedBank.value = null
             _isWiseLoading.value = false
         }
     }
@@ -497,7 +491,6 @@ class IntegrationsViewModel : ViewModel() {
                 financeRepository.deleteAccountsByProvider(BankProviders.WISE)
 
                 _selectedIdsInUi.value = currentSelectedIds.toSet()
-                _selectedBank.value = null
                 _events.emit(IntegrationsUiEvent.ShowToast(R.string.integrations_view_model_success_updated))
             } finally {
                 _isWiseLoading.value = false
@@ -591,7 +584,6 @@ class IntegrationsViewModel : ViewModel() {
             })
 
             settingsRepository.saveSelectedAccountIds(currentAllSelected)
-            _selectedBank.value = null
             _isEuroLoading.value = false
         }
     }
@@ -611,7 +603,6 @@ class IntegrationsViewModel : ViewModel() {
                 financeRepository.deleteAccountsByProvider(providerId)
 
                 _selectedIdsInUi.value = currentSelectedIds.toSet()
-                _selectedBank.value = null
                 _events.emit(IntegrationsUiEvent.ShowToast(R.string.integrations_view_model_success_updated))
             } finally {
                 _isEuroLoading.value = false

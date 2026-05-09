@@ -94,7 +94,10 @@ fun IntegrationsScreen(
                 FinCentraTopBar(
                     title = stringResource(R.string.integrations_screen_title),
                     isTopLevelScreen = false,
-                    onNavigationClick = onBack
+                    onNavigationClick = {
+                        viewModel.closeBankDetails()
+                        onBack()
+                    }
                 )
             }
         ) { innerPadding ->
