@@ -81,7 +81,7 @@ fun BudgetProgressItem(
                     Text(
                         text = category?.let { stringResource(it.displayNameRes) }
                             ?: item.budget.categoryName,
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.ExtraBold
                     )
                     Text(

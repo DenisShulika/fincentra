@@ -36,6 +36,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,6 +55,7 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.models.domain.BankAccount
@@ -76,24 +78,6 @@ fun BankDetailsContent(
 
     val isMonobank = bank.id == BankProviders.MONOBANK
     val isWise = bank.id == BankProviders.WISE
-
-    val isLoading by when {
-        isMonobank -> viewModel.isMonoLoading
-        isWise -> viewModel.isWiseLoading
-        else -> viewModel.isEuroLoading
-    }.collectAsStateWithLifecycle()
-
-    val syncStatus by when {
-        isMonobank -> viewModel.monoSyncStatus
-        isWise -> viewModel.wiseSyncStatus
-        else -> viewModel.euroSyncStatus
-    }.collectAsStateWithLifecycle()
-
-    val syncProgress by when {
-        isMonobank -> viewModel.monoSyncProgress
-        isWise -> viewModel.wiseSyncProgress
-        else -> viewModel.euroSyncProgress
-    }.collectAsStateWithLifecycle()
 
     val bankAccounts = accounts.filter { it.provider == bank.id }
     val isAlreadyConnected = bankAccounts.isNotEmpty()
@@ -118,7 +102,10 @@ fun BankDetailsContent(
                 fontWeight = FontWeight.Black,
                 modifier = Modifier.weight(1f)
             )
-            IconButton(onClick = { viewModel.closeBankDetails() }) {
+            IconButton(
+                modifier = Modifier.zIndex(1f),
+                onClick = { viewModel.closeBankDetails() }
+            ) {
                 Icon(
                     Icons.Default.Close,
                     contentDescription = stringResource(R.string.bank_details_content_close_desc)
@@ -126,24 +113,18 @@ fun BankDetailsContent(
             }
         }
 
-        if (syncStatus.isNotBlank()) {
-            SyncStatusBlock(syncStatus, syncProgress)
-        }
-
-        Spacer(Modifier.height(24.dp))
-
         if (!isAlreadyConnected) {
             when (bank.id) {
                 BankProviders.GOOGLE_WALLET -> WalletSetupContent(viewModel, context)
-                BankProviders.MONOBANK -> MonobankSetupContent(viewModel, monoToken, isLoading)
-                BankProviders.WISE -> WiseSetupContent(viewModel, wiseToken, isLoading)
-                else -> EuropeanSetupContent(viewModel, bank, isLoading, syncStatus)
+                BankProviders.MONOBANK -> MonobankSetupContent(viewModel, monoToken)
+                BankProviders.WISE -> WiseSetupContent(viewModel, wiseToken)
+                else -> EuropeanSetupContent(viewModel, bank)
             }
         } else {
             when {
-                isMonobank -> MonobankConnectedContent(viewModel, bankAccounts, isLoading)
-                isWise -> WiseConnectedContent(viewModel, bankAccounts, isLoading)
-                else -> EuropeanConnectedContent(viewModel, bank, bankAccounts, isLoading)
+                isMonobank -> MonobankConnectedContent(viewModel, bankAccounts)
+                isWise -> WiseConnectedContent(viewModel, bankAccounts)
+                else -> EuropeanConnectedContent(viewModel, bank, bankAccounts)
             }
         }
     }
@@ -160,10 +141,12 @@ fun SyncStatusBlock(status: String, progress: Float) {
             R.string.bank_details_content_status_syncing,
             status.removePrefix("SYNCING_ACC:")
         )
+
         status.startsWith("COOLDOWN:") -> stringResource(
             R.string.bank_details_content_status_cooldown,
             status.removePrefix("COOLDOWN:").toIntOrNull() ?: 0
         )
+
         else -> status
     }
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -262,7 +245,9 @@ fun WalletSetupContent(viewModel: IntegrationsViewModel, context: Context) {
 }
 
 @Composable
-fun MonobankSetupContent(viewModel: IntegrationsViewModel, token: String, isLoading: Boolean) {
+fun MonobankSetupContent(viewModel: IntegrationsViewModel, token: String) {
+    val isMonoLoading = viewModel.isMonoLoading.collectAsStateWithLifecycle()
+
     Column {
         val annotatedString = buildAnnotatedString {
             append(stringResource(R.string.bank_details_content_mono_get_access))
@@ -294,10 +279,10 @@ fun MonobankSetupContent(viewModel: IntegrationsViewModel, token: String, isLoad
                 .fillMaxWidth()
                 .padding(top = 24.dp)
                 .height(56.dp),
-            enabled = token.isNotBlank() && !isLoading,
+            enabled = token.isNotBlank() && !isMonoLoading.value,
             shape = RoundedCornerShape(16.dp)
         ) {
-            if (isLoading) CircularProgressIndicator(
+            if (isMonoLoading.value) CircularProgressIndicator(
                 modifier = Modifier.size(20.dp),
                 color = Color.White
             )
@@ -310,7 +295,9 @@ fun MonobankSetupContent(viewModel: IntegrationsViewModel, token: String, isLoad
 }
 
 @Composable
-fun WiseSetupContent(viewModel: IntegrationsViewModel, token: String, isLoading: Boolean) {
+fun WiseSetupContent(viewModel: IntegrationsViewModel, token: String) {
+    val isWiseLoading = viewModel.isWiseLoading.collectAsStateWithLifecycle()
+
     Column {
         Surface(
             color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f),
@@ -350,10 +337,10 @@ fun WiseSetupContent(viewModel: IntegrationsViewModel, token: String, isLoading:
                 .fillMaxWidth()
                 .padding(top = 24.dp)
                 .height(56.dp),
-            enabled = token.isNotBlank() && !isLoading,
+            enabled = token.isNotBlank() && !isWiseLoading.value,
             shape = RoundedCornerShape(16.dp)
         ) {
-            if (isLoading) CircularProgressIndicator(
+            if (isWiseLoading.value) CircularProgressIndicator(
                 modifier = Modifier.size(20.dp),
                 color = Color.White
             )
@@ -368,10 +355,11 @@ fun WiseSetupContent(viewModel: IntegrationsViewModel, token: String, isLoading:
 @Composable
 fun EuropeanSetupContent(
     viewModel: IntegrationsViewModel,
-    bank: BankProviderInfo,
-    isLoading: Boolean,
-    syncStatus: String
+    bank: BankProviderInfo
 ) {
+    val isEuroLoading = viewModel.isEuroLoading.collectAsStateWithLifecycle()
+    val euroSyncStatus = viewModel.euroSyncStatus.collectAsStateWithLifecycle()
+
     Column {
         Text(stringResource(R.string.bank_details_content_euro_setup_desc, bank.nameRes))
         Button(
@@ -383,10 +371,10 @@ fun EuropeanSetupContent(
                 .fillMaxWidth()
                 .padding(top = 32.dp)
                 .height(56.dp),
-            enabled = !isLoading,
+            enabled = !isEuroLoading.value,
             shape = RoundedCornerShape(16.dp)
         ) {
-            if (isLoading && syncStatus.isEmpty()) CircularProgressIndicator(
+            if (isEuroLoading.value && euroSyncStatus.value.isEmpty()) CircularProgressIndicator(
                 modifier = Modifier.size(
                     24.dp
                 ), color = Color.White
@@ -402,9 +390,19 @@ fun EuropeanSetupContent(
 @Composable
 fun MonobankConnectedContent(
     viewModel: IntegrationsViewModel,
-    bankAccounts: List<BankAccount>,
-    isLoading: Boolean
+    bankAccounts: List<BankAccount>
 ) {
+    val isMonoLoading = viewModel.isMonoLoading.collectAsStateWithLifecycle()
+    val monoSyncStatus = viewModel.monoSyncStatus.collectAsState()
+    val monoSyncProgress = viewModel.monoSyncProgress.collectAsState()
+
+
+    if (monoSyncStatus.value.isNotBlank()) {
+        SyncStatusBlock(monoSyncStatus.value, monoSyncProgress.value)
+    }
+
+    Spacer(Modifier.height(24.dp))
+
     Column {
         Surface(
             color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
@@ -438,21 +436,31 @@ fun MonobankConnectedContent(
             fontWeight = FontWeight.Bold
         )
 
-        LazyColumn(modifier = Modifier
-            .weight(1f)
-            .padding(vertical = 8.dp)) {
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .padding(vertical = 8.dp)
+        ) {
             items(bankAccounts) { account ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 6.dp)
-                        .clickable { if (!isLoading) viewModel.toggleAccountSelection(account.id) },
+                        .clickable {
+                            if (!isMonoLoading.value) viewModel.toggleAccountSelection(
+                                account.id
+                            )
+                        },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Checkbox(
                         checked = account.selected,
-                        onCheckedChange = { if (!isLoading) viewModel.toggleAccountSelection(account.id) },
-                        enabled = !isLoading
+                        onCheckedChange = {
+                            if (!isMonoLoading.value) viewModel.toggleAccountSelection(
+                                account.id
+                            )
+                        },
+                        enabled = !isMonoLoading.value
                     )
                     Column {
                         Text(account.name, fontWeight = FontWeight.Bold)
@@ -475,7 +483,7 @@ fun MonobankConnectedContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
-                enabled = !isLoading,
+                enabled = !isMonoLoading.value,
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text(stringResource(R.string.bank_details_content_mono_btn_refresh))
@@ -486,7 +494,7 @@ fun MonobankConnectedContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                enabled = !isLoading,
+                enabled = !isMonoLoading.value,
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
@@ -498,7 +506,7 @@ fun MonobankConnectedContent(
             TextButton(
                 onClick = { viewModel.disconnectMonobank() },
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                enabled = !isLoading
+                enabled = !isMonoLoading.value
             ) {
                 Text(
                     stringResource(R.string.bank_details_content_mono_btn_disconnect),
@@ -512,9 +520,10 @@ fun MonobankConnectedContent(
 @Composable
 fun WiseConnectedContent(
     viewModel: IntegrationsViewModel,
-    bankAccounts: List<BankAccount>,
-    isLoading: Boolean
+    bankAccounts: List<BankAccount>
 ) {
+    val isWiseLoading = viewModel.isWiseLoading.collectAsStateWithLifecycle()
+
     Column {
         Surface(
             color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
@@ -548,21 +557,31 @@ fun WiseConnectedContent(
             fontWeight = FontWeight.Bold
         )
 
-        LazyColumn(modifier = Modifier
-            .weight(1f)
-            .padding(vertical = 8.dp)) {
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .padding(vertical = 8.dp)
+        ) {
             items(bankAccounts) { account ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 6.dp)
-                        .clickable { if (!isLoading) viewModel.toggleAccountSelection(account.id) },
+                        .clickable {
+                            if (!isWiseLoading.value) viewModel.toggleAccountSelection(
+                                account.id
+                            )
+                        },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Checkbox(
                         checked = account.selected,
-                        onCheckedChange = { if (!isLoading) viewModel.toggleAccountSelection(account.id) },
-                        enabled = !isLoading
+                        onCheckedChange = {
+                            if (!isWiseLoading.value) viewModel.toggleAccountSelection(
+                                account.id
+                            )
+                        },
+                        enabled = !isWiseLoading.value
                     )
                     Column {
                         Text(account.name, fontWeight = FontWeight.Bold)
@@ -585,7 +604,7 @@ fun WiseConnectedContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                enabled = !isLoading,
+                enabled = !isWiseLoading.value,
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
@@ -597,7 +616,7 @@ fun WiseConnectedContent(
             TextButton(
                 onClick = { viewModel.disconnectWise() },
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                enabled = !isLoading
+                enabled = !isWiseLoading.value
             ) {
                 Text(
                     stringResource(R.string.bank_details_content_wise_btn_disconnect),
@@ -612,9 +631,10 @@ fun WiseConnectedContent(
 fun EuropeanConnectedContent(
     viewModel: IntegrationsViewModel,
     bank: BankProviderInfo,
-    bankAccounts: List<BankAccount>,
-    isLoading: Boolean
+    bankAccounts: List<BankAccount>
 ) {
+    val isEuroLoading = viewModel.isEuroLoading.collectAsStateWithLifecycle()
+
     Column {
         Surface(
             color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
@@ -648,21 +668,31 @@ fun EuropeanConnectedContent(
             fontWeight = FontWeight.Bold
         )
 
-        LazyColumn(modifier = Modifier
-            .weight(1f)
-            .padding(vertical = 8.dp)) {
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .padding(vertical = 8.dp)
+        ) {
             items(bankAccounts) { account ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 6.dp)
-                        .clickable { if (!isLoading) viewModel.toggleAccountSelection(account.id) },
+                        .clickable {
+                            if (!isEuroLoading.value) viewModel.toggleAccountSelection(
+                                account.id
+                            )
+                        },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Checkbox(
                         checked = account.selected,
-                        onCheckedChange = { if (!isLoading) viewModel.toggleAccountSelection(account.id) },
-                        enabled = !isLoading
+                        onCheckedChange = {
+                            if (!isEuroLoading.value) viewModel.toggleAccountSelection(
+                                account.id
+                            )
+                        },
+                        enabled = !isEuroLoading.value
                     )
                     Column {
                         Text(account.name, fontWeight = FontWeight.Bold)
@@ -685,7 +715,7 @@ fun EuropeanConnectedContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                enabled = !isLoading,
+                enabled = !isEuroLoading.value,
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
@@ -697,7 +727,7 @@ fun EuropeanConnectedContent(
             TextButton(
                 onClick = { viewModel.disconnectEuropeanBank(bank.id) },
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                enabled = !isLoading
+                enabled = !isEuroLoading.value
             ) {
                 Text(
                     stringResource(R.string.bank_details_content_euro_btn_disconnect),

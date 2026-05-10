@@ -86,7 +86,8 @@ fun SubscriptionScreen(viewModel: SubscriptionViewModel, onBack: () -> Unit) {
             Box(
                 Modifier
                     .fillMaxSize()
-                    .padding(innerPadding), contentAlignment = Alignment.Center) {
+                    .padding(innerPadding), contentAlignment = Alignment.Center
+            ) {
                 Text(
                     stringResource(R.string.subscription_screen_empty),
                     color = MaterialTheme.colorScheme.onSurfaceVariant

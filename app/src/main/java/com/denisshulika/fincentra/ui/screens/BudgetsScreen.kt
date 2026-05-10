@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -72,15 +71,12 @@ fun BudgetsScreen(
             }
         }
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .imePadding()
         ) {
             if (budgets.isEmpty()) {
-                BudgetsInfoCard()
-
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -99,16 +95,27 @@ fun BudgetsScreen(
                         Text(
                             text = stringResource(R.string.budgets_screen_empty_title),
                             style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = stringResource(R.string.budgets_screen_empty_desc),
                             style = MaterialTheme.typography.bodyLarge,
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
+
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.TopCenter)
+                ) {
+                    BudgetsInfoCard()
+                }
+
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -118,7 +125,10 @@ fun BudgetsScreen(
                     item {
                         BudgetsInfoCard()
                     }
-                    items(budgets) { item ->
+                    items(
+                        items = budgets,
+                        key = { it.budget.id }
+                    ) { item ->
                         BudgetProgressItem(
                             item = item,
                             onClick = { viewModel.prepareForEdit(item.budget) }

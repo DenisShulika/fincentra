@@ -197,104 +197,89 @@ class IntegrationsViewModel : ViewModel() {
         _monoSyncProgress.value = 1f
     }
 
-    private fun syncMonobankData() {
-        viewModelScope.launch {
-            if (_isMonoLoading.value && _monoSyncStatus.value.isNotEmpty()) return@launch
-            _isMonoLoading.value = true
-            _monoSyncProgress.value = 0f
-            var needsCooldown = false
+    private suspend fun syncMonobankData() {
+        if (_monoSyncStatus.value.isNotEmpty()) return
 
-            try {
-                val token = settingsRepository.getMonobankApiToken() ?: return@launch
+        _monoSyncProgress.value = 0f
+        var needsCooldown = false
 
-                _monoSyncStatus.value = "UPDATING_BALANCES"
-                val actualAccounts = monobankService.fetchAccounts(token)
-                needsCooldown = true
+        try {
+            val token = settingsRepository.getMonobankApiToken() ?: return
+            _monoSyncStatus.value = "UPDATING_BALANCES"
+            val actualAccounts = monobankService.fetchAccounts(token)
+            needsCooldown = true
 
-                if (actualAccounts.isNotEmpty()) {
-                    financeRepository.saveAccounts(actualAccounts, updateSelection = false)
-                }
-
-                val selectedIds = settingsRepository.getSelectedAccountIds()
-                val accountsToSync = actualAccounts.filter { selectedIds.contains(it.id) }
-
-                if (accountsToSync.isEmpty()) {
-                    _events.emit(IntegrationsUiEvent.ShowToast(R.string.integrations_view_model_error_no_accounts))
-                    delay(2000)
-                } else {
-                    for ((index, account) in accountsToSync.withIndex()) {
-                        if (index > 0) {
-                            waitForApiCooldown(60)
-                        }
-
-                        _monoSyncStatus.value = "SYNCING_ACC:${account.name}"
-
-                        val lastSync = settingsRepository.getLastSyncTimestamp(account.id)
-                        val fromTime =
-                            if (lastSync == 0L) (System.currentTimeMillis() / 1000) - 2682000L else (lastSync / 1000 + 1)
-
-                        monobankService.fetchTransactionsForAccount(
-                            token = token,
-                            accountId = account.id,
-                            accountCurrency = account.currencyCode,
-                            fromTimeSeconds = fromTime,
-                            onProgress = { status ->
-                                if (status.contains("Ліміт перевищено")) _monoSyncStatus.value =
-                                    "LIMIT_EXCEEDED"
-                                else if (status.contains("Пауза")) {
-                                    val sec = status.filter { it.isDigit() }
-                                    _monoSyncStatus.value = "PAUSE:$sec"
-                                }
-                            },
-                            onBatchLoaded = { batch ->
-                                financeRepository.addTransactionsBatch(batch)
-                                settingsRepository.saveLastSyncTimestamp(
-                                    account.id,
-                                    batch.maxOf { it.timestamp }
-                                )
-                            }
-                        )
-                        _monoSyncProgress.value =
-                            (index + 1).toFloat() / accountsToSync.size.toFloat()
-                    }
-
-                    settingsRepository.saveLastGlobalSyncTime(System.currentTimeMillis())
-                    _monoSyncStatus.value = "DONE"
-                    delay(2000)
-                }
-            } catch (e: Exception) {
-                _monoSyncStatus.value = "API_ERROR"
-                delay(2000)
-            } finally {
-                if (needsCooldown) {
-                    waitForApiCooldown(60)
-                }
-                _monoSyncStatus.value = ""
-                _monoSyncProgress.value = 0f
-                _isMonoLoading.value = false
+            if (actualAccounts.isNotEmpty()) {
+                financeRepository.saveAccounts(actualAccounts, updateSelection = false)
             }
+
+            val selectedIds = settingsRepository.getSelectedAccountIds()
+            val accountsToSync = actualAccounts.filter { selectedIds.contains(it.id) }
+
+            if (accountsToSync.isEmpty()) {
+                _events.emit(IntegrationsUiEvent.ShowToast(R.string.integrations_view_model_error_no_accounts))
+                delay(2000)
+            } else {
+                for ((index, account) in accountsToSync.withIndex()) {
+                    if (index > 0) waitForApiCooldown(60)
+
+                    _monoSyncStatus.value = "SYNCING_ACC:${account.name}"
+                    val lastSync = settingsRepository.getLastSyncTimestamp(account.id)
+                    val fromTime =
+                        if (lastSync == 0L) (System.currentTimeMillis() / 1000) - 2682000L else (lastSync / 1000 + 1)
+
+                    monobankService.fetchTransactionsForAccount(
+                        token = token,
+                        accountId = account.id,
+                        accountCurrency = account.currencyCode,
+                        fromTimeSeconds = fromTime,
+                        onProgress = { status ->
+                            if (status.contains("Ліміт перевищено")) _monoSyncStatus.value =
+                                "LIMIT_EXCEEDED"
+                            else if (status.contains("Пауза")) {
+                                val sec = status.filter { it.isDigit() }
+                                _monoSyncStatus.value = "PAUSE:$sec"
+                            }
+                        },
+                        onBatchLoaded = { batch ->
+                            financeRepository.addTransactionsBatch(batch)
+                            settingsRepository.saveLastSyncTimestamp(
+                                account.id,
+                                batch.maxOf { it.timestamp })
+                        }
+                    )
+                    _monoSyncProgress.value = (index + 1).toFloat() / accountsToSync.size.toFloat()
+                }
+
+                settingsRepository.saveLastGlobalSyncTime(System.currentTimeMillis())
+                _monoSyncStatus.value = "DONE"
+                delay(2000)
+            }
+        } catch (e: Exception) {
+            _monoSyncStatus.value = "API_ERROR"
+            delay(2000)
+        } finally {
+            if (needsCooldown) waitForApiCooldown(60)
+            _monoSyncStatus.value = ""
+            _monoSyncProgress.value = 0f
         }
     }
 
     fun connectMonobankAccount() {
         viewModelScope.launch {
-            if (_isMonoLoading.value && _monoSyncStatus.value.isNotEmpty()) return@launch
+            if (_isMonoLoading.value) return@launch
             _isMonoLoading.value = true
             try {
                 val token = _monobankToken.value.trim()
                 val apiAccounts = monobankService.fetchAccounts(token)
                 if (apiAccounts.isNotEmpty()) {
                     val selectedIds = settingsRepository.getSelectedAccountIds()
-
                     settingsRepository.saveMonobankApiToken(token)
-
                     val markedAccounts = apiAccounts.map { acc ->
                         acc.copy(selected = selectedIds.contains(acc.id))
                     }
-
                     financeRepository.saveAccounts(markedAccounts, updateSelection = false)
                     _availableAccounts.value = markedAccounts.sortedBy { it.id }
-
                     _isBankConnected.value = true
                     _isMonobankInputVisible.value = false
                     _monobankToken.value = ""
@@ -311,24 +296,27 @@ class IntegrationsViewModel : ViewModel() {
     fun confirmMonobankSelection() {
         viewModelScope.launch {
             _isMonoLoading.value = true
-            val monoAccountIds = financeRepository.getAccountsOnce()
-                .filter { it.provider == BankProviders.MONOBANK }.map { it.id }
+            try {
+                val monoAccountIds = financeRepository.getAccountsOnce()
+                    .filter { it.provider == BankProviders.MONOBANK }.map { it.id }
 
-            val selectedForMono = _selectedIdsInUi.value.filter { monoAccountIds.contains(it) }
+                val selectedForMono = _selectedIdsInUi.value.filter { monoAccountIds.contains(it) }
 
-            if (selectedForMono.isEmpty()) {
-                _events.emit(IntegrationsUiEvent.ShowToast(R.string.integrations_view_model_error_no_accounts))
+                if (selectedForMono.isEmpty()) {
+                    _events.emit(IntegrationsUiEvent.ShowToast(R.string.integrations_view_model_error_no_accounts))
+                    return@launch
+                }
+
+                val allSelectedIds = settingsRepository.getSelectedAccountIds().toMutableList()
+                allSelectedIds.removeAll { monoAccountIds.contains(it) }
+                allSelectedIds.addAll(selectedForMono)
+
+                settingsRepository.saveSelectedAccountIds(allSelectedIds)
+
+                syncMonobankData()
+            } finally {
                 _isMonoLoading.value = false
-                return@launch
             }
-
-            val allSelectedIds = settingsRepository.getSelectedAccountIds().toMutableList()
-            allSelectedIds.removeAll { monoAccountIds.contains(it) }
-            allSelectedIds.addAll(selectedForMono)
-
-            settingsRepository.saveSelectedAccountIds(allSelectedIds)
-            syncMonobankData()
-            _isMonoLoading.value = false
         }
     }
 

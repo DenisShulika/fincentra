@@ -86,7 +86,10 @@ fun PredictionCoin(
                         modifier = Modifier.fillMaxSize(),
                         shape = CircleShape,
                         color = Color(0xFF16A34A).copy(alpha = 0.2f),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF22C55E).copy(alpha = 0.5f))
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            Color(0xFF22C55E).copy(alpha = 0.5f)
+                        )
                     ) {
                         Box(
                             contentAlignment = Alignment.Center,

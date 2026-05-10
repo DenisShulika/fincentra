@@ -1,6 +1,5 @@
 package com.denisshulika.fincentra.data.repository
 
-import android.util.Log
 import com.denisshulika.fincentra.data.models.domain.BankAccount
 import com.denisshulika.fincentra.data.models.domain.Budget
 import com.denisshulika.fincentra.data.models.domain.Dream
@@ -149,21 +148,12 @@ class FinanceRepository(private val db: FirebaseFirestore, private val auth: Fir
     suspend fun addTransactionsBatch(list: List<Transaction>) {
         val ref = getTransactionsRef() ?: return
         val batch = db.batch()
-
-        list.forEach { newTx ->
-            if (newTx.sourceType == "DIRECT") {
-                val duplicateFromWallet = _transactions.value.find {
-                    it.sourceType == "NOTIFICATION" &&
-                            it.amount == newTx.amount &&
-                            Math.abs(it.timestamp - newTx.timestamp) < 600000
-                }
-
-                duplicateFromWallet?.let { batch.delete(ref.document(it.id)) }
-            }
-
-            batch.set(ref.document(newTx.id), newTx)
-        }
+        list.forEach { batch.set(ref.document(it.id), it) }
         batch.commit().await()
+
+        val current = _transactions.value.toMutableList()
+        current.addAll(0, list)
+        _transactions.value = current.distinctBy { it.id }.sortedByDescending { it.timestamp }
     }
 
     fun deleteTransaction(id: String) {
@@ -180,7 +170,6 @@ class FinanceRepository(private val db: FirebaseFirestore, private val auth: Fir
         val uid = auth.currentUser?.uid ?: return
         val ref = db.collection(FirestoreCollections.USERS).document(uid)
             .collection(FirestoreCollections.ACCOUNTS)
-
         val batch = db.batch()
         newAccounts.forEach { batch.set(ref.document(it.id), it, SetOptions.merge()) }
         batch.commit().await()
@@ -188,11 +177,7 @@ class FinanceRepository(private val db: FirebaseFirestore, private val auth: Fir
         val currentList = _accounts.value.toMutableList()
         newAccounts.forEach { newAcc ->
             val index = currentList.indexOfFirst { it.id == newAcc.id }
-            if (index != -1) {
-                currentList[index] = newAcc
-            } else {
-                currentList.add(newAcc)
-            }
+            if (index != -1) currentList[index] = newAcc else currentList.add(newAcc)
         }
         _accounts.value = currentList
     }
@@ -217,15 +202,10 @@ class FinanceRepository(private val db: FirebaseFirestore, private val auth: Fir
         val uid = auth.currentUser?.uid ?: return
         val ref = db.collection(FirestoreCollections.USERS).document(uid)
             .collection(FirestoreCollections.ACCOUNTS)
-        try {
-            val snapshot = ref.whereEqualTo("provider", providerId).get().await()
-            val batch = db.batch()
-            for (document in snapshot.documents) {
-                batch.delete(document.reference)
-            }
-            batch.commit().await()
-        } catch (e: Exception) {
-            Log.e("FINANCE_REPO", "Error deleting provider accounts: ${e.message}")
-        }
+        val snapshot = ref.whereEqualTo("provider", providerId).get().await()
+        val batch = db.batch()
+        for (doc in snapshot.documents) batch.delete(doc.reference)
+        batch.commit().await()
+        _accounts.value = _accounts.value.filter { it.provider != providerId }
     }
 }

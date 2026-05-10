@@ -2,7 +2,6 @@ package com.denisshulika.fincentra.data.models.domain
 
 import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.util.TransactionConstants
-import com.google.firebase.firestore.PropertyName
 
 data class Transaction(
     val id: String = "",
