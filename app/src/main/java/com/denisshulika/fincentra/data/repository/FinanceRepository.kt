@@ -1,5 +1,6 @@
 package com.denisshulika.fincentra.data.repository
 
+import android.util.Log
 import com.denisshulika.fincentra.data.models.domain.BankAccount
 import com.denisshulika.fincentra.data.models.domain.Budget
 import com.denisshulika.fincentra.data.models.domain.Dream
@@ -84,7 +85,14 @@ class FinanceRepository(private val db: FirebaseFirestore, private val auth: Fir
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { s, _ ->
                 if (s != null) {
-                    _transactions.value = s.toObjects(Transaction::class.java)
+                    val serverItems = s.toObjects(Transaction::class.java)
+
+                    val currentItems = _transactions.value
+                    val merged = (serverItems + currentItems)
+                        .distinctBy { it.id }
+                        .sortedByDescending { it.timestamp }
+
+                    _transactions.value = merged
                 }
                 _isTransactionsLoaded.value = true
             }
@@ -147,17 +155,18 @@ class FinanceRepository(private val db: FirebaseFirestore, private val auth: Fir
 
     suspend fun addTransactionsBatch(list: List<Transaction>) {
         val ref = getTransactionsRef() ?: return
-        val batch = db.batch()
-        list.forEach { batch.set(ref.document(it.id), it) }
-        batch.commit().await()
 
-        val current = _transactions.value.toMutableList()
-        current.addAll(0, list)
-        _transactions.value = current.distinctBy { it.id }.sortedByDescending { it.timestamp }
-    }
+        val currentTxs = _transactions.value.toMutableList()
+        currentTxs.addAll(0, list)
+        _transactions.value = currentTxs.distinctBy { it.id }.sortedByDescending { it.timestamp }
 
-    fun deleteTransaction(id: String) {
-        getTransactionsRef()?.document(id)?.delete()
+        try {
+            val batch = db.batch()
+            list.forEach { batch.set(ref.document(it.id), it) }
+            batch.commit().await()
+        } catch (e: Exception) {
+            Log.e("REPO", "Batch sync failed, but local data is kept: ${e.message}")
+        }
     }
 
     suspend fun getAccountsOnce() = auth.currentUser?.uid?.let {
@@ -170,9 +179,6 @@ class FinanceRepository(private val db: FirebaseFirestore, private val auth: Fir
         val uid = auth.currentUser?.uid ?: return
         val ref = db.collection(FirestoreCollections.USERS).document(uid)
             .collection(FirestoreCollections.ACCOUNTS)
-        val batch = db.batch()
-        newAccounts.forEach { batch.set(ref.document(it.id), it, SetOptions.merge()) }
-        batch.commit().await()
 
         val currentList = _accounts.value.toMutableList()
         newAccounts.forEach { newAcc ->
@@ -180,6 +186,14 @@ class FinanceRepository(private val db: FirebaseFirestore, private val auth: Fir
             if (index != -1) currentList[index] = newAcc else currentList.add(newAcc)
         }
         _accounts.value = currentList
+
+        val batch = db.batch()
+        newAccounts.forEach { batch.set(ref.document(it.id), it, SetOptions.merge()) }
+        batch.commit().await()
+    }
+
+    fun deleteTransaction(id: String) {
+        getTransactionsRef()?.document(id)?.delete()
     }
 
     fun getAccountsFlow() = accounts

@@ -248,6 +248,8 @@ fun WalletSetupContent(viewModel: IntegrationsViewModel, context: Context) {
 fun MonobankSetupContent(viewModel: IntegrationsViewModel, token: String) {
     val isMonoLoading = viewModel.isMonoLoading.collectAsStateWithLifecycle()
 
+    Spacer(Modifier.height(24.dp))
+
     Column {
         val annotatedString = buildAnnotatedString {
             append(stringResource(R.string.bank_details_content_mono_get_access))

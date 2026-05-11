@@ -122,23 +122,21 @@ class TransactionsViewModel : ViewModel() {
     private var editingTimestamp: Long? = null
 
     val transactions: StateFlow<List<Transaction>> = combine(
-        allTransactions,
-        accounts,
+        financeRepository.transactions,
+        settingsRepository.getSelectedAccountIdsFlow(),
         _searchQuery,
-        _selectedCategories,
         _selectedBankFilter,
         _selectedTypeFilter,
-        _selectedIds,
+        _selectedCategories,
         _selectedSortOrder
     ) { args ->
         val txList = args[0] as List<Transaction>
-        val accountList = args[1] as List<BankAccount>
+        val activeIds = args[1] as List<String>
         val query = args[2] as String
-        val selectedCats = args[3] as Set<String>
-        val bankFilter = args[4] as String
-        val typeFilter = args[5] as String
-        val activeIds = args[6] as List<String>
-        val sortOrder = args[7] as SortOrder
+        val bankFilter = args[3] as String
+        val typeFilter = args[4] as String
+        val selectedCats = args[5] as Set<String>
+        val sortOrder = args[6] as SortOrder
 
         TransactionFilterEngine.filter(
             transactions = txList,

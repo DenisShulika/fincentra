@@ -79,10 +79,10 @@ class TreeWidget : GlanceAppWidget() {
                     if (isSelectionMode || selectedCategory == null) {
                         SelectionView(context, allData)
                     } else {
-                        val budget = allData.split(";").mapNotNull {
+                        val budget = allData.split(";").firstNotNullOfOrNull {
                             val parts = it.split(",")
                             if (parts.size == 3 && parts[0] == selectedCategory) parts else null
-                        }.firstOrNull()
+                        }
 
                         if (budget != null) {
                             TreeView(context, budget[0], budget[1].toFloat(), budget[2].toInt())

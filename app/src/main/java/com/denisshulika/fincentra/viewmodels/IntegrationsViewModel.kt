@@ -313,6 +313,8 @@ class IntegrationsViewModel : ViewModel() {
 
                 settingsRepository.saveSelectedAccountIds(allSelectedIds)
 
+                delay(300)
+
                 syncMonobankData()
             } finally {
                 _isMonoLoading.value = false
