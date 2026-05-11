@@ -7,6 +7,7 @@ import com.denisshulika.fincentra.data.models.events.AuthUiEvent
 import com.denisshulika.fincentra.di.DependencyProvider
 import com.denisshulika.fincentra.di.DependencyProvider.financeRepository
 import com.google.firebase.auth.GoogleAuthProvider
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -68,15 +69,21 @@ class AuthViewModel : ViewModel() {
 
         viewModelScope.launch {
             _isLoading.value = true
+
             financeRepository.clearAllData()
+
             val result = authRepository.signInWithEmail(_email.value, _password.value)
-            _isLoading.value = false
 
             result.onSuccess {
+                financeRepository.refreshUser()
+
+                delay(800)
+
                 _events.emit(AuthUiEvent.NavigateToMain)
             }.onFailure {
                 _events.emit(AuthUiEvent.ShowError(R.string.auth_view_model_error_invalid_credentials))
             }
+            _isLoading.value = false
         }
     }
 

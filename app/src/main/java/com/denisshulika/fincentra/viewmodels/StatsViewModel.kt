@@ -79,9 +79,16 @@ class StatsViewModel : ViewModel() {
         val accId = args[8] as String?
         val mode = args[9] as Boolean
 
+
+        val effectiveIds = if (activeIds.isEmpty()) {
+            accs.map { it.id }
+        } else {
+            activeIds
+        }
+
         withContext(Dispatchers.Default) {
             val rates = DependencyProvider.currencyRepository.getRates()
-            val baseState = calculateOptimizedStats(txs, accs, range, bank, accId, mode, activeIds)
+            val baseState = calculateOptimizedStats(txs, accs, range, bank, accId, mode, effectiveIds)
 
             if (baseState.currencyData.isNotEmpty()) {
                 val totalCard =
@@ -103,7 +110,7 @@ class StatsViewModel : ViewModel() {
                 }
 
                 val actualDreamProgress = if (dream != null) {
-                    val trackedBankBalance = accs.filter { activeIds.contains(it.id) }
+                    val trackedBankBalance = accs.filter { effectiveIds.contains(it.id) }
                         .sumOf {
                             DependencyProvider.currencyRepository.convert(
                                 it.balance,

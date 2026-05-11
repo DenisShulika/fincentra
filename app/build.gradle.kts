@@ -21,8 +21,8 @@ android {
         applicationId = "com.denisshulika.fincentra"
         minSdk = 31
         targetSdk = 35
-        versionCode = 4
-        versionName = "2.1"
+        versionCode = 7
+        versionName = "2.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

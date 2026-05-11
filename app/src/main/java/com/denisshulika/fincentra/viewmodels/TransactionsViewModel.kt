@@ -138,9 +138,13 @@ class TransactionsViewModel : ViewModel() {
         val selectedCats = args[5] as Set<String>
         val sortOrder = args[6] as SortOrder
 
+        val effectiveIds = if (activeIds.isEmpty() && txList.isNotEmpty()) {
+            txList.map { it.accountId }.distinct()
+        } else activeIds
+
         TransactionFilterEngine.filter(
             transactions = txList,
-            selectedAccountIds = activeIds,
+            selectedAccountIds = effectiveIds,
             query = query,
             bankFilter = bankFilter,
             typeFilter = typeFilter,

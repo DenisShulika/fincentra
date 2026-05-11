@@ -10,6 +10,7 @@ import com.denisshulika.fincentra.data.util.FirestoreCollections
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.CoroutineScope
@@ -70,31 +71,52 @@ class FinanceRepository(private val db: FirebaseFirestore, private val auth: Fir
         }
     }
 
-    private fun startAllListeners(uid: String) {
-        val userDoc = db.collection(FirestoreCollections.USERS).document(uid)
+    fun refreshUser() {
+        val uid = auth.currentUser?.uid
+        if (uid != null) {
+            startAllListeners(uid)
+        } else {
+            clearAllData()
+        }
+    }
 
-        acL?.remove()
-        acL = userDoc.collection(FirestoreCollections.ACCOUNTS)
-            .addSnapshotListener { s, _ ->
-                _accounts.value = s?.toObjects(BankAccount::class.java) ?: emptyList()
-                _isAccountsLoaded.value = true
-            }
+    private fun startAllListeners(uid: String) {
+        _transactions.value = emptyList()
+        _accounts.value = emptyList()
+        _isTransactionsLoaded.value = false
+        _isAccountsLoaded.value = false
+
+        val userDoc = db.collection(FirestoreCollections.USERS).document(uid)
 
         txL?.remove()
         txL = userDoc.collection(FirestoreCollections.TRANSACTIONS)
             .orderBy("timestamp", Query.Direction.DESCENDING)
-            .addSnapshotListener { s, _ ->
+            .addSnapshotListener(MetadataChanges.INCLUDE) { s, _ ->
                 if (s != null) {
                     val serverItems = s.toObjects(Transaction::class.java)
+                    val currentLocalItems = _transactions.value
 
-                    val currentItems = _transactions.value
-                    val merged = (serverItems + currentItems)
+                    val merged = (serverItems + currentLocalItems)
                         .distinctBy { it.id }
                         .sortedByDescending { it.timestamp }
 
                     _transactions.value = merged
                 }
                 _isTransactionsLoaded.value = true
+            }
+
+        acL?.remove()
+        acL = userDoc.collection(FirestoreCollections.ACCOUNTS)
+            .addSnapshotListener(MetadataChanges.INCLUDE) { s, _ ->
+                if (s != null) {
+                    val serverAccounts = s.toObjects(BankAccount::class.java)
+                    val currentLocal = _accounts.value
+                    val merged = (serverAccounts + currentLocal)
+                        .distinctBy { it.id }
+
+                    _accounts.value = merged
+                }
+                _isAccountsLoaded.value = true
             }
 
         val cal = java.util.Calendar.getInstance()

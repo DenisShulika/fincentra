@@ -2,6 +2,7 @@ package com.denisshulika.fincentra.data.models.domain
 
 import com.denisshulika.fincentra.R
 import com.denisshulika.fincentra.data.util.TransactionConstants
+import com.google.firebase.firestore.PropertyName
 
 data class Transaction(
     val id: String = "",
@@ -12,6 +13,8 @@ data class Transaction(
     val timestamp: Long = 0L,
     val category: TransactionCategory = TransactionCategory.OTHERS,
     val bankName: String = TransactionConstants.SOURCE_CASH,
+    @set:PropertyName("isExpense")
+    @get:PropertyName("isExpense")
     var isExpense: Boolean = true,
     val mcc: Int? = null,
     val note: String? = null,

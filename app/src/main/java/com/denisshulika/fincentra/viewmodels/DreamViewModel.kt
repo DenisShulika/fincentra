@@ -42,19 +42,27 @@ class DreamViewModel : ViewModel() {
         financeRepository.accounts,
         financeRepository.transactions,
         settingsRepository.getSelectedAccountIdsFlow(),
-        flow { emit(DependencyProvider.currencyRepository.getRates()) }
-    ) { dream, accounts, transactions, selectedIds, rates ->
+    ) { dream, accounts, transactions, selectedIds ->
         if (dream == null) return@combine null
 
+        val rates = try {
+            DependencyProvider.currencyRepository.getRates()
+        } catch (e: Exception) {
+            emptyMap<Int, Double>()
+        }
+
+        val effectiveIds = if (selectedIds.isEmpty()) accounts.map { it.id } else selectedIds
+
         val totalBankInDreamCurrency = accounts
-            .filter { selectedIds.contains(it.id) }
+            .filter { effectiveIds.contains(it.id) }
             .sumOf { acc ->
-                DependencyProvider.currencyRepository.convert(
+                val converted = DependencyProvider.currencyRepository.convert(
                     acc.balance,
                     acc.currencyCode,
                     dream.currencyCode,
                     rates
-                ) ?: 0.0
+                )
+                converted ?: if (acc.currencyCode == dream.currencyCode) acc.balance else 0.0
             }
 
         val totalCashInDreamCurrency = transactions
@@ -62,8 +70,13 @@ class DreamViewModel : ViewModel() {
             .groupBy { it.currencyCode }
             .map { (code, manualTxs) ->
                 val sum = manualTxs.sumOf { if (it.isExpense) -it.amount else it.amount }
-                DependencyProvider.currencyRepository.convert(sum, code, dream.currencyCode, rates)
-                    ?: 0.0
+                val converted = DependencyProvider.currencyRepository.convert(
+                    sum,
+                    code,
+                    dream.currencyCode,
+                    rates
+                )
+                converted ?: if (code == dream.currencyCode) sum else 0.0
             }.sum()
 
         val totalAvailable = totalBankInDreamCurrency + totalCashInDreamCurrency
@@ -75,7 +88,11 @@ class DreamViewModel : ViewModel() {
         else 0f
 
         DreamProgress(dream, availableForDream, progress)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = null
+    )
 
     fun onTitleChange(v: String) {
         _title.value = v

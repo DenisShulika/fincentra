@@ -34,7 +34,12 @@ class SettingsRepository(
     }
 
     fun getSelectedAccountIdsFlow(): Flow<List<String>> {
-        val ref = getSettingsRef() ?: return flowOf(emptyList())
+        val uid = auth.currentUser?.uid ?: return flowOf(emptyList())
+
+        val ref = db.collection(FirestoreCollections.USERS).document(uid)
+            .collection(FirestoreCollections.SETTINGS)
+            .document(FirestoreDocuments.USER_SETTINGS)
+
         return callbackFlow {
             val subscription = ref.addSnapshotListener { snapshot, _ ->
                 val ids = snapshot?.get("selectedIds") as? List<String> ?: emptyList()
@@ -150,7 +155,7 @@ class SettingsRepository(
         val ref = getSettingsRef() ?: return flowOf(false)
         return callbackFlow {
             val sub = ref.addSnapshotListener { s, _ ->
-                trySend(s?.getBoolean("isWalletSyncEnabled") ?: false) // За замовчуванням false
+                trySend(s?.getBoolean("isWalletSyncEnabled") ?: false)
             }
             awaitClose { sub.remove() }
         }
