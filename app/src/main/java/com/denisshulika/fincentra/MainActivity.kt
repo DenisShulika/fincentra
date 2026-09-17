@@ -133,7 +133,11 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
     val dreamViewModel: DreamViewModel = viewModel()
 
     val currentUser = DependencyProvider.authRepository.getCurrentUser()
-    val startDestination = remember { Screen.Onboarding.route }
+    val startDestination = remember(currentUser, isOnboardingCompleted) {
+        if (!isOnboardingCompleted) Screen.Onboarding.route
+        else if (currentUser != null) Screen.Home.route
+        else Screen.Login.route
+    }
 
     val navigateWithClearStack: (String) -> Unit = { route ->
         navController.navigate(route) {
@@ -185,10 +189,8 @@ fun MainScreen(settingsViewModel: SettingsViewModel) {
     ) {
         composable(Screen.Onboarding.route) {
             OnboardingScreen {
-                val nextRoute = if (currentUser != null) Screen.Home.route else Screen.Login.route
-                navController.navigate(nextRoute) {
-                    popUpTo(Screen.Onboarding.route) { inclusive = true }
-                }
+                prefs.edit().putBoolean(PrefConstants.KEY_IS_ONBOARDING_COMPLETED, true).apply()
+                navController.navigate(Screen.Login.route) { popUpTo(0) }
             }
         }
 

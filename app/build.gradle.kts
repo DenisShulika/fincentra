@@ -21,8 +21,8 @@ android {
         applicationId = "com.denisshulika.fincentra"
         minSdk = 31
         targetSdk = 36
-        versionCode = 7
-        versionName = "2.2"
+        versionCode = 8
+        versionName = "2.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -32,6 +32,8 @@ android {
         buildConfigField("String", "SALT_EDGE_APP_ID", "\"$saltEdgeAppId\"")
         val saltEdgeSecret = secrets.getProperty("SALT_EDGE_SECRET") ?: ""
         buildConfigField("String", "SALT_EDGE_SECRET", "\"$saltEdgeSecret\"")
+        val appcheckDebugToken = secrets.getProperty("APPCHECK_DEBUG_TOKEN") ?: ""
+        buildConfigField("String", "APPCHECK_DEBUG_TOKEN", "\"$appcheckDebugToken\"")
     }
 
     buildTypes {
@@ -94,4 +96,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.androidx.glance.material3)
+    implementation(libs.firebase.appcheck.debug)
 }

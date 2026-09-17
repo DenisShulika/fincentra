@@ -60,11 +60,12 @@ class TreeWidget : GlanceAppWidget() {
         provideContent {
             val prefs = currentState<Preferences>()
             val isSelectionMode = prefs[PrefIsSelecting] ?: true
-            val selectedCategory = prefs[PrefSelectedCat] ?: "TRANSPORT"
+            val selectedCategory = prefs[PrefSelectedCat]
 
             val globalPrefs =
                 context.getSharedPreferences(WidgetConstants.PREFS_NAME, Context.MODE_PRIVATE)
-            val allData = prefs[PrefAllBudgetsData] ?: "TRANSPORT,0.97,${R.drawable.img_tree_wither}"
+            val allData =
+                prefs[PrefAllBudgetsData] ?: globalPrefs.getString("all_budgets_data", "") ?: ""
 
             GlanceTheme {
                 Box(

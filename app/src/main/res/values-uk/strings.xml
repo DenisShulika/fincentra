@@ -3,136 +3,136 @@
     <string name="app_name">FinCentra</string>
 
     <!-- About Screen -->
-    <string name="about_screen_title">About FinCentra</string>
-    <string name="about_screen_version">Version 1.2</string>
-    <string name="about_screen_feature_tree_title">The Living Tree</string>
-    <string name="about_screen_feature_tree_desc">Your budget limits are visualized as trees. Stay within budget to keep your financial ecosystem blooming. If you overspend, the tree withers.</string>
-    <string name="about_screen_feature_safety_title">Safety Threshold</string>
-    <string name="about_screen_feature_safety_desc">Unique logic that protects your essential living funds. Progress toward your goals is calculated only from truly free money.</string>
-    <string name="about_screen_feature_ai_title">AI Advisor</string>
-    <string name="about_screen_feature_ai_desc">Powered by Gemini, our AI performs a 360-degree audit of your finances, providing professional CFO-level insights.</string>
-    <string name="about_screen_contact_legal_title">Contact &amp; Legal</string>
+    <string name="about_screen_title">Про FinCentra</string>
+    <string name="about_screen_version">Версія 1.2</string>
+    <string name="about_screen_feature_tree_title">Живе дерево</string>
+    <string name="about_screen_feature_tree_desc">Ваші ліміти бюджету візуалізовані у вигляді дерев. Дотримуйтесь бюджету, щоб ваша фінансова екосистема процвітала. Якщо ви витрачаєте забагато — дерево в’яне.</string>
+    <string name="about_screen_feature_safety_title">Поріг безпеки</string>
+    <string name="about_screen_feature_safety_desc">Унікальна логіка, яка захищає ваші основні кошти на життя. Прогрес до цілей розраховується лише з дійсно вільних грошей.</string>
+    <string name="about_screen_feature_ai_title">ШІ-радник</string>
+    <string name="about_screen_feature_ai_desc">На базі Gemini, наш ШІ проводить повний аудит ваших фінансів, надаючи професійні поради рівня фінансового директора.</string>
+    <string name="about_screen_contact_legal_title">Контакти та правова інформація</string>
     <string name="about_screen_contact_email">denisshulika31@gmail.com</string>
-    <string name="about_screen_privacy_policy">Privacy Policy</string>
-    <string name="about_screen_footer_credits">Designed &amp; Developed by Denys Shulika</string>
+    <string name="about_screen_privacy_policy">Політика конфіденційності</string>
+    <string name="about_screen_footer_credits">Дизайн та розробка: Денис Шуліка</string>
 
     <!-- Budgets Screen -->
-    <string name="budgets_screen_title">Limits</string>
-    <string name="budgets_screen_empty_title">Your forest is still empty</string>
-    <string name="budgets_screen_empty_desc">Set a limit on a category to start growing your financial tree.</string>
+    <string name="budgets_screen_title">Ліміти</string>
+    <string name="budgets_screen_empty_title">Твій ліс поки порожній</string>
+    <string name="budgets_screen_empty_desc">Встанови ліміт на категорію, щоб почати вирощувати своє фінансове дерево.</string>
 
     <!-- Dream Screen -->
-    <string name="dream_screen_title">My Dream</string>
-    <string name="dream_screen_delete_title">Delete Dream?</string>
-    <string name="dream_screen_delete_desc">This will reset your goal progress. Your transactions will remain safe.</string>
-    <string name="dream_screen_btn_delete">Delete</string>
-    <string name="dream_screen_btn_cancel">Cancel</string>
+    <string name="dream_screen_title">Моя мрія</string>
+    <string name="dream_screen_delete_title">Видалити мрію?</string>
+    <string name="dream_screen_delete_desc">Це скине прогрес вашої мети. Ваші транзакції залишаться в безпеці.</string>
+    <string name="dream_screen_btn_delete">Видалити</string>
+    <string name="dream_screen_btn_cancel">Скасувати</string>
 
     <!-- Export Screen -->
-    <string name="export_screen_title">Export Report</string>
-    <string name="export_screen_headline">Select Data to Export</string>
-    <string name="export_screen_section_dates">Date Range</string>
-    <string name="export_screen_date_all_time">All Time</string>
-    <string name="export_screen_section_sources">Sources</string>
-    <string name="export_screen_section_accounts">Specific Accounts</string>
-    <string name="export_screen_all_cards">All cards</string>
-    <string name="export_screen_section_currencies">Currencies</string>
-    <string name="export_screen_all_currencies">All Currencies</string>
-    <string name="export_screen_section_categories">Categories (%d selected)</string>
-    <string name="export_screen_section_type">Transaction Type</string>
-    <string name="export_screen_type_all">All</string>
-    <string name="export_screen_type_expenses">Expenses</string>
-    <string name="export_screen_type_income">Income</string>
-    <string name="export_screen_section_style">Report Style</string>
-    <string name="export_screen_style_header">Include Header (Branding)</string>
-    <string name="export_screen_style_summary">Include Financial Summary</string>
-    <string name="export_screen_btn_pdf">Generate PDF (%d items)</string>
-    <string name="export_screen_btn_csv">Export to CSV</string>
+    <string name="export_screen_title">Експорт звіту</string>
+    <string name="export_screen_headline">Виберіть дані для експорту</string>
+    <string name="export_screen_section_dates">Період</string>
+    <string name="export_screen_date_all_time">Весь час</string>
+    <string name="export_screen_section_sources">Джерела</string>
+    <string name="export_screen_section_accounts">Конкретні рахунки</string>
+    <string name="export_screen_all_cards">Всі карти</string>
+    <string name="export_screen_section_currencies">Валюти</string>
+    <string name="export_screen_all_currencies">Всі валюти</string>
+    <string name="export_screen_section_categories">Категорії (%d вибрано)</string>
+    <string name="export_screen_section_type">Тип операції</string>
+    <string name="export_screen_type_all">Всі</string>
+    <string name="export_screen_type_expenses">Витрати</string>
+    <string name="export_screen_type_income">Дохід</string>
+    <string name="export_screen_section_style">Стиль звіту</string>
+    <string name="export_screen_style_header">Включити заголовок (брендинг)</string>
+    <string name="export_screen_style_summary">Включити фінансове резюме</string>
+    <string name="export_screen_btn_pdf">Згенерувати PDF (%d пунктів)</string>
+    <string name="export_screen_btn_csv">Експортувати в CSV</string>
 
     <!-- Home Screen -->
-    <string name="home_screen_user_placeholder">User</string>
-    <string name="home_screen_greeting">Hello, %s!</string>
-    <string name="home_screen_status_title">Your financial status today</string>
-    <string name="home_screen_ai_title">AI Advice</string>
-    <string name="home_screen_ai_loading">Analyzing your financial forest…</string>
-    <string name="home_screen_ai_error_internet">AI is unavailable. Check your connection.</string>
-    <string name="home_screen_ai_click_prompt">Tap to get financial advice from AI</string>
-    <string name="home_screen_dream_goal">Savings target</string>
-    <string name="home_screen_dream_collected_percentage">Collected %1$d%%</string>
-    <string name="home_screen_critical_limits">Limit Alerts</string>
-    <string name="home_screen_all_limits">All limits</string>
-    <string name="home_screen_upcoming_bills">Upcoming Bills (%d)</string>
-    <string name="home_screen_sub_today">Today</string>
-    <string name="home_screen_sub_in_days">In %d days</string>
-    <string name="home_screen_recent_transactions">Recent transactions</string>
-    <string name="home_screen_view_all">View all</string>
-    <string name="home_screen_no_transactions">No transactions yet</string>
+    <string name="home_screen_user_placeholder">Користувач</string>
+    <string name="home_screen_greeting">Привіт, %s!</string>
+    <string name="home_screen_status_title">Твій фінансовий стан сьогодні</string>
+    <string name="home_screen_ai_title">Порада від ШІ</string>
+    <string name="home_screen_ai_loading">Аналізую твій фінансовий ліс…</string>
+    <string name="home_screen_ai_error_internet">ШІ недоступний. Перевір підключення.</string>
+    <string name="home_screen_ai_click_prompt">Натисни, щоб отримати пораду від ШІ</string>
+    <string name="home_screen_dream_goal">Ціль накопичення</string>
+    <string name="home_screen_dream_collected_percentage">Зібрано %1$d%%</string>
+    <string name="home_screen_critical_limits">Увага до лімітів</string>
+    <string name="home_screen_all_limits">Всі ліміти</string>
+    <string name="home_screen_upcoming_bills">Майбутні рахунки (%d)</string>
+    <string name="home_screen_sub_today">Сьогодні</string>
+    <string name="home_screen_sub_in_days">Через %d дн.</string>
+    <string name="home_screen_recent_transactions">Останні операції</string>
+    <string name="home_screen_view_all">Дивитись всі</string>
+    <string name="home_screen_no_transactions">Операцій поки немає</string>
 
     <!-- Integrations Screen -->
-    <string name="integrations_screen_title">Banks &amp; Accounts</string>
-    <string name="integrations_screen_connection_header">Connection</string>
-    <string name="integrations_screen_tab_ukraine">Official Sync (API)</string>
-    <string name="integrations_screen_tab_europe">Europe (PSD2)</string>
-    <string name="integrations_screen_delete_title">Disconnect bank?</string>
-    <string name="integrations_screen_delete_desc">New transactions will not be downloaded. Account settings will be removed.</string>
-    <string name="integrations_screen_delete_confirm">Yes, disconnect</string>
-    <string name="integrations_screen_btn_cancel">Cancel</string>
+    <string name="integrations_screen_title">Банки та рахунки</string>
+    <string name="integrations_screen_connection_header">Підключення</string>
+    <string name="integrations_screen_tab_ukraine">Офіційна синхронізація (API)</string>
+    <string name="integrations_screen_tab_europe">Європа (PSD2)</string>
+    <string name="integrations_screen_delete_title">Відключити банк?</string>
+    <string name="integrations_screen_delete_desc">Нові транзакції не будуть завантажуватись. Налаштування рахунків видаляться.</string>
+    <string name="integrations_screen_delete_confirm">Так, відключити</string>
+    <string name="integrations_screen_btn_cancel">Скасувати</string>
 
     <!-- Login Screen -->
     <string name="login_screen_title">FinCentra</string>
-    <string name="login_screen_subtitle">Your faithful financial hub and assistant!</string>
-    <string name="login_screen_email_label">Email</string>
-    <string name="login_screen_password_label">Password</string>
-    <string name="login_screen_btn_login">Login</string>
-    <string name="login_screen_no_account">No account yet? Register</string>
-    <string name="login_screen_or_with">or with</string>
-    <string name="login_screen_google_login_desc">Google Login</string>
+    <string name="login_screen_subtitle">Твій вірний фінансовий хаб та помічник!</string>
+    <string name="login_screen_email_label">Електронна пошта</string>
+    <string name="login_screen_password_label">Пароль</string>
+    <string name="login_screen_btn_login">Увійти</string>
+    <string name="login_screen_no_account">Ще немає акаунта? Зареєструватися</string>
+    <string name="login_screen_or_with">або через</string>
+    <string name="login_screen_google_login_desc">Вхід через Google</string>
 
     <!-- Onboarding Screen -->
-    <string name="onboarding_screen_btn_skip">Skip</string>
-    <string name="onboarding_screen_btn_next">Next</string>
-    <string name="onboarding_screen_btn_start">Start</string>
+    <string name="onboarding_screen_btn_skip">Пропустити</string>
+    <string name="onboarding_screen_btn_next">Далі</string>
+    <string name="onboarding_screen_btn_start">Почати</string>
 
     <!-- Profile Screen -->
-    <string name="profile_screen_title">My Profile</string>
-    <string name="profile_screen_settings_desc">Settings</string>
-    <string name="profile_screen_user_placeholder">User</string>
-    <string name="profile_screen_loading">Loading…</string>
-    <string name="profile_screen_tx_count">%d transactions</string>
-    <string name="profile_screen_no_accounts">No accounts connected</string>
-    <string name="profile_screen_btn_export">Export Financial Reports</string>
-    <string name="profile_screen_contact_dev">Contact developer</string>
+    <string name="profile_screen_title">Мій профіль</string>
+    <string name="profile_screen_settings_desc">Налаштування</string>
+    <string name="profile_screen_user_placeholder">Користувач</string>
+    <string name="profile_screen_loading">Завантаження…</string>
+    <string name="profile_screen_tx_count">%d транзакцій</string>
+    <string name="profile_screen_no_accounts">Рахунки не підключені</string>
+    <string name="profile_screen_btn_export">Експорт фінансових звітів</string>
+    <string name="profile_screen_contact_dev">Зв\'язатися з розробником</string>
 
     <!-- Register Screen -->
-    <string name="register_screen_header">Create account</string>
-    <string name="register_screen_desc">Join FinCentra and take control of your finances</string>
-    <string name="register_screen_name_hint">What is your name?</string>
-    <string name="register_screen_email_hint">Email address</string>
-    <string name="register_screen_password_hint">Password</string>
-    <string name="register_screen_confirm_password_hint">Confirm password</string>
-    <string name="register_screen_btn_signup">Sign Up</string>
-    <string name="register_screen_already_have_account">Already have an account? Login</string>
+    <string name="register_screen_header">Створити акаунт</string>
+    <string name="register_screen_desc">Приєднуйся до FinCentra та візьми фінанси під контроль</string>
+    <string name="register_screen_name_hint">Як вас звати?</string>
+    <string name="register_screen_email_hint">Електронна пошта</string>
+    <string name="register_screen_password_hint">Пароль</string>
+    <string name="register_screen_confirm_password_hint">Підтвердіть пароль</string>
+    <string name="register_screen_btn_signup">Зареєструватися</string>
+    <string name="register_screen_already_have_account">Вже є акаунт? Увійти</string>
 
     <!-- Settings Screen -->
-    <string name="settings_screen_title">Settings</string>
-    <string name="settings_screen_pass_dialog_title">New Password</string>
-    <string name="settings_screen_pass_dialog_hint">Enter password</string>
-    <string name="settings_screen_pass_dialog_btn_update">Update</string>
-    <string name="settings_screen_pass_dialog_btn_cancel">Cancel</string>
-    <string name="settings_screen_delete_dialog_title">Delete account?</string>
-    <string name="settings_screen_delete_dialog_desc">All your cloud data will be permanently lost.</string>
-    <string name="settings_screen_delete_dialog_btn_confirm">Delete</string>
-    <string name="settings_screen_delete_dialog_btn_cancel">Cancel</string>
-    <string name="settings_screen_section_finance">Finance Settings</string>
-    <string name="settings_screen_currency_label">Total Balance Currency</string>
-    <string name="settings_screen_currency_desc">This currency will be used for the \'Total Balance\' card on your Home screen.</string>
-    <string name="settings_screen_section_appearance">Appearance &amp; Language</string>
-    <string name="settings_screen_theme_label">App Theme</string>
-    <string name="settings_screen_language_label">App Language</string>
-    <string name="settings_screen_section_security">Account Security</string>
-    <string name="settings_screen_change_password">Change Password</string>
-    <string name="settings_screen_delete_account">Delete My Account</string>
-    <string name="settings_screen_btn_logout">Logout from System</string>
+    <string name="settings_screen_title">Налаштування</string>
+    <string name="settings_screen_pass_dialog_title">Новий пароль</string>
+    <string name="settings_screen_pass_dialog_hint">Введіть пароль</string>
+    <string name="settings_screen_pass_dialog_btn_update">Оновити</string>
+    <string name="settings_screen_pass_dialog_btn_cancel">Скасувати</string>
+    <string name="settings_screen_delete_dialog_title">Видалити акаунт?</string>
+    <string name="settings_screen_delete_dialog_desc">Всі ваші дані в хмарі будуть безповоротно втрачені.</string>
+    <string name="settings_screen_delete_dialog_btn_confirm">Видалити</string>
+    <string name="settings_screen_delete_dialog_btn_cancel">Скасувати</string>
+    <string name="settings_screen_section_finance">Налаштування фінансів</string>
+    <string name="settings_screen_currency_label">Валюта загального балансу</string>
+    <string name="settings_screen_currency_desc">Ця валюта буде використовуватися для картки «Загальний баланс» на головному екрані.</string>
+    <string name="settings_screen_section_appearance">Вигляд та мова</string>
+    <string name="settings_screen_theme_label">Тема додатка</string>
+    <string name="settings_screen_language_label">Мова додатка</string>
+    <string name="settings_screen_section_security">Безпека акаунта</string>
+    <string name="settings_screen_change_password">Змінити пароль</string>
+    <string name="settings_screen_delete_account">Видалити мій акаунт</string>
+    <string name="settings_screen_btn_logout">Вийти із системи</string>
     <string name="settings_screen_lang_uk">uk</string>
     <string name="settings_screen_lang_en">en</string>
     <string name="settings_screen_lang_pl">pl</string>
@@ -140,505 +140,505 @@
     <string name="settings_screen_lang_ro">ro</string>
 
     <!-- Stats Screen -->
-    <string name="stats_screen_expenses">Expenses</string>
-    <string name="stats_screen_income">Income</string>
-    <string name="stats_screen_expense_distribution">Expense distribution</string>
-    <string name="stats_screen_income_sources">Income sources</string>
+    <string name="stats_screen_expenses">Витрати</string>
+    <string name="stats_screen_income">Доходи</string>
+    <string name="stats_screen_expense_distribution">Розподіл витрат</string>
+    <string name="stats_screen_income_sources">Джерела доходів</string>
 
     <!-- Subscription Screen -->
-    <string name="subscription_screen_title">Subscriptions</string>
-    <string name="subscription_screen_add_desc">Add Subscription</string>
-    <string name="subscription_screen_empty">No subscriptions added yet</string>
-    <string name="subscription_screen_days_today">Today</string>
-    <string name="subscription_screen_days_remaining">In %d days</string>
+    <string name="subscription_screen_title">Підписки</string>
+    <string name="subscription_screen_add_desc">Додати підписку</string>
+    <string name="subscription_screen_empty">Підписки ще не додані</string>
+    <string name="subscription_screen_days_today">Сьогодні</string>
+    <string name="subscription_screen_days_remaining">Через %d дн.</string>
 
     <!-- Transactions Screen -->
-    <string name="transactions_screen_delete_title">Delete transaction?</string>
-    <string name="transactions_screen_delete_desc">Are you sure? This action cannot be undone.</string>
-    <string name="transactions_screen_delete_btn_confirm">Delete</string>
-    <string name="transactions_screen_delete_btn_cancel">Cancel</string>
-    <string name="transactions_screen_date_today">Today</string>
-    <string name="transactions_screen_date_yesterday">Yesterday</string>
+    <string name="transactions_screen_delete_title">Видалити транзакцію?</string>
+    <string name="transactions_screen_delete_desc">Ви впевнені? Цю дію не можна скасувати.</string>
+    <string name="transactions_screen_delete_btn_confirm">Видалити</string>
+    <string name="transactions_screen_delete_btn_cancel">Скасувати</string>
+    <string name="transactions_screen_date_today">Сьогодні</string>
+    <string name="transactions_screen_date_yesterday">Вчора</string>
 
     <!-- Dream Widget -->
-    <string name="dream_widget_no_dream">No Dream</string>
+    <string name="dream_widget_no_dream">Немає мрії</string>
     <string name="dream_widget_progress_percent">%d%%</string>
 
     <!-- Tree Widget -->
-    <string name="tree_widget_selection_header">SELECT TREE</string>
-    <string name="tree_widget_no_data_hint">Open app to sync or set any limits</string>
-    <string name="tree_widget_usage_status">%d%% USED</string>
+    <string name="tree_widget_selection_header">ОБЕРИ ДЕРЕВО</string>
+    <string name="tree_widget_no_data_hint">Відкрий додаток, щоб синхронізувати ліміти</string>
+    <string name="tree_widget_usage_status">%d%% ВИКОРИСТАНО</string>
 
     <!-- Animated Amount Component -->
     <string name="animated_amount_format">%1$.2f %2$s</string>
 
     <!-- Balance Flow Card Component -->
-    <string name="balance_flow_card_total_title">Total Balance (All Accounts)</string>
-    <string name="balance_flow_card_account_title">Account Balance</string>
-    <string name="balance_flow_card_balance_start">At start of period</string>
-    <string name="balance_flow_card_net_flow">Net Flow</string>
-    <string name="balance_flow_card_balance_current">Current balance</string>
+    <string name="balance_flow_card_total_title">Загальний баланс (всі рахунки)</string>
+    <string name="balance_flow_card_account_title">Баланс рахунку</string>
+    <string name="balance_flow_card_balance_start">На початок періоду</string>
+    <string name="balance_flow_card_net_flow">Рух коштів (Net)</string>
+    <string name="balance_flow_card_balance_current">Поточний баланс</string>
 
     <!-- Budget Progress Item Component -->
     <string name="budget_progress_item_remaining">%1$.0f %2$s</string>
-    <string name="budget_progress_item_limit_info">left of %1$d %2$s</string>
+    <string name="budget_progress_item_limit_info">залишилось від %1$d %2$s</string>
 
     <!-- FinCentra Drawer Component -->
-    <string name="drawer_close_desc">Close</string>
-    <string name="drawer_user_placeholder">Financial Hero</string>
-    <string name="drawer_loading">Loading…</string>
-    <string name="drawer_about_app">About App</string>
-    <string name="drawer_sign_out">Sign Out</string>
+    <string name="drawer_close_desc">Закрити</string>
+    <string name="drawer_user_placeholder">Фінансовий герой</string>
+    <string name="drawer_loading">Завантаження…</string>
+    <string name="drawer_about_app">Про додаток</string>
+    <string name="drawer_sign_out">Вийти</string>
 
     <!-- Health Badge Component -->
-    <string name="health_badge_label">SCORE</string>
+    <string name="health_badge_label">БАЛИ</string>
 
     <!-- Transaction Detail Sheet Component -->
     <string name="transaction_detail_amount_format">%1$s%2$.2f %3$s</string>
-    <string name="transaction_detail_no_name">Unnamed operation</string>
-    <string name="transaction_detail_category">Category</string>
-    <string name="transaction_detail_subcategory">Subcategory</string>
-    <string name="transaction_detail_source">Source</string>
-    <string name="transaction_detail_time">Operation time</string>
-    <string name="transaction_detail_bank_comment">Bank comment</string>
-    <string name="transaction_detail_btn_close">Close</string>
+    <string name="transaction_detail_no_name">Операція без назви</string>
+    <string name="transaction_detail_category">Категорія</string>
+    <string name="transaction_detail_subcategory">Підкатегорія</string>
+    <string name="transaction_detail_source">Джерело</string>
+    <string name="transaction_detail_time">Час операції</string>
+    <string name="transaction_detail_bank_comment">Коментар банку</string>
+    <string name="transaction_detail_btn_close">Закрити</string>
 
     <!-- Transaction Item Component -->
     <string name="transaction_item_amount_format">%1$s%2$.2f %3$s</string>
 
     <!-- Add Budget Sheet Component -->
-    <string name="add_budget_sheet_title_new">New Limit</string>
-    <string name="add_budget_sheet_title_edit">Edit Limit</string>
-    <string name="add_budget_sheet_amount_label">Amount</string>
-    <string name="add_budget_sheet_category_label">Select category</string>
-    <string name="add_budget_sheet_btn_set">Set Limit</string>
-    <string name="add_budget_sheet_btn_update">Update Limit</string>
-    <string name="add_budget_sheet_btn_delete">Delete This Limit</string>
+    <string name="add_budget_sheet_title_new">Новий ліміт</string>
+    <string name="add_budget_sheet_title_edit">Редагування</string>
+    <string name="add_budget_sheet_amount_label">Сума</string>
+    <string name="add_budget_sheet_category_label">Виберіть категорію</string>
+    <string name="add_budget_sheet_btn_set">Встановити ліміт</string>
+    <string name="add_budget_sheet_btn_update">Оновити ліміт</string>
+    <string name="add_budget_sheet_btn_delete">Видалити цей ліміт</string>
 
     <!-- Budgets Info Card Component -->
-    <string name="budgets_info_card_text">This is the amount that should always remain in your accounts for a comfortable life (rent, food, reserve).</string>
+    <string name="budgets_info_card_text">Це сума, яка завжди має залишатися на твоїх рахунках для комфортного життя (оренда, їжа, резерв).</string>
 
     <!-- Dream Form Component -->
-    <string name="dream_form_title_edit">Update parameters</string>
-    <string name="dream_form_title_new">Setup your dream</string>
-    <string name="dream_form_label_icon">Icon</string>
-    <string name="dream_form_label_title">What are we saving for?</string>
-    <string name="dream_form_placeholder_title">Example: Car</string>
-    <string name="dream_form_label_target">Target amount</string>
-    <string name="dream_form_label_buffer">Safety buffer (for living)</string>
-    <string name="dream_form_btn_update">Update Dream</string>
-    <string name="dream_form_btn_save">Save Dream</string>
-    <string name="dream_form_btn_delete">Delete Dream</string>
-    <string name="dream_form_btn_cancel">Cancel</string>
+    <string name="dream_form_title_edit">Оновити параметри</string>
+    <string name="dream_form_title_new">Налаштувати мрію</string>
+    <string name="dream_form_label_icon">Іконка</string>
+    <string name="dream_form_label_title">На що збираємо?</string>
+    <string name="dream_form_placeholder_title">Наприклад: Автомобіль</string>
+    <string name="dream_form_label_target">Сума цілі</string>
+    <string name="dream_form_label_buffer">Поріг безпеки (на життя)</string>
+    <string name="dream_form_btn_update">Оновити мрію</string>
+    <string name="dream_form_btn_save">Зберегти мрію</string>
+    <string name="dream_form_btn_delete">Видалити мрію</string>
+    <string name="dream_form_btn_cancel">Скасувати</string>
 
     <!-- Dream Info Card Component -->
-    <string name="dream_info_card_title">What is a safety buffer?</string>
-    <string name="dream_info_card_desc">This is the amount that should always remain on your accounts for a comfortable life (rent, food, reserve).</string>
-    <string name="dream_info_card_detail">Dream progress is only calculated from funds exceeding this buffer. This way you\'re sure that savings won\'t leave you with an empty wallet.</string>
+    <string name="dream_info_card_title">Що таке поріг безпеки?</string>
+    <string name="dream_info_card_desc">Це сума, яка завжди має залишатися на твоїх рахунках для комфортного життя (оренда, їжа, резерв).</string>
+    <string name="dream_info_card_detail">Прогрес мрії рахується тільки з коштів, що перевищують цей поріг. Так ти впевнений, що накопичення не залишать тебе з порожнім гаманцем.</string>
 
     <!-- Dream Progress View Component -->
-    <string name="dream_progress_view_label_target">Savings target</string>
-    <string name="dream_progress_view_label_buffer">Your safety buffer</string>
-    <string name="dream_progress_view_label_available">Available for dream</string>
-    <string name="dream_progress_view_btn_edit">Edit target</string>
+    <string name="dream_progress_view_label_target">Ціль накопичення</string>
+    <string name="dream_progress_view_label_buffer">Твій поріг безпеки</string>
+    <string name="dream_progress_view_label_available">Доступно на мрію</string>
+    <string name="dream_progress_view_btn_edit">Редагувати ціль</string>
     <string name="dream_progress_view_amount_format">%1$.2f %2$s</string>
     <string name="dream_progress_view_amount_buffer_format">-%1$.2f %2$s</string>
 
     <!-- Prediction Coin Component -->
-    <string name="prediction_coin_title_default">Daily Insight</string>
-    <string name="prediction_coin_tap_instruction">Tap to flip</string>
+    <string name="prediction_coin_title_default">Порада на день</string>
+    <string name="prediction_coin_tap_instruction">Натисни, щоб підкинути</string>
 
     <!-- Bank Details Content Component -->
-    <string name="bank_details_content_close_desc">Close</string>
-    <string name="bank_details_content_status_updating">Updating balances…</string>
-    <string name="bank_details_content_status_assets">Syncing assets…</string>
-    <string name="bank_details_content_status_done">Done!</string>
-    <string name="bank_details_content_status_syncing">Syncing: %s…</string>
-    <string name="bank_details_content_status_cooldown">API Cooldown: %d s…</string>
-    <string name="bank_details_content_wallet_title">Google Wallet Synchronization</string>
-    <string name="bank_details_content_wallet_desc">FinCentra can automatically catch payments from Google Wallet notifications.</string>
-    <string name="bank_details_content_wallet_access_granted">System Access: Granted</string>
-    <string name="bank_details_content_wallet_access_required">System Access: Required</string>
-    <string name="bank_details_content_wallet_enable_automation">Enable Automation</string>
-    <string name="bank_details_content_wallet_btn_grant">Grant System Access</string>
-    <string name="bank_details_content_mono_token_label">Monobank Token</string>
-    <string name="bank_details_content_mono_btn_connect">Connect Monobank</string>
-    <string name="bank_details_content_mono_get_access">Get access in </string>
-    <string name="bank_details_content_mono_personal_cabinet">Personal Cabinet</string>
-    <string name="bank_details_content_mono_select_title">Select Monobank Accounts</string>
-    <string name="bank_details_content_mono_sync_warning">Statement requests are allowed once every 60 seconds. Please do not close the app.</string>
-    <string name="bank_details_content_mono_btn_save">Save &amp; Sync Monobank</string>
-    <string name="bank_details_content_mono_btn_refresh">Update account list</string>
-    <string name="bank_details_content_mono_btn_disconnect">Disconnect Monobank</string>
-    <string name="bank_details_content_wise_setup_title">How to get your API Token:</string>
-    <string name="bank_details_content_wise_setup_desc">1. Log in to Wise website (not the app).\n2. Go to Settings -> API tokens.\n3. Ensure 2-step verification is enabled.\n4. Create and copy your Personal Token.</string>
-    <string name="bank_details_content_wise_token_label">Wise API Token</string>
-    <string name="bank_details_content_wise_btn_connect">Connect Wise Account</string>
-    <string name="bank_details_content_wise_sync_info">Wise sync might take a few seconds to update all currency balances.</string>
-    <string name="bank_details_content_wise_select_title">Wise Multi-currency Accounts</string>
-    <string name="bank_details_content_wise_btn_save">Save &amp; Sync Wise</string>
-    <string name="bank_details_content_wise_btn_disconnect">Disconnect Wise</string>
-    <string name="bank_details_content_euro_setup_desc">Connect your %s account securely via Salt Edge gateway.</string>
-    <string name="bank_details_content_euro_btn_connect">Connect via Browser</string>
-    <string name="bank_details_content_euro_sync_info">European bank data is fetched via Salt Edge secure PSD2 gateway.</string>
-    <string name="bank_details_content_euro_select_title">Available European Accounts</string>
-    <string name="bank_details_content_euro_btn_save">Save &amp; Sync European Hub</string>
-    <string name="bank_details_content_euro_btn_disconnect">Disconnect Bank</string>
+    <string name="bank_details_content_close_desc">Закрити</string>
+    <string name="bank_details_content_status_updating">Оновлення балансів…</string>
+    <string name="bank_details_content_status_assets">Синхронізація активів…</string>
+    <string name="bank_details_content_status_done">Готово!</string>
+    <string name="bank_details_content_status_syncing">Синхронізація: %s…</string>
+    <string name="bank_details_content_status_cooldown">Відпочинок API: %d с…</string>
+    <string name="bank_details_content_wallet_title">Синхронізація Google Wallet</string>
+    <string name="bank_details_content_wallet_desc">FinCentra може автоматично фіксувати оплати через сповіщення Google Wallet.</string>
+    <string name="bank_details_content_wallet_access_granted">Доступ: Надано</string>
+    <string name="bank_details_content_wallet_access_required">Доступ: Потрібен</string>
+    <string name="bank_details_content_wallet_enable_automation">Увімкнути автоматизацію</string>
+    <string name="bank_details_content_wallet_btn_grant">Надати системний доступ</string>
+    <string name="bank_details_content_mono_token_label">Токен Monobank</string>
+    <string name="bank_details_content_mono_btn_connect">Підключити Monobank</string>
+    <string name="bank_details_content_mono_get_access">Отримайте доступ в </string>
+    <string name="bank_details_content_mono_personal_cabinet">Особистому кабінеті</string>
+    <string name="bank_details_content_mono_select_title">Виберіть рахунки Monobank</string>
+    <string name="bank_details_content_mono_sync_warning">Запит виписки дозволено 1 раз на 60 секунд. Будь ласка, не закривайте додаток.</string>
+    <string name="bank_details_content_mono_btn_save">Зберегти та синхронізувати</string>
+    <string name="bank_details_content_mono_btn_refresh">Оновити список рахунків</string>
+    <string name="bank_details_content_mono_btn_disconnect">Відключити Monobank</string>
+    <string name="bank_details_content_wise_setup_title">Як отримати API токен:</string>
+    <string name="bank_details_content_wise_setup_desc">1. Увійдіть на сайт Wise (не в додаток).\n2. Перейдіть у Settings -> API tokens.\n3. Переконайтеся, що 2FA увімкнено.\n4. Створіть та скопіюйте Personal Token.</string>
+    <string name="bank_details_content_wise_token_label">Wise API токен</string>
+    <string name="bank_details_content_wise_btn_connect">Підключити Wise</string>
+    <string name="bank_details_content_wise_sync_info">Синхронізація Wise може зайняти кілька секунд для оновлення всіх валют.</string>
+    <string name="bank_details_content_wise_select_title">Мультивалютні рахунки Wise</string>
+    <string name="bank_details_content_wise_btn_save">Зберегти та синхронізувати Wise</string>
+    <string name="bank_details_content_wise_btn_disconnect">Відключити Wise</string>
+    <string name="bank_details_content_euro_setup_desc">Підключіть свій рахунок %s безпечно через шлюз Salt Edge.</string>
+    <string name="bank_details_content_euro_btn_connect">Підключити через браузер</string>
+    <string name="bank_details_content_euro_sync_info">Дані європейських банків отримуються через безпечний шлюз Salt Edge (PSD2).</string>
+    <string name="bank_details_content_euro_select_title">Доступні європейські рахунки</string>
+    <string name="bank_details_content_euro_btn_save">Зберегти та синхронізувати</string>
+    <string name="bank_details_content_euro_btn_disconnect">Відключити банк</string>
     <string name="bank_details_content_account_format">%1$.2f %2$s</string>
 
     <!-- Onboarding Page Content Component -->
-    <string name="onboarding_page_content_step1_title">Smart Analytics</string>
-    <string name="onboarding_page_content_step1_desc">FinCentra automatically collects data from your banks. No more notebooks — just watch the result.</string>
-    <string name="onboarding_page_content_step1_highlight">automatically</string>
-    <string name="onboarding_page_content_step2_title">Your Ecosystem</string>
-    <string name="onboarding_page_content_step2_desc">Your limit is a living tree. Control expenses so your financial tree always grows and remains green and flourishing.</string>
-    <string name="onboarding_page_content_step2_highlight">living tree</string>
-    <string name="onboarding_page_content_step3_title">Dream Without Risk</string>
-    <string name="onboarding_page_content_step3_desc">You automatically protect money for living, and the surplus will be directed. Reach dreams while maintaining financial peace.</string>
-    <string name="onboarding_page_content_step3_highlight">protect money for living</string>
+    <string name="onboarding_page_content_step1_title">Розумна аналітика</string>
+    <string name="onboarding_page_content_step1_desc">FinCentra автоматично збирає дані з твоїх банків. Більше ніяких блокнотів — просто спостерігай за результатом.</string>
+    <string name="onboarding_page_content_step1_highlight">автоматично</string>
+    <string name="onboarding_page_content_step2_title">Твоя екосистема</string>
+    <string name="onboarding_page_content_step2_desc">Твій ліміт — це живе дерево. Контролюй витрати, щоб твоє фінансове дерево завжди зростало та залишалось зеленим та квітучим.</string>
+    <string name="onboarding_page_content_step2_highlight">живе дерево</string>
+    <string name="onboarding_page_content_step3_title">Мрій без ризику</string>
+    <string name="onboarding_page_content_step3_desc">Ти автоматично захищаєш гроші на життя, а надлишок буде спрямований. Досягай мрій, зберігаючи фінансовий спокій.</string>
+    <string name="onboarding_page_content_step3_highlight">захищаєш гроші на життя</string>
 
     <!-- Balance Card Component -->
-    <string name="balance_card_total_label">Total balance (%s)</string>
+    <string name="balance_card_total_label">Загальний баланс (%s)</string>
     <string name="balance_card_amount_format">%1$.2f %2$s</string>
 
     <!-- Profile Currency Block Component -->
-    <string name="profile_currency_block_title">Global Market Rates (to 1 €)</string>
+    <string name="profile_currency_block_title">Курси світового ринку (до 1 €)</string>
     <string name="profile_currency_block_rate_format">%1$.2f</string>
 
     <!-- Category Stat Item Component -->
-    <string name="category_stat_item_subcategories_count">%d subcategories</string>
+    <string name="category_stat_item_subcategories_count">%d підкатегорій</string>
 
     <!-- Empty Stats Placeholder Component -->
-    <string name="empty_stats_placeholder_no_data">No data found</string>
+    <string name="empty_stats_placeholder_no_data">Даних не знайдено</string>
 
     <!-- Filter Row Component -->
-    <string name="filter_row_all">All</string>
+    <string name="filter_row_all">Всі</string>
     <string name="filter_row_monobank">Monobank</string>
-    <string name="filter_row_cash">Cash</string>
-    <string name="filter_row_all_cards">All cards</string>
+    <string name="filter_row_cash">Готівка</string>
+    <string name="filter_row_all_cards">Всі карти</string>
 
     <!-- Period Selector Component -->
-    <string name="period_selector_week">Week</string>
-    <string name="period_selector_month">Month</string>
-    <string name="period_selector_quarter">3 months</string>
-    <string name="period_selector_all_time">All time</string>
-    <string name="period_selector_custom_picker_desc">Select custom period</string>
+    <string name="period_selector_week">Тиждень</string>
+    <string name="period_selector_month">Місяць</string>
+    <string name="period_selector_quarter">3 місяці</string>
+    <string name="period_selector_all_time">Весь час</string>
+    <string name="period_selector_custom_picker_desc">Вибрати власний період</string>
 
     <!-- Spending Donut Chart Component -->
-    <string name="spending_donut_chart_expenses">Expenses</string>
-    <string name="spending_donut_chart_income">Income</string>
+    <string name="spending_donut_chart_expenses">Витрати</string>
+    <string name="spending_donut_chart_income">Доходи</string>
 
     <!-- Add Subscription Sheet -->
-    <string name="add_subscription_sheet_date_ok">OK</string>
-    <string name="add_subscription_sheet_date_cancel">Cancel</string>
-    <string name="add_subscription_sheet_title_new">New Subscription</string>
-    <string name="add_subscription_sheet_title_details">Subscription Details</string>
-    <string name="add_subscription_sheet_label_service_name">Service Name</string>
-    <string name="add_subscription_sheet_label_amount">Amount</string>
-    <string name="add_subscription_sheet_billing_cycle">Billing Cycle</string>
-    <string name="add_subscription_sheet_freq_weekly">Weekly</string>
-    <string name="add_subscription_sheet_freq_monthly">Monthly</string>
-    <string name="add_subscription_sheet_freq_yearly">Yearly</string>
-    <string name="add_subscription_sheet_label_payment_date">Next Payment Date</string>
-    <string name="add_subscription_sheet_btn_add">Add Subscription</string>
-    <string name="add_subscription_sheet_btn_save">Save Changes</string>
-    <string name="add_subscription_sheet_btn_cancel_sub">Cancel Subscription</string>
+    <string name="add_subscription_sheet_date_ok">ОК</string>
+    <string name="add_subscription_sheet_date_cancel">Скасувати</string>
+    <string name="add_subscription_sheet_title_new">Нова підписка</string>
+    <string name="add_subscription_sheet_title_details">Деталі підписки</string>
+    <string name="add_subscription_sheet_label_service_name">Назва сервісу</string>
+    <string name="add_subscription_sheet_label_amount">Сума</string>
+    <string name="add_subscription_sheet_billing_cycle">Цикл оплати</string>
+    <string name="add_subscription_sheet_freq_weekly">Щотижня</string>
+    <string name="add_subscription_sheet_freq_monthly">Щомісяця</string>
+    <string name="add_subscription_sheet_freq_yearly">Щороку</string>
+    <string name="add_subscription_sheet_label_payment_date">Дата наступної оплати</string>
+    <string name="add_subscription_sheet_btn_add">Додати підписку</string>
+    <string name="add_subscription_sheet_btn_save">Зберегти зміни</string>
+    <string name="add_subscription_sheet_btn_cancel_sub">Скасувати підписку</string>
 
     <!-- Date Range Picker Dialog Component -->
-    <string name="date_range_picker_dialog_btn_confirm">OK</string>
-    <string name="date_range_picker_dialog_btn_cancel">Cancel</string>
-    <string name="date_range_picker_dialog_title">Select period</string>
-    <string name="date_range_picker_dialog_start_label">Start</string>
-    <string name="date_range_picker_dialog_end_label">End</string>
+    <string name="date_range_picker_dialog_btn_confirm">ОК</string>
+    <string name="date_range_picker_dialog_btn_cancel">Скасувати</string>
+    <string name="date_range_picker_dialog_title">Виберіть період</string>
+    <string name="date_range_picker_dialog_start_label">Початок</string>
+    <string name="date_range_picker_dialog_end_label">Кінець</string>
 
     <!-- Empty Transactions Placeholder Component -->
-    <string name="empty_transactions_placeholder_title">Nothing found</string>
-    <string name="empty_transactions_placeholder_desc">Try changing the period or resetting filters to see transactions.</string>
-    <string name="empty_transactions_placeholder_btn_reset">Reset all filters</string>
+    <string name="empty_transactions_placeholder_title">Нічого не знайдено</string>
+    <string name="empty_transactions_placeholder_desc">Спробуй змінити період або скинути фільтри, щоб побачити транзакції.</string>
+    <string name="empty_transactions_placeholder_btn_reset">Скинути всі фільтри</string>
 
     <!-- Category Filter Component -->
-    <string name="category_filter_title">Category filter</string>
-    <string name="category_filter_btn_apply">Apply</string>
-    <string name="category_filter_appearance_title">Appearance settings</string>
-    <string name="category_filter_sort_by">Sort by</string>
-    <string name="category_filter_type_label">Operation type</string>
-    <string name="category_filter_all">All</string>
-    <string name="category_filter_expenses">Expenses</string>
-    <string name="category_filter_income">Income</string>
-    <string name="category_filter_source_label">Source</string>
+    <string name="category_filter_title">Фільтр категорій</string>
+    <string name="category_filter_btn_apply">Застосувати</string>
+    <string name="category_filter_appearance_title">Налаштування вигляду</string>
+    <string name="category_filter_sort_by">Сортувати за</string>
+    <string name="category_filter_type_label">Тип операції</string>
+    <string name="category_filter_all">Всі</string>
+    <string name="category_filter_expenses">Витрати</string>
+    <string name="category_filter_income">Доходи</string>
+    <string name="category_filter_source_label">Джерело</string>
     <string name="category_filter_monobank">Monobank</string>
-    <string name="category_filter_cash">Cash</string>
-    <string name="category_filter_btn_done">Done</string>
+    <string name="category_filter_cash">Готівка</string>
+    <string name="category_filter_btn_done">Готово</string>
 
     <!-- Swipe Background Component -->
-    <string name="swipe_background_edit_desc">Edit</string>
-    <string name="swipe_background_delete_desc">Delete</string>
+    <string name="swipe_background_edit_desc">Редагувати</string>
+    <string name="swipe_background_delete_desc">Видалити</string>
 
     <!-- Transaction Form Component -->
-    <string name="transaction_form_title_new">New operation</string>
-    <string name="transaction_form_title_edit">Editing</string>
-    <string name="transaction_form_label_amount">Amount</string>
-    <string name="transaction_form_label_description">Description or name</string>
-    <string name="transaction_form_label_category_header">Category</string>
-    <string name="transaction_form_btn_save">Save</string>
-    <string name="transaction_form_btn_update">Update</string>
-    <string name="transaction_form_type_expense">Expense</string>
-    <string name="transaction_form_type_income">Income</string>
+    <string name="transaction_form_title_new">Нова операція</string>
+    <string name="transaction_form_title_edit">Редагування</string>
+    <string name="transaction_form_label_amount">Сума</string>
+    <string name="transaction_form_label_description">Опис або назва</string>
+    <string name="transaction_form_label_category_header">Категорія</string>
+    <string name="transaction_form_btn_save">Зберегти</string>
+    <string name="transaction_form_btn_update">Оновити</string>
+    <string name="transaction_form_type_expense">Витрата</string>
+    <string name="transaction_form_type_income">Дохід</string>
 
     <!-- Transactions Top Bar Component -->
-    <string name="transactions_top_bar_title">Operations</string>
-    <string name="transactions_top_bar_search_placeholder">Search…</string>
-    <string name="transactions_top_bar_menu_desc">Open navigation menu</string>
-    <string name="transactions_top_bar_search_btn_desc">Search transactions</string>
-    <string name="transactions_top_bar_filter_cat_desc">Filter by category</string>
-    <string name="transactions_top_bar_filter_type_desc">Filter by type and sort</string>
-    <string name="transactions_top_bar_filter_date_desc">Filter by date</string>
-    <string name="transactions_top_bar_close_search_desc">Close search</string>
+    <string name="transactions_top_bar_title">Операції</string>
+    <string name="transactions_top_bar_search_placeholder">Пошук…</string>
+    <string name="transactions_top_bar_menu_desc">Відкрити меню навігації</string>
+    <string name="transactions_top_bar_search_btn_desc">Шукати транзакції</string>
+    <string name="transactions_top_bar_filter_cat_desc">Фільтр за категорією</string>
+    <string name="transactions_top_bar_filter_type_desc">Фільтр за типом та сортування</string>
+    <string name="transactions_top_bar_filter_date_desc">Фільтр за датою</string>
+    <string name="transactions_top_bar_close_search_desc">Закрити пошук</string>
 
     <!-- Navigation Screens -->
-    <string name="screen_nav_onboarding">Intro</string>
-    <string name="screen_nav_home">Overview</string>
-    <string name="screen_nav_transactions">Transactions</string>
-    <string name="screen_nav_stats">Analytics</string>
-    <string name="screen_nav_profile">Profile</string>
-    <string name="screen_nav_integrations">Banks</string>
-    <string name="screen_nav_budgets">Limits</string>
-    <string name="screen_nav_dream">Dream</string>
-    <string name="screen_nav_about">About</string>
-    <string name="screen_nav_settings">Settings</string>
-    <string name="screen_nav_login">Login</string>
-    <string name="screen_nav_register">Register</string>
-    <string name="screen_nav_subscriptions">Subscriptions</string>
-    <string name="screen_nav_export">Export Reports</string>
+    <string name="screen_nav_onboarding">Вступ</string>
+    <string name="screen_nav_home">Огляд</string>
+    <string name="screen_nav_transactions">Транзакції</string>
+    <string name="screen_nav_stats">Аналітика</string>
+    <string name="screen_nav_profile">Профіль</string>
+    <string name="screen_nav_integrations">Банки</string>
+    <string name="screen_nav_budgets">Ліміти</string>
+    <string name="screen_nav_dream">Мрія</string>
+    <string name="screen_nav_about">Про додаток</string>
+    <string name="screen_nav_settings">Налаштування</string>
+    <string name="screen_nav_login">Вхід</string>
+    <string name="screen_nav_register">Реєстрація</string>
+    <string name="screen_nav_subscriptions">Підписки</string>
+    <string name="screen_nav_export">Експорт звітів</string>
 
     <!-- Main Activity -->
     <string name="main_activity_title_home">FinCentra</string>
-    <string name="main_activity_title_transactions">Transactions</string>
-    <string name="main_activity_title_stats">Analytics</string>
+    <string name="main_activity_title_transactions">Транзакції</string>
+    <string name="main_activity_title_stats">Аналітика</string>
 
     <!-- FinCentra Application -->
-    <string name="fin_centra_app_notif_channel_budget_name">Financial Limits</string>
-    <string name="fin_centra_app_notif_channel_budget_desc">Notifications about exceeding the monthly budget</string>
+    <string name="fin_centra_app_notif_channel_budget_name">Фінансові ліміти</string>
+    <string name="fin_centra_app_notif_channel_budget_desc">Сповіщення про перевищення місячного бюджету</string>
 
     <!-- Auth ViewModel -->
-    <string name="auth_view_model_error_email_required">Email is required</string>
-    <string name="auth_view_model_error_password_required">Password is required</string>
-    <string name="auth_view_model_error_invalid_credentials">Invalid email or password</string>
-    <string name="auth_view_model_error_name_required">Name is required</string>
-    <string name="auth_view_model_error_invalid_email">Invalid email format</string>
-    <string name="auth_view_model_error_short_password">Minimum 6 characters</string>
-    <string name="auth_view_model_error_passwords_dont_match">Passwords do not match</string>
-    <string name="auth_view_model_error_unknown">An error occurred. Please try again.</string>
-    <string name="auth_view_model_error_google_failed">Google login failed</string>
-    <string name="auth_view_model_success_password_changed">Password successfully changed</string>
-    <string name="auth_view_model_error_relogin_required">Please log in again to perform this action</string>
+    <string name="auth_view_model_error_email_required">Пошта обов\'язкова</string>
+    <string name="auth_view_model_error_password_required">Пароль обов\'язковий</string>
+    <string name="auth_view_model_error_invalid_credentials">Неправильна пошта або пароль</string>
+    <string name="auth_view_model_error_name_required">Ім\'я обов\'язкове</string>
+    <string name="auth_view_model_error_invalid_email">Невірний формат пошти</string>
+    <string name="auth_view_model_error_short_password">Мінімум 6 символів</string>
+    <string name="auth_view_model_error_passwords_dont_match">Паролі не збігаються</string>
+    <string name="auth_view_model_error_unknown">Виникла помилка. Спробуйте ще раз.</string>
+    <string name="auth_view_model_error_google_failed">Помилка входу через Google</string>
+    <string name="auth_view_model_success_password_changed">Пароль успішно змінено</string>
+    <string name="auth_view_model_error_relogin_required">Будь ласка, увійдіть знову для цієї дії</string>
 
     <!-- Export ViewModel -->
-    <string name="export_view_model_share_chooser_title">Share Report with</string>
+    <string name="export_view_model_share_chooser_title">Поділитися звітом через</string>
 
     <!-- Integrations ViewModel -->
-    <string name="integrations_view_model_error_no_accounts">Please select accounts in settings</string>
-    <string name="integrations_view_model_error_token_invalid">Invalid API token</string>
-    <string name="integrations_view_model_success_updated">Updated</string>
-    <string name="integrations_view_model_error_permission_required">Notification access required for this feature</string>
-    <string name="integrations_view_model_default_account_name">Account</string>
+    <string name="integrations_view_model_error_no_accounts">Будь ласка, виберіть рахунки в налаштуваннях</string>
+    <string name="integrations_view_model_error_token_invalid">Неправильний токен API</string>
+    <string name="integrations_view_model_success_updated">Оновлено</string>
+    <string name="integrations_view_model_error_permission_required">Для цієї функції потрібен доступ до сповіщень</string>
+    <string name="integrations_view_model_default_account_name">Рахунок</string>
 
     <!-- Profile ViewModel -->
-    <string name="profile_view_model_feedback_subject">FinCentra Feedback</string>
+    <string name="profile_view_model_feedback_subject">FinCentra: Зворотний зв’язок</string>
 
     <!-- Settings ViewModel -->
-    <string name="settings_view_model_success_password">Password successfully changed</string>
-    <string name="settings_view_model_error_reauth">To perform this action, please log in again for security</string>
+    <string name="settings_view_model_success_password">Пароль успішно змінено</string>
+    <string name="settings_view_model_error_reauth">З міркувань безпеки, будь ласка, увійдіть знову</string>
 
     <!-- Transactions ViewModel -->
-    <string name="transactions_view_model_sort_date_desc">Newest first</string>
-    <string name="transactions_view_model_sort_date_asc">Oldest first</string>
-    <string name="transactions_view_model_sort_amount_desc">Most expensive</string>
-    <string name="transactions_view_model_sort_amount_asc">Cheapest</string>
-    <string name="transactions_view_model_type_expense">Expense</string>
-    <string name="transactions_view_model_type_income">Income</string>
-    <string name="transactions_view_model_subcat_others">Other</string>
+    <string name="transactions_view_model_sort_date_desc">Спочатку нові</string>
+    <string name="transactions_view_model_sort_date_asc">Спочатку старі</string>
+    <string name="transactions_view_model_sort_amount_desc">Найдорожчі</string>
+    <string name="transactions_view_model_sort_amount_asc">Найдешевші</string>
+    <string name="transactions_view_model_type_expense">Витрата</string>
+    <string name="transactions_view_model_type_income">Дохід</string>
+    <string name="transactions_view_model_subcat_others">Різне</string>
 
     <!-- Budget Progress Model -->
-    <string name="budget_progress_status_wealthy">Wealthy</string>
-    <string name="budget_progress_status_blooming">Blooming</string>
-    <string name="budget_progress_status_healthy">Healthy</string>
-    <string name="budget_progress_status_needs_care">Needs care</string>
-    <string name="budget_progress_status_withered">Withered</string>
+    <string name="budget_progress_status_wealthy">Багато</string>
+    <string name="budget_progress_status_blooming">Квітуче</string>
+    <string name="budget_progress_status_healthy">Здорове</string>
+    <string name="budget_progress_status_needs_care">Потребує догляду</string>
+    <string name="budget_progress_status_withered">Зів’яле</string>
 
     <!-- Transaction Model -->
-    <string name="transaction_subcat_others">Other</string>
+    <string name="transaction_subcat_others">Різне</string>
 
     <!-- Transaction Category Model -->
-    <string name="transaction_category_food">Food</string>
-    <string name="transaction_category_transport">Transport</string>
-    <string name="transaction_category_housing">Housing</string>
-    <string name="transaction_category_health">Health</string>
-    <string name="transaction_category_entertainment">Entertainment</string>
-    <string name="transaction_category_salary">Salary &amp; Cash</string>
-    <string name="transaction_category_subscriptions">Subscriptions</string>
-    <string name="transaction_category_transfers">Transfers</string>
-    <string name="transaction_category_services">Services</string>
-    <string name="transaction_category_shopping">Shopping</string>
-    <string name="transaction_category_travel">Travel</string>
-    <string name="transaction_category_government">Government</string>
-    <string name="transaction_category_education">Education</string>
-    <string name="transaction_category_others">Others</string>
+    <string name="transaction_category_food">Їжа</string>
+    <string name="transaction_category_transport">Транспорт</string>
+    <string name="transaction_category_housing">Житло</string>
+    <string name="transaction_category_health">Здоров\'я</string>
+    <string name="transaction_category_entertainment">Розваги</string>
+    <string name="transaction_category_salary">Зарплата та готівка</string>
+    <string name="transaction_category_subscriptions">Підписки</string>
+    <string name="transaction_category_transfers">Перекази</string>
+    <string name="transaction_category_services">Послуги</string>
+    <string name="transaction_category_shopping">Покупки</string>
+    <string name="transaction_category_travel">Подорожі</string>
+    <string name="transaction_category_government">Держпослуги</string>
+    <string name="transaction_category_education">Освіта</string>
+    <string name="transaction_category_others">Різне</string>
 
     <!-- Stats Period Model -->
-    <string name="stats_period_week">Week</string>
-    <string name="stats_period_month">Month</string>
-    <string name="stats_period_quarter">3 months</string>
-    <string name="stats_period_all">All time</string>
-    <string name="stats_period_custom">Calendar</string>
+    <string name="stats_period_week">Тиждень</string>
+    <string name="stats_period_month">Місяць</string>
+    <string name="stats_period_quarter">3 місяці</string>
+    <string name="stats_period_all">Весь час</string>
+    <string name="stats_period_custom">Календар</string>
 
     <!-- Bank Provider Info Model -->
     <string name="bank_provider_info_mono_name">Monobank</string>
     <string name="bank_provider_info_wise_name">Wise</string>
-    <string name="bank_provider_info_wise_subtitle">Global Multi-currency</string>
+    <string name="bank_provider_info_wise_subtitle">Глобальна мультивалютність</string>
     <string name="bank_provider_info_wallet_name">Google Wallet</string>
-    <string name="bank_provider_info_wallet_subtitle">NFC Notifications</string>
+    <string name="bank_provider_info_wallet_subtitle">NFC сповіщення</string>
 
     <!-- European Provider Model -->
     <string name="european_provider_revolut">Revolut</string>
-    <string name="european_provider_revolut_country">Global / EU</string>
+    <string name="european_provider_revolut_country">Глобальний / ЄС</string>
     <string name="european_provider_db">Deutsche Bank</string>
-    <string name="european_provider_db_country">Germany</string>
+    <string name="european_provider_db_country">Німеччина</string>
     <string name="european_provider_santander">Santander</string>
-    <string name="european_provider_santander_country">Spain</string>
+    <string name="european_provider_santander_country">Іспанія</string>
     <string name="european_provider_bnp">BNP Paribas</string>
-    <string name="european_provider_bnp_country">France</string>
+    <string name="european_provider_bnp_country">Франція</string>
     <string name="european_provider_bt">Banca Transilvania</string>
-    <string name="european_provider_bt_country">Romania</string>
+    <string name="european_provider_bt_country">Румунія</string>
     <string name="european_provider_biz">Business Hub</string>
-    <string name="european_provider_biz_country">EU Business</string>
+    <string name="european_provider_biz_country">Бізнес ЄС</string>
 
     <!-- MCC Directory (Subcategories) -->
-    <string name="mcc_directory_vet">Veterinary Services</string>
-    <string name="mcc_directory_agro">Agro-cooperatives</string>
-    <string name="mcc_directory_landscaping">Landscaping Services</string>
-    <string name="mcc_directory_contractors">General Contractors</string>
-    <string name="mcc_directory_plumbing">Heating &amp; Plumbing</string>
-    <string name="mcc_directory_electrical">Electrical Works</string>
-    <string name="mcc_directory_construction">Construction Works</string>
-    <string name="mcc_directory_special_contractors">Special Contractors</string>
-    <string name="mcc_directory_printing">Printing Services</string>
-    <string name="mcc_directory_cleaning">Cleaning Services</string>
-    <string name="mcc_directory_railway_cargo">Railway (Cargo)</string>
-    <string name="mcc_directory_public_transport">Public Transport</string>
-    <string name="mcc_directory_railway_passenger">Passenger Railway</string>
-    <string name="mcc_directory_taxi">Taxi &amp; Limousines</string>
-    <string name="mcc_directory_bus">Bus Lines</string>
-    <string name="mcc_directory_courier">Courier Services</string>
-    <string name="mcc_directory_cruises">Cruise Lines</string>
-    <string name="mcc_directory_airlines">Airlines</string>
-    <string name="mcc_directory_airports">Airports</string>
-    <string name="mcc_directory_travel_agencies">Travel Agencies</string>
-    <string name="mcc_directory_tolls">Tolls &amp; Bridges</string>
-    <string name="mcc_directory_comm_equipment">Communication Equipment</string>
-    <string name="mcc_directory_mobile">Mobile Services</string>
-    <string name="mcc_directory_it_services">IT Services</string>
-    <string name="mcc_directory_wire_transfers">Money Transfers</string>
-    <string name="mcc_directory_tv_radio">TV &amp; Radio Services</string>
-    <string name="mcc_directory_utilities">Utilities</string>
-    <string name="mcc_directory_auto_goods">Auto Goods</string>
-    <string name="mcc_directory_computers_sw">Computers &amp; Software</string>
-    <string name="mcc_directory_jewelry">Jewelry</string>
-    <string name="mcc_directory_pharmacy_goods">Pharmacy Goods</string>
-    <string name="mcc_directory_books_news">Books &amp; Newspapers</string>
-    <string name="mcc_directory_building_materials">Building Materials</string>
-    <string name="mcc_directory_garden">Garden &amp; Plants</string>
-    <string name="mcc_directory_discount_stores">Discount Stores</string>
-    <string name="mcc_directory_department_stores">Department Stores</string>
-    <string name="mcc_directory_low_price_stores">Low Price Stores</string>
-    <string name="mcc_directory_supermarkets">Supermarkets</string>
-    <string name="mcc_directory_confectionery">Confectionery</string>
-    <string name="mcc_directory_bakeries">Bakeries</string>
-    <string name="mcc_directory_groceries">Groceries</string>
-    <string name="mcc_directory_car_sales">Car Sales</string>
-    <string name="mcc_directory_auto_parts">Auto Parts</string>
-    <string name="mcc_directory_gas_station">Gas Station</string>
-    <string name="mcc_directory_gas_automated">Gas Station (Automated)</string>
-    <string name="mcc_directory_mens_clothing">Men\'s Clothing</string>
-    <string name="mcc_directory_womens_clothing">Women\'s Clothing</string>
-    <string name="mcc_directory_kids_clothing">Children\'s Clothing</string>
-    <string name="mcc_directory_family_clothing">Family Clothing</string>
-    <string name="mcc_directory_shoes">Footwear</string>
-    <string name="mcc_directory_furniture">Furniture</string>
-    <string name="mcc_directory_appliances">Home Appliances</string>
-    <string name="mcc_directory_electronics">Electronics</string>
-    <string name="mcc_directory_catering">Catering</string>
-    <string name="mcc_directory_restaurants">Restaurants</string>
-    <string name="mcc_directory_bars_clubs">Bars &amp; Clubs</string>
-    <string name="mcc_directory_fastfood">Fast Food</string>
-    <string name="mcc_directory_pharmacy">Pharmacies</string>
-    <string name="mcc_directory_liquor_stores">Liquor Stores</string>
-    <string name="mcc_directory_sporting_goods">Sporting Goods</string>
-    <string name="mcc_directory_book_stores">Bookstores</string>
-    <string name="mcc_directory_toys_hobby">Toys &amp; Hobbies</string>
-    <string name="mcc_directory_cosmetics">Cosmetics</string>
-    <string name="mcc_directory_pet_shops">Pet Shops</string>
-    <string name="mcc_directory_cash_desk">Cash (Desk)</string>
-    <string name="mcc_directory_atm">Cash (ATM)</string>
-    <string name="mcc_directory_card_topup">Card Top-up</string>
-    <string name="mcc_directory_hotels">Hotels &amp; Motels</string>
-    <string name="mcc_directory_barber">Barbershops</string>
-    <string name="mcc_directory_spa">SPA Salons</string>
-    <string name="mcc_directory_car_rental">Car Rental</string>
-    <string name="mcc_directory_car_wash">Car Wash</string>
-    <string name="mcc_directory_cinema">Cinemas</string>
-    <string name="mcc_directory_fitness">Fitness Clubs</string>
-    <string name="mcc_directory_doctors">Doctors</string>
-    <string name="mcc_directory_dentists">Dentists</string>
-    <string name="mcc_directory_schools">Schools</string>
-    <string name="mcc_directory_universities">Universities</string>
-    <string name="mcc_directory_charity">Charity</string>
-    <string name="mcc_directory_fines">Fines</string>
-    <string name="mcc_directory_taxes">Taxes</string>
-    <string name="mcc_directory_gov_services">Government Services</string>
-    <string name="mcc_directory_post_services">Postal Services</string>
-    <string name="mcc_directory_others">Other</string>
+    <string name="mcc_directory_vet">Ветеринарні послуги</string>
+    <string name="mcc_directory_agro">Агро-кооперативи</string>
+    <string name="mcc_directory_landscaping">Ландшафтні послуги</string>
+    <string name="mcc_directory_contractors">Генпідрядники</string>
+    <string name="mcc_directory_plumbing">Опалення та сантехніка</string>
+    <string name="mcc_directory_electrical">Електромонтаж</string>
+    <string name="mcc_directory_construction">Будівельні роботи</string>
+    <string name="mcc_directory_special_contractors">Спец-підрядники</string>
+    <string name="mcc_directory_printing">Друкарські послуги</string>
+    <string name="mcc_directory_cleaning">Клінінг</string>
+    <string name="mcc_directory_railway_cargo">Залізниця (Вантажі)</string>
+    <string name="mcc_directory_public_transport">Громадський транспорт</string>
+    <string name="mcc_directory_railway_passenger">Пасажирська залізниця</string>
+    <string name="mcc_directory_taxi">Таксі та лімузини</string>
+    <string name="mcc_directory_bus">Автобусні лінії</string>
+    <string name="mcc_directory_courier">Кур\'єрські послуги</string>
+    <string name="mcc_directory_cruises">Круїзні лінії</string>
+    <string name="mcc_directory_airlines">Авіалінії</string>
+    <string name="mcc_directory_airports">Аеропорти</string>
+    <string name="mcc_directory_travel_agencies">Турагенції</string>
+    <string name="mcc_directory_tolls">Дорожні збори та мости</string>
+    <string name="mcc_directory_comm_equipment">Обладнання зв\'язку</string>
+    <string name="mcc_directory_mobile">Мобільний зв\'язок</string>
+    <string name="mcc_directory_it_services">IT послуги</string>
+    <string name="mcc_directory_wire_transfers">Грошові перекази</string>
+    <string name="mcc_directory_tv_radio">ТВ та Радіо сервіси</string>
+    <string name="mcc_directory_utilities">Комунальні послуги</string>
+    <string name="mcc_directory_auto_goods">Автотовари</string>
+    <string name="mcc_directory_computers_sw">Комп\'ютери та ПЗ</string>
+    <string name="mcc_directory_jewelry">Ювелірні вироби</string>
+    <string name="mcc_directory_pharmacy_goods">Аптечні товари</string>
+    <string name="mcc_directory_books_news">Книги та газети</string>
+    <string name="mcc_directory_building_materials">Будматеріали</string>
+    <string name="mcc_directory_garden">Сад та город</string>
+    <string name="mcc_directory_discount_stores">Дисконт-центри</string>
+    <string name="mcc_directory_department_stores">Універмаги</string>
+    <string name="mcc_directory_low_price_stores">Магазини низьких цін</string>
+    <string name="mcc_directory_supermarkets">Супермаркети</string>
+    <string name="mcc_directory_confectionery">Кондитерські</string>
+    <string name="mcc_directory_bakeries">Булочні та пекарні</string>
+    <string name="mcc_directory_groceries">Продукти харчування</string>
+    <string name="mcc_directory_car_sales">Продаж авто</string>
+    <string name="mcc_directory_auto_parts">Автозапчастини</string>
+    <string name="mcc_directory_gas_station">АЗС</string>
+    <string name="mcc_directory_gas_automated">АЗС (автомат)</string>
+    <string name="mcc_directory_mens_clothing">Чоловічий одяг</string>
+    <string name="mcc_directory_womens_clothing">Жіночий одяг</string>
+    <string name="mcc_directory_kids_clothing">Дитячий одяг</string>
+    <string name="mcc_directory_family_clothing">Сімейний одяг</string>
+    <string name="mcc_directory_shoes">Взуття</string>
+    <string name="mcc_directory_furniture">Меблі</string>
+    <string name="mcc_directory_appliances">Побутова техніка</string>
+    <string name="mcc_directory_electronics">Електроніка</string>
+    <string name="mcc_directory_catering">Кейтеринг</string>
+    <string name="mcc_directory_restaurants">Ресторани</string>
+    <string name="mcc_directory_bars_clubs">Бари та клуби</string>
+    <string name="mcc_directory_fastfood">Фастфуд</string>
+    <string name="mcc_directory_pharmacy">Аптеки</string>
+    <string name="mcc_directory_liquor_stores">Алкогольні магазини</string>
+    <string name="mcc_directory_sporting_goods">Спорттовари</string>
+    <string name="mcc_directory_book_stores">Книжкові магазини</string>
+    <string name="mcc_directory_toys_hobby">Іграшки та хобі</string>
+    <string name="mcc_directory_cosmetics">Косметика</string>
+    <string name="mcc_directory_pet_shops">Зоотовари</string>
+    <string name="mcc_directory_cash_desk">Готівка (каса)</string>
+    <string name="mcc_directory_atm">Готівка (банкомат)</string>
+    <string name="mcc_directory_card_topup">Поповнення картки</string>
+    <string name="mcc_directory_hotels">Готелі та мотелі</string>
+    <string name="mcc_directory_barber">Перукарні</string>
+    <string name="mcc_directory_spa">SPA-салони</string>
+    <string name="mcc_directory_car_rental">Оренда авто</string>
+    <string name="mcc_directory_car_wash">Автомийки</string>
+    <string name="mcc_directory_cinema">Кінотеатри</string>
+    <string name="mcc_directory_fitness">Фітнес-клуби</string>
+    <string name="mcc_directory_doctors">Лікарі</string>
+    <string name="mcc_directory_dentists">Стоматологи</string>
+    <string name="mcc_directory_schools">Школи</string>
+    <string name="mcc_directory_universities">Університети</string>
+    <string name="mcc_directory_charity">Благодійність</string>
+    <string name="mcc_directory_fines">Штрафи</string>
+    <string name="mcc_directory_taxes">Податки</string>
+    <string name="mcc_directory_gov_services">Держпослуги</string>
+    <string name="mcc_directory_post_services">Поштові послуги</string>
+    <string name="mcc_directory_others">Різне</string>
 
     <!-- Monobank Service -->
-    <string name="monobank_service_card_format">Card %1$s %2$s</string>
-    <string name="monobank_service_jar_format">Jar: %s</string>
-    <string name="monobank_service_limit_exceeded">BANK: Limit exceeded!</string>
-    <string name="monobank_service_pause_history">Large history… Pause %d s</string>
+    <string name="monobank_service_card_format">Картка %1$s %2$s</string>
+    <string name="monobank_service_jar_format">Банка: %s</string>
+    <string name="monobank_service_limit_exceeded">БАНК: Ліміт перевищено!</string>
+    <string name="monobank_service_pause_history">Велика історія… Пауза %d с</string>
 
     <!-- Wise Service -->
     <string name="wise_service_account_name_format">Wise %s</string>
 
     <!-- Global Sync Worker -->
-    <string name="global_sync_worker_notif_title">Limit exceeded: %1$s</string>
-    <string name="global_sync_worker_notif_message">You spent %1$d out of planned %2$d %3$s</string>
+    <string name="global_sync_worker_notif_title">Перевищено ліміт: %1$s</string>
+    <string name="global_sync_worker_notif_message">Ви витратили %1$d з запланованих %2$d %3$s</string>
 
     <!-- Financial Predictions (Constants) -->
-    <string name="constants_prediction_1">Small expenses are like small leaks in a ship – they can sink it. Watch your \'Others\' category today!</string>
-    <string name="constants_prediction_2">Your financial tree loves consistency. Add a manual transaction for any cash spent today.</string>
-    <string name="constants_prediction_3">Today is a great day to review your \'Dream\' progress. You are closer than you think!</string>
-    <string name="constants_prediction_4">The best way to save money is not to spend it. Challenge: Zero spending on treats today!</string>
-    <string name="constants_prediction_5">A budget tells your money where to go instead of wondering where it went. Check your limits.</string>
-    <string name="constants_prediction_6">Invest in your future self. Your \'Safety Threshold\' is your best friend.</string>
-    <string name="constants_prediction_7">Financial peace isn\'t the acquisition of stuff. It\'s learning to live on less than you make.</string>
-    <string name="constants_prediction_8">Your future self will thank you for the coffee you didn\'t buy today. Add it to your Dream!</string>
-    <string name="constants_prediction_9">The goal is to be rich, not to look rich. Stay true to your financial plan.</string>
-    <string name="constants_prediction_10">A blooming tree starts with a single drop of water. Every cent counts today.</string>
+    <string name="constants_prediction_1">Малі витрати — як невеликі пробоїни в кораблі: вони можуть потопити його. Слідкуй за категорією «Різне» сьогодні!</string>
+    <string name="constants_prediction_2">Твоє фінансове дерево любить послідовність. Додай транзакцію вручну для будь-якої готівки, витраченої сьогодні.</string>
+    <string name="constants_prediction_3">Сьогодні чудовий день, щоб переглянути прогрес своєї «Мрії». Ти ближче, ніж думаєш!</string>
+    <string name="constants_prediction_4">Найкращий спосіб заощадити гроші — не витрачати їх. Челендж: Нуль витрат на смаколики сьогодні!</string>
+    <string name="constants_prediction_5">Бюджет каже твоїм грошам, куди йти, замість того, щоб думати, куди вони зникли. Перевір ліміти.</string>
+    <string name="constants_prediction_6">Інвестуй у майбутнього себе. Твій «Поріг безпеки» — твій найкращий друг.</string>
+    <string name="constants_prediction_7">Фінансовий спокій — це не придбання речей. Це вміння жити на менше, ніж ти заробляєш.</string>
+    <string name="constants_prediction_8">Твоє майбутнє «Я» подякує тобі за каву, яку ти не купив сьогодні. Додай ці кошти до Мрії!</string>
+    <string name="constants_prediction_9">Мета — бути багатим, а не виглядати багатим. Дотримуйся свого фінансового плану.</string>
+    <string name="constants_prediction_10">Квітуче дерево починається з однієї краплі води. Кожна копійка сьогодні має значення.</string>
 
     <!-- Export Manager Component -->
-    <string name="export_manager_pdf_statement">Financial Statement</string>
-    <string name="export_manager_pdf_generated">Generated: %s</string>
-    <string name="export_manager_pdf_summary">Summary</string>
-    <string name="export_manager_pdf_total_income">Total Income: +%s</string>
-    <string name="export_manager_pdf_total_expenses">Total Expenses: -%s</string>
-    <string name="export_manager_table_date">Date</string>
-    <string name="export_manager_table_description">Description</string>
-    <string name="export_manager_table_category">Category</string>
-    <string name="export_manager_table_amount">Amount</string>
-    <string name="export_manager_csv_summary_header">FINCENTRA SUMMARY</string>
-    <string name="export_manager_csv_label_income">Total Income</string>
-    <string name="export_manager_csv_label_expenses">Total Expenses</string>
-    <string name="export_manager_csv_col_currency">Currency</string>
-    <string name="export_manager_csv_col_type">Type</string>
-    <string name="export_manager_type_expense">Expense</string>
-    <string name="export_manager_type_income">Income</string>
+    <string name="export_manager_pdf_statement">Фінансова виписка</string>
+    <string name="export_manager_pdf_generated">Згенеровано: %s</string>
+    <string name="export_manager_pdf_summary">Резюме</string>
+    <string name="export_manager_pdf_total_income">Загальний дохід: +%s</string>
+    <string name="export_manager_pdf_total_expenses">Загальні витрати: -%s</string>
+    <string name="export_manager_table_date">Дата</string>
+    <string name="export_manager_table_description">Опис</string>
+    <string name="export_manager_table_category">Категорія</string>
+    <string name="export_manager_table_amount">Сума</string>
+    <string name="export_manager_csv_summary_header">ФІНАНСОВЕ РЕЗЮМЕ FINCENTRA</string>
+    <string name="export_manager_csv_label_income">Загальний дохід</string>
+    <string name="export_manager_csv_label_expenses">Загальні витрати</string>
+    <string name="export_manager_csv_col_currency">Валюта</string>
+    <string name="export_manager_csv_col_type">Тип</string>
+    <string name="export_manager_type_expense">Витрата</string>
+    <string name="export_manager_type_income">Дохід</string>
 </resources>
