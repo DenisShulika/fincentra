@@ -15,12 +15,12 @@ plugins {
 
 android {
     namespace = "com.denisshulika.fincentra"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.denisshulika.fincentra"
         minSdk = 31
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 7
         versionName = "2.2"
 

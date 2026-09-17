@@ -49,8 +49,8 @@ class DreamWidget : GlanceAppWidget() {
         provideContent {
             val prefs = currentState<Preferences>()
 
-            val title = prefs[PrefDreamTitle] ?: context.getString(R.string.dream_widget_no_dream)
-            val progress = prefs[PrefDreamProgress] ?: 0f
+            val title = prefs[PrefDreamTitle] ?: "A Million"
+            val progress = prefs[PrefDreamProgress] ?: 0.01f
             val emoji = prefs[PrefDreamEmoji] ?: "🚀"
 
             val progressBitmap = createCircularProgressBitmap(context, progress)

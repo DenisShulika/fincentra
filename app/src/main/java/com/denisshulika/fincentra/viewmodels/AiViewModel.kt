@@ -22,11 +22,14 @@ class AiViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
+    private var isFirstDemoClick = true
+
     fun fetchAdvice(userName: String, currentBudgets: List<BudgetProgress>) {
         if (_isLoading.value) return
 
         viewModelScope.launch {
             _isLoading.value = true
+            _adviceText.value = ""
 
             val langName = when (LanguageManager.getCurrentLanguage()) {
                 "uk" -> "Ukrainian"
@@ -91,7 +94,13 @@ class AiViewModel : ViewModel() {
             RESPONSE LANGUAGE: $langName.
         """.trimIndent()
 
-            val result = aiRepository.getAdvice(prompt)
+            val result = if (isFirstDemoClick) {
+                delay(3000)
+                isFirstDemoClick = false
+                "Your spending is outpacing your income, creating a deficit. The Transport branch is overgrown and directly impacting your A Million goal. Your financial tree is leaning. Stop non-essential purchases immediately to restore balance."
+            } else {
+                aiRepository.getAdvice(prompt)
+            }
 
             if (result == null) {
                 _adviceText.value = "ERROR_STATE"
